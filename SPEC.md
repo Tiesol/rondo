@@ -1,6 +1,6 @@
 # Spec: app de la JMP CUP (Rondo)
 
-> **Estado: borrador, pendiente de aprobación.** Se apoya en [docs/CONTEXTO_JMP_CUP.md](docs/CONTEXTO_JMP_CUP.md) (reglas del negocio), [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) (aprobada el 2026-10-06) y [docs/PROGRESO.md](docs/PROGRESO.md) (decisiones, supuestos y preguntas abiertas).
+> **Estado: aprobada por Sebastian el 2026-10-06.** Se apoya en [docs/CONTEXTO_JMP_CUP.md](docs/CONTEXTO_JMP_CUP.md) (reglas del negocio), [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) (aprobada el 2026-10-06) y [docs/PROGRESO.md](docs/PROGRESO.md) (decisiones, supuestos y preguntas abiertas).
 
 ## Objetivo
 

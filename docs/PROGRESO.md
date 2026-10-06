@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, análisis y propuesta. Todavía no hay código.
-- **Siguiente paso:** que Sebastian apruebe [SPEC.md](../SPEC.md). Después viene el plan de tareas de las fases 0 y 1 (`tasks/plan.md` y `tasks/todo.md`).
+- **Siguiente paso:** que Sebastian apruebe el plan ([tasks/plan.md](../tasks/plan.md) y [tasks/todo.md](../tasks/todo.md)). Después se empieza con T0.1.
 
 ## Hecho
 
@@ -16,12 +16,12 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-06: propuesta de arquitectura, mapa de módulos y fases en [ARQUITECTURA.md](ARQUITECTURA.md). Aprobada.
 - 2026-10-06: borrador de [SPEC.md](../SPEC.md), con el catálogo de reglas.
 - 2026-10-06: Sebastian crea el proyecto `rondo-jmp` en Neon (São Paulo, Postgres 18, sin Neon Auth).
-- 2026-10-06: repo git local con la documentación inicial. Falta el remoto privado en GitHub.
+- 2026-10-06: repo privado en GitHub (`Tiesol/rondo`) con la documentación inicial en `main`.
+- 2026-10-06: SPEC.md aprobada. Plan de las fases 0 y 1 en `tasks/`, pendiente de aprobación.
 
 ## Pendiente
 
-- [ ] Aprobar SPEC.md.
-- [ ] Escribir el plan de tareas de las fases 0 y 1.
+- [ ] Aprobar el plan de las fases 0 y 1.
 - [ ] Para la fase 0: facturación activa en la cuenta de Google Cloud de Sebastian, y el proyecto `rondo-jmp` en Neon (región São Paulo, sin las integraciones de GitHub ni de Vercel).
 - [ ] Mandar al organizador las preguntas P33 a P51.
 
