@@ -98,6 +98,13 @@ def se_pisan(a: PartidoProgramado, b: PartidoProgramado) -> bool:
 - **Lentos:** los tests que tardan más de 5 segundos llevan la marca `lento` y no bloquean el commit.
 - **Cobertura:** sin un número mínimo. Lo que se exige es que cada regla del catálogo tenga su test.
 
+## Flujo de git
+
+- **`main` es siempre estable:** pasa los tests y es lo que se despliega en la demo.
+- **Una rama por tarea:** salen de `main` con nombres como `fase-1/configuracion-modelos`. Los commits son chicos y cada uno deja los tests en verde.
+- **Un PR por rama hacia `main`:** se fusiona con *squash* después de la revisión. Las ramas fusionadas se borran.
+- **Los PR los crea Claude con `gh`, y el `push` lo hace Sebastian.** La clave SSH tiene contraseña, salvo que se cargue en el agente.
+
 ## Límites
 
 **Siempre:**
