@@ -125,7 +125,7 @@ Todo el proceso queda escrito en `docs/DESPLIEGUE.md`.
 
 - [ ] Desde tu celular Android, el PNG llega a un chat de WhatsApp y se ve nítido.
 - [ ] Desde la PC, se descarga.
-- [ ] Si es posible, también se prueba en un iPhone.
+- [ ] iPhone: no se prueba, porque no hay uno a mano. Queda como riesgo.
 
 **Verificación:** manual, con capturas anotadas en `PROGRESO.md`.
 

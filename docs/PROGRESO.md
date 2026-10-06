@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 0, análisis y propuesta. Todavía no hay código.
-- **Siguiente paso:** que Sebastian apruebe el plan ([tasks/plan.md](../tasks/plan.md) y [tasks/todo.md](../tasks/todo.md)). Después se empieza con T0.1.
+- **Fase:** 0, cimientos. Plan aprobado.
+- **Siguiente paso:** T0.1 (ver [tasks/todo.md](../tasks/todo.md)).
 
 ## Hecho
 
@@ -21,7 +21,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Pendiente
 
-- [ ] Aprobar el plan de las fases 0 y 1.
+- [ ] T0.1 a T0.7 (fase 0) y T1.1 a T1.5 (fase 1).
 - [ ] Para la fase 0: facturación activa en la cuenta de Google Cloud de Sebastian, y el proyecto `rondo-jmp` en Neon (región São Paulo, sin las integraciones de GitHub ni de Vercel).
 - [ ] Mandar al organizador las preguntas P33 a P51.
 

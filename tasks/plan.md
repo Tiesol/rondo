@@ -1,6 +1,6 @@
 # Plan de implementación: app de la JMP CUP
 
-> **Estado: pendiente de aprobación.** Se basa en [SPEC.md](../SPEC.md) (aprobada) y en [docs/ARQUITECTURA.md](../docs/ARQUITECTURA.md) (aprobada). Las tareas están en [todo.md](todo.md).
+> **Estado: aprobado por Sebastian el 2026-10-06, con las dependencias listadas.** Se basa en [SPEC.md](../SPEC.md) (aprobada) y en [docs/ARQUITECTURA.md](../docs/ARQUITECTURA.md) (aprobada). Las tareas están en [todo.md](todo.md).
 
 ## Resumen
 
@@ -93,5 +93,5 @@ T0.4 y T1.1 no dependen del deploy. Si el deploy se traba esperando tus cuentas,
 
 ## Preguntas abiertas
 
-- ¿Hay un iPhone disponible para probar el PNG? Si no, se prueba solo en Android.
+- El PNG se prueba solo en Android: no hay un iPhone a mano.
 - Las preguntas al organizador (P1 a P51) siguen abiertas. Ninguna bloquea las fases 0 y 1.
