@@ -1,0 +1,51 @@
+# --- Secretos ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credenciales*.json
+service-account*.json
+
+# --- Datos reales: nunca entran al repo (CONTEXTO, sección 11) ---------------
+# Las listas de buena fe llegan en Excel, Word, PDF o foto.
+datos/privados/
+*.xlsx
+*.xls
+*.xlsm
+*.ods
+*.docx
+*.doc
+*.odt
+*.pdf
+*.jpg
+*.jpeg
+*.heic
+*.sql
+*.dump
+
+# --- Python -------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# --- Django ---------------------------------------------------------------------
+staticfiles/
+media/
+
+# --- Herramientas -----------------------------------------------------------------
+.claude/settings.local.json
+graphify-out/
+.neon/
+.DS_Store
+.idea/
+.vscode/
