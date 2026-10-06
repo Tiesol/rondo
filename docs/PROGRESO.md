@@ -16,6 +16,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-06: propuesta de arquitectura, mapa de módulos y fases en [ARQUITECTURA.md](ARQUITECTURA.md). Aprobada.
 - 2026-10-06: borrador de [SPEC.md](../SPEC.md), con el catálogo de reglas.
 - 2026-10-06: Sebastian crea el proyecto `rondo-jmp` en Neon (São Paulo, Postgres 18, sin Neon Auth).
+- 2026-10-06: repo git local con la documentación inicial. Falta el remoto privado en GitHub.
 
 ## Pendiente
 
@@ -34,6 +35,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | La app se usa en el torneo 2026 | Suma la fase 6 (producción) después de la demo, con backups, usuarios y separación entre demo y producción |
 | 2026-10-06 | Es una app web instalable en el celular (PWA). Funciona solo con conexión | Hay buena señal en la cancha, según Sebastian. Así los datos personales no quedan guardados en los teléfonos |
 | 2026-10-06 | Todo va en cuentas de Sebastian: un proyecto dedicado en Google Cloud, con su tarjeta, y un proyecto en Neon. Se traspasan a JMP si compra la app | La idea es venderle la app a JMP; así el traspaso no obliga a volver a desplegar |
+| 2026-10-06 | No se usa la configuración de Neon para Node (`neon link`, `neon.ts`, `neon deploy`) ni su MCP | La app es Python en Cloud Run: de Neon solo hace falta la cadena de conexión |
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
 | 2026-10-06 | Una instalación por cliente: si otra organización compra la app, tiene su propio proyecto en Google Cloud y en Neon, con su facturación y el mismo código. La base no separa clientes | Por ahora el único cliente es JMP. Así el modelo de datos queda simple y cada cliente queda aislado. Nada propio de JMP va en el código: nombre, logo y colores van en la configuración |
 
