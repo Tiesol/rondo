@@ -14,6 +14,7 @@ from pydantic import ValidationError
 
 from torneo.forms.asistente import FormularioDatos, FormularioFranjas, FormularioNiveles
 from torneo.forms.reglas import FormularioReglas
+from torneo.models import Torneo
 from torneo.permisos import requiere
 from torneo.servicios.asistente import Respuestas, armar, niveles_de, plantilla
 from torneo.servicios.configuracion import cargar_configuracion
@@ -102,6 +103,18 @@ def _crear(request: HttpRequest, formulario: forms.Form, respuestas: Respuestas)
         for detalle in error.errors():
             lugar = ".".join(str(p) for p in detalle["loc"])
             formulario.add_error(None, f"{lugar}: {detalle['msg']}")
+        return render(
+            request,
+            "torneo/asistente.html",
+            {"form": formulario, "paso": len(PASOS), "pasos": [], "ultimo": True},
+        )
+    if Torneo.objects.filter(nombre=config.torneo.nombre, anio=config.torneo.anio).exists():
+        # Lo crearon mientras tanto (otra pestaña o la terminal): nunca se pisa.
+        formulario.add_error(
+            None,
+            f"Ya existe un torneo «{config.torneo.nombre}» en {config.torneo.anio}. "
+            "Vuelve al paso 1 y usa otro nombre.",
+        )
         return render(
             request,
             "torneo/asistente.html",

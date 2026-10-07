@@ -13,6 +13,7 @@ from torneo.forms.categoria import FormularioAjustes
 from torneo.models import CategoriaNivel, Torneo
 from torneo.permisos import sin_permiso
 from torneo.presentacion import nacidos_en, resumen_de_categoria
+from torneo.views.fragmentos import pide_fragmento
 
 PESTANAS = {
     "equipos": "Equipos",
@@ -74,5 +75,5 @@ def categoria(request: HttpRequest, pk: int, pestana: str) -> HttpResponse:
         "form": formulario,
         "puede_cambiar": puede_cambiar,
     }
-    plantilla = "torneo/_categoria.html" if request.htmx else "torneo/categoria.html"  # type: ignore[attr-defined]
+    plantilla = "torneo/_categoria.html" if pide_fragmento(request) else "torneo/categoria.html"
     return render(request, plantilla, contexto)

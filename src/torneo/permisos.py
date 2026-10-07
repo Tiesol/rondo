@@ -35,7 +35,8 @@ def nombre_del_rol(usuario: AbstractBaseUser | AnonymousUser) -> str:
         return ""
     if getattr(usuario, "is_superuser", False):
         return ORGANIZACION
-    grupos = set(usuario.groups.values_list("name", flat=True))  # type: ignore[attr-defined]
+    # .all() aprovecha el prefetch_related("groups") de las listas de personas.
+    grupos = {grupo.name for grupo in usuario.groups.all()}  # type: ignore[attr-defined]
     for rol in (ORGANIZACION, MESA):
         if rol in grupos:
             return rol

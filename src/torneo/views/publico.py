@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from torneo.models import CategoriaNivel, Torneo
 from torneo.presentacion import fechas_del_torneo, resumen_de_categoria
+from torneo.views.fragmentos import pide_fragmento
 
 PESTANAS = {"partidos": "Partidos", "posiciones": "Posiciones", "equipos": "Equipos"}
 
@@ -57,5 +58,5 @@ def categoria(request: HttpRequest, pk: int, categoria: int, pestana: str) -> Ht
             for clave, texto in PESTANAS.items()
         ],
     }
-    plantilla = "publico/_categoria.html" if request.htmx else "publico/categoria.html"  # type: ignore[attr-defined]
+    plantilla = "publico/_categoria.html" if pide_fragmento(request) else "publico/categoria.html"
     return render(request, plantilla, contexto)

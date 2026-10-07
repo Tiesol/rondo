@@ -324,7 +324,7 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 ## Fase 2: inscripción
 
-> **Pendiente de aprobación de Sebastian** (planificado el 2026-10-07). Nueva dependencia: `faker`, aprobada en el plan general para esta fase. Reglas del catálogo: INS-01 a INS-12.
+> Se avanza con la autorización general del 2026-10-07 (planificado el mismo día). Nueva dependencia: `faker`, aprobada en el plan general para esta fase. Reglas del catálogo: INS-01 a INS-12.
 
 ### T2.1 Dominio: normalización de documentos (INS-04)
 
