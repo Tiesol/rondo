@@ -457,9 +457,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Para 2 a 10 equipos y cada tipo de grupo, ningún cruce se repite (dos veces exactas con ida y vuelta) y nadie juega dos veces en la misma fecha (test de propiedad con hypothesis).
-- [ ] Con series de 4 y 3 cruzadas hay 4 fechas y en cada una descansa un equipo de A.
-- [ ] Dos equipos del mismo club que se cruzan juegan en la fecha 1.
+- [x] Para 2 a 10 equipos y cada tipo de grupo, ningún cruce se repite (dos veces exactas con ida y vuelta) y nadie juega dos veces en la misma fecha (test de propiedad con hypothesis).
+- [x] Con series de 4 y 3 cruzadas hay 4 fechas y en cada una descansa un equipo de A.
+- [x] Dos equipos del mismo club que se cruzan juegan en la fecha 1.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** T3.1.
