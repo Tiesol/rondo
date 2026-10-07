@@ -72,3 +72,12 @@ def test_acepta_la_direccion_que_asigna_render() -> None:
     hosts, origenes = resultado.stdout.strip().splitlines()[-2:]
     assert "rondo-demo.onrender.com" in hosts
     assert "https://rondo-demo.onrender.com" in origenes
+
+
+def test_produccion_sin_database_url_falla_con_un_mensaje_claro() -> None:
+    resultado = _manage(
+        "check",
+        entorno={"DEBUG": "false", "ALLOWED_HOSTS": "x", "SECRET_KEY": secrets.token_urlsafe(50)},
+    )
+    assert resultado.returncode != 0
+    assert "Falta la variable de entorno DATABASE_URL" in resultado.stderr

@@ -115,6 +115,22 @@ Se usó un modelo CP-SAT sintético con la forma del real (T0.6): canchas con mi
 - **Para el torneo real de 2026, 0,1 CPU queda corto** si hay que reprogramar rápido con el calendario lleno. Antes de la fase 6 hay que decidir entre Render Starter (0,5 CPU, de pago) y Cloud Run, si la cuenta queda en regla.
 - La imagen pesa 1 GB, por OR-Tools, pandas y numpy. El build de Render tarda más, pero no hay límite que lo impida.
 
+## Revisión de la fase 0 (2026-10-07, `code-review-and-quality`)
+
+**Veredicto: aprobada.** El código es chico y sigue la spec. Quedan pendientes la prueba del PNG en Android y el visto bueno de Sebastian.
+
+**Corregido en la revisión:**
+
+- **Hook:** ningún test verificaba que `.env.example` pasara. Una mutación que lo bloqueaba seguía en verde, así que se agregó ese test.
+- **Settings:** sin `DATABASE_URL`, el error era confuso (`Scheme '://' is unknown`). Ahora dice "Falta la variable de entorno DATABASE_URL", con su test.
+- **Mutación comprobada:** quitar el `strip()` del login la detectan los tests.
+
+**Pendiente para fases siguientes:**
+
+- **Datos personales en los logs (fase 2, obligatorio):** los errores de Postgres incluyen los valores. Una violación de unicidad del CI dejaría el número en el log ("Key (ci)=(…) already exists"). Los duplicados de CI se validan antes de guardar, y se agrega un filtro de logs que no deje pasar el texto de errores de la base.
+- **Roles (antes de la fase 6):** `crear_usuario` hace staff a todos, y con eso la mesa de control podría editar la configuración en el admin. Hace falta un usuario de mesa sin staff.
+- **FYI:** `django-tailwind-cli` descarga el ejecutable oficial de Tailwind desde GitHub durante el build, y nosotros no verificamos su checksum. La imagen pesa 1 GB, por OR-Tools, pandas y numpy.
+
 ## Supuestos
 
 Valores que no están en el contexto. Quedan como configuración:

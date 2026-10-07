@@ -40,11 +40,12 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 
 **Checkpoint de la fase 0:**
 
-- [ ] Tests, mypy y ruff en verde.
-- [ ] Entras con login a la URL de Cloud Run desde el celular.
+- [x] Tests, mypy y ruff en verde.
+- [x] Entras con login a la URL de la demo (Render) desde el celular.
 - [x] Están medidos los tiempos del solver con los límites de Render (H6 en PROGRESO.md).
 - [ ] El PNG se compartió por WhatsApp desde tu celular. Si falla, se pasa al plan B con Pillow.
-- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+- [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
+- [ ] Tu visto bueno.
 
 ### Fase 1: configuración (día 1, tarde)
 
