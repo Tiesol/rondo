@@ -393,9 +393,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] El organizador crea un equipo eligiendo club, categoría-nivel, nombre visible y colores.
-- [ ] La lista muestra cuántos jugadores tiene cada equipo y marca los que están por debajo del mínimo.
-- [ ] Se ve bien a 360 px.
+- [x] El organizador crea un equipo eligiendo club, categoría-nivel, nombre visible y colores.
+- [x] La lista muestra cuántos jugadores tiene cada equipo y marca los que están por debajo del mínimo.
+- [x] Se ve bien a 360 px.
 
 **Verificación:** verde, con tests de vistas, más capturas a 360 px.
 **Depende de:** T2.3.

@@ -422,6 +422,61 @@
     font: 600 11px/1 var(--font-sans);
   }
 
+  /* ---------- Equipos ---------- */
+  .escudo {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-azul);
+    color: var(--color-sobre-azul);
+    font: 14px/1 var(--font-titulo);
+    letter-spacing: 0.04em;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+  }
+  .escudo.ch {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+  .escudo.gr {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+  .cab-equipo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .cab-equipo h2 {
+    font: 32px/1 var(--font-titulo);
+    letter-spacing: 0.03em;
+  }
+  .marcas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .dorsal {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-control);
+    background: var(--color-superficie-2);
+    font: 18px var(--font-titulo);
+  }
+  .dorsal.falta {
+    background: var(--color-aviso-suave);
+    color: var(--color-aviso);
+    font: 600 11px var(--font-sans);
+  }
+
   /* ---------- Botones: una acción principal por pantalla ---------- */
   .btn {
     display: inline-flex;

@@ -2,7 +2,8 @@
 
 from django.utils.formats import date_format
 
-from torneo.models import CategoriaNivel, Torneo
+from torneo.colores import texto_sobre
+from torneo.models import CategoriaNivel, Equipo, Torneo
 
 
 def fechas_del_torneo(torneo: Torneo) -> str:
@@ -30,3 +31,22 @@ def resumen_de_categoria(categoria: CategoriaNivel) -> str:
         f"{categoria.modalidad} · {categoria.min_jugadores} a {categoria.max_jugadores} "
         f"jugadores · turno de {categoria.minutos_turno} min · nacidos en {nacidos_en(categoria)}"
     )
+
+
+def sigla_de_equipo(nombre: str) -> str:
+    """ "River Plate" da "RIV"; "De Taquito", "DT": la primera palabra si es larga."""
+    palabras = nombre.split()
+    if not palabras:
+        return ""
+    if len(palabras[0]) >= 3:
+        return palabras[0][:3].upper()
+    return "".join(p[0] for p in palabras[:3]).upper()
+
+
+def escudo(equipo: Equipo) -> dict[str, str]:
+    """Lo que necesita parciales/escudo.html: sigla y colores (o los del tema)."""
+    return {
+        "sigla": sigla_de_equipo(equipo.nombre),
+        "color": equipo.color_1,
+        "texto": texto_sobre(equipo.color_1) if equipo.color_1 else "",
+    }

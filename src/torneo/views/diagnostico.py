@@ -111,5 +111,6 @@ def componentes(request: HttpRequest) -> HttpResponse:
             "filas": FILAS_DE_MUESTRA,
             "pestanas": pestanas,
             "form": FormularioDeMuestra({"nombre": "JMP CUP 2026", "edicion": "0"}),
+            "escudo_muestra": {"sigla": "RIV", "color": "", "texto": ""},
         },
     )

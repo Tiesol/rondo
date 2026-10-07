@@ -58,7 +58,11 @@ class Equipo(models.Model):
         ordering = ["categoria", "nombre"]
         constraints = [
             models.UniqueConstraint(
-                fields=["club", "categoria", "nombre"], name="equipo_unico_por_club_y_categoria"
+                fields=["club", "categoria", "nombre"],
+                name="equipo_unico_por_club_y_categoria",
+                violation_error_message=(
+                    "Ya hay un equipo con ese nombre, de ese club, en esa categoría."
+                ),
             )
         ]
 

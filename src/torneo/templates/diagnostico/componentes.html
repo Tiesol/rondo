@@ -17,6 +17,15 @@
 </div>
 
 <div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Escudos" nota="Provisorios: sigla y color" %}
+  <div class="flex items-center gap-2">
+    {% include "parciales/escudo.html" with escudo=escudo_muestra tamano="gr" %}
+    {% include "parciales/escudo.html" with escudo=escudo_muestra %}
+    {% include "parciales/escudo.html" with escudo=escudo_muestra tamano="ch" %}
+  </div>
+</div>
+
+<div class="seccion">
   {% include "parciales/seccion_cab.html" with titulo="Chips" nota="Siempre con texto" %}
   <div class="flex flex-wrap gap-2">
     {% include "parciales/chip.html" with texto="13 de 14 jugadores" estado="bien" %}

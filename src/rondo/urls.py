@@ -2,7 +2,17 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
-from torneo.views import asistente, categoria, diagnostico, escuela, inicio, mas, reglas, torneo
+from torneo.views import (
+    asistente,
+    categoria,
+    diagnostico,
+    equipos,
+    escuela,
+    inicio,
+    mas,
+    reglas,
+    torneo,
+)
 from torneo.views import publico as vistas_publicas
 from torneo.views.publicar import publicar
 
@@ -11,7 +21,9 @@ urlpatterns = [
     path("mas/", mas, name="mas"),
     path("escuela/", escuela, name="escuela"),
     path("torneo/", torneo, name="torneo"),
+    path("torneo/<int:pk>/equipos/nuevo/", equipos.nuevo_equipo, name="nuevo-equipo"),
     path("torneo/<int:pk>/<str:pestana>/", categoria, name="categoria"),
+    path("equipos/<int:pk>/<str:seccion>/", equipos.equipo, name="equipo"),
     path("torneos/nuevo/", asistente.empezar, name="crear-torneo"),
     path("torneos/nuevo/<int:paso>/", asistente.asistente, name="asistente"),
     path("torneos/<int:pk>/reglas/", reglas, name="reglas"),

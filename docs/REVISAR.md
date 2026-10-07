@@ -38,3 +38,6 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R26 | T2.3 | El catálogo de clubes se carga en la demo con `manage.py cargar_clubes` (como `cargar_config`, lo corres tú contra la rama `demo`) | — |
 | R27 | T2.4 | Si se carga un documento que ya existe con otro nombre o fecha de nacimiento, valen los datos guardados y se muestra un aviso con el nombre guardado | Lo más probable es un error de tipeo en la segunda carga. Corregir los datos de una persona queda para la ficha del jugador |
 | R28 | T2.4 | A dos personas sin documento no se las puede reconocer como la misma: un jugador sin CI podría quedar en dos equipos sin aviso | El CI es obligatorio antes del primer partido (P39), y ahí se detecta |
+| R29 | T2.5 | El escudo de cada equipo es provisorio: la sigla (las 3 primeras letras) en el color de la camiseta. Los escudos reales llegan con las imágenes | Decisión del 2026-10-07: imágenes para después |
+| R30 | T2.5 | Todavía no se puede editar ni borrar un equipo desde las pantallas (solo crearlo); hoy se hace en el admin | Se suma cuando haga falta; cargar bien es lo primero |
+| R31 | T2.5 | La mesa de control también crea equipos (no solo listas) | Los roles acordados dicen "cargar equipos y listas" |

@@ -1,0 +1,2 @@
+{# Escudo provisorio: la sigla del equipo en su color. Parámetros: escudo (sigla, color, texto) y tamano ("ch" o "gr"). #}
+<span class="escudo{% if tamano %} {{ tamano }}{% endif %}"{% if escudo.color %} style="background: {{ escudo.color }}; color: {{ escudo.texto }}"{% endif %} aria-hidden="true">{{ escudo.sigla }}</span>

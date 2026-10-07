@@ -13,9 +13,30 @@
 
   <div class="seccion">
   {% if pestana == "equipos" %}
+    {% url "nuevo-equipo" categoria.pk as url_nuevo %}
+    {% if perms.torneo.inscribir_equipos %}
+    {% include "parciales/seccion_cab.html" with titulo="Equipos" accion="Agregar equipo" accion_url=url_nuevo %}
+    {% else %}
+    {% include "parciales/seccion_cab.html" with titulo="Equipos" %}
+    {% endif %}
+    {% if equipos %}
+    <ul class="lista">
+      {% for fila in equipos %}
+      <li>
+        <a class="fila" href="{{ fila.url }}">
+          {% include "parciales/escudo.html" with escudo=fila.escudo %}
+          <span class="crece"><strong>{{ fila.equipo.nombre }}</strong><span class="sub num">{{ fila.sub }}</span></span>
+          {% if fila.chip %}{% include "parciales/chip.html" with texto=fila.chip estado="aviso" %}{% endif %}
+          {% include "parciales/icono.html" with nombre="chevron" clase="chev" %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
     {% with titulo="Todavía no hay equipos en "|add:nombre %}
-    {% include "parciales/vacio.html" with icono="personas" titulo=titulo texto="La carga de equipos y listas llega en la próxima etapa." %}
+    {% include "parciales/vacio.html" with icono="personas" titulo=titulo texto="Agrega el primero: el club se elige del catálogo." %}
     {% endwith %}
+    {% endif %}
   {% elif pestana == "fixture" %}
     {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay fixture" texto="Se arma cuando estén inscritos los equipos." %}
   {% elif pestana == "posiciones" %}
