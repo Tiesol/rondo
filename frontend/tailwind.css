@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+/* Plantillas donde Tailwind busca las clases que usamos. */
+@source "../src";

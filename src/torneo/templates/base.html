@@ -1,0 +1,34 @@
+{% load static tailwind_cli %}<!doctype html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Rondo{% endblock %} · JMP CUP</title>
+  {% tailwind_css %}
+  <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
+</head>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  {% if user.is_authenticated %}
+  <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <nav class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3" aria-label="Principal">
+      <a href="{% url 'inicio' %}" class="flex items-center gap-2 font-semibold tracking-tight">
+        <span class="grid size-8 place-items-center rounded-lg bg-emerald-600 text-sm font-bold text-white" aria-hidden="true">R</span>
+        <span>Rondo</span>
+      </a>
+      <div class="flex items-center gap-1 text-sm">
+        {% if user.is_staff %}
+        <a href="{% url 'admin:index' %}" class="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-emerald-600">Configuración</a>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-emerald-600">Salir</button>
+        </form>
+      </div>
+    </nav>
+  </header>
+  {% endif %}
+  <main class="mx-auto max-w-5xl px-4 py-6">
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>

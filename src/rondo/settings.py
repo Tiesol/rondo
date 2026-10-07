@@ -7,6 +7,7 @@ import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
 RAIZ = Path(__file__).resolve().parents[2]
+BASE_DIR = RAIZ  # lo usa django-tailwind-cli
 
 
 def _lista(nombre: str) -> list[str]:
@@ -30,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_htmx",
+    "django_tailwind_cli",
     "torneo",
 ]
 
@@ -40,6 +42,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Toda vista pide login salvo que se marque con @login_not_required (SPEC, "Límites").
+    "django.contrib.auth.middleware.LoginRequiredMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
@@ -84,6 +88,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [RAIZ / "assets"]
 STATIC_ROOT = RAIZ / "staticfiles"
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
@@ -91,6 +96,15 @@ STORAGES = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "inicio"
+LOGOUT_REDIRECT_URL = "login"
+
+# Tailwind se compila con su ejecutable propio (sin Node). La salida va a assets/css/,
+# que no entra al repo: se genera con `manage.py tailwind build`.
+TAILWIND_CLI_SRC_CSS = "frontend/tailwind.css"
+TAILWIND_CLI_DIST_CSS = "css/tailwind.css"
 
 # Logs a la salida estándar (Cloud Logging los toma de ahí). Nunca se registran cuerpos
 # de requests ni formularios: pueden tener datos personales de menores.
