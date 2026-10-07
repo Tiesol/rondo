@@ -1,0 +1,18 @@
+# Blueprint de Render para la demo (plan gratuito). Ver docs/DESPLIEGUE.md.
+services:
+  - type: web
+    name: rondo-demo
+    runtime: docker
+    plan: free
+    # Cerca de la base de Neon (AWS us-east-1, N. Virginia).
+    region: virginia
+    branch: main
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false # se pega en el panel de Render al crear el servicio; nunca en el repo
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"

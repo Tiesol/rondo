@@ -72,33 +72,28 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Archivos:** `src/dominio/__init__.py`, `tests/test_arquitectura.py`, `scripts/hooks/pre-commit`.
 **Tamaño:** S.
 
-### T0.5 Deploy repetible en Cloud Run con Neon (demo)
+### T0.5 Deploy repetible en Render con Neon (demo)
 
-**Descripción:** crear el `Dockerfile` (python:3.14-slim, uv, collectstatic y gunicorn) y `scripts/desplegar.sh demo`, que:
+> Cambio del 2026-10-07: la demo va en Render porque la cuenta de Google Cloud quedó bloqueada. La imagen Docker sirve para los dos.
 
-1. construye la imagen;
-2. corre las migraciones como un Cloud Run Job;
-3. despliega en `southamerica-east1` con máximo 1 instancia, secretos de Secret Manager y alertas de presupuesto ya creadas.
+**Descripción:** crear el `Dockerfile` (python:3.14-slim, uv, Tailwind, collectstatic y gunicorn), el script de arranque (migraciones y gunicorn) y el `render.yaml`. Con eso, cada merge a `main` despliega solo. Todo el proceso queda escrito en `docs/DESPLIEGUE.md`.
 
-Todo el proceso queda escrito en `docs/DESPLIEGUE.md`.
+**Pasos tuyos (en DESPLIEGUE.md):**
 
-**Pasos tuyos (los guío en el momento):**
-
-1. Instalar `gcloud` y hacer `gcloud auth login`.
-2. Crear el proyecto `rondo-jmp` en Google Cloud y vincularle la facturación.
-3. Crear la rama `demo` en Neon.
-4. Cargar la cadena de conexión de esa rama en Secret Manager, con el comando que te paso. Nunca por el chat.
+1. Rehacer el proyecto de Neon en N. Virginia y crear la rama `demo`.
+2. Crear el Blueprint en Render y pegar ahí la cadena de conexión. Nunca por el chat.
+3. Crear el primer usuario desde tu terminal.
 
 **Aceptación:**
 
-- [ ] `./scripts/desplegar.sh demo` deja la app funcionando, y correrlo de nuevo no rompe nada.
-- [ ] Entras con login a la URL `*.run.app` desde el celular.
-- [ ] Están creadas las alertas a los 1, 3 y 5 USD, y hay máximo 1 instancia.
+- [x] La imagen se construye y corre en modo producción contra Postgres local: redirige a HTTPS, el login responde, el CSS se sirve y usa unos 70 MB de RAM.
+- [ ] Render despliega desde `main` sin pasos a mano.
+- [ ] Entras con login a la URL `*.onrender.com` desde el celular.
 
-**Verificación:** manual desde el celular, más `gcloud run services describe` para confirmar la región, la cantidad de instancias y los secretos.
+**Verificación:** `docker build` y `docker run` en local (hecho), más la prueba manual desde el celular.
 
 **Depende de:** T0.3.
-**Archivos:** `Dockerfile`, `.dockerignore`, `scripts/desplegar.sh`, `docs/DESPLIEGUE.md`.
+**Archivos:** `Dockerfile`, `.dockerignore`, `scripts/arrancar.sh`, `render.yaml`, `src/rondo/settings.py`, `docs/DESPLIEGUE.md`.
 **Tamaño:** M.
 
 ### T0.6 Prueba de riesgo: OR-Tools en Cloud Run
@@ -108,8 +103,8 @@ Todo el proceso queda escrito en `docs/DESPLIEGUE.md`.
 **Aceptación:**
 
 - [ ] En local, el modelo sintético encuentra una solución factible.
-- [ ] En Cloud Run, quedan anotados en `PROGRESO.md` el tiempo hasta la primera solución y el estado final, con 1 y 2 vCPU.
-- [ ] Queda decidido el tamaño de la instancia.
+- [ ] En Render, quedan anotados en `PROGRESO.md` el tiempo hasta la primera solución, el estado final y la memoria usada.
+- [ ] Queda decidido si Render alcanza para la demo o si hace falta Google Cloud antes.
 
 **Verificación:** un test chico del modelo sintético (rápido), más la medición en la nube.
 
@@ -129,7 +124,7 @@ Todo el proceso queda escrito en `docs/DESPLIEGUE.md`.
 
 **Verificación:** manual, con capturas anotadas en `PROGRESO.md`.
 
-**Depende de:** T0.5. La Web Share API exige HTTPS, así que se prueba en Cloud Run.
+**Depende de:** T0.5. La Web Share API exige HTTPS, así que se prueba en Render.
 **Archivos:** `src/torneo/templates/diagnostico/png.html`, `src/torneo/static/js/exportar.js`, `src/torneo/views/diagnostico.py`.
 **Tamaño:** S.
 

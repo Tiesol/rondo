@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T0.5, el deploy en Cloud Run. Necesita la cuenta de Google Cloud de Sebastian lista (ver [tasks/todo.md](../tasks/todo.md)). Mientras tanto se puede avanzar con T1.1 en local.
+- **Siguiente paso:** T0.5 en Render. Faltan los pasos de Sebastian en Neon y Render, según [DESPLIEGUE.md](DESPLIEGUE.md).
 
 ## Hecho
 
@@ -44,8 +44,11 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
 | 2026-10-06 | Tailwind CSS v4 en lugar de Pico CSS | Que la interfaz se vea bien es una prioridad, y Tailwind da control total del diseño, incluido el que pase el organizador (P32). Se compila sin Node |
 | 2026-10-06 | Tailwind se compila con `django-tailwind-cli`, que descarga el ejecutable oficial (sin Node). El CSS generado no entra al repo: se compila en local y en el Docker | Aprobado por Sebastian |
+| 2026-10-07 | Claude fusiona los PR con `gh` sin preguntar, si pasan los tests | Autorizado por Sebastian, para no frenar el avance |
 | 2026-10-07 | Los PR se fusionan con merge commit, no con squash | Los PR van encadenados; con squash, el siguiente choca con las líneas que tocaron los dos |
 | 2026-10-07 | El proyecto de Google Cloud `rondo-jmp` queda sin organización | Para traspasarlo a JMP alcanza con agregarlos como dueños y cambiar la facturación |
+| 2026-10-07 | La demo va en Render (gratis, Virginia), y la base se rehace en Neon N. Virginia | La cuenta de facturación de Google Cloud quedó cerrada y bloqueada por un cobro rechazado de la tarjeta, y reabrirla requiere soporte. Render no pide tarjeta. La app y la base van en la misma región. Cloud Run sigue como destino cuando la cuenta esté en regla: es la misma imagen Docker |
+| 2026-10-07 | Las migraciones corren al arrancar el contenedor, no como un Job aparte | Hay una sola instancia, y el plan gratuito de Render no tiene comando previo al deploy |
 | 2026-10-06 | Una instalación por cliente: si otra organización compra la app, tiene su propio proyecto en Google Cloud y en Neon, con su facturación y el mismo código. La base no separa clientes | Por ahora el único cliente es JMP. Así el modelo de datos queda simple y cada cliente queda aislado. Nada propio de JMP va en el código: nombre, logo y colores van en la configuración |
 
 ## Hallazgos
