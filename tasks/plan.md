@@ -63,7 +63,25 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
 - [ ] Tu visto bueno.
 
-### Fases 2 a 6: se detallan al llegar
+### Fase 2: inscripción (día 2)
+
+> Pendiente de aprobación de Sebastian. El detalle está en [todo.md](todo.md).
+
+- [ ] T2.1 Dominio: normalización de documentos (INS-04)
+- [ ] T2.2 Dominio: validaciones de inscripción (INS-02, 03, 05 a 10)
+- [ ] T2.3 Modelos de inscripción, y datos personales fuera de los logs
+- [ ] T2.4 Servicio de inscripción
+- [ ] T2.5 Pantallas: equipos
+- [ ] T2.6 Pantallas: jugadores y cuerpo técnico, con avisos en vivo
+- [ ] T2.7 Generador de datos de demo
+
+**Checkpoint de la fase 2:**
+
+- [ ] Se cumplen los criterios de inscripción de la sección 10, con un test por regla INS.
+- [ ] La demo tiene unos 80 equipos inventados, y ningún dato personal aparece en los logs.
+- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+
+### Fases 3 a 6: se detallan al llegar
 
 | Fase | Tareas previstas |
 |---|---|
