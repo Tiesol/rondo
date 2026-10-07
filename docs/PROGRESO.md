@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T0.1 (ver [tasks/todo.md](../tasks/todo.md)).
+- **Siguiente paso:** T0.2 (ver [tasks/todo.md](../tasks/todo.md)). Pendiente: decidir entre Pico CSS y Tailwind antes de T0.3.
 
 ## Hecho
 
@@ -18,6 +18,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-06: Sebastian crea el proyecto `rondo-jmp` en Neon (São Paulo, Postgres 18, sin Neon Auth).
 - 2026-10-06: repo privado en GitHub (`Tiesol/rondo`) con la documentación inicial en `main`.
 - 2026-10-06: SPEC.md aprobada. Plan de las fases 0 y 1 en `tasks/`, pendiente de aprobación.
+- 2026-10-06: T0.1 lista: uv con Python 3.14.7, Django 6.1.2, Pydantic 2.13 y Postgres 18.6 local. Pasan los tests, mypy y ruff.
 
 ## Pendiente
 

@@ -10,9 +10,9 @@
 
 **Aceptación:**
 
-- [ ] `uv sync` instala todo con Python 3.14.
-- [ ] `docker compose up -d db` levanta Postgres 18 y responde.
-- [ ] Un test de humo pasa, y mypy y ruff quedan en verde.
+- [x] `uv sync` instala todo con Python 3.14.
+- [x] `docker compose up -d db` levanta Postgres 18 y responde.
+- [x] Un test de humo pasa, y mypy y ruff quedan en verde.
 
 **Verificación:** verde, más `docker compose ps` con la base sana.
 
