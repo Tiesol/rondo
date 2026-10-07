@@ -378,9 +378,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Agregar a alguien que ya está en otro equipo del mismo club, en otra categoría, guarda y devuelve el aviso de INS-05.
-- [ ] Con un error (por ejemplo, edad o el máximo), no se guarda nada.
-- [ ] La misma persona escrita como `1234567 SC` y `1234567` es una sola Persona.
+- [x] Agregar a alguien que ya está en otro equipo del mismo club, en otra categoría, guarda y devuelve el aviso de INS-05.
+- [x] Con un error (por ejemplo, edad o el máximo), no se guarda nada.
+- [x] La misma persona escrita como `1234567 SC` y `1234567` es una sola Persona.
 
 **Verificación:** verde.
 **Depende de:** T2.2 y T2.3.
