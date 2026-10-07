@@ -102,7 +102,7 @@ def se_pisan(a: PartidoProgramado, b: PartidoProgramado) -> bool:
 
 - **`main` es siempre estable:** pasa los tests y es lo que se despliega en la demo.
 - **Una rama por tarea:** salen de `main` con nombres como `fase-1/configuracion-modelos`. Los commits son chicos y cada uno deja los tests en verde.
-- **Un PR por rama hacia `main`:** se fusiona con *squash* después de la revisión. Las ramas fusionadas se borran.
+- **Un PR por rama hacia `main`:** se fusiona con un *merge commit*, no con *squash*, después de la revisión. Las ramas fusionadas se borran. Los PR suelen ir encadenados, y con *squash* el PR siguiente choca con las líneas que tocaron los dos.
 - **Los PR los crea Claude con `gh`, y el `push` lo hace Sebastian.** La clave SSH tiene contraseña, salvo que se cargue en el agente.
 
 ## Límites

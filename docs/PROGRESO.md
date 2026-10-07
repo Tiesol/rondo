@@ -21,7 +21,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-06: T0.1 lista: uv con Python 3.14.7, Django 6.1.2, Pydantic 2.13 y Postgres 18.6 local. Pasan los tests, mypy y ruff.
 - 2026-10-06: T0.2 lista: proyecto Django con settings por variables de entorno. `check --deploy` sin advertencias en modo producción, y sin `SECRET_KEY` no arranca.
 - 2026-10-06: T0.3 lista: login obligatorio en toda la app, plantilla base con Tailwind 4.3 y HTMX 2.0.4, y comando `crear_usuario`, que valida la clave y no la muestra. Login revisado a 360 px. Falta mirar el inicio en un celular real.
-- 2026-10-06: PR #1 (T0.1) y PR #2 (T0.2) abiertos en GitHub.
+- 2026-10-07: PR #1 a #4 (T0.1 a T0.4) fusionados en `main` con merge commits. `main` queda con la fase 0 hasta T0.4.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
@@ -44,6 +44,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
 | 2026-10-06 | Tailwind CSS v4 en lugar de Pico CSS | Que la interfaz se vea bien es una prioridad, y Tailwind da control total del diseño, incluido el que pase el organizador (P32). Se compila sin Node |
 | 2026-10-06 | Tailwind se compila con `django-tailwind-cli`, que descarga el ejecutable oficial (sin Node). El CSS generado no entra al repo: se compila en local y en el Docker | Aprobado por Sebastian |
+| 2026-10-07 | Los PR se fusionan con merge commit, no con squash | Los PR van encadenados; con squash, el siguiente choca con las líneas que tocaron los dos |
+| 2026-10-07 | El proyecto de Google Cloud `rondo-jmp` queda sin organización | Para traspasarlo a JMP alcanza con agregarlos como dueños y cambiar la facturación |
 | 2026-10-06 | Una instalación por cliente: si otra organización compra la app, tiene su propio proyecto en Google Cloud y en Neon, con su facturación y el mismo código. La base no separa clientes | Por ahora el único cliente es JMP. Así el modelo de datos queda simple y cada cliente queda aislado. Nada propio de JMP va en el código: nombre, logo y colores van en la configuración |
 
 ## Hallazgos
