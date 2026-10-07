@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** que Sebastian revise el prototipo 2 (mismo enlace) y pase las imágenes (logo, patrocinadores y escudos) y capturas de la página de Copa Fácil. Con eso se replanifica: pantallas propias en Django, siguiendo `docs/DISENO.md`, antes de la fase 2.
+- **Siguiente paso:** que Sebastian apruebe la fase 1b (TU.1 a TU.7 en `tasks/todo.md`) y responda P54 (grupos con muchos equipos). Siguen pendientes las imágenes y las capturas de Copa Fácil.
 
 ## Hecho
 
@@ -54,6 +54,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
 | 2026-10-06 | Tailwind CSS v4 en lugar de Pico CSS | Que la interfaz se vea bien es una prioridad, y Tailwind da control total del diseño, incluido el que pase el organizador (P32). Se compila sin Node |
 | 2026-10-06 | Tailwind se compila con `django-tailwind-cli`, que descarga el ejecutable oficial (sin Node). El CSS generado no entra al repo: se compila en local y en el Docker | Aprobado por Sebastian |
+| 2026-10-07 | Sin barra de avance en Inicio (configurado, inscripción, etc.); se quedan los pendientes | No le gustó a Sebastian |
+| 2026-10-07 | Antes de la inscripción va una fase de pantallas propias (1b) que reemplaza al admin | La interfaz es una prioridad, y la inscripción se construye sobre esas pantallas |
 | 2026-10-07 | La página pública entra en la demo, en una versión simple: partidos por día, posiciones y equipos, sin login y sin datos personales (P53) | Sebastian quiere que familias y clubes la vean como en Copa Fácil |
 | 2026-10-07 | Interfaz con la identidad de la JMP CUP (azul marino y dorado), listas en lugar de tarjetas y contrato de diseño en `docs/DISENO.md` | El prototipo 1 se rechazó por feo, por tener demasiadas tarjetas y por usar un verde inventado |
 | 2026-10-07 | El logo del organizador queda para la fase 5, con el diseño del PNG (P32) | El disco de Render gratis se borra en cada reinicio: una imagen subida se perdería. Hay que guardarla en la base o en un almacenamiento externo |
@@ -208,6 +210,7 @@ Valores que no están en el contexto. Quedan como configuración:
 | P51 | ¿Cuántas listas se esperan en 2026 y quién las carga? A mano son unos 1.700 jugadores | La organización las carga con el formulario. Si no alcanza el tiempo, se agrega pegar filas copiadas de Excel |
 | P52 | ¿Hace falta guardar fotos de los jugadores? Son datos personales de menores | No, hasta que se confirme y se defina quién las ve |
 | P53 | ¿La página pública (calendario, fixture y posiciones sin login, como Copa Fácil) entra en la demo o queda para después? | **Respondida por Sebastian:** entra una versión simple, solo de lectura, sin datos personales |
+| P54 | Con muchos equipos (por ejemplo, 24 en Sub 15) la categoría se divide en grupos A y B, y los mejores se cruzan después. ¿Desde cuántos equipos se divide, en cuántos grupos y de qué tamaño? ¿Todos contra todos dentro del grupo? ¿Cuántos pasan de cada grupo y cómo sigue (cuartos, semis, final)? | Configurable en `formatos.json`. Mientras no se responda, con más de 10 equipos la app avisa que falta el formato (P27) |
 
 ## Planes gratuitos (revisados el 2026-10-06)
 

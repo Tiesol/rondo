@@ -214,6 +214,114 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Archivos:** `src/torneo/admin.py`, `src/torneo/models/sitio.py`, migración, `tests/torneo/test_admin.py`.
 **Tamaño:** M.
 
+## Fase 1b: pantallas propias
+
+> **Pendiente de aprobación de Sebastian** (planificado el 2026-10-07). Reemplaza al admin de Django como pantalla del organizador, siguiendo `docs/DISENO.md` y el prototipo (https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a). El admin queda solo para Sebastian, en `/admin/`. No agrega dependencias.
+
+### TU.1 Base visual: tokens, plantilla y navegación
+
+**Descripción:** pasar los tokens de `DISENO.md` a Tailwind (azul marino, dorado, colores de estado, Bebas Neue y Figtree, con las fuentes copiadas en `static/` y sin Google). Armar los parciales de plantilla (sección, lista, fila, chip, botón, pestañas, banda, hoja inferior, aviso y estado vacío) y la plantilla base: barra superior azul, barra inferior en el celular y barra lateral desde 900 px, y modo claro y oscuro. El enlace al admin sale del menú.
+
+**Aceptación:**
+
+- [ ] Inicio, login y una página de ejemplo con todos los parciales se ven como el prototipo a 360 px y a 1024 px, en claro y en oscuro (capturas).
+- [ ] Se navega todo con el teclado, con el foco visible en dorado.
+- [ ] Ningún color está escrito a mano en las plantillas: todos salen de los tokens.
+
+**Verificación:** verde, más capturas a 360 y 1024 px.
+**Depende de:** nada.
+**Archivos:** `frontend/tailwind.css`, `src/torneo/static/fuentes/`, `src/torneo/templates/base.html`, `src/torneo/templates/parciales/`, `tests/torneo/test_base.py`.
+**Tamaño:** M.
+
+### TU.2 Roles: Organización y Mesa de control
+
+**Descripción:** crear los grupos "Organización" (todo) y "Mesa de control" (equipos, listas, verificar y ver el calendario) con sus permisos, en una migración de datos. Agregar un control de acceso para las vistas, que muestra "Solo la organización puede…" en lugar de un error genérico. `crear_usuario` recibe `--rol organizacion|mesa`. La pantalla "Más" muestra las personas y su rol.
+
+**Aceptación:**
+
+- [ ] La mesa no entra a crear torneo, reglas ni programar: ve el aviso del rol y recibe un 403.
+- [ ] La organización entra a todo.
+- [ ] `crear_usuario --rol mesa` crea un usuario sin staff y dentro de su grupo.
+
+**Verificación:** verde, con tests de permisos por vista.
+**Depende de:** TU.1.
+**Archivos:** migración de datos, `src/torneo/permisos.py`, `crear_usuario.py`, vistas y plantilla de "Más", `tests/torneo/test_roles.py`.
+**Tamaño:** M.
+
+### TU.3 Reglas del torneo con interruptores
+
+**Descripción:** cada campo de `dominio.config.Reglas` recibe un título, una ayuda en español y su P#, como metadatos del modelo de Pydantic. Con eso, un formulario de Django se arma solo: interruptores para los sí/no, botones + y − para los números y listas para las opciones. Reemplaza el JSON del admin.
+
+**Aceptación:**
+
+- [ ] Todas las reglas se editan sin JSON, con su explicación y su P#.
+- [ ] Un valor inválido muestra el error en el campo, y no se guarda nada.
+- [ ] Agregar una regla nueva al dominio la hace aparecer en la pantalla sin tocar la plantilla.
+
+**Verificación:** verde, más una captura.
+**Depende de:** TU.2.
+**Archivos:** `src/dominio/config.py`, `src/torneo/forms/reglas.py`, la vista y plantilla de reglas, `tests/torneo/test_reglas_pantalla.py`.
+**Tamaño:** M.
+
+### TU.4 Crear torneo con el asistente
+
+**Descripción:** el asistente de 4 pasos del prototipo (datos, categorías, canchas y horarios, y reglas) parte de la plantilla `jmp_cup_2026.json` y termina llamando al servicio `cargar_configuracion`. Reemplaza el comando de terminal para el organizador.
+
+**Aceptación:**
+
+- [ ] Con la plantilla y sin cambiar nada, crea lo mismo que `cargar_config`: 23 categorías-nivel, 5 canchas y 15 franjas.
+- [ ] Destildar una categoría o cambiar un horario se refleja en el torneo creado.
+- [ ] Volver atrás no pierde lo cargado en los pasos anteriores.
+
+**Verificación:** verde, con un test de punta a punta del asistente.
+**Depende de:** TU.3.
+**Archivos:** las vistas, formularios y plantillas del asistente, `tests/torneo/test_asistente.py`.
+**Tamaño:** M.
+
+### TU.5 Inicio y Torneo
+
+**Descripción:** Inicio muestra el torneo activo, los **pendientes** (sin barra de avance; por ahora, lo que se puede saber sin equipos: categorías sin equipos o preguntas P sin responder que afectan la programación) y los accesos. Torneo muestra el selector de categoría y las pestañas: Equipos (vacío hasta la fase 2), Fixture y Posiciones (vacíos) y Ajustes (la configuración de la categoría, editable solo por la organización).
+
+**Aceptación:**
+
+- [ ] Sin torneo creado, Inicio invita a crearlo (estado vacío).
+- [ ] Cambiar de categoría actualiza la pantalla sin recargarla (HTMX), y la URL lo refleja.
+- [ ] La mesa ve los ajustes, pero no los puede cambiar.
+
+**Verificación:** verde, más capturas.
+**Depende de:** TU.2.
+**Archivos:** `src/torneo/views/inicio.py`, `src/torneo/views/torneo.py`, sus plantillas y parciales, y tests.
+**Tamaño:** M.
+
+### TU.6 Página pública (base)
+
+**Descripción:** `/t/<torneo>/` sin login: el encabezado del torneo, el selector de categoría y las pestañas Partidos, Posiciones y Equipos, con estados vacíos. Se llenan en las fases 3 a 5. Solo se ven los torneos marcados como públicos. Las vistas públicas no cargan nunca Persona, Jugador ni Profe.
+
+**Aceptación:**
+
+- [ ] Se abre sin login. Un torneo no público da 404.
+- [ ] Un test recorre las plantillas públicas y falla si alguna usa datos personales.
+- [ ] Se ve bien a 360 px.
+
+**Verificación:** verde, más capturas.
+**Depende de:** TU.1.
+**Archivos:** `src/torneo/views/publico.py`, plantillas públicas, `tests/torneo/test_publico.py`.
+**Tamaño:** M.
+
+### TU.7 Datos de la escuela
+
+**Descripción:** pantalla para editar el nombre y los colores del organizador, sin admin. El logo y los patrocinadores esperan a que haya imágenes y un lugar donde guardarlas.
+
+**Aceptación:**
+
+- [ ] La organización cambia el nombre y aparece en todas las pantallas y en la página pública.
+- [ ] Un color inválido muestra el error en el campo.
+
+**Verificación:** verde.
+**Depende de:** TU.2.
+**Archivos:** la vista, formulario y plantilla de la escuela, y su test.
+**Tamaño:** S.
+
 ## Fase 2: inscripción
 
 > **Pendiente de aprobación de Sebastian** (planificado el 2026-10-07). Nueva dependencia: `faker`, aprobada en el plan general para esta fase. Reglas del catálogo: INS-01 a INS-12.
