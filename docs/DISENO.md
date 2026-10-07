@@ -48,3 +48,23 @@ Contrato de diseño, armado con la skill `frontend-ui-engineering`. Vale para el
 ## Roles
 
 La Mesa de control ve las mismas pantallas, pero sin Crear torneo, Programar, Partido de la ACF ni los ajustes de categoría. Donde no tiene permiso, la pantalla lo dice ("Solo la organización puede…") en lugar de esconder el contenido sin explicación.
+
+## En el código (TU.1)
+
+- **Tokens:** en `frontend/tailwind.css`, dentro de `@theme`. Cada color genera sus utilidades (`bg-azul`, `text-tenue`, `border-linea`…), y el modo oscuro redefine las mismas variables según el sistema. Las fuentes están en `static/fuentes/`, con su licencia OFL.
+- **Componentes:** clases en la misma hoja (`.seccion`, `.lista`, `.fila`, `.chip`, `.btn`, `.pestanas`, `.banda`, `.hoja`, `.alerta`, `.vacio`, `.flotante`, `.campo`) y parciales en `templates/parciales/`:
+
+| Parcial | Para qué |
+|---|---|
+| `seccion_cab.html` | Título de una sección, con un chip, una nota o una acción a la derecha |
+| `lista.html` y `fila.html` | Lista con divisores; cada fila puede ser un enlace con flecha, con ícono de estado y chip |
+| `chip.html` | Estado con texto: `bien`, `aviso`, `error`, `info` o `neutro` |
+| `boton.html` | Enlace o botón; `principal` para la acción principal. Con HTMX se usan las clases `.btn` |
+| `pestanas.html` | Pestañas como enlaces, así la URL dice dónde se está |
+| `banda.html` | La banda azul con un título y una parte en dorado |
+| `hoja.html` | Hoja inferior (`<dialog>`); se abre con `data-abrir-hoja` |
+| `alerta.html` y `aviso.html` | Aviso en línea y aviso flotante (los mensajes de Django) |
+| `vacio.html` | Estado vacío o sin permiso, con su acción |
+| `icono.html` | Los íconos de trazo |
+
+- **Regla:** ninguna plantilla escribe un color a mano (lo controla `tests/torneo/test_base.py`). El muestrario de todo está en `/diagnostico/componentes/`.

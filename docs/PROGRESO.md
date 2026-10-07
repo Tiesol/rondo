@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** que Sebastian apruebe la fase 1b (TU.1 a TU.7 en `tasks/todo.md`) y responda P54 (grupos con muchos equipos). Siguen pendientes las imágenes y las capturas de Copa Fácil.
+- **Fase:** 1b, pantallas propias. Aprobada; TU.1 lista.
+- **Siguiente paso:** TU.2 (roles). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -40,6 +40,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T1.4 lista: `manage.py cargar_config` pasa el JSON validado a la base en una transacción. Es idempotente: no borra categorías ni canchas, regenera las franjas regulares y conserva las de entre semana. Probado en local (23 categorías-nivel, 5 canchas y 15 franjas).
 - 2026-10-07: T1.5 lista: admin de Torneo (con canchas y franjas en línea), CategoriaNivel (con canchas compatibles y turno) y Organizador (uno solo, con nombre y color). Las reglas inválidas muestran el error junto al campo. Se sacó "JMP" de las plantillas: ahora sale del Organizador.
 - 2026-10-07: revisiones de cierre de las fases 0 y 1, y fase 2 planificada (T2.1 a T2.7 en `tasks/todo.md`), pendiente de aprobación.
+- 2026-10-07: Sebastian aprueba la fase 1b.
+- 2026-10-07: TU.1 lista: tokens de DISENO.md en `frontend/tailwind.css` (claro y oscuro), Bebas Neue y Figtree servidas desde la app, plantilla base con barra superior azul, barra inferior en el celular y lateral desde 900 px, y 13 parciales con su muestrario en `/diagnostico/componentes/`. El admin salió del menú. Capturas a 360 y 1024 px, en claro y en oscuro.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
@@ -77,6 +79,9 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-07 | El proyecto de Google Cloud `rondo-jmp` queda sin organización | Para traspasarlo a JMP alcanza con agregarlos como dueños y cambiar la facturación |
 | 2026-10-07 | La demo va en Render (gratis, Virginia), y la base se rehace en Neon N. Virginia | La cuenta de facturación de Google Cloud quedó cerrada y bloqueada por un cobro rechazado de la tarjeta, y reabrirla requiere soporte. Render no pide tarjeta. La app y la base van en la misma región. Cloud Run sigue como destino cuando la cuenta esté en regla: es la misma imagen Docker |
 | 2026-10-07 | Las migraciones corren al arrancar el contenedor, no como un Job aparte | Hay una sola instancia, y el plan gratuito de Render no tiene comando previo al deploy |
+| 2026-10-07 | Seguir con todas las fases sin esperar el visto bueno de Sebastian entre fases, con las dudas en `docs/REVISAR.md` y supuestos mientras tanto | Pedido de Sebastian, solo por esta vez. Los límites de SPEC.md siguen valiendo |
+| 2026-10-07 | Los tokens viven en `@theme` de Tailwind y el modo oscuro sigue al sistema. Las pestañas son enlaces, y la hoja inferior es un `<dialog>` | La URL refleja la pestaña, y `<dialog>` da el foco y el Esc sin código |
+| 2026-10-07 | Los colores del organizador se conectan a los tokens en TU.7 | Hoy el color guardado por defecto es el verde rechazado |
 | 2026-10-06 | Una instalación por cliente: si otra organización compra la app, tiene su propio proyecto en Google Cloud y en Neon, con su facturación y el mismo código. La base no separa clientes | Por ahora el único cliente es JMP. Así el modelo de datos queda simple y cada cliente queda aislado. Nada propio de JMP va en el código: nombre, logo y colores van en la configuración |
 
 ## Hallazgos
