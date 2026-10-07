@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block titulo %}{{ equipo.nombre }} · {{ categoria }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Volver a {{ categoria }}">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Equipo{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  <div class="cab-equipo">
+    {% include "parciales/escudo.html" with escudo=escudo tamano="gr" %}
+    <div class="min-w-0">
+      <h2>{{ equipo.nombre }}</h2>
+      <p class="peq tenue">{{ categoria }} · {{ equipo.club }}</p>
+    </div>
+  </div>
+  <div class="marcas">
+    <span class="chip {% if completo %}bien{% else %}aviso{% endif %} num">{{ resumen.total }} de {{ categoria.max_jugadores }} jugadores</span>
+    {% if resumen.sin_verificar %}<span class="chip aviso num">{{ resumen.sin_verificar }} sin verificar</span>{% endif %}
+    {% if resumen.sin_dorsal %}<span class="chip aviso num">{{ resumen.sin_dorsal }} sin dorsal</span>{% endif %}
+    {% if resumen.sin_documento %}<span class="chip aviso num">{{ resumen.sin_documento }} con documento pendiente</span>{% endif %}
+  </div>
+</div>
+
+<div class="pt-3">{% include "parciales/pestanas.html" with etiqueta="Secciones del equipo" %}</div>
+
+{% if seccion == "plantel" %}
+<div class="seccion">
+  {% url "agregar-jugador" equipo.pk as url_agregar %}
+  {% if url_agregar and perms.torneo.inscribir_equipos %}
+  {% include "parciales/seccion_cab.html" with titulo="Jugadores" %}
+  {% include "parciales/boton.html" with texto="Agregar jugador" url=url_agregar principal=True bloque=True icono="mas-signo" %}
+  {% else %}
+  {% include "parciales/seccion_cab.html" with titulo="Jugadores" %}
+  {% endif %}
+  {% if jugadores %}
+  <ul class="lista">
+    {% for jugador in jugadores %}
+    <li class="fila" id="jugador-{{ jugador.pk }}">
+      {% if jugador.dorsal %}<span class="dorsal num">{{ jugador.dorsal }}</span>{% else %}<span class="dorsal falta">s/n</span>{% endif %}
+      <span class="crece">
+        <strong>{{ jugador.persona }}</strong>
+        <span class="sub">{% if jugador.persona.documento %}{{ jugador.persona.documento }}{% else %}Documento pendiente{% endif %}{% if jugador.persona.nacimiento %} · {{ jugador.persona.nacimiento.year }}{% endif %}</span>
+      </span>
+      {% if jugador.verificado %}{% include "parciales/chip.html" with texto="Verificado" estado="bien" %}{% else %}{% include "parciales/chip.html" with texto="Sin verificar" estado="aviso" %}{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  {% include "parciales/vacio.html" with icono="personas" titulo="Todavía no hay jugadores" texto="Cárgalos con su CI: la app avisa al instante si alguno ya está en otro equipo." %}
+  {% endif %}
+</div>
+{% else %}
+<div class="seccion">
+  {% url "agregar-profe" equipo.pk as url_profe %}
+  {% include "parciales/seccion_cab.html" with titulo="Cuerpo técnico" %}
+  {% if url_profe and perms.torneo.inscribir_equipos %}{% include "parciales/boton.html" with texto="Agregar al cuerpo técnico" url=url_profe bloque=True icono="mas-signo" %}{% endif %}
+  {% if profes %}
+  <ul class="lista">
+    {% for profe in profes %}
+    <li class="fila">
+      <span class="dorsal">{{ profe.rol|first|upper }}</span>
+      <span class="crece"><strong>{{ profe.persona }}</strong><span class="sub">{{ profe.rol|capfirst }}</span></span>
+      {% if profe.otros_equipos %}<span class="chip info num">{{ profe.otros_equipos }} equipo{{ profe.otros_equipos|pluralize }} más</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  {% include "parciales/vacio.html" with icono="personas" titulo="Todavía no hay cuerpo técnico" texto="Hasta 3 personas: entrenador, asistente y delegado." %}
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

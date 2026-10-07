@@ -91,7 +91,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] T2.2 Dominio: validaciones de inscripción (INS-02, 03, 05 a 10)
 - [x] T2.3 Modelos de inscripción, y datos personales fuera de los logs
 - [x] T2.4 Servicio de inscripción
-- [ ] T2.5 Pantallas: equipos
+- [x] T2.5 Pantallas: equipos
 - [ ] T2.6 Pantallas: jugadores y cuerpo técnico, con avisos en vivo
 - [ ] T2.7 Generador de datos de demo
 

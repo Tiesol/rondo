@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Agregar equipo{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'categoria' categoria.pk 'equipos' %}" aria-label="Volver">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Agregar equipo{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}{% for error in form.non_field_errors %}{% include "parciales/alerta.html" with estado="error" texto=error %}{% endfor %}{% endif %}
+  {% include "parciales/campo.html" with campo=form.club %}
+  {% include "parciales/campo.html" with campo=form.categoria %}
+  {% include "parciales/campo.html" with campo=form.nombre %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.color_1 %}
+    {% include "parciales/campo.html" with campo=form.color_2 %}
+  </div>
+  <p class="peq tenue">¿Falta un club? Lo agrega la organización al catálogo, así no hay dos nombres para el mismo club.</p>
+  {% include "parciales/boton.html" with texto="Crear el equipo" principal=True bloque=True %}
+</form>
+{% endblock %}
