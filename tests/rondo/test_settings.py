@@ -54,3 +54,21 @@ def test_la_base_local_responde() -> None:
     with connection.cursor() as cursor:
         cursor.execute("select 1")
         assert cursor.fetchone() == (1,)
+
+
+def test_acepta_la_direccion_que_asigna_render() -> None:
+    resultado = _manage(
+        "shell",
+        "-c",
+        "from django.conf import settings; "
+        "print(settings.ALLOWED_HOSTS); print(settings.CSRF_TRUSTED_ORIGINS)",
+        entorno=PRODUCCION
+        | {
+            "SECRET_KEY": secrets.token_urlsafe(50),
+            "RENDER_EXTERNAL_HOSTNAME": "rondo-demo.onrender.com",
+        },
+    )
+    assert resultado.returncode == 0, resultado.stderr
+    hosts, origenes = resultado.stdout.strip().splitlines()[-2:]
+    assert "rondo-demo.onrender.com" in hosts
+    assert "https://rondo-demo.onrender.com" in origenes

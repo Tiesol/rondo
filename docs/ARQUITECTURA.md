@@ -12,6 +12,8 @@
 
 ## 2. Vista general
 
+> **Por ahora (2026-10-07):** la demo corre en Render, en el plan gratuito y en Virginia, con Neon en N. Virginia, porque la cuenta de Google Cloud quedó bloqueada. Ver [DESPLIEGUE.md](DESPLIEGUE.md). Cuando esté en regla, se pasa a Cloud Run con la misma imagen.
+
 ```
 Celular o PC (organizador, mesa de control)
         │  HTTPS, siempre con login

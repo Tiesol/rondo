@@ -23,6 +23,11 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = _lista("ALLOWED_HOSTS")
 CSRF_TRUSTED_ORIGINS = _lista("CSRF_TRUSTED_ORIGINS")
 
+# Render define la dirección pública del servicio en esta variable (demo en Render).
+if render_host := os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
+    ALLOWED_HOSTS.append(render_host)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{render_host}")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
