@@ -63,6 +63,25 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
 - [ ] Tu visto bueno.
 
+### Fase 1b: pantallas propias (antes de la inscripción)
+
+> Pendiente de aprobación de Sebastian. Reemplaza al admin como pantalla del organizador, según `docs/DISENO.md`. El detalle está en [todo.md](todo.md).
+
+- [ ] TU.1 Base visual: tokens, plantilla y navegación
+- [ ] TU.2 Roles: Organización y Mesa de control
+- [ ] TU.3 Reglas del torneo con interruptores
+- [ ] TU.4 Crear torneo con el asistente
+- [ ] TU.5 Inicio y Torneo
+- [ ] TU.6 Página pública (base)
+- [ ] TU.7 Datos de la escuela
+
+**Checkpoint de la fase 1b:**
+
+- [ ] El organizador crea el torneo 2026 y edita sus reglas sin tocar el admin ni la terminal.
+- [ ] La mesa entra con su rol y ve los avisos donde no tiene permiso.
+- [ ] La página pública se abre sin login y no muestra datos personales.
+- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+
 ### Fase 2: inscripción (día 2)
 
 > Pendiente de aprobación de Sebastian. El detalle está en [todo.md](todo.md).
