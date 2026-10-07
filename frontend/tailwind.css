@@ -353,6 +353,11 @@
     font-size: 13px;
     color: var(--color-tenue);
   }
+  .fila .sub a,
+  .alerta a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
   .chev {
     flex: none;
     width: 18px;
@@ -797,6 +802,24 @@
     box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
   }
 
+  /* ---------- Página pública ---------- */
+  .pub-cab {
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 16px 4px;
+    background: var(--color-azul);
+    color: var(--color-sobre-azul);
+  }
+  .pub-cab h1 {
+    font: 40px/0.95 var(--font-titulo);
+    letter-spacing: 0.02em;
+  }
+  .pub-cab .meta {
+    color: var(--color-sobre-azul-tenue);
+    font-size: 13px;
+  }
+  .publica main {
+    padding-bottom: 40px;
+  }
+
   /* ---------- Ingreso (sin sesión) ---------- */
   .ingreso {
     max-width: 420px;
@@ -856,7 +879,8 @@
     }
     .seccion,
     .banda,
-    .pasos {
+    .pasos,
+    .pub-cab {
       padding-inline: 32px;
     }
     .pestanas {

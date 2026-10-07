@@ -299,9 +299,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Se abre sin login. Un torneo no público da 404.
-- [ ] Un test recorre las plantillas públicas y falla si alguna usa datos personales.
-- [ ] Se ve bien a 360 px.
+- [x] Se abre sin login. Un torneo no público da 404.
+- [x] Un test recorre las plantillas públicas y falla si alguna usa datos personales.
+- [x] Se ve bien a 360 px.
 
 **Verificación:** verde, más capturas.
 **Depende de:** TU.1.

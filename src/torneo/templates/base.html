@@ -12,6 +12,7 @@
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <a class="saltar" href="#contenido">Ir al contenido</a>
+  {% block cuerpo %}
   {% if user.is_authenticated %}
   <div class="app">
     {% include "parciales/navegacion.html" %}
@@ -36,6 +37,7 @@
     {% block contenido_sin_sesion %}{% endblock %}
   </main>
   {% endif %}
+  {% endblock %}
   {% for mensaje in messages %}{% include "parciales/aviso.html" with texto=mensaje %}{% endfor %}
 </body>
 </html>

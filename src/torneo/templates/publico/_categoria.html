@@ -1,0 +1,23 @@
+{# Lo que cambia al elegir categoría o pestaña. Solo datos del torneo: nunca de personas. #}
+<div id="publico">
+  <div class="banda pt-3">
+    <p class="titulo-grande">{{ nombre }}</p>
+    <p class="meta">{{ resumen }}</p>
+    <nav class="categorias" aria-label="Categoría">
+      {% for c in categorias %}
+      <a href="{{ c.url }}"{% if c.actual %} aria-current="page"{% endif %} hx-get="{{ c.url }}" hx-target="#publico" hx-swap="outerHTML" hx-push-url="true">{{ c.texto }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+  {% include "parciales/pestanas.html" with etiqueta="Secciones" htmx_destino="publico" %}
+  <div class="seccion">
+    {% if pestana == "partidos" %}
+    {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay partidos" texto="El calendario aparece cuando la organización lo publique." %}
+    {% elif pestana == "posiciones" %}
+    {% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay resultados" texto="La tabla aparece con el primer partido jugado." %}
+    {% else %}
+    {% include "parciales/vacio.html" with icono="torneo" titulo="Todavía no hay equipos" texto="Aparecen cuando cierre la inscripción." %}
+    {% endif %}
+    <p class="peq tenue pt-4">Esta página muestra equipos, partidos y resultados. Nunca nombres de jugadores, documentos ni fechas de nacimiento.</p>
+  </div>
+</div>

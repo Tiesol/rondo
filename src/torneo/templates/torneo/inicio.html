@@ -21,9 +21,12 @@
     {% url "reglas" torneo.pk as url_reglas %}
     <li>{% include "parciales/fila.html" with titulo="Reglas del torneo" sub="Interruptores y números, con su pregunta al organizador" url=url_reglas icono="documento" %}</li>
     {% endif %}
+    {% if torneo.publico %}
     {% url "publico" torneo.pk as url_publico %}
-    {% if url_publico %}
-    <li>{% include "parciales/fila.html" with titulo="Ver la página pública" sub="Lo que ven las familias y los clubes" url=url_publico icono="mundo" %}</li>
+    <li>{% include "parciales/fila.html" with titulo="Ver la página pública" sub="Lo que ven las familias y los clubes, sin login" url=url_publico icono="mundo" %}</li>
+    {% elif perms.torneo.configurar_torneo %}
+    {% url "mas" as url_mas %}
+    <li>{% include "parciales/fila.html" with titulo="Publicar el torneo" sub="La página pública todavía no se ve: se enciende en Más" url=url_mas icono="mundo" %}</li>
     {% endif %}
   </ul>
 </div>

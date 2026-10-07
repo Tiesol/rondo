@@ -24,7 +24,12 @@ def mas(request: HttpRequest) -> HttpResponse:
         )
     personas.sort(key=lambda p: p["titulo"].lower())
     torneos = [
-        {"nombre": t.nombre, "fechas": f"Del {t.inicio:%d/%m} al {t.fin:%d/%m/%Y}"}
+        {
+            "pk": t.pk,
+            "nombre": t.nombre,
+            "fechas": f"Del {t.inicio:%d/%m} al {t.fin:%d/%m/%Y}",
+            "publico": t.publico,
+        }
         for t in Torneo.objects.order_by("-anio", "nombre")
     ]
     return render(request, "torneo/mas.html", {"personas": personas, "torneos": torneos})
