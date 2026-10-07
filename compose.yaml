@@ -1,0 +1,21 @@
+# Postgres local para desarrollo y tests. Las credenciales son solo para esta máquina.
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: rondo
+      POSTGRES_USER: rondo
+      POSTGRES_PASSWORD: rondo
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # Desde Postgres 18, la imagen guarda los datos bajo /var/lib/postgresql/<versión>.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rondo -d rondo"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:

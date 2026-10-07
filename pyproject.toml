@@ -1,0 +1,61 @@
+[project]
+name = "rondo"
+version = "0.1.0"
+description = "App de organización de la JMP CUP: inscripción, fixture, programación y calendario"
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.1,<6.2",
+    "django-htmx>=1.21",
+    "whitenoise>=6.8",
+    "gunicorn>=23.0",
+    "psycopg[binary]>=3.3",
+    "dj-database-url>=2.3",
+    "pydantic>=2.11",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "hypothesis>=6.120",
+    "mypy>=1.15",
+    "django-stubs>=5.2",
+    "ruff>=0.11",
+]
+
+[tool.uv]
+# No es una librería: el código vive en src/ y se importa con pythonpath.
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src", "tests"]
+# Los ejemplos de código en la documentación no se formatean.
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "SIM", "DJ", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["rondo", "torneo", "dominio"]
+
+[tool.mypy]
+python_version = "3.14"
+mypy_path = "src"
+files = ["tests"]
+warn_unused_configs = true
+check_untyped_defs = true
+
+# El núcleo de dominio va con tipado estricto (SPEC, "Estilo de código").
+[[tool.mypy.overrides]]
+module = ["dominio", "dominio.*"]
+strict = true
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+    "lento: tarda más de 5 segundos; no corre en el chequeo antes del commit",
+]
