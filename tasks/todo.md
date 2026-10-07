@@ -332,9 +332,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Una tabla de casos reales de formato (sin datos reales) da la clave esperada: `1234567 SC`, `1234567-1E`, `E-1234567`, `1.234.567 lp`, `1234567SC` y el pasaporte `AB123456`.
-- [ ] `1234567 SC` y `1234567 LP` tienen la misma clave. `1234567` y `1234567-1E`, no.
-- [ ] Un texto vacío o sin dígitos da "sin documento", no un error. Un texto con basura da un error con un mensaje claro.
+- [x] Una tabla de casos reales de formato (sin datos reales) da la clave esperada: `1234567 SC`, `1234567-1E`, `E-1234567`, `1.234.567 lp`, `1234567SC` y el pasaporte `AB123456`.
+- [x] `1234567 SC` y `1234567 LP` tienen la misma clave. `1234567` y `1234567-1E`, no.
+- [x] Un texto vacío o sin dígitos da "sin documento", no un error. Un texto con basura da un error con un mensaje claro.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** nada.
