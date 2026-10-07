@@ -1,0 +1,26 @@
+{
+  "_fuente": "CONTEXTO 6.2 (equipos de 2023, solo nombres de clubes). Los alias dudosos están en docs/REVISAR.md (R25).",
+  "clubes": {
+    "JMP": ["JMP Soccer", "JMP Academy"],
+    "Leones": ["Leones PFC"],
+    "River Plate": [],
+    "Atlético Juniors": ["Juniors"],
+    "De Taquito": [],
+    "Panteras FC": [],
+    "Super Campeones": [],
+    "Planeta FC": [],
+    "Maravillita": [],
+    "Crack FC": [],
+    "Maquinita": [],
+    "Leoncitos": [],
+    "Real FC": [],
+    "Blooming": [],
+    "Torito García": [],
+    "Inter Star": [],
+    "Semillero": [],
+    "Leonsangos": [],
+    "Libertad": [],
+    "Oriente Petrolero": ["Petrolero", "Oriente Petrolero 2"],
+    "West Riders": []
+  }
+}
