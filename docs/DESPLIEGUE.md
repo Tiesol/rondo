@@ -44,6 +44,8 @@ DATABASE_URL="$DATABASE_URL" RONDO_CLAVE_USUARIO="$RONDO_CLAVE_USUARIO" \
 unset DATABASE_URL RONDO_CLAVE_USUARIO
 ```
 
+Para las demás personas, lo mismo con su rol en lugar de `--admin`: `crear_usuario ana --rol organizacion` o `crear_usuario mesa1 --rol mesa`. Solo `--admin` entra al admin de Django; los demás usan las pantallas de la app.
+
 ### 3b. Configuración del torneo 2026
 
 Igual que el usuario: desde tu máquina, contra la rama `demo`. Se puede repetir sin duplicar nada. Pero ojo: **pisa lo que se haya editado en el admin** en categorías, canchas y reglas. Las franjas de entre semana se conservan.

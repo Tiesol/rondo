@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 1b, pantallas propias. Aprobada; TU.1 lista.
-- **Siguiente paso:** TU.2 (roles). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
+- **Fase:** 1b, pantallas propias. Aprobada; TU.1 y TU.2 listas.
+- **Siguiente paso:** TU.3 (reglas con interruptores). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -42,6 +42,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: revisiones de cierre de las fases 0 y 1, y fase 2 planificada (T2.1 a T2.7 en `tasks/todo.md`), pendiente de aprobación.
 - 2026-10-07: Sebastian aprueba la fase 1b.
 - 2026-10-07: TU.1 lista: tokens de DISENO.md en `frontend/tailwind.css` (claro y oscuro), Bebas Neue y Figtree servidas desde la app, plantilla base con barra superior azul, barra inferior en el celular y lateral desde 900 px, y 13 parciales con su muestrario en `/diagnostico/componentes/`. El admin salió del menú. Capturas a 360 y 1024 px, en claro y en oscuro.
+- 2026-10-07: TU.2 lista: grupos Organización y Mesa de control con permisos propios de Torneo (migraciones 0004 y 0005), decorador `requiere` que muestra "Solo la organización puede…" con un 403, `403.html` con el mismo diseño, `crear_usuario --rol`, el rol en la barra y la pantalla "Más" con las personas y su rol.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
@@ -82,6 +83,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-07 | Seguir con todas las fases sin esperar el visto bueno de Sebastian entre fases, con las dudas en `docs/REVISAR.md` y supuestos mientras tanto | Pedido de Sebastian, solo por esta vez. Los límites de SPEC.md siguen valiendo |
 | 2026-10-07 | Los tokens viven en `@theme` de Tailwind y el modo oscuro sigue al sistema. Las pestañas son enlaces, y la hoja inferior es un `<dialog>` | La URL refleja la pestaña, y `<dialog>` da el foco y el Esc sin código |
 | 2026-10-07 | Los colores del organizador se conectan a los tokens en TU.7 | Hoy el color guardado por defecto es el verde rechazado |
+| 2026-10-07 | Los roles son grupos de Django con permisos propios de Torneo (configurar, programar, inscribir y verificar). Solo el superusuario es staff y entra al admin | La organización y la mesa usan las pantallas propias. Reemplaza la decisión de crear al organizador como superusuario. Los usuarios que ya existían sin grupo pasaron a Organización |
 | 2026-10-06 | Una instalación por cliente: si otra organización compra la app, tiene su propio proyecto en Google Cloud y en Neon, con su facturación y el mismo código. La base no separa clientes | Por ahora el único cliente es JMP. Así el modelo de datos queda simple y cada cliente queda aislado. Nada propio de JMP va en el código: nombre, logo y colores van en la configuración |
 
 ## Hallazgos

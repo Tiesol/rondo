@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block titulo %}Sin permiso{% endblock %}
+{% block encabezado %}Sin permiso{% endblock %}
+{% block contenido %}
+{% url "inicio" as url_inicio %}
+{% with titulo="Solo la organización puede "|add:que %}
+{% include "parciales/vacio.html" with icono="candado" titulo=titulo texto="Si lo necesitas, pídele a alguien de la organización que lo haga o que te cambie el rol." accion="Volver al inicio" accion_url=url_inicio %}
+{% endwith %}
+{% endblock %}

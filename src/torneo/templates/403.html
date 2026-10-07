@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}Sin permiso{% endblock %}
+{% block encabezado %}Sin permiso{% endblock %}
+{% block contenido %}
+{% url "inicio" as url_inicio %}
+{% include "parciales/vacio.html" with icono="candado" titulo="No tienes permiso para ver esta página" texto="Si lo necesitas, pídeselo a alguien de la organización." accion="Volver al inicio" accion_url=url_inicio %}
+{% endblock %}

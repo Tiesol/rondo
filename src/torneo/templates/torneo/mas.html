@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}Más{% endblock %}
+{% block encabezado %}Más{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Tu cuenta" %}
+  <ul class="lista">
+    <li>{% include "parciales/fila.html" with titulo=user.get_full_name|default:user.username sub=user.username chip=rol|default:"Sin rol" chip_estado="info" %}</li>
+  </ul>
+  {% if rol == "Mesa de control" %}
+  <p class="peq tenue">La mesa de control carga equipos y listas, verifica jugadores y ve el calendario. No configura el torneo ni programa partidos.</p>
+  {% endif %}
+</div>
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Personas" %}
+  {% include "parciales/lista.html" with filas=personas %}
+  <p class="peq tenue">Para sumar a alguien o cambiarle el rol, hay que pedírselo a Sebastian.</p>
+</div>
+
+{% if perms.torneo.configurar_torneo %}
+{% url "escuela" as url_escuela %}
+{% if url_escuela %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Datos de la escuela" %}
+  <ul class="lista">
+    <li>{% include "parciales/fila.html" with titulo=organizador.nombre sub="Aparece en las pantallas y en la página pública" url=url_escuela %}</li>
+  </ul>
+</div>
+{% endif %}
+{% endif %}
+
+{% if user.is_superuser %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Técnico" %}
+  <ul class="lista">
+    <li>{% include "parciales/fila.html" with titulo="Admin de Django" sub="Solo para Sebastian: la base de datos tal cual" url="/admin/" %}</li>
+  </ul>
+</div>
+{% endif %}
+{% endblock %}
