@@ -58,7 +58,9 @@ def nuevo_equipo(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "equipos/nuevo.html", {"form": formulario, "categoria": categoria})
 
 
+@requiere("torneo.inscribir_equipos", "ver los planteles")
 def equipo(request: HttpRequest, pk: int, seccion: str) -> HttpResponse:
+    """La ficha tiene datos personales: solo para quien carga listas (organización y mesa)."""
     if seccion not in SECCIONES:
         raise Http404
     actual = get_object_or_404(Equipo.objects.select_related("club", "categoria__torneo"), pk=pk)
