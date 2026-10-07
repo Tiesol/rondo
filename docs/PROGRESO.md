@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 3, fixture y verificador. Las fases 1b y 2 están cerradas y revisadas.
-- **Siguiente paso:** detallar las tareas de la fase 3 (`planning-and-task-breakdown`) y empezar por la primera.
+- **Siguiente paso:** T3.1 (formatos como datos).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -58,6 +58,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T2.6 lista: alta de jugadores y del cuerpo técnico desde la ficha del equipo, con avisos en vivo (HTMX al salir de cada campo, sin guardar: `/revisar/`). Los avisos no bloquean; los errores sí. Formularios sensibles (`sensitive_post_parameters`). La mesa marca a cada jugador como verificado tocando su estado (INS-12). Los mensajes se apilan; los avisos quedan hasta cerrarlos, y no se repite lo que ya muestra la ficha. Cada criterio de inscripción de la sección 10 tiene su test desde la pantalla.
 - 2026-10-07: T2.7 lista: `manage.py generar_demo --soy-la-demo` arma 93 equipos (los 84 de 2023 en las categorías 2026 y 3 en cada categoría nueva), con 1.331 jugadores y 201 profes inventados por faker con semilla fija, en 1,4 s y en bloque. Incluye los profes y los 7 jugadores compartidos de 6.4, y casos para ver los avisos: menores, sin CI, sin dorsales y 3 equipos cortos. `Torneo.es_demo` (migración 0010) protege los datos que no son de demo. `faker` entra como dependencia de desarrollo.
 - 2026-10-07: revisión de cierre de la fase 2; se corrigieron 2 hallazgos (ver "Revisión de la fase 2").
+- 2026-10-07: fase 3 planificada (T3.1 a T3.7 en `tasks/todo.md`).
 
 ## Pendiente
 
