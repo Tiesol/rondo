@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 3, fixture y verificador. Las fases 1b y 2 están cerradas y revisadas.
-- **Siguiente paso:** T3.2 (cruces de la fase de grupos).
+- **Siguiente paso:** T3.3 (sorteo de series y fixture completo).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -60,6 +60,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: revisión de cierre de la fase 2; se corrigieron 2 hallazgos (ver "Revisión de la fase 2").
 - 2026-10-07: fase 3 planificada (T3.1 a T3.7 en `tasks/todo.md`).
 - 2026-10-07: T3.1 lista: `datos/config/formatos.json` con los formatos de 2 a 10 equipos (4.5, P25, P26 y P27) y `dominio/formatos.py`, que los valida (series que suman, referencias a partidos anteriores y a series y puestos que existen) y da los textos de cada participante ("1.º A", "Ganador de la semi 1 de Oro", "Mejor 3.º"). De 3 a 10 equipos dan 8, 10, 12, 14, 17, 18, 22 y 27 partidos; con más de 10, `FormatoFaltante` cita P27. `Estricto` pasa a ser público en `dominio.config`.
+- 2026-10-07: T3.2 lista: `dominio/cruces.py` arma la fase de grupos por rondas: todos contra todos por el método del círculo, series cruzadas (con 4 y 3 descansa uno de A por fecha) y todos contra todos dentro de cada serie con las fechas alineadas. La ronda con más cruces del mismo club pasa a ser la fecha 1 (P24), y la ida y vuelta invierte la localía. Tests de propiedad (hypothesis) para 2 a 10 equipos.
 
 ## Pendiente
 
