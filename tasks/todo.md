@@ -431,3 +431,112 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Depende de:** T2.4.
 **Archivos:** `src/torneo/management/commands/generar_demo.py`, `src/torneo/servicios/demo.py`, `tests/torneo/test_generar_demo.py`.
 **Tamaño:** M.
+
+## Fase 3: fixture y verificador
+
+> Planificada el 2026-10-07 con `planning-and-task-breakdown`. Se avanza con la autorización general del mismo día (sin visto bueno entre fases; dudas en `docs/REVISAR.md`). Sin dependencias nuevas: el flujo máximo de la capacidad usa OR-Tools (`SimpleMaxFlow`). Reglas del catálogo: FIX-01 a FIX-09, VER-01, PRO-01 a PRO-07 (las que el verificador puede comprobar) y PRO-14.
+
+### T3.1 Formatos como datos (FIX-01, FIX-02, FIX-07)
+
+**Descripción:** pasar la tabla 4.5 a `datos/config/formatos.json` y validarla en `dominio/formatos.py` (Pydantic): para cada cantidad de equipos, la fase de grupos (todos contra todos, con ida y vuelta o no; series con sus tamaños; cruzadas o dentro de cada serie) y los partidos de eliminación (copa, ronda, clave y referencias de sus participantes: "1.º A", "ganador de la semi 1 de Oro", "mejor perdedor", "mejor 3.º"…). Con 2 equipos, ida y vuelta. Con más de 10, un error claro de "falta el formato" (P27, P54).
+
+**Aceptación:**
+
+- [ ] De 3 a 10 equipos, el formato da 8, 10, 12, 14, 17, 18, 22 y 27 partidos; con 2, da 2.
+- [ ] Una referencia a un partido o a una serie que no existe hace fallar la validación, con un mensaje que dice cuál.
+- [ ] Con 11 equipos, `formato_para(11)` lanza `FormatoFaltante`, que menciona P27.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** nada.
+**Archivos:** `datos/config/formatos.json`, `src/dominio/formatos.py`, `tests/dominio/test_formatos.py`.
+**Tamaño:** M.
+
+### T3.2 Dominio: cruces de la fase de grupos (FIX-03, FIX-04, FIX-05)
+
+**Descripción:** `dominio/cruces.py`: todos contra todos por el método del círculo (con ida y vuelta), series cruzadas (cada equipo de A contra cada uno de B, y con 4 y 3 descansa uno de A en cada fecha) y todos contra todos dentro de cada serie. Después, las fechas se reordenan para que los equipos del mismo club se enfrenten en la fecha 1 (si la regla está encendida). Trabaja con identificadores, no con modelos.
+
+**Aceptación:**
+
+- [ ] Para 2 a 10 equipos y cada tipo de grupo, ningún cruce se repite (dos veces exactas con ida y vuelta) y nadie juega dos veces en la misma fecha (test de propiedad con hypothesis).
+- [ ] Con series de 4 y 3 cruzadas hay 4 fechas y en cada una descansa un equipo de A.
+- [ ] Dos equipos del mismo club que se cruzan juegan en la fecha 1.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** T3.1.
+**Archivos:** `src/dominio/cruces.py`, `tests/dominio/test_cruces.py`.
+**Tamaño:** M.
+
+### T3.3 Dominio: sorteo de series y fixture completo (FIX-06, FIX-08)
+
+**Descripción:** `dominio/fixture.py`: el sorteo de series con una semilla, que separa a los equipos del mismo club cuando se puede (FIX-06), y el armado del fixture de una categoría: cruces de grupos más los partidos de eliminación del formato, con participantes "por definir" (FIX-08).
+
+**Aceptación:**
+
+- [ ] La misma semilla da el mismo sorteo; con dos equipos de un club y dos series, quedan en series distintas.
+- [ ] El fixture de N equipos tiene la cantidad de partidos del formato, y los de eliminación llevan referencias y no equipos.
+- [ ] Con series ya elegidas a mano, el fixture las respeta.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** T3.2.
+**Archivos:** `src/dominio/fixture.py`, `tests/dominio/test_fixture.py`.
+**Tamaño:** M.
+
+### T3.4 Modelos Serie y Partido, y servicio de fixture (FIX-09)
+
+**Descripción:** crear los modelos Serie (categoría, nombre y equipos) y Partido (categoría, fase, copa, ronda, clave, fecha, serie, local y visitante o sus referencias, estado, cancha, inicio y fijado), y su migración. El servicio `generar_fixture(categoria, semilla)` sortea las series si no hay, arma el fixture con el dominio y lo guarda. Rehacerlo borra el anterior, solo si la regla lo permite y no hay partidos jugados (FIX-09). `generar_fixture_de_todas` lo hace para cada categoría con equipos.
+
+**Aceptación:**
+
+- [ ] Generar el fixture de una categoría de 6 equipos guarda 2 series de 3 y 14 partidos, 5 de ellos "por definir".
+- [ ] Rehacerlo no duplica; con un partido jugado, o con la regla apagada, se niega con un mensaje.
+- [ ] Con más de 10 equipos devuelve el aviso de P27 y no guarda nada.
+
+**Verificación:** verde, más `makemigrations --check`.
+**Depende de:** T3.3.
+**Archivos:** `src/torneo/models/fixture.py`, migración, `src/torneo/servicios/fixture.py`, `tests/torneo/test_servicio_fixture.py`.
+**Tamaño:** M.
+
+### T3.5 Pantallas: series y fixture
+
+**Descripción:** en Torneo → Fixture: las series (editables antes de generar, moviendo equipos de serie), el botón para generar o rehacer el fixture (solo la organización) y los partidos por fecha, con los de eliminación "por definir". En Inicio, un pendiente por las categorías con equipos y sin fixture, y "Generar todos los fixtures". La pestaña Partidos de la página pública muestra el fixture, sin datos personales.
+
+**Aceptación:**
+
+- [ ] La organización genera el fixture de una categoría y lo ve por fecha; la mesa lo ve, pero no lo genera (403 con el aviso del rol).
+- [ ] Mover un equipo de serie antes de generar cambia los cruces.
+- [ ] La página pública muestra los cruces de la categoría.
+
+**Verificación:** verde, más capturas a 360 px.
+**Depende de:** T3.4.
+**Archivos:** `src/torneo/views/fixture.py`, plantillas de Torneo y públicas, `tests/torneo/test_vistas_fixture.py`.
+**Tamaño:** M.
+
+### T3.6 Dominio: verificador de choques (VER-01, PRO-01 a PRO-07) y prueba 2023
+
+**Descripción:** `dominio/verificador.py` recibe cualquier calendario (partidos con equipos, cancha, inicio y turno), las canchas físicas, la compatibilidad, las franjas, los pares de equipos que comparten profes o jugadores, los bloqueos y las reglas. Devuelve los choques: un par de partidos (o un partido solo, si es de franja o de compatibilidad) con la lista de motivos y su tipo (cancha, equipo, persona, compatibilidad, franja o bloqueo). La prueba usa el calendario de 6.3 (`datos/pruebas/calendario_2023.csv`, solo nombres de equipos), los grupos de 6.4 de `datos/demo/equipos.json` y las canchas de 2023 (6.1).
+
+**Aceptación:**
+
+- [ ] Prueba 2023: exactamente 2 choques de personas (los de River Plate), 3 de cancha y 0 de compatibilidad, como dice la SPEC.
+- [ ] Cada tipo tiene un caso mínimo propio: equipo sin turno libre en el día, máximo de partidos por día, profe que cambia de cancha sin margen, franja y bloqueo.
+- [ ] Un par de partidos con varios motivos cuenta como un solo choque.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** nada (recibe cualquier calendario).
+**Archivos:** `src/dominio/verificador.py`, `datos/pruebas/calendario_2023.csv`, `tests/dominio/test_verificador.py`.
+**Tamaño:** M.
+
+### T3.7 Capacidad con flujo máximo (PRO-14) y pantalla "Programar"
+
+**Descripción:** `dominio/capacidad.py` calcula, por grupo de canchas conectadas por la compatibilidad, las horas que piden los partidos contra las que dan las franjas, en todo el torneo y desde el fin de semana de la eliminación (P33). Usa un flujo máximo de OR-Tools: un partido en una mitad ocupa media cancha. La pantalla `/torneos/<id>/programar/` (solo la organización) muestra "¿Entra todo?" con barras, como el prototipo; el botón de programar llega en la fase 4.
+
+**Aceptación:**
+
+- [ ] Con la demo, se ve la capacidad de C1 y C2 y la de C3, en grupos y en eliminación, y avisa cuando la eliminación no entra (H4).
+- [ ] Un caso chico calculado a mano da el mismo resultado que el flujo.
+- [ ] La mesa ve el aviso del rol.
+
+**Verificación:** verde, más una captura.
+**Depende de:** T3.4.
+**Archivos:** `src/dominio/capacidad.py`, `src/torneo/servicios/capacidad.py`, la vista y plantilla de programar, `tests/dominio/test_capacidad.py`, `tests/torneo/test_programar.py`.
+**Tamaño:** M.

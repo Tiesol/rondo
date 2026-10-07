@@ -102,7 +102,32 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
 - [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
-### Fases 3 a 6: se detallan al llegar
+### Fase 3: fixture y verificador (día 3)
+
+> Planificada el 2026-10-07. Se avanza con la autorización general del mismo día. El detalle está en [todo.md](todo.md).
+
+- [ ] T3.1 Formatos como datos (FIX-01, FIX-02, FIX-07)
+- [ ] T3.2 Dominio: cruces de la fase de grupos (FIX-03 a FIX-05)
+- [ ] T3.3 Dominio: sorteo de series y fixture completo (FIX-06, FIX-08)
+- [ ] T3.4 Modelos Serie y Partido, y servicio de fixture (FIX-09)
+- [ ] T3.5 Pantallas: series y fixture
+- [ ] T3.6 Dominio: verificador de choques y prueba 2023
+- [ ] T3.7 Capacidad con flujo máximo y pantalla "Programar"
+
+```
+T3.1 → T3.2 → T3.3 → T3.4 → T3.5
+                       └──→ T3.7
+T3.6 (independiente: recibe cualquier calendario)
+```
+
+**Checkpoint de la fase 3:**
+
+- [ ] Cada formato da de 8 a 27 partidos según corresponda, sin cruces repetidos ni equipos dos veces en una fecha.
+- [ ] El verificador pasa la prueba 2023 por tipo: 2 de personas, 3 de cancha y 0 de compatibilidad.
+- [ ] La capacidad de la demo se ve en pantalla.
+- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+
+### Fases 4 a 6: se detallan al llegar
 
 | Fase | Tareas previstas |
 |---|---|
