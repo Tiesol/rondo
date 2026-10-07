@@ -213,3 +213,113 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Depende de:** T1.4.
 **Archivos:** `src/torneo/admin.py`, `src/torneo/models/sitio.py`, migración, `tests/torneo/test_admin.py`.
 **Tamaño:** M.
+
+## Fase 2: inscripción
+
+> **Pendiente de aprobación de Sebastian** (planificado el 2026-10-07). Nueva dependencia: `faker`, aprobada en el plan general para esta fase. Reglas del catálogo: INS-01 a INS-12.
+
+### T2.1 Dominio: normalización de documentos (INS-04)
+
+**Descripción:** crear `dominio/documentos.py`, que convierte lo que escribe la organización en un documento normalizado: tipo (CI, CI de extranjero o pasaporte), número, complemento, sigla de departamento y una **clave de comparación**. La clave se arma con el número, el complemento y el prefijo "E-"; la sigla se guarda, pero no se compara (supuesto de PROGRESO).
+
+**Aceptación:**
+
+- [ ] Una tabla de casos reales de formato (sin datos reales) da la clave esperada: `1234567 SC`, `1234567-1E`, `E-1234567`, `1.234.567 lp`, `1234567SC` y el pasaporte `AB123456`.
+- [ ] `1234567 SC` y `1234567 LP` tienen la misma clave. `1234567` y `1234567-1E`, no.
+- [ ] Un texto vacío o sin dígitos da "sin documento", no un error. Un texto con basura da un error con un mensaje claro.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** nada.
+**Archivos:** `src/dominio/documentos.py`, `tests/dominio/test_documentos.py`.
+**Tamaño:** S.
+
+### T2.2 Dominio: validaciones de inscripción (INS-02, 03, 05 a 10)
+
+**Descripción:** crear `dominio/inscripcion.py`, con funciones puras que reciben datos simples (fechas, cantidades, roles, los equipos donde ya está una persona) y la configuración, y devuelven una lista de **hallazgos**. Cada hallazgo tiene un nivel (error o aviso), el ID de la regla y un mensaje en español. Ninguna función accede a la base.
+
+**Aceptación:**
+
+- [ ] INS-02: un jugador mayor que su categoría es un error. Uno menor se acepta, con un aviso si son más de `aviso_anios_menor` años. Sub 17 acepta los dos años de nacimiento.
+- [ ] INS-03: no se puede pasar del máximo de jugadores, y por debajo del mínimo hay aviso.
+- [ ] INS-05 a 07: una persona en otro equipo del mismo club y otra categoría da aviso; en otro club o en la misma categoría, error. Un profe en varios equipos está permitido. Jugador en un equipo y profe en otro, según la regla.
+- [ ] INS-08 a 10: hasta 3 en el cuerpo técnico, con un solo entrenador; dorsal único dentro del equipo; falta de CI o de dorsal es aviso hasta el primer partido.
+
+**Verificación:** verde. Cada test lleva el ID de su regla en el nombre.
+**Depende de:** T2.1.
+**Archivos:** `src/dominio/inscripcion.py`, `tests/dominio/test_inscripcion.py`.
+**Tamaño:** M.
+
+### T2.3 Modelos de inscripción, y datos personales fuera de los logs
+
+**Descripción:** crear los modelos Club (con alias), Equipo, Persona, Jugador y Profe, y su migración. Persona es la única tabla con datos personales, y su clave de CI es única cuando existe. Además, el pendiente obligatorio de la revisión de la fase 0: un **filtro de logs** que no deje pasar el texto de los errores de la base, porque una violación de unicidad del CI escribiría el número en el log. Agregar el admin de Club.
+
+**Aceptación:**
+
+- [ ] Restricciones en la base: CI único si existe, dorsal único por equipo si existe, una persona una sola vez por equipo y un equipo por club + categoría-nivel + nombre visible.
+- [ ] Un test provoca un `IntegrityError` con un CI repetido y comprueba que el log no contiene el número.
+- [ ] El admin de Club permite cargar alias, y el catálogo de clubes de 2023 (6.2, solo nombres) se carga con un comando.
+
+**Verificación:** verde, más `makemigrations --check`.
+**Depende de:** T2.1.
+**Archivos:** `src/torneo/models/inscripcion.py`, migración, `src/rondo/logs.py`, `src/torneo/admin.py`, `tests/torneo/test_modelos_inscripcion.py`.
+**Tamaño:** M.
+
+### T2.4 Servicio de inscripción
+
+**Descripción:** crear `servicios/inscripcion.py`, que agrega un jugador o un profe a un equipo. Normaliza el documento, busca a la Persona por su clave (o la crea), arma la entrada del dominio con los equipos donde ya está esa persona, y guarda solo si no hay errores, en una transacción. Devuelve los hallazgos para mostrarlos.
+
+**Aceptación:**
+
+- [ ] Agregar a alguien que ya está en otro equipo del mismo club, en otra categoría, guarda y devuelve el aviso de INS-05.
+- [ ] Con un error (por ejemplo, edad o el máximo), no se guarda nada.
+- [ ] La misma persona escrita como `1234567 SC` y `1234567` es una sola Persona.
+
+**Verificación:** verde.
+**Depende de:** T2.2 y T2.3.
+**Archivos:** `src/torneo/servicios/inscripcion.py`, `tests/torneo/test_servicio_inscripcion.py`.
+**Tamaño:** M.
+
+### T2.5 Pantallas: equipos
+
+**Descripción:** con `frontend-ui-engineering`, armar la lista de equipos por categoría-nivel (con conteo de jugadores y avisos), el alta de un equipo (club del catálogo, sin texto libre) y la ficha del equipo con su plantel y su cuerpo técnico. Todo pensado primero para el celular.
+
+**Aceptación:**
+
+- [ ] El organizador crea un equipo eligiendo club, categoría-nivel, nombre visible y colores.
+- [ ] La lista muestra cuántos jugadores tiene cada equipo y marca los que están por debajo del mínimo.
+- [ ] Se ve bien a 360 px.
+
+**Verificación:** verde, con tests de vistas, más capturas a 360 px.
+**Depende de:** T2.3.
+**Archivos:** `src/torneo/views/inscripcion.py`, `src/torneo/forms/inscripcion.py`, plantillas, `tests/torneo/test_vistas_equipos.py`.
+**Tamaño:** M.
+
+### T2.6 Pantallas: jugadores y cuerpo técnico, con avisos en vivo
+
+**Descripción:** el formulario para agregar un jugador o un profe a un equipo, que usa el servicio de T2.4. Con HTMX, los avisos aparecen al salir de cada campo, antes de guardar (por ejemplo, "esta persona ya está en Sub 11 Avanzado de este club"). La mesa de control marca a cada jugador como "verificado" desde la ficha.
+
+**Aceptación:**
+
+- [ ] Los criterios de inscripción de la sección 10 del contexto se cumplen desde la pantalla.
+- [ ] Los avisos no bloquean el guardado; los errores sí.
+- [ ] El formulario con datos personales es sensible: no aparece en los logs.
+
+**Verificación:** verde, con tests de vistas, más una prueba manual en el celular.
+**Depende de:** T2.4 y T2.5.
+**Archivos:** vistas, formularios y parciales HTMX de inscripción, `tests/torneo/test_vistas_jugadores.py`.
+**Tamaño:** M.
+
+### T2.7 Generador de datos de demo
+
+**Descripción:** crear `manage.py generar_demo`, que arma un torneo inventado del tamaño de 2023, con los clubes de 6.2 y las categorías nuevas. Los jugadores tienen nombres, CI y fechas inventados con `faker` (semilla fija), y algunos son de menor edad o no tienen CI ni dorsal, para mostrar los avisos. Los profes y los jugadores compartidos siguen los patrones de 6.4. **Se niega a correr** si la base tiene datos que no son de demo.
+
+**Aceptación:**
+
+- [ ] Genera unos 80 equipos, con planteles dentro de los topes y los 7 jugadores compartidos de 6.4.
+- [ ] Correrlo dos veces no duplica nada.
+- [ ] Sin la bandera `--soy-la-demo`, no hace nada.
+
+**Verificación:** verde, más correrlo contra la rama `demo` de Neon (lo hace Sebastian).
+**Depende de:** T2.4.
+**Archivos:** `src/torneo/management/commands/generar_demo.py`, `src/torneo/servicios/demo.py`, `tests/torneo/test_generar_demo.py`.
+**Tamaño:** M.

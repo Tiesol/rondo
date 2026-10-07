@@ -31,6 +31,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T1.3 lista: modelos Torneo, CategoriaNivel (con sus canchas compatibles), Cancha (con sus mitades) y Franja, y su migración. Las reglas y el cuerpo técnico se validan con el dominio en cada `save()`. Las restricciones (unicidad, máximo ≥ mínimo, fin > inicio) viven en la base.
 - 2026-10-07: T1.4 lista: `manage.py cargar_config` pasa el JSON validado a la base en una transacción. Es idempotente: no borra categorías ni canchas, regenera las franjas regulares y conserva las de entre semana. Probado en local (23 categorías-nivel, 5 canchas y 15 franjas).
 - 2026-10-07: T1.5 lista: admin de Torneo (con canchas y franjas en línea), CategoriaNivel (con canchas compatibles y turno) y Organizador (uno solo, con nombre y color). Las reglas inválidas muestran el error junto al campo. Se sacó "JMP" de las plantillas: ahora sale del Organizador.
+- 2026-10-07: revisiones de cierre de las fases 0 y 1, y fase 2 planificada (T2.1 a T2.7 en `tasks/todo.md`), pendiente de aprobación.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
