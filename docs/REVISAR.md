@@ -17,3 +17,5 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R5 | TU.2 | Los usuarios de la organización ya no son staff: no entran al admin de Django. Solo entra quien se crea con `--admin` (tú) | Con las pantallas propias, el admin queda como herramienta técnica |
 | R6 | TU.2 | No hay pantalla para invitar personas ni cambiarles el rol: se hace con `crear_usuario --rol` (DESPLIEGUE.md, paso 3) | Son 2 o 3 personas; una pantalla de invitaciones queda para antes de la fase 6 |
 | R7 | TU.2 | Los usuarios que ya existían en la demo sin grupo pasaron a Organización con la migración 0005 | Hasta ahora, `crear_usuario` creaba solo usuarios de la organización |
+| R8 | TU.3 | Los títulos y las ayudas de las 17 reglas (pantalla de reglas). Los escribí a partir del catálogo de SPEC.md y de las preguntas P | Textos cortos en español, con "tú". Si uno no se entiende, se cambia en `src/dominio/config.py` y la pantalla lo toma sola |
+| R9 | TU.3 | La pantalla de reglas está en `/torneos/<id>/reglas/`. Todavía no hay un enlace desde Inicio: llega en TU.5 | — |

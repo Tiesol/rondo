@@ -254,9 +254,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Todas las reglas se editan sin JSON, con su explicación y su P#.
-- [ ] Un valor inválido muestra el error en el campo, y no se guarda nada.
-- [ ] Agregar una regla nueva al dominio la hace aparecer en la pantalla sin tocar la plantilla.
+- [x] Todas las reglas se editan sin JSON, con su explicación y su P#.
+- [x] Un valor inválido muestra el error en el campo, y no se guarda nada.
+- [x] Agregar una regla nueva al dominio la hace aparecer en la pantalla sin tocar la plantilla.
 
 **Verificación:** verde, más una captura.
 **Depende de:** TU.2.

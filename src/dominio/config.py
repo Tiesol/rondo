@@ -4,12 +4,14 @@ Ninguna regla del reglamento vive en el código: llegan en un JSON que se valida
 regla dice de dónde sale (sección del contexto o pregunta P#).
 """
 
+from dataclasses import dataclass
 from datetime import date, time
 from pathlib import Path
-from typing import Literal, Self
+from typing import Any, Literal, Self, cast, get_args, get_origin
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic.config import JsonDict
 
 NombreNivel = Literal["unico", "inicial", "avanzado"]
 Modalidad = Literal["F5", "F7", "F8", "F11"]
@@ -107,28 +109,267 @@ class Torneo(_Estricto):
         return self
 
 
-class Reglas(_Estricto):
-    """Reglas sueltas del reglamento. El valor por defecto es el de la pregunta P# indicada."""
-
-    jugar_en_categoria_mayor: bool = True  # P6 (INS-02)
-    aviso_anios_menor: int = Field(default=2, ge=0)  # P42 (INS-02)
-    jugador_en_dos_equipos: Literal["mismo_club_otra_categoria", "nunca"] = (
-        "mismo_club_otra_categoria"  # P7 (INS-05)
+def _regla(
+    defecto: Any,
+    titulo: str,
+    ayuda: str,
+    *,
+    grupo: str,
+    pregunta: str = "",
+    regla: str = "",
+    unidad: str = "",
+    opciones: dict[str, str] | None = None,
+    **limites: Any,
+) -> Any:
+    """Un campo de Reglas con lo que necesita la pantalla: título, ayuda y de dónde sale."""
+    extra: JsonDict = {"grupo": grupo, "pregunta": pregunta, "regla": regla, "unidad": unidad}
+    if opciones:
+        extra["opciones"] = dict(opciones)
+    return Field(
+        default=defecto, title=titulo, description=ayuda, json_schema_extra=extra, **limites
     )
-    jugador_y_profe: bool = True  # P37 (INS-07)
-    dorsal_obligatorio: Momento = "antes_del_primer_partido"  # P9 (INS-09)
-    ci_obligatorio: Momento = "antes_del_primer_partido"  # P39 (INS-10)
-    cierre_inscripcion: date | None = None  # P4 (INS-11)
-    mismo_club_fecha_1: bool = True  # P24 (FIX-05)
-    sorteo_separa_clubes: bool = True  # P45 (FIX-06)
-    rehacer_fixture: bool = True  # P22, P44 (FIX-09)
-    turnos_libres_mismo_dia: int = Field(default=1, ge=0)  # P17 (PRO-04)
-    max_partidos_por_dia: int = Field(default=2, ge=1)  # P47 (PRO-04)
-    profe_minutos_cambio_de_cancha: int = Field(default=10, ge=0)  # P18, P35 (PRO-05)
-    orden_de_fechas: Literal["dura", "blanda"] = "dura"  # P19 (PRO-08)
-    eliminacion_desde_fin_de_semana: int = Field(default=5, ge=1)  # P33 (PRO-09)
-    marcador_wo: tuple[int, int] = (3, 0)  # P23
-    propuestas_reprogramacion: int = Field(default=3, ge=1, le=5)  # PRO-13
+
+
+_MOMENTOS = {
+    "al_inscribir": "Al inscribir",
+    "antes_del_primer_partido": "Antes del primer partido",
+}
+
+
+class Reglas(_Estricto):
+    """Reglas sueltas del reglamento. El valor por defecto es el de la pregunta P# indicada.
+
+    Una regla nueva solo se agrega acá: la pantalla de reglas se arma con describir_reglas().
+    """
+
+    jugar_en_categoria_mayor: bool = _regla(
+        True,
+        "Se puede jugar en una categoría mayor",
+        "Un jugador más chico puede inscribirse en una categoría de más edad. "
+        "Uno mayor que su categoría no se acepta nunca.",
+        grupo="Inscripción",
+        pregunta="P6",
+        regla="INS-02",
+    )
+    aviso_anios_menor: int = _regla(
+        2,
+        "Avisar si es menor por más de",
+        "La app avisa cuando un jugador tiene más de estos años menos que su categoría.",
+        grupo="Inscripción",
+        pregunta="P42",
+        regla="INS-02",
+        unidad="años",
+        ge=0,
+    )
+    jugador_en_dos_equipos: Literal["mismo_club_otra_categoria", "nunca"] = _regla(
+        "mismo_club_otra_categoria",
+        "Jugador en dos equipos",
+        "Si se permite, esos dos equipos nunca juegan a la vez.",
+        grupo="Inscripción",
+        pregunta="P7",
+        regla="INS-05",
+        opciones={
+            "mismo_club_otra_categoria": "Solo del mismo club, en otra categoría",
+            "nunca": "Nunca",
+        },
+    )
+    jugador_y_profe: bool = _regla(
+        True,
+        "Jugador en un equipo y profe en otro",
+        "Por ejemplo, un Sub 17 que dirige a un Sub 6. Esos equipos no juegan a la vez.",
+        grupo="Inscripción",
+        pregunta="P37",
+        regla="INS-07",
+    )
+    dorsal_obligatorio: Momento = _regla(
+        "antes_del_primer_partido",
+        "El dorsal es obligatorio",
+        "Hasta entonces, la lista se guarda con un aviso.",
+        grupo="Inscripción",
+        pregunta="P9",
+        regla="INS-09",
+        opciones=_MOMENTOS,
+    )
+    ci_obligatorio: Momento = _regla(
+        "antes_del_primer_partido",
+        "El CI es obligatorio",
+        "Hasta entonces, el jugador queda con el aviso de documento pendiente.",
+        grupo="Inscripción",
+        pregunta="P39",
+        regla="INS-10",
+        opciones=_MOMENTOS,
+    )
+    cierre_inscripcion: date | None = _regla(
+        None,
+        "Cierre de la inscripción",
+        "Después de esta fecha, solo la organización cambia las listas. Vacío: sin cierre.",
+        grupo="Inscripción",
+        pregunta="P4",
+        regla="INS-11",
+    )
+    mismo_club_fecha_1: bool = _regla(
+        True,
+        "Mismo club, primero entre ellos",
+        "Dos equipos del mismo club en un grupo se enfrentan en la fecha 1.",
+        grupo="Fixture",
+        pregunta="P24",
+        regla="FIX-05",
+    )
+    sorteo_separa_clubes: bool = _regla(
+        True,
+        "El sorteo separa a los clubes",
+        "Las series se sortean poniendo a los equipos de un mismo club en series distintas, "
+        "cuando se puede.",
+        grupo="Fixture",
+        pregunta="P45",
+        regla="FIX-06",
+    )
+    rehacer_fixture: bool = _regla(
+        True,
+        "Rehacer el fixture de una categoría",
+        "Mientras la categoría no tenga partidos jugados, se puede rehacer su fixture y "
+        "reprogramar solo esa categoría.",
+        grupo="Fixture",
+        pregunta="P44",
+        regla="FIX-09",
+    )
+    turnos_libres_mismo_dia: int = _regla(
+        1,
+        "Turnos libres entre dos partidos del mismo día",
+        "Si un equipo juega dos veces el mismo día, cuántos turnos quedan libres en medio.",
+        grupo="Programación",
+        pregunta="P17",
+        regla="PRO-04",
+        unidad="turnos",
+        ge=0,
+    )
+    max_partidos_por_dia: int = _regla(
+        2,
+        "Partidos por día de un equipo, como máximo",
+        "Un equipo nunca juega más partidos que estos en un mismo día.",
+        grupo="Programación",
+        pregunta="P47",
+        regla="PRO-04",
+        unidad="partidos",
+        ge=1,
+    )
+    profe_minutos_cambio_de_cancha: int = _regla(
+        10,
+        "Minutos de un profe para cambiar de cancha",
+        "Entre el final de un partido y el inicio del siguiente, cuando es en otra cancha.",
+        grupo="Programación",
+        pregunta="P35",
+        regla="PRO-05",
+        unidad="min",
+        ge=0,
+    )
+    orden_de_fechas: Literal["dura", "blanda"] = _regla(
+        "dura",
+        "Orden de las fechas",
+        "Los partidos de cada equipo van en el orden de las fechas.",
+        grupo="Programación",
+        pregunta="P19",
+        regla="PRO-08",
+        opciones={"dura": "Siempre en orden", "blanda": "En orden, salvo que un cambio obligue"},
+    )
+    eliminacion_desde_fin_de_semana: int = _regla(
+        5,
+        "La eliminación empieza el fin de semana",
+        "El número del fin de semana (1 es el primero) desde el que se juegan semis y finales.",
+        grupo="Programación",
+        pregunta="P33",
+        regla="PRO-09",
+        ge=1,
+    )
+    propuestas_reprogramacion: int = _regla(
+        3,
+        "Propuestas al reprogramar",
+        "Cuántas opciones distintas ofrece la app cuando hay que mover un partido.",
+        grupo="Programación",
+        regla="PRO-13",
+        ge=1,
+        le=5,
+    )
+    marcador_wo: tuple[int, int] = _regla(
+        (3, 0),
+        "Marcador del W.O.",
+        "El resultado que se carga cuando un equipo no se presenta.",
+        grupo="Resultados",
+        pregunta="P23",
+    )
+
+
+TipoDeRegla = Literal["si_no", "numero", "opcion", "fecha", "par"]
+
+
+@dataclass(frozen=True)
+class DescripcionRegla:
+    """Lo que la pantalla necesita para mostrar y editar una regla."""
+
+    nombre: str
+    titulo: str
+    ayuda: str
+    grupo: str
+    tipo: TipoDeRegla
+    defecto: Any
+    pregunta: str = ""
+    regla: str = ""
+    unidad: str = ""
+    minimo: int | None = None
+    maximo: int | None = None
+    opciones: tuple[tuple[str, str], ...] = ()
+
+
+def _tipo(nombre: str, anotacion: Any) -> TipoDeRegla:
+    if anotacion is bool:
+        return "si_no"
+    if anotacion is int:
+        return "numero"
+    if get_origin(anotacion) is Literal:
+        return "opcion"
+    if anotacion == date | None:
+        return "fecha"
+    if anotacion == tuple[int, int]:
+        return "par"
+    raise TypeError(f"La regla {nombre} tiene un tipo que la pantalla no sabe mostrar")
+
+
+def describir_reglas(modelo: type[Reglas] = Reglas) -> list[DescripcionRegla]:
+    """Las reglas en el orden del modelo, con todo lo necesario para la pantalla."""
+    descripciones = []
+    for nombre, campo in modelo.model_fields.items():
+        extra = campo.json_schema_extra if isinstance(campo.json_schema_extra, dict) else {}
+        tipo = _tipo(nombre, campo.annotation)
+        limites = {
+            clave: getattr(m, clave)
+            for m in campo.metadata
+            for clave in ("ge", "gt", "le")
+            if hasattr(m, clave)
+        }
+        minimo = limites.get("ge", limites["gt"] + 1 if "gt" in limites else None)
+        etiquetas = cast(dict[str, str], extra.get("opciones", {}))
+        opciones = (
+            tuple((valor, etiquetas.get(valor, valor)) for valor in get_args(campo.annotation))
+            if tipo == "opcion"
+            else ()
+        )
+        descripciones.append(
+            DescripcionRegla(
+                nombre=nombre,
+                titulo=campo.title or nombre,
+                ayuda=campo.description or "",
+                grupo=str(extra.get("grupo", "")),
+                tipo=tipo,
+                defecto=campo.default,
+                pregunta=str(extra.get("pregunta", "")),
+                regla=str(extra.get("regla", "")),
+                unidad=str(extra.get("unidad", "")),
+                minimo=minimo,
+                maximo=limites.get("le"),
+                opciones=opciones,
+            )
+        )
+    return descripciones
 
 
 class ConfigTorneo(_Estricto):
