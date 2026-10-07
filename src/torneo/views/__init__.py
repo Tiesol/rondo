@@ -1,6 +1,4 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from torneo.views.inicio import inicio
+from torneo.views.mas import mas
 
-
-def inicio(request: HttpRequest) -> HttpResponse:
-    return render(request, "torneo/inicio.html")
+__all__ = ["inicio", "mas"]

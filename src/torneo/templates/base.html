@@ -20,6 +20,7 @@
         {% block volver %}{% endblock %}
         <span class="marca" aria-hidden="true">{{ organizador.sigla }}</span>
         <h1>{% block encabezado %}Rondo{% endblock %}</h1>
+        {% if rol %}<span class="rol-actual">{{ rol_corto }}</span>{% endif %}
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
           <button type="submit" class="icono-btn">{% include "parciales/icono.html" with nombre="salir" %}Salir</button>

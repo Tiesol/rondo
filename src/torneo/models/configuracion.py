@@ -56,6 +56,13 @@ class Torneo(models.Model):
             # cargar_config reconoce al torneo por nombre y año.
             models.UniqueConstraint(fields=["nombre", "anio"], name="torneo_unico_por_anio"),
         ]
+        # Los permisos de cada rol (torneo/permisos.py).
+        permissions = [
+            ("configurar_torneo", "Crear torneos y cambiar su configuración"),
+            ("programar_partidos", "Programar y reprogramar partidos"),
+            ("inscribir_equipos", "Cargar equipos y listas"),
+            ("verificar_jugadores", "Verificar a los jugadores con su documento"),
+        ]
 
     def __str__(self) -> str:
         return self.nombre

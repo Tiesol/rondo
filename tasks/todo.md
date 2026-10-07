@@ -239,9 +239,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] La mesa no entra a crear torneo, reglas ni programar: ve el aviso del rol y recibe un 403.
-- [ ] La organización entra a todo.
-- [ ] `crear_usuario --rol mesa` crea un usuario sin staff y dentro de su grupo.
+- [x] La mesa no entra a crear torneo, reglas ni programar: ve el aviso del rol y recibe un 403.
+- [x] La organización entra a todo.
+- [x] `crear_usuario --rol mesa` crea un usuario sin staff y dentro de su grupo.
 
 **Verificación:** verde, con tests de permisos por vista.
 **Depende de:** TU.1.

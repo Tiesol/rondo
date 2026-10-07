@@ -1,24 +1,33 @@
-"""Crea un usuario de la organización. La contraseña sale de RONDO_CLAVE_USUARIO y no se muestra."""
+"""Crea un usuario con su rol. La contraseña sale de RONDO_CLAVE_USUARIO y no se muestra."""
 
 import os
 from typing import Any
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.db import transaction
 
+from torneo.permisos import MESA, ORGANIZACION
+
 VARIABLE = "RONDO_CLAVE_USUARIO"
+ROLES = {"organizacion": ORGANIZACION, "mesa": MESA}
 
 
 class Command(BaseCommand):
-    help = f"Crea un usuario staff (o administrador con --admin). La contraseña sale de {VARIABLE}."
+    help = (
+        "Crea un usuario de la organización o de la mesa de control. Con --admin, además entra "
+        f"al admin de Django. La contraseña sale de {VARIABLE}."
+    )
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("usuario")
         parser.add_argument("--email", default="")
-        parser.add_argument("--admin", action="store_true", help="Superusuario: acceso total")
+        parser.add_argument("--rol", choices=sorted(ROLES), default="organizacion")
+        parser.add_argument(
+            "--admin", action="store_true", help="Superusuario: acceso total, incluido el admin"
+        )
 
     def handle(self, *args: Any, **opciones: Any) -> None:
         clave = os.environ.get(VARIABLE, "")
@@ -35,9 +44,11 @@ class Command(BaseCommand):
         except ValidationError as error:
             raise CommandError("La contraseña no es segura: " + " ".join(error.messages)) from None
 
+        rol = ORGANIZACION if opciones["admin"] else ROLES[opciones["rol"]]
         with transaction.atomic():
-            usuario.is_staff = True
-            usuario.is_superuser = opciones["admin"]
+            # El admin de Django es solo para el superusuario; los demás usan las pantallas.
+            usuario.is_staff = usuario.is_superuser = opciones["admin"]
             usuario.set_password(clave)
             usuario.save()
-        self.stdout.write(self.style.SUCCESS(f"Usuario «{usuario.username}» creado."))
+            usuario.groups.add(Group.objects.get(name=rol))
+        self.stdout.write(self.style.SUCCESS(f"Usuario «{usuario.username}» creado ({rol})."))

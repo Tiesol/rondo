@@ -10,15 +10,19 @@ CLAVE = "Cancha-Sintetica-2026!"
 
 
 @pytest.mark.django_db
-def test_crea_un_usuario_staff_sin_mostrar_la_clave(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_crea_un_usuario_de_la_organizacion_sin_mostrar_la_clave(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setenv("RONDO_CLAVE_USUARIO", CLAVE)
     salida = StringIO()
 
     call_command("crear_usuario", "organizador", stdout=salida, stderr=salida)
 
     usuario = User.objects.get(username="organizador")
-    assert usuario.is_staff
+    # TU.2: el admin es solo para el superusuario; la organización usa las pantallas.
+    assert not usuario.is_staff
     assert not usuario.is_superuser
+    assert usuario.groups.filter(name="Organización").exists()
     assert usuario.check_password(CLAVE)
     assert CLAVE not in salida.getvalue()
 
@@ -29,7 +33,9 @@ def test_admin_crea_un_superusuario(monkeypatch: pytest.MonkeyPatch) -> None:
 
     call_command("crear_usuario", "sebastian", "--admin", stdout=StringIO())
 
-    assert User.objects.get(username="sebastian").is_superuser
+    sebastian = User.objects.get(username="sebastian")
+    assert sebastian.is_superuser
+    assert sebastian.is_staff
 
 
 @pytest.mark.django_db
