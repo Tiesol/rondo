@@ -11,8 +11,11 @@ from pydantic import ValidationError as ErrorDePydantic
 from dominio.config import CuerpoTecnico, Partido, Reglas, minutos_partido, minutos_turno
 
 
-def _validar_con(esquema: type[BaseModel], valor: Any) -> dict[str, Any]:
-    """Valida un JSON con un esquema del dominio y lo devuelve con los valores por defecto."""
+def _validar_con(esquema: type[BaseModel], valor: Any, campo: str) -> dict[str, Any]:
+    """Valida un JSON con un esquema del dominio y lo devuelve con los valores por defecto.
+
+    Los errores quedan asociados al campo, para que el admin los muestre junto a él.
+    """
     try:
         return esquema.model_validate(valor).model_dump(mode="json")
     except ErrorDePydantic as error:
@@ -20,7 +23,7 @@ def _validar_con(esquema: type[BaseModel], valor: Any) -> dict[str, Any]:
             f"{'.'.join(str(parte) for parte in e['loc']) or 'valor'}: {e['msg']}"
             for e in error.errors()
         ]
-        raise ValidationError(mensajes) from None
+        raise ValidationError({campo: mensajes}) from None
 
 
 def _reglas_por_defecto() -> dict[str, Any]:
@@ -63,8 +66,8 @@ class Torneo(models.Model):
         super().save(*args, **kwargs)
 
     def clean(self) -> None:
-        self.reglas = _validar_con(Reglas, self.reglas)
-        self.cuerpo_tecnico = _validar_con(CuerpoTecnico, self.cuerpo_tecnico)
+        self.reglas = _validar_con(Reglas, self.reglas, "reglas")
+        self.cuerpo_tecnico = _validar_con(CuerpoTecnico, self.cuerpo_tecnico, "cuerpo_tecnico")
 
     @property
     def partido(self) -> Partido:

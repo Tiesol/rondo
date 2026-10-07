@@ -203,10 +203,10 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] El staff edita un tope de jugadores y se guarda.
-- [ ] Una regla inválida muestra el error junto al campo.
-- [ ] La identidad del organizador se edita y aparece en la plantilla base.
-- [ ] Alguien sin permisos de staff no entra al admin.
+- [x] El organizador (superusuario) edita un tope de jugadores y se guarda.
+- [x] Una regla inválida muestra el error junto al campo.
+- [x] La identidad del organizador (nombre y color) se edita y aparece en la plantilla base. El logo queda para la fase 5.
+- [x] Alguien sin permisos de staff no entra al admin.
 
 **Verificación:** verde, con tests del admin, más una revisión manual en la demo de la nube.
 
