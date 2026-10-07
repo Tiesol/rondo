@@ -87,8 +87,8 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Aceptación:**
 
 - [x] La imagen se construye y corre en modo producción contra Postgres local: redirige a HTTPS, el login responde, el CSS se sirve y usa unos 70 MB de RAM.
-- [ ] Render despliega desde `main` sin pasos a mano.
-- [ ] Entras con login a la URL `*.onrender.com` desde el celular.
+- [x] Render despliega desde `main` sin pasos a mano.
+- [x] Entras con login a la URL `*.onrender.com` desde el celular.
 
 **Verificación:** `docker build` y `docker run` en local (hecho), más la prueba manual desde el celular.
 

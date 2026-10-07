@@ -25,7 +25,11 @@ class Command(BaseCommand):
         if not clave:
             raise CommandError(f"Falta la variable de entorno {VARIABLE} con la contraseña.")
 
-        usuario = User(username=opciones["usuario"], email=opciones["email"])
+        nombre = opciones["usuario"].strip().lower()
+        if User.objects.filter(username__iexact=nombre).exists():
+            raise CommandError(f"El usuario «{nombre}» ya existe.")
+
+        usuario = User(username=nombre, email=opciones["email"])
         try:
             validate_password(clave, usuario)
         except ValidationError as error:

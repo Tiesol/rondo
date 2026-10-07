@@ -102,6 +102,9 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# El usuario se escribe sin importar mayúsculas: el teclado del celular pone la primera sola.
+AUTHENTICATION_BACKENDS = ["torneo.autenticacion.UsuarioSinMayusculasBackend"]
+
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "inicio"
 LOGOUT_REDIRECT_URL = "login"
