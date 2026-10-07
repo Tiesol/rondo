@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 1b, pantallas propias. Aprobada; TU.1 a TU.3 listas.
-- **Siguiente paso:** TU.4 (asistente para crear el torneo). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
+- **Fase:** 1b, pantallas propias. Aprobada; TU.1 a TU.4 listas.
+- **Siguiente paso:** TU.5 (Inicio y Torneo). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -44,6 +44,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: TU.1 lista: tokens de DISENO.md en `frontend/tailwind.css` (claro y oscuro), Bebas Neue y Figtree servidas desde la app, plantilla base con barra superior azul, barra inferior en el celular y lateral desde 900 px, y 13 parciales con su muestrario en `/diagnostico/componentes/`. El admin salió del menú. Capturas a 360 y 1024 px, en claro y en oscuro.
 - 2026-10-07: TU.2 lista: grupos Organización y Mesa de control con permisos propios de Torneo (migraciones 0004 y 0005), decorador `requiere` que muestra "Solo la organización puede…" con un 403, `403.html` con el mismo diseño, `crear_usuario --rol`, el rol en la barra y la pantalla "Más" con las personas y su rol.
 - 2026-10-07: TU.3 lista: cada regla de `dominio.config.Reglas` trae título, ayuda, grupo, P# e ID de regla; `describir_reglas()` deduce el tipo (sí/no, número con sus límites, opción, fecha o par) y el formulario se arma solo. Pantalla `/torneos/<id>/reglas/`, solo para la organización, con interruptores, contadores y listas.
+- 2026-10-07: TU.4 lista: asistente de 4 pasos en `/torneos/nuevo/` (datos, categorías, horarios y reglas). Parte de `datos/config/jmp_cup_2026.json` (setting `PLANTILLA_TORNEO`), guarda las respuestas en la sesión, arma la configuración con `servicios/asistente.armar()`, la valida con el dominio y la carga con `cargar_configuracion`. Sin cambios crea lo mismo que `cargar_config`. No pisa un torneo con el mismo nombre y año.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente

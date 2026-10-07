@@ -23,7 +23,7 @@
         {% if rol %}<span class="rol-actual">{{ rol_corto }}</span>{% endif %}
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
-          <button type="submit" class="icono-btn">{% include "parciales/icono.html" with nombre="salir" %}Salir</button>
+          <button type="submit" class="icono-btn">{% include "parciales/icono.html" with nombre="salir" %}<span class="max-[420px]:sr-only">Salir</span></button>
         </form>
       </header>
       <main id="contenido">

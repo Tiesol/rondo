@@ -208,6 +208,12 @@
     font-weight: 600;
     white-space: nowrap;
   }
+  /* En pantallas angostas, el título manda; el rol se ve en "Más". */
+  @media (max-width: 420px) {
+    .rol-actual {
+      display: none;
+    }
+  }
   .icono-btn {
     flex: none;
     display: inline-flex;
@@ -474,6 +480,48 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+  }
+
+  /* ---------- Pasos del asistente ---------- */
+  .pasos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 16px 16px 0;
+  }
+  .paso {
+    color: var(--color-tenue);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .paso::before {
+    content: "";
+    display: block;
+    height: 4px;
+    margin-bottom: 6px;
+    border-radius: 2px;
+    background: var(--color-linea);
+  }
+  .paso[data-estado]::before {
+    background: var(--color-oro);
+  }
+  .paso[data-estado="actual"] {
+    color: var(--color-tinta);
+  }
+  .ajuste .control.ancho.horario > * {
+    width: auto;
+  }
+  .horario {
+    gap: 8px;
+  }
+  .horario input[type="time"] {
+    flex: 1;
+    min-height: 40px;
+    padding: 6px 8px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    font-size: 15px;
   }
 
   /* ---------- Ajustes: interruptores, contadores y listas ---------- */
@@ -765,7 +813,8 @@
       max-width: 960px;
     }
     .seccion,
-    .banda {
+    .banda,
+    .pasos {
       padding-inline: 32px;
     }
     .pestanas {

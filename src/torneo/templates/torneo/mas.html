@@ -18,6 +18,21 @@
   <p class="peq tenue">Para sumar a alguien o cambiarle el rol, hay que pedírselo a Sebastian.</p>
 </div>
 
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Torneos" %}
+  <ul class="lista">
+    {% for torneo in torneos %}
+    <li>{% include "parciales/fila.html" with titulo=torneo.nombre sub=torneo.fechas %}</li>
+    {% empty %}
+    <li>{% include "parciales/fila.html" with titulo="Todavía no hay torneos" %}</li>
+    {% endfor %}
+    {% if perms.torneo.configurar_torneo %}
+    {% url "crear-torneo" as url_crear %}
+    <li>{% include "parciales/fila.html" with titulo="Crear un torneo" sub="Desde la plantilla del reglamento" url=url_crear icono="mas-signo" %}</li>
+    {% endif %}
+  </ul>
+</div>
+
 {% if perms.torneo.configurar_torneo %}
 {% url "escuela" as url_escuela %}
 {% if url_escuela %}

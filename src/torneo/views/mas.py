@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
+from torneo.models import Torneo
 from torneo.permisos import MESA, ORGANIZACION, nombre_del_rol
 
 ESTADO_DEL_ROL = {ORGANIZACION: "info", MESA: "neutro"}
@@ -22,4 +23,8 @@ def mas(request: HttpRequest) -> HttpResponse:
             }
         )
     personas.sort(key=lambda p: p["titulo"].lower())
-    return render(request, "torneo/mas.html", {"personas": personas})
+    torneos = [
+        {"nombre": t.nombre, "fechas": f"Del {t.inicio:%d/%m} al {t.fin:%d/%m/%Y}"}
+        for t in Torneo.objects.order_by("-anio", "nombre")
+    ]
+    return render(request, "torneo/mas.html", {"personas": personas, "torneos": torneos})
