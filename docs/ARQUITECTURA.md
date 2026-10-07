@@ -39,7 +39,7 @@ Neon Postgres · aws-sa-east-1
 | Lenguaje | Python 3.14 con `uv` | Hay wheels de 3.14 para OR-Tools, psycopg, pydantic, numpy y pandas. `uv` maneja la versión y el lockfile |
 | Web | Django 6.1 | Trae login, admin, formularios, CSRF y migraciones. Desde 6.0 tiene parciales de plantilla, útiles con HTMX |
 | Interactividad | HTMX con `django-htmx` | Validación en vivo, propuestas y espera del solver sin armar una SPA |
-| Estilos | Pico CSS y CSS propio | Se ve bien en el celular sin esfuerzo. La grilla del calendario lleva CSS propio |
+| Estilos | Tailwind CSS v4, compilado con su ejecutable propio (sin Node) | Control total del diseño para que se vea profesional en el celular, y fácil de adaptar al diseño del organizador (P32) |
 | Solver | OR-Tools CP-SAT 9.15 | Nativo en Python, con límite de tiempo y la mejor solución encontrada |
 | Configuración | Pydantic v2 | Valida la configuración y las reglas al cargarlas y al editarlas |
 | Base | PostgreSQL en Neon (plan gratuito) | Se suspende sin uso y despierta sola. Las ramas separan la demo de la producción |
@@ -47,7 +47,7 @@ Neon Postgres · aws-sa-east-1
 | Archivos estáticos | WhiteNoise | Sin CDN ni bucket |
 | PNG | `modern-screenshot` en el navegador y Web Share API | En el celular se comparte directo a WhatsApp; en la PC se descarga |
 | Instalación en el celular | PWA: manifest e ícono, sin modo sin conexión | Se abre desde la pantalla de inicio como una app, y los datos personales no quedan guardados en el teléfono |
-| Calidad | pytest, pytest-django, Hypothesis, mypy, django-stubs y ruff | mypy estricto en `dominio/`; tipado y tests como querías practicar |
+| Calidad | pytest, pytest-django, Hypothesis, mypy, django-stubs y ruff | mypy estricto en `dominio/`: los errores de tipos y las reglas rotas se ven antes de llegar a la cancha |
 
 ## 4. Mapa de módulos
 
