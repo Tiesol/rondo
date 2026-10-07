@@ -93,7 +93,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] T2.4 Servicio de inscripción
 - [x] T2.5 Pantallas: equipos
 - [x] T2.6 Pantallas: jugadores y cuerpo técnico, con avisos en vivo
-- [ ] T2.7 Generador de datos de demo
+- [x] T2.7 Generador de datos de demo
 
 **Checkpoint de la fase 2:**
 

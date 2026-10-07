@@ -47,6 +47,9 @@ class Torneo(models.Model):
     )
     cuerpo_tecnico = models.JSONField(default=_cuerpo_tecnico_por_defecto)
     reglas = models.JSONField(default=_reglas_por_defecto)
+    es_demo = models.BooleanField(
+        "de demo", default=False, help_text="Datos inventados por generar_demo; se pueden rehacer"
+    )
     publico = models.BooleanField(
         "público", default=False, help_text="Si se ve sin login en /t/<id>/ (sin datos personales)"
     )
