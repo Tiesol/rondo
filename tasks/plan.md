@@ -31,7 +31,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 ### Fase 0: cimientos (día 1, mañana)
 
 - [x] T0.1 Proyecto Python con herramientas de calidad
-- [ ] T0.2 Proyecto Django con settings por entorno
+- [x] T0.2 Proyecto Django con settings por entorno
 - [ ] T0.3 Login y plantilla base para el celular
 - [ ] T0.4 Guardas del repo: dominio sin Django y chequeo antes de cada commit
 - [ ] T0.5 Deploy repetible en Cloud Run con Neon (demo) *(necesita pasos tuyos)*

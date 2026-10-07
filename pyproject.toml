@@ -43,7 +43,8 @@ known-first-party = ["rondo", "torneo", "dominio"]
 [tool.mypy]
 python_version = "3.14"
 mypy_path = "src"
-files = ["tests"]
+files = ["src", "tests"]
+plugins = ["mypy_django_plugin.main"]
 warn_unused_configs = true
 check_untyped_defs = true
 
@@ -52,7 +53,11 @@ check_untyped_defs = true
 module = ["dominio", "dominio.*"]
 strict = true
 
+[tool.django-stubs]
+django_settings_module = "rondo.settings_test"
+
 [tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "rondo.settings_test"
 pythonpath = ["src"]
 testpaths = ["tests"]
 addopts = "--strict-markers"
