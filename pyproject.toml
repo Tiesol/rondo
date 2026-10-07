@@ -12,6 +12,7 @@ dependencies = [
     "dj-database-url>=2.3",
     "pydantic>=2.11",
     "django-tailwind-cli>=4.8.1",
+    "ortools>=9.15.6755",
 ]
 
 [dependency-groups]

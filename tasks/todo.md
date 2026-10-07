@@ -102,14 +102,14 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] En local, el modelo sintético encuentra una solución factible.
-- [ ] En Render, quedan anotados en `PROGRESO.md` el tiempo hasta la primera solución, el estado final y la memoria usada.
-- [ ] Queda decidido si Render alcanza para la demo o si hace falta Google Cloud antes.
+- [x] En local, el modelo sintético encuentra una solución factible.
+- [x] Con los límites de Render quedan anotados en `PROGRESO.md` el tiempo hasta la primera solución, el estado final y la memoria usada.
+- [x] Queda decidido si Render alcanza para la demo o si hace falta Google Cloud antes.
 
 **Verificación:** un test chico del modelo sintético (rápido), más la medición en la nube.
 
 **Depende de:** T0.5.
-**Archivos:** `src/dominio/programador/espiga.py`, `src/torneo/views/diagnostico.py`, `tests/dominio/test_espiga_solver.py`.
+**Archivos:** `src/dominio/programador/espiga.py`, `src/torneo/management/commands/probar_solver.py`, `tests/dominio/test_espiga_solver.py`.
 **Tamaño:** S.
 
 ### T0.7 Prueba de riesgo: PNG y compartir desde el celular

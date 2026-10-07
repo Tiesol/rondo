@@ -35,14 +35,14 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] T0.3 Login y plantilla base para el celular
 - [x] T0.4 Guardas del repo: dominio sin Django y chequeo antes de cada commit
 - [x] T0.5 Deploy repetible en Render con Neon (demo) *(necesita pasos tuyos)*
-- [ ] T0.6 Prueba de riesgo: OR-Tools en Render
+- [x] T0.6 Prueba de riesgo: OR-Tools en Render
 - [ ] T0.7 Prueba de riesgo: PNG y compartir desde el celular
 
 **Checkpoint de la fase 0:**
 
 - [ ] Tests, mypy y ruff en verde.
 - [ ] Entras con login a la URL de Cloud Run desde el celular.
-- [ ] Están medidos los tiempos del solver con 1 y 2 vCPU, y quedó decidido el tamaño de la instancia.
+- [x] Están medidos los tiempos del solver con los límites de Render (H6 en PROGRESO.md).
 - [ ] El PNG se compartió por WhatsApp desde tu celular. Si falla, se pasa al plan B con Pillow.
 - [ ] Revisión con `code-review-and-quality` y tu visto bueno.
 
