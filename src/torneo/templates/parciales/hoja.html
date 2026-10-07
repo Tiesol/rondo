@@ -1,0 +1,9 @@
+{% comment %}
+Hoja inferior: un <dialog> que se abre con un botón data-abrir-hoja="<id>" (js/ui.js).
+Esc y el fondo la cierran. Parámetros: id, titulo y cuerpo (la plantilla de adentro).
+{% endcomment %}
+<dialog class="hoja" id="{{ id }}" aria-labelledby="{{ id }}-titulo">
+  <div class="asa" aria-hidden="true"></div>
+  <h2 id="{{ id }}-titulo">{{ titulo }}</h2>
+  {% include cuerpo %}
+</dialog>

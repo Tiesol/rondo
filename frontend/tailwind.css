@@ -2,3 +2,657 @@
 
 /* Plantillas donde Tailwind busca las clases que usamos. */
 @source "../src";
+
+/* Contrato de diseño: docs/DISENO.md. Los colores, fuentes y radios salen de acá y de ningún
+   otro lado: las plantillas usan estas clases o las utilidades generadas desde @theme
+   (bg-azul, text-tenue, font-titulo, rounded-control…). */
+
+/* ---------- Fuentes (copiadas en static/fuentes, licencia OFL; sin Google) ---------- */
+@font-face {
+  font-family: "Bebas Neue";
+  src: url("../fuentes/bebas-neue-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Figtree";
+  src: url("../fuentes/figtree-latin-variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-display: swap;
+}
+
+/* ---------- Tokens ---------- */
+@theme static {
+  --font-sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-titulo: "Bebas Neue", "Oswald", "Arial Narrow", sans-serif;
+
+  --radius-control: 8px;
+  --radius-hoja: 12px;
+
+  /* Superficies y texto */
+  --color-fondo: #e9edf4;
+  --color-superficie: #ffffff;
+  --color-superficie-2: #f3f5f9;
+  --color-linea: #dde3ec;
+  --color-tinta: #0f1b2d;
+  --color-tenue: #5a6577;
+
+  /* Identidad: azul marino y dorado. El dorado nunca va como texto sobre blanco. */
+  --color-azul: #0d2440;
+  --color-azul-2: #163463;
+  --color-sobre-azul: #ffffff;
+  --color-sobre-azul-tenue: #b9c6dc;
+  --color-oro: #f2cf3a;
+  --color-oro-texto: #7d6200;
+  --color-sobre-oro: #0d2440;
+
+  /* La acción principal: azul en claro, dorado en oscuro. */
+  --color-accion: #0d2440;
+  --color-sobre-accion: #ffffff;
+
+  /* Estado: siempre con texto o ícono, nunca solo el color. */
+  --color-bien: #1b7a43;
+  --color-bien-suave: #e3f3e9;
+  --color-aviso: #8f5a00;
+  --color-aviso-suave: #fdf0d5;
+  --color-error: #b3261e;
+  --color-error-suave: #fbe4e2;
+  --color-info: #1f5e9c;
+  --color-info-suave: #e3edf8;
+
+  --color-velo: rgb(6 11 20 / 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --color-fondo: #060b14;
+    --color-superficie: #0f1b2d;
+    --color-superficie-2: #152538;
+    --color-linea: #22344d;
+    --color-tinta: #e8edf5;
+    --color-tenue: #9aa8bd;
+    --color-azul: #132a4a;
+    --color-azul-2: #1b3a63;
+    --color-oro-texto: #f2cf3a;
+    --color-accion: #f2cf3a;
+    --color-sobre-accion: #0d2440;
+    --color-bien: #6fd19a;
+    --color-bien-suave: #12301f;
+    --color-aviso: #f0b85a;
+    --color-aviso-suave: #33270f;
+    --color-error: #f28b82;
+    --color-error-suave: #3a1a18;
+    --color-info: #8fbdf0;
+    --color-info-suave: #14263b;
+  }
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-fondo);
+    color: var(--color-tinta);
+    font: 15px/1.45 var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  /* Foco en dorado, con un borde de tinta para que se vea también sobre blanco. */
+  :focus-visible {
+    outline: 2px solid var(--color-oro);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--color-tinta);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
+
+@layer components {
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .tenue {
+    color: var(--color-tenue);
+  }
+  .peq {
+    font-size: 13px;
+  }
+  .saltar {
+    position: absolute;
+    left: 8px;
+    top: -48px;
+    z-index: 60;
+    padding: 8px 12px;
+    border-radius: var(--radius-control);
+    background: var(--color-oro);
+    color: var(--color-sobre-oro);
+    font-weight: 600;
+  }
+  .saltar:focus {
+    top: 8px;
+  }
+
+  /* ---------- Armazón ---------- */
+  .app {
+    max-width: 1200px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    background: var(--color-superficie);
+    display: flex;
+    flex-direction: column;
+  }
+  .cuerpo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .barra {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
+    background: var(--color-azul);
+    color: var(--color-sobre-azul);
+  }
+  .barra h1 {
+    flex: 1;
+    min-width: 0;
+    font: 26px/1 var(--font-titulo);
+    letter-spacing: 0.03em;
+  }
+  .marca {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--color-oro);
+    color: var(--color-sobre-oro);
+    font: 15px/1 var(--font-titulo);
+    letter-spacing: 0.04em;
+  }
+  .marca.grande {
+    width: 52px;
+    height: 52px;
+    font-size: 22px;
+  }
+  .icono-btn {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: var(--radius-control);
+    color: inherit;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .icono-btn:hover {
+    background: rgb(255 255 255 / 0.1);
+  }
+  .ico {
+    flex: none;
+    width: 20px;
+    height: 20px;
+  }
+  main {
+    flex: 1;
+    padding-bottom: 96px;
+  }
+
+  /* ---------- Secciones y banda ---------- */
+  .seccion {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px 16px 0;
+  }
+  .seccion-cab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .seccion-cab h2 {
+    font: 22px/1 var(--font-titulo);
+    letter-spacing: 0.04em;
+  }
+  .banda {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 4px 16px 18px;
+    background: var(--color-azul);
+    color: var(--color-sobre-azul);
+  }
+  .banda .titulo-grande {
+    font: 44px/0.95 var(--font-titulo);
+    letter-spacing: 0.02em;
+  }
+  .banda .titulo-grande span {
+    color: var(--color-oro);
+  }
+  .banda .meta {
+    color: var(--color-sobre-azul-tenue);
+    font-size: 13.5px;
+  }
+
+  /* ---------- Listas con divisores (no tarjetas) ---------- */
+  .lista {
+    border-top: 1px solid var(--color-linea);
+  }
+  .lista > li {
+    border-bottom: 1px solid var(--color-linea);
+  }
+  .fila {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 0;
+    color: inherit;
+    text-align: left;
+    text-decoration: none;
+  }
+  a.fila:hover strong {
+    text-decoration: underline;
+  }
+  .fila .crece {
+    flex: 1;
+    min-width: 0;
+  }
+  .fila strong {
+    display: block;
+    font-weight: 600;
+  }
+  .fila .sub {
+    display: block;
+    font-size: 13px;
+    color: var(--color-tenue);
+  }
+  .chev {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--color-tenue);
+  }
+  .icono-estado {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+  }
+  .icono-estado .ico {
+    width: 17px;
+    height: 17px;
+  }
+
+  /* Tonos de estado compartidos por chips, íconos y alertas. */
+  .bien {
+    background: var(--color-bien-suave);
+    color: var(--color-bien);
+  }
+  .aviso {
+    background: var(--color-aviso-suave);
+    color: var(--color-aviso);
+  }
+  .error {
+    background: var(--color-error-suave);
+    color: var(--color-error);
+  }
+  .info {
+    background: var(--color-info-suave);
+    color: var(--color-info);
+  }
+  .neutro {
+    background: var(--color-superficie-2);
+    color: var(--color-tenue);
+  }
+  .icono-estado.neutro {
+    color: var(--color-tinta);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  /* El número de pregunta abierta (P13) junto a una regla. */
+  .pregunta {
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: var(--color-info-suave);
+    color: var(--color-info);
+    font: 600 11px/1 var(--font-sans);
+  }
+
+  /* ---------- Botones: una acción principal por pantalla ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    color: var(--color-tinta);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .btn:hover {
+    background: var(--color-superficie-2);
+  }
+  .btn.principal {
+    border-color: var(--color-accion);
+    background: var(--color-accion);
+    color: var(--color-sobre-accion);
+  }
+  .btn.principal:hover {
+    filter: brightness(1.15);
+  }
+  .btn.chico {
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+  .btn.bloque {
+    width: 100%;
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn .ico {
+    width: 18px;
+    height: 18px;
+  }
+  .botones {
+    display: flex;
+    gap: 10px;
+  }
+  .botones > * {
+    flex: 1;
+  }
+
+  /* ---------- Pestañas subrayadas, la activa en dorado ---------- */
+  .pestanas {
+    position: sticky;
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    z-index: 10;
+    display: flex;
+    overflow-x: auto;
+    padding-inline: 8px;
+    border-bottom: 1px solid var(--color-linea);
+    background: var(--color-superficie);
+    scrollbar-width: none;
+  }
+  .pestanas a {
+    padding: 13px 10px 11px;
+    border-bottom: 3px solid transparent;
+    color: var(--color-tenue);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .pestanas a[aria-current="page"] {
+    border-bottom-color: var(--color-oro);
+    color: var(--color-tinta);
+  }
+
+  /* ---------- Formularios ---------- */
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .campo label {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+  .campo input,
+  .campo select,
+  .campo textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    font-size: 16px; /* 16 px: el celular no hace zoom al escribir */
+  }
+  .campo .error-campo {
+    color: var(--color-error);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .dos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* ---------- Avisos en línea, estado vacío ---------- */
+  .alerta {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-control);
+    font-size: 13.5px;
+  }
+  .alerta .ico {
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+  }
+  .vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 36px 16px;
+    text-align: center;
+  }
+  .vacio .icono-estado {
+    width: 48px;
+    height: 48px;
+  }
+  .vacio .icono-estado .ico {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* ---------- Navegación: abajo en el celular, al costado desde 900 px ---------- */
+  .nav {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--color-linea);
+    background: var(--color-superficie);
+  }
+  .nav a,
+  .nav [aria-disabled="true"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 0 4px;
+    border-top: 3px solid transparent;
+    color: var(--color-tenue);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .nav .ico {
+    width: 22px;
+    height: 22px;
+  }
+  .nav a[aria-current="page"] {
+    border-top-color: var(--color-oro);
+    color: var(--color-tinta);
+  }
+  .nav [aria-disabled="true"] {
+    opacity: 0.45;
+  }
+  .nav .solo-lateral {
+    display: none;
+  }
+
+  /* ---------- Hoja inferior (<dialog>) y aviso flotante ---------- */
+  .hoja {
+    inset: auto 0 0;
+    width: 100%;
+    max-width: 560px;
+    max-height: 92dvh;
+    margin: 0 auto;
+    padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    border-radius: var(--radius-hoja) var(--radius-hoja) 0 0;
+    background: var(--color-superficie);
+    color: var(--color-tinta);
+    box-shadow: 0 -8px 30px rgb(0 0 0 / 0.25);
+  }
+  .hoja[open] {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .hoja::backdrop {
+    background: var(--color-velo);
+  }
+  .hoja .asa {
+    width: 40px;
+    height: 4px;
+    margin: 0 auto;
+    border-radius: 2px;
+    background: var(--color-linea);
+  }
+  .hoja h2 {
+    font: 28px/1 var(--font-titulo);
+    letter-spacing: 0.03em;
+  }
+  .flotante {
+    position: fixed;
+    left: 50%;
+    bottom: 84px;
+    z-index: 50;
+    max-width: calc(100% - 32px);
+    padding: 10px 16px;
+    transform: translateX(-50%);
+    border-radius: var(--radius-control);
+    background: var(--color-azul);
+    color: var(--color-sobre-azul);
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+  }
+
+  /* ---------- Ingreso (sin sesión) ---------- */
+  .ingreso {
+    max-width: 420px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    padding-bottom: 32px;
+    background: var(--color-superficie);
+  }
+
+  /* ---------- Pantalla grande ---------- */
+  @media (min-width: 900px) {
+    .app {
+      flex-direction: row;
+    }
+    .nav {
+      position: sticky;
+      top: 0;
+      align-self: flex-start;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: none;
+      width: 232px;
+      height: 100dvh;
+      padding: 16px 12px;
+      border-top: 0;
+      border-right: 1px solid var(--color-linea);
+    }
+    .nav a,
+    .nav [aria-disabled="true"] {
+      flex-direction: row;
+      gap: 10px;
+      padding: 10px 12px;
+      border-top: 0;
+      border-left: 3px solid transparent;
+      border-radius: 0 var(--radius-control) var(--radius-control) 0;
+      font-size: 14.5px;
+    }
+    .nav a[aria-current="page"] {
+      border-left-color: var(--color-oro);
+      background: var(--color-superficie-2);
+    }
+    .nav .solo-lateral {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 12px 16px;
+      font: 24px/1 var(--font-titulo);
+      letter-spacing: 0.03em;
+    }
+    main {
+      padding-bottom: 40px;
+    }
+    main > :not(.banda),
+    .banda > * {
+      max-width: 960px;
+    }
+    .seccion,
+    .banda {
+      padding-inline: 32px;
+    }
+    .pestanas {
+      padding-inline: 24px;
+    }
+    .flotante {
+      bottom: 24px;
+    }
+    .ingreso {
+      margin-top: 40px;
+      min-height: auto;
+      border-radius: var(--radius-hoja);
+      overflow: hidden;
+    }
+  }
+}

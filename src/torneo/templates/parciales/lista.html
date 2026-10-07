@@ -1,0 +1,6 @@
+{# Lista con divisores. filas: diccionarios con las claves de parciales/fila.html. #}
+<ul class="lista">
+  {% for f in filas %}
+  <li>{% include "parciales/fila.html" with titulo=f.titulo sub=f.sub url=f.url icono=f.icono estado=f.estado chip=f.chip chip_estado=f.chip_estado %}</li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,10 @@
+{% comment %}
+Encabezado de una sección (<div class="seccion">): título, y a la derecha un chip o una acción.
+Parámetros: titulo, chip y chip_estado, o accion y accion_url (botón secundario chico).
+{% endcomment %}
+<div class="seccion-cab">
+  <h2>{{ titulo }}</h2>
+  {% if chip %}{% include "parciales/chip.html" with texto=chip estado=chip_estado %}
+  {% elif accion %}<a class="btn chico" href="{{ accion_url }}">{{ accion }}</a>
+  {% elif nota %}<span class="peq tenue">{{ nota }}</span>{% endif %}
+</div>

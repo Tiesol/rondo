@@ -1,0 +1,9 @@
+{% comment %}
+Banda azul marino con la identidad: "JMP CUP" y, en dorado, "2026".
+Parámetros: antes y despues (líneas chicas), titulo y resaltado.
+{% endcomment %}
+<div class="banda">
+  {% if antes %}<p class="meta">{{ antes }}</p>{% endif %}
+  <p class="titulo-grande">{{ titulo }}{% if resaltado %} <span>{{ resaltado }}</span>{% endif %}</p>
+  {% if despues %}<p class="meta">{{ despues }}</p>{% endif %}
+</div>

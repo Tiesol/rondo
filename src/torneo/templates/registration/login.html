@@ -1,34 +1,29 @@
 {% extends "base.html" %}
 {% block titulo %}Iniciar sesión{% endblock %}
-{% block contenido %}
-<div class="mx-auto mt-10 max-w-sm">
-  <div class="mb-6 flex flex-col items-center text-center">
-    <span class="grid size-12 place-items-center rounded-xl bg-(--color-marca) text-lg font-bold text-white" aria-hidden="true">R</span>
-    <h1 class="mt-4 text-xl font-semibold tracking-tight">Iniciar sesión</h1>
-    <p class="mt-1 text-sm text-slate-600">{{ organizador.nombre }}</p>
+{% block contenido_sin_sesion %}
+<div class="banda pt-6">
+  <span class="marca grande" aria-hidden="true">{{ organizador.sigla }}</span>
+  <div>
+    <h1 class="titulo-grande">Rondo</h1>
+    <p class="meta">{{ organizador.nombre }}</p>
   </div>
-  <form method="post" class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-    {% csrf_token %}
-    {% if form.non_field_errors %}
-    <div role="alert" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-      Usuario o contraseña incorrectos.
-    </div>
-    {% endif %}
-    <div>
-      <label for="id_username" class="block text-sm font-medium text-slate-700">Usuario</label>
-      <input id="id_username" name="username" type="text" autocomplete="username" autocapitalize="none" required autofocus
-             value="{{ form.username.value|default:'' }}"
-             class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base focus:border-emerald-600 focus:outline-2 focus:outline-emerald-600/30">
-    </div>
-    <div>
-      <label for="id_password" class="block text-sm font-medium text-slate-700">Contraseña</label>
-      <input id="id_password" name="password" type="password" autocomplete="current-password" required
-             class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base focus:border-emerald-600 focus:outline-2 focus:outline-emerald-600/30">
-    </div>
-    <input type="hidden" name="next" value="{{ next }}">
-    <button type="submit" class="w-full rounded-lg bg-emerald-600 px-4 py-2.5 font-medium text-white hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600">
-      Entrar
-    </button>
-  </form>
 </div>
+<form method="post" class="seccion gap-4">
+  <div class="seccion-cab"><h2>Iniciar sesión</h2></div>
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+  {% include "parciales/alerta.html" with estado="error" texto="Usuario o contraseña incorrectos." %}
+  {% endif %}
+  <div class="campo">
+    <label for="id_username">Usuario</label>
+    <input id="id_username" name="username" type="text" autocomplete="username" autocapitalize="none" required autofocus
+           value="{{ form.username.value|default:'' }}">
+  </div>
+  <div class="campo">
+    <label for="id_password">Contraseña</label>
+    <input id="id_password" name="password" type="password" autocomplete="current-password" required>
+  </div>
+  <input type="hidden" name="next" value="{{ next }}">
+  {% include "parciales/boton.html" with texto="Entrar" principal=True bloque=True %}
+</form>
 {% endblock %}

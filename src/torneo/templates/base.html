@@ -1,34 +1,40 @@
 {% load static tailwind_cli %}<!doctype html>
-<html lang="es" class="h-full">
+<html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block titulo %}Rondo{% endblock %} · {{ organizador.nombre }}</title>
+  <link rel="preload" href="{% static 'fuentes/figtree-latin-variable.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'fuentes/bebas-neue-latin-400.woff2' %}" as="font" type="font/woff2" crossorigin>
   {% tailwind_css %}
   <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/ui.js' %}" defer></script>
 </head>
-<body class="min-h-full bg-slate-50 text-slate-900 antialiased" style="--color-marca: {{ organizador.color_primario }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <a class="saltar" href="#contenido">Ir al contenido</a>
   {% if user.is_authenticated %}
-  <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
-    <nav class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3" aria-label="Principal">
-      <a href="{% url 'inicio' %}" class="flex items-center gap-2 font-semibold tracking-tight">
-        <span class="grid size-8 place-items-center rounded-lg bg-(--color-marca) text-sm font-bold text-white" aria-hidden="true">R</span>
-        <span>Rondo <span class="font-normal text-slate-500">· {{ organizador.nombre }}</span></span>
-      </a>
-      <div class="flex items-center gap-1 text-sm">
-        {% if user.is_staff %}
-        <a href="{% url 'admin:index' %}" class="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-emerald-600">Configuración</a>
-        {% endif %}
+  <div class="app">
+    {% include "parciales/navegacion.html" %}
+    <div class="cuerpo">
+      <header class="barra">
+        {% block volver %}{% endblock %}
+        <span class="marca" aria-hidden="true">{{ organizador.sigla }}</span>
+        <h1>{% block encabezado %}Rondo{% endblock %}</h1>
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
-          <button type="submit" class="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-emerald-600">Salir</button>
+          <button type="submit" class="icono-btn">{% include "parciales/icono.html" with nombre="salir" %}Salir</button>
         </form>
-      </div>
-    </nav>
-  </header>
-  {% endif %}
-  <main class="mx-auto max-w-5xl px-4 py-6">
-    {% block contenido %}{% endblock %}
+      </header>
+      <main id="contenido">
+        {% block contenido %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% else %}
+  <main id="contenido" class="ingreso">
+    {% block contenido_sin_sesion %}{% endblock %}
   </main>
+  {% endif %}
+  {% for mensaje in messages %}{% include "parciales/aviso.html" with texto=mensaje %}{% endfor %}
 </body>
 </html>
