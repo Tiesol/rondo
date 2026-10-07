@@ -108,7 +108,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 
 - [x] T3.1 Formatos como datos (FIX-01, FIX-02, FIX-07)
 - [x] T3.2 Dominio: cruces de la fase de grupos (FIX-03 a FIX-05)
-- [ ] T3.3 Dominio: sorteo de series y fixture completo (FIX-06, FIX-08)
+- [x] T3.3 Dominio: sorteo de series y fixture completo (FIX-06, FIX-08)
 - [ ] T3.4 Modelos Serie y Partido, y servicio de fixture (FIX-09)
 - [ ] T3.5 Pantallas: series y fixture
 - [ ] T3.6 Dominio: verificador de choques y prueba 2023

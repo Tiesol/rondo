@@ -472,9 +472,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] La misma semilla da el mismo sorteo; con dos equipos de un club y dos series, quedan en series distintas.
-- [ ] El fixture de N equipos tiene la cantidad de partidos del formato, y los de eliminación llevan referencias y no equipos.
-- [ ] Con series ya elegidas a mano, el fixture las respeta.
+- [x] La misma semilla da el mismo sorteo; con dos equipos de un club y dos series, quedan en series distintas.
+- [x] El fixture de N equipos tiene la cantidad de partidos del formato, y los de eliminación llevan referencias y no equipos.
+- [x] Con series ya elegidas a mano, el fixture las respeta.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** T3.2.
