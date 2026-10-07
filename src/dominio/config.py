@@ -177,12 +177,20 @@ class ConfigTorneo(_Estricto):
         return next(c for c in self.categorias if c.nombre == nombre)
 
     def minutos_partido(self, nivel: Nivel) -> int:
-        """CAT-03: dos tiempos más el descanso."""
-        return 2 * nivel.min_por_tiempo + self.partido.descanso_min
+        return minutos_partido(nivel.min_por_tiempo, self.partido)
 
     def minutos_turno(self, nivel: Nivel) -> int:
-        """CAT-03: el partido más el cambio entre partidos (40, 50, 60 o 70 en 2026)."""
-        return self.minutos_partido(nivel) + self.partido.cambio_entre_partidos_min
+        return minutos_turno(nivel.min_por_tiempo, self.partido)
+
+
+def minutos_partido(min_por_tiempo: int, partido: Partido) -> int:
+    """CAT-03: dos tiempos más el descanso."""
+    return 2 * min_por_tiempo + partido.descanso_min
+
+
+def minutos_turno(min_por_tiempo: int, partido: Partido) -> int:
+    """CAT-03: el partido más el cambio entre partidos (40, 50, 60 o 70 en 2026)."""
+    return minutos_partido(min_por_tiempo, partido) + partido.cambio_entre_partidos_min
 
 
 def cargar_config(archivo: Path) -> ConfigTorneo:
