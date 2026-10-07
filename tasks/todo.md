@@ -269,9 +269,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con la plantilla y sin cambiar nada, crea lo mismo que `cargar_config`: 23 categorías-nivel, 5 canchas y 15 franjas.
-- [ ] Destildar una categoría o cambiar un horario se refleja en el torneo creado.
-- [ ] Volver atrás no pierde lo cargado en los pasos anteriores.
+- [x] Con la plantilla y sin cambiar nada, crea lo mismo que `cargar_config`: 23 categorías-nivel, 5 canchas y 15 franjas.
+- [x] Destildar una categoría o cambiar un horario se refleja en el torneo creado.
+- [x] Volver atrás no pierde lo cargado en los pasos anteriores.
 
 **Verificación:** verde, con un test de punta a punta del asistente.
 **Depende de:** TU.3.

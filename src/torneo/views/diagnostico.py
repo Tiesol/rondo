@@ -1,5 +1,6 @@
 """Páginas de diagnóstico, solo para staff. Las de la fase 0 se borran al cerrar la fase 4."""
 
+from django import forms
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -84,6 +85,11 @@ FILAS_DE_MUESTRA = [
 ]
 
 
+class FormularioDeMuestra(forms.Form):
+    nombre = forms.CharField(help_text="Aparece en la banda y en la página pública.")
+    edicion = forms.IntegerField(label="Edición", min_value=1)
+
+
 def componentes(request: HttpRequest) -> HttpResponse:
     if not request.user.is_staff:
         raise PermissionDenied
@@ -100,5 +106,10 @@ def componentes(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "diagnostico/componentes.html",
-        {"pendientes": PENDIENTES_DE_MUESTRA, "filas": FILAS_DE_MUESTRA, "pestanas": pestanas},
+        {
+            "pendientes": PENDIENTES_DE_MUESTRA,
+            "filas": FILAS_DE_MUESTRA,
+            "pestanas": pestanas,
+            "form": FormularioDeMuestra({"nombre": "JMP CUP 2026", "edicion": "0"}),
+        },
     )

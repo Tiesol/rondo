@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block titulo %}Crear torneo{% endblock %}
+{% block encabezado %}Crear torneo{% endblock %}
+{% block contenido %}
+{% if pasos %}
+<ol class="pasos" aria-label="Pasos">
+  {% for p in pasos %}
+  <li class="paso"{% if p.actual %} aria-current="step" data-estado="actual"{% elif p.hecho %} data-estado="hecho"{% endif %}>{{ p.nombre }}</li>
+  {% endfor %}
+</ol>
+{% endif %}
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+  <div class="seccion">{% for error in form.non_field_errors %}{% include "parciales/alerta.html" with estado="error" texto=error %}{% endfor %}</div>
+  {% endif %}
+
+  {% if paso == 1 %}
+  <div class="seccion gap-3.5">
+    {% include "parciales/seccion_cab.html" with titulo="Datos del torneo" %}
+    {% include "parciales/alerta.html" with estado="info" titulo="Empieza con el reglamento de la JMP CUP 2026." texto="Categorías, canchas, horarios y reglas vienen cargados. En los pasos que siguen cambias lo que quieras." %}
+    {% include "parciales/campo.html" with campo=form.nombre %}
+    {% include "parciales/campo.html" with campo=form.edicion %}
+    <div class="dos">
+      {% include "parciales/campo.html" with campo=form.inicio %}
+      {% include "parciales/campo.html" with campo=form.fin %}
+    </div>
+  </div>
+
+  {% elif paso == 2 %}
+  <div class="seccion">
+    {% include "parciales/seccion_cab.html" with titulo="Categorías" nota="Las que se juegan este año" %}
+    {% for error in form.niveles.errors %}{% include "parciales/alerta.html" with estado="error" texto=error %}{% endfor %}
+    <ul class="lista">
+      {% for nivel in form.filas %}
+      <li class="fila ajuste">
+        <label class="crece" for="nivel-{{ forloop.counter }}">
+          <strong>{{ nivel.titulo }}</strong>
+          <span class="sub">{{ nivel.sub }}</span>
+        </label>
+        <input type="checkbox" class="interruptor" role="switch" id="nivel-{{ forloop.counter }}" name="niveles" value="{{ nivel.clave }}"{% if nivel.elegido %} checked{% endif %}>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% elif paso == 3 %}
+  <div class="seccion">
+    {% include "parciales/seccion_cab.html" with titulo="Canchas" %}
+    <p class="peq tenue">Vienen del reglamento: la cancha 1 se divide en dos mitades para Sub 5 y Sub 6. Se cambian después, desde Torneo.</p>
+  </div>
+  <div class="seccion">
+    {% include "parciales/seccion_cab.html" with titulo="Horarios" nota="Hora de Bolivia" %}
+    <ul class="lista">
+      {% for dia in form.dias %}
+      <li class="fila ajuste">
+        <label class="crece" for="{{ dia.activo.id_for_label }}"><strong>{{ dia.nombre }}</strong></label>
+        <span class="control">{{ dia.activo }}</span>
+        <span class="control ancho horario">
+          {{ dia.inicio }}<span class="tenue" aria-hidden="true">a</span>{{ dia.fin }}
+        </span>
+        {% for error in dia.inicio.errors %}<span class="error-campo">{{ error }}</span>{% endfor %}
+        {% for error in dia.fin.errors %}<span class="error-campo">{{ error }}</span>{% endfor %}
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="peq tenue">Se juega cada semana en los días encendidos, entre el inicio y el fin del torneo. Si llueve, después se agrega un día entre semana.</p>
+  </div>
+
+  {% else %}
+  {% for grupo, reglas in form.grupos %}
+  <div class="seccion">
+    {% include "parciales/seccion_cab.html" with titulo=grupo %}
+    {% include "torneo/_reglas_grupo.html" %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="seccion">
+    <div class="botones">
+      {% if paso > 1 %}<button type="submit" name="ir" value="atras" class="btn" formnovalidate>Atrás</button>{% else %}<a class="btn" href="{% url 'inicio' %}">Cancelar</a>{% endif %}
+      <button type="submit" class="btn principal">{% if ultimo %}Crear el torneo{% else %}Siguiente{% endif %}</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

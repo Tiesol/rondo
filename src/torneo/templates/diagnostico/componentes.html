@@ -57,7 +57,8 @@
 
 <div class="seccion">
   {% include "parciales/seccion_cab.html" with titulo="Formulario" %}
-  <div class="campo"><label for="muestra-nombre">Nombre</label><input id="muestra-nombre" value="JMP CUP 2026"></div>
+  {% include "parciales/campo.html" with campo=form.nombre %}
+  {% include "parciales/campo.html" with campo=form.edicion %}
   <div class="dos">
     <div class="campo"><label for="muestra-inicio">Empieza</label><input id="muestra-inicio" type="date" value="2026-10-23"></div>
     <div class="campo"><label for="muestra-fin">Termina</label><input id="muestra-fin" type="date" value="2026-11-22"></div>
