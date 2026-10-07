@@ -1,0 +1,10 @@
+{% comment %}
+Estado vacío o sin permiso: ícono, título, explicación y, si hay, la acción para salir de ahí.
+Parámetros: icono, titulo, texto, accion y accion_url.
+{% endcomment %}
+<div class="vacio">
+  <span class="icono-estado neutro">{% include "parciales/icono.html" with nombre=icono|default:"info" clase="ico" %}</span>
+  <strong>{{ titulo }}</strong>
+  {% if texto %}<p class="peq tenue">{{ texto }}</p>{% endif %}
+  {% if accion %}{% include "parciales/boton.html" with texto=accion url=accion_url principal=True %}{% endif %}
+</div>

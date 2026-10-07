@@ -216,7 +216,7 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 ## Fase 1b: pantallas propias
 
-> **Pendiente de aprobación de Sebastian** (planificado el 2026-10-07). Reemplaza al admin de Django como pantalla del organizador, siguiendo `docs/DISENO.md` y el prototipo (https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a). El admin queda solo para Sebastian, en `/admin/`. No agrega dependencias.
+> **Aprobada por Sebastian el 2026-10-07.** Reemplaza al admin de Django como pantalla del organizador, siguiendo `docs/DISENO.md` y el prototipo (https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a). El admin queda solo para Sebastian, en `/admin/`. No agrega dependencias.
 
 ### TU.1 Base visual: tokens, plantilla y navegación
 
@@ -224,9 +224,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Inicio, login y una página de ejemplo con todos los parciales se ven como el prototipo a 360 px y a 1024 px, en claro y en oscuro (capturas).
-- [ ] Se navega todo con el teclado, con el foco visible en dorado.
-- [ ] Ningún color está escrito a mano en las plantillas: todos salen de los tokens.
+- [x] Inicio, login y una página de ejemplo con todos los parciales se ven como el prototipo a 360 px y a 1024 px, en claro y en oscuro (capturas).
+- [x] Se navega todo con el teclado, con el foco visible en dorado.
+- [x] Ningún color está escrito a mano en las plantillas: todos salen de los tokens.
 
 **Verificación:** verde, más capturas a 360 y 1024 px.
 **Depende de:** nada.
@@ -310,7 +310,7 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 ### TU.7 Datos de la escuela
 
-**Descripción:** pantalla para editar el nombre y los colores del organizador, sin admin. El logo y los patrocinadores esperan a que haya imágenes y un lugar donde guardarlas.
+**Descripción:** pantalla para editar el nombre y los colores del organizador, sin admin. Los colores pintan la interfaz: el principal reemplaza al azul marino de los tokens y se agrega un color de acento para el dorado, con esos dos como valores por defecto (hoy el color guardado por defecto es el verde rechazado, y TU.1 dejó de usarlo; R4 en `docs/REVISAR.md`). El logo y los patrocinadores esperan a que haya imágenes y un lugar donde guardarlas.
 
 **Aceptación:**
 

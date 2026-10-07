@@ -1,0 +1,13 @@
+{% comment %}
+Una fila de lista, dentro de un <li>. Con url es un enlace y lleva flecha.
+Parámetros: titulo, sub, url, icono y estado (tono del ícono), chip y chip_estado.
+{% endcomment %}
+{% if url %}<a class="fila" href="{{ url }}">{% else %}<div class="fila">{% endif %}
+  {% if icono %}<span class="icono-estado {{ estado|default:'neutro' }}">{% include "parciales/icono.html" with nombre=icono clase="ico" %}</span>{% endif %}
+  <span class="crece">
+    <strong>{{ titulo }}</strong>
+    {% if sub %}<span class="sub">{{ sub }}</span>{% endif %}
+  </span>
+  {% if chip %}{% include "parciales/chip.html" with texto=chip estado=chip_estado %}{% endif %}
+  {% if url %}{% include "parciales/icono.html" with nombre="chevron" clase="chev" %}{% endif %}
+{% if url %}</a>{% else %}</div>{% endif %}

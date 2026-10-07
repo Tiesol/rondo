@@ -1,0 +1,21 @@
+{# Íconos de trazo, del prototipo. Uso: {% include "parciales/icono.html" with nombre="inicio" %}. Decorativos: el texto va al lado. #}
+<svg class="{{ clase|default:'ico' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+{% if nombre == "inicio" %}<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
+{% elif nombre == "torneo" %}<path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 12v4M9 20h6M10 16h4v4h-4z"/>
+{% elif nombre == "calendario" %}<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>
+{% elif nombre == "mas" %}<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+{% elif nombre == "chevron" %}<path d="M9 6l6 6-6 6"/>
+{% elif nombre == "volver" %}<path d="M15 18l-6-6 6-6"/>
+{% elif nombre == "salir" %}<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3"/>
+{% elif nombre == "aviso" %}<path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/>
+{% elif nombre == "info" %}<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+{% elif nombre == "bien" %}<path d="M5 12l5 5 9-11"/>
+{% elif nombre == "error" %}<circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/>
+{% elif nombre == "candado" %}<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+{% elif nombre == "personas" %}<path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/>
+{% elif nombre == "documento" %}<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M7 11h6"/>
+{% elif nombre == "posiciones" %}<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>
+{% elif nombre == "mundo" %}<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+{% elif nombre == "mas-signo" %}<path d="M12 5v14M5 12h14"/>
+{% endif %}
+</svg>

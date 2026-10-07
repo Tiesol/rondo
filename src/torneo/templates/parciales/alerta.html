@@ -1,0 +1,8 @@
+{% comment %}
+Aviso en línea, con ícono y texto (nunca solo color).
+Parámetros: estado (bien, aviso, error o info), titulo (en negrita, opcional) y texto.
+{% endcomment %}
+<p class="alerta {{ estado|default:'info' }}"{% if estado == "error" %} role="alert"{% endif %}>
+  {% include "parciales/icono.html" with nombre=estado|default:"info" clase="ico" %}
+  <span>{% if titulo %}<strong>{{ titulo }}</strong> {% endif %}{{ texto }}</span>
+</p>

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}Inicio{% endblock %}
+{% block encabezado %}Inicio{% endblock %}
 {% block contenido %}
-<h1 class="text-2xl font-semibold tracking-tight">Hola, {{ user.get_short_name|default:user.username }}</h1>
-<p class="mt-2 text-slate-600">Desde acá vas a organizar el torneo: inscripción, fixture, programación y calendario.</p>
+{% include "parciales/banda.html" with antes=organizador.nombre titulo="Hola," resaltado=user.get_short_name|default:user.username despues="Desde acá vas a organizar el torneo: inscripción, fixture, programación y calendario." %}
 {% endblock %}

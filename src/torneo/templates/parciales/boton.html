@@ -1,0 +1,8 @@
+{% comment %}
+Botón o enlace con forma de botón. Con url es un enlace; si no, un <button>.
+Parámetros: texto, url, tipo (submit por defecto), principal, chico, bloque, icono, abre (id de una hoja).
+Para botones con atributos de HTMX se usan las clases .btn directamente.
+{% endcomment %}
+{% if url %}<a href="{{ url }}"{% else %}<button type="{{ tipo|default:'submit' }}"{% if abre %} data-abrir-hoja="{{ abre }}"{% endif %}{% endif %} class="btn{% if principal %} principal{% endif %}{% if chico %} chico{% endif %}{% if bloque %} bloque{% endif %}">
+  {% if icono %}{% include "parciales/icono.html" with nombre=icono clase="ico" %}{% endif %}{{ texto }}
+{% if url %}</a>{% else %}</button>{% endif %}

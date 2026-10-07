@@ -31,3 +31,13 @@ class Organizador(models.Model):
     def actual(cls) -> Organizador:
         organizador, _ = cls.objects.get_or_create(pk=cls.PK_UNICO)
         return organizador
+
+    @property
+    def sigla(self) -> str:
+        """La marca redonda de la barra: "JMP Soccer School" da "JMP"; "Club Bolívar", "CB"."""
+        palabras = self.nombre.split()
+        if not palabras:
+            return ""
+        if palabras[0].isupper() and len(palabras[0]) > 1:
+            return palabras[0][:4]
+        return "".join(p[0] for p in palabras[:3]).upper()

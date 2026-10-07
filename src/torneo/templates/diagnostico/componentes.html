@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block titulo %}Componentes{% endblock %}
+{% block encabezado %}Componentes{% endblock %}
+{% block contenido %}
+{% include "parciales/banda.html" with antes="Torneo activo · 5.ª edición" titulo="JMP CUP" resaltado="2026" despues="Del viernes 23 de octubre al domingo 22 de noviembre · 5 fines de semana" %}
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Pendientes" chip="3" chip_estado="aviso" %}
+  {% include "parciales/lista.html" with filas=pendientes %}
+</div>
+
+{% include "parciales/pestanas.html" with etiqueta="Secciones de la categoría" %}
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Equipos" accion="Agregar equipo" accion_url="#" %}
+  {% include "parciales/lista.html" with filas=filas %}
+</div>
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Chips" nota="Siempre con texto" %}
+  <div class="flex flex-wrap gap-2">
+    {% include "parciales/chip.html" with texto="13 de 14 jugadores" estado="bien" %}
+    {% include "parciales/chip.html" with texto="4 sin verificar" estado="aviso" %}
+    {% include "parciales/chip.html" with texto="Choque con un profe" estado="error" %}
+    {% include "parciales/chip.html" with texto="2 equipos más" estado="info" %}
+    {% include "parciales/chip.html" with texto="Mesa" %}
+    <span class="pregunta">P13</span>
+  </div>
+</div>
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Avisos" %}
+  {% include "parciales/alerta.html" with estado="bien" titulo="187 de 191 partidos programados, sin choques." texto="Faltan 4 que no tienen lugar." %}
+  {% include "parciales/alerta.html" with estado="aviso" titulo="Ya juega en Sub 11 Avanzado de River Plate." texto="Se permite porque es el mismo club y otra categoría." %}
+  {% include "parciales/alerta.html" with estado="error" texto="Nacido en 2014: es mayor para Sub 9." %}
+  {% include "parciales/alerta.html" with estado="info" texto="Sin dorsal se puede guardar. Hace falta antes del primer partido." %}
+</div>
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Botones" %}
+  <div class="botones">
+    {% include "parciales/boton.html" with texto="Cancelar" tipo="button" %}
+    {% include "parciales/boton.html" with texto="Agregar jugador" tipo="button" principal=True abre="hoja-muestra" %}
+  </div>
+  <div class="flex flex-wrap gap-2">
+    {% include "parciales/boton.html" with texto="Editar" url="#" chico=True %}
+    {% include "parciales/boton.html" with texto="Agregar cancha" url="#" chico=True icono="mas-signo" %}
+  </div>
+</div>
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Vacío y sin permiso" %}
+  {% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay resultados" texto="La tabla aparece con el primer partido jugado." %}
+  {% include "parciales/vacio.html" with icono="candado" titulo="Solo la organización puede programar" texto="Puedes ver el resultado en el calendario." %}
+  {% include "parciales/vacio.html" with icono="torneo" titulo="Todavía no hay un torneo" texto="Créalo desde la plantilla del reglamento." accion="Crear el torneo" accion_url="#" %}
+</div>
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Formulario" %}
+  <div class="campo"><label for="muestra-nombre">Nombre</label><input id="muestra-nombre" value="JMP CUP 2026"></div>
+  <div class="dos">
+    <div class="campo"><label for="muestra-inicio">Empieza</label><input id="muestra-inicio" type="date" value="2026-10-23"></div>
+    <div class="campo"><label for="muestra-fin">Termina</label><input id="muestra-fin" type="date" value="2026-11-22"></div>
+  </div>
+</div>
+
+{% include "parciales/hoja.html" with id="hoja-muestra" titulo="Agregar jugador" cuerpo="diagnostico/_hoja_muestra.html" %}
+{% include "parciales/aviso.html" with texto="Así se ve un aviso flotante" %}
+{% endblock %}

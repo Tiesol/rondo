@@ -65,9 +65,9 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 
 ### Fase 1b: pantallas propias (antes de la inscripción)
 
-> Pendiente de aprobación de Sebastian. Reemplaza al admin como pantalla del organizador, según `docs/DISENO.md`. El detalle está en [todo.md](todo.md).
+> Aprobada por Sebastian el 2026-10-07. Reemplaza al admin como pantalla del organizador, según `docs/DISENO.md`. El detalle está en [todo.md](todo.md).
 
-- [ ] TU.1 Base visual: tokens, plantilla y navegación
+- [x] TU.1 Base visual: tokens, plantilla y navegación
 - [ ] TU.2 Roles: Organización y Mesa de control
 - [ ] TU.3 Reglas del torneo con interruptores
 - [ ] TU.4 Crear torneo con el asistente
