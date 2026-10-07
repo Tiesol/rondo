@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 1b, pantallas propias. Aprobada; TU.1 a TU.7 listas.
-- **Siguiente paso:** revisión de cierre de la fase 1b. Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
+- **Fase:** 2, inscripción. La fase 1b está cerrada y revisada.
+- **Siguiente paso:** T2.1 (normalización de documentos). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -48,6 +48,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: TU.5 lista: Inicio con el torneo activo (`Torneo.activo()`: el más reciente), sus pendientes (`servicios/pendientes.py`) y accesos, o la invitación a crearlo. Torneo en `/torneo/<categoría>/<pestaña>/`, con selector de categoría y pestañas por HTMX (solo se reemplaza `#categoria` y la URL cambia). Ajustes de la categoría (plantel, minutos, convocados y canchas), editables solo por la organización.
 - 2026-10-07: TU.6 lista: página pública en `/t/<torneo>/<categoría>/<pestaña>/` (Partidos, Posiciones y Equipos, por ahora vacías), sin login y solo para torneos con `publico` encendido (migración 0006). La organización la enciende y apaga desde "Más". Tests que fallan si una plantilla pública nombra datos personales o si la vista importa un modelo que no está en la lista permitida.
 - 2026-10-07: TU.7 lista: pantalla `/escuela/` con el nombre y los colores del organizador (principal y acento, con vista previa en vivo). Los colores pintan toda la interfaz: base.html pone `--marca`, `--acento` y `--sobre-acento` (calculado por contraste, `torneo/colores.py`), y los tokens derivan de ahí, también en modo oscuro. El principal tiene que dejar leer texto blanco (contraste de 4,5 o más). La migración 0007 cambia el verde viejo por el azul marino.
+- 2026-10-07: revisión de cierre de la fase 1b; se corrigieron 5 hallazgos (ver "Revisión de la fase 1b").
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
@@ -194,6 +195,37 @@ Se usó un modelo CP-SAT sintético con la forma del real (T0.6): canchas con mi
 
 - `cargar_config` no borra categorías ni canchas que se saquen del JSON, porque podrían tener equipos. Si hace falta, se borran en el admin.
 - El procesador de contexto hace una consulta por página para traer al Organizador. Es despreciable con 2 o 3 usuarios.
+
+## Revisión de la fase 1b (2026-10-07, `code-review-and-quality`)
+
+**Veredicto: aprobada, después de corregir 5 hallazgos.** El visto bueno de Sebastian queda para su vuelta (REVISAR.md).
+
+**Hallazgos, comprobados con un experimento antes de corregirlos:**
+
+| Hallazgo | Corrección |
+|---|---|
+| Con HTMX, al volver con el navegador a una página que HTMX no tenía guardada, la app devolvía solo el fragmento y la página quedaba rota | `views/fragmentos.pide_fragmento()`: en una restauración del historial se devuelve la página entera (Torneo y página pública) |
+| El asistente validaba que el torneo no existiera solo en el paso 1. Si alguien lo cargaba desde la terminal mientras tanto, al terminar se pisaba | Se vuelve a comprobar antes de crear, con un error que explica qué hacer |
+| "Más" hacía una consulta por persona para saber su rol (21 consultas con 12 personas) | `nombre_del_rol` usa `groups.all()`, que aprovecha el `prefetch_related` |
+| Con la sesión iniciada, `/cuentas/login/` se veía en blanco | El login lleva al inicio (`redirect_authenticated_user`) |
+| **Consider:** el 404 era el de Django, sin diseño, justo en la página pública | `404.html` con el estado vacío y un enlace al inicio |
+
+Cada uno tiene su test en `tests/torneo/test_revision_1b.py`.
+
+**Mutaciones:** se rompieron a propósito cuatro piezas clave; todas las detectaron los tests:
+
+| Mutación | Resultado |
+|---|---|
+| La página pública no filtra por `publico` | Detectada |
+| El superusuario no cuenta como Organización | Detectada |
+| El contraste mínimo del color principal baja de 4,5 a 1,5 | Detectada |
+| El asistente deja la compatibilidad de una categoría destildada | Detectada (la valida el dominio) |
+
+**FYI:**
+
+- `frontend/tailwind.css` tiene 905 líneas. Si pasa de unas 1.000, conviene partirlo por componente con `@import`.
+- El formulario de reglas acepta tuplas como valor inicial (Django las trata como listas): se probó y no es un problema.
+- Las capturas de cada pantalla se hicieron con Firefox, a 360 y 1024 px, en claro y en oscuro. No se probó en un celular real (R1).
 
 ## Supuestos
 

@@ -77,14 +77,15 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 
 **Checkpoint de la fase 1b:**
 
-- [ ] El organizador crea el torneo 2026 y edita sus reglas sin tocar el admin ni la terminal.
-- [ ] La mesa entra con su rol y ve los avisos donde no tiene permiso.
-- [ ] La página pública se abre sin login y no muestra datos personales.
-- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+- [x] El organizador crea el torneo 2026 y edita sus reglas sin tocar el admin ni la terminal.
+- [x] La mesa entra con su rol y ve los avisos donde no tiene permiso.
+- [x] La página pública se abre sin login y no muestra datos personales.
+- [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
+- [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
 ### Fase 2: inscripción (día 2)
 
-> Pendiente de aprobación de Sebastian. El detalle está en [todo.md](todo.md).
+> Se avanza con la autorización general del 2026-10-07 (sin visto bueno entre fases; dudas en `docs/REVISAR.md`). El detalle está en [todo.md](todo.md).
 
 - [ ] T2.1 Dominio: normalización de documentos (INS-04)
 - [ ] T2.2 Dominio: validaciones de inscripción (INS-02, 03, 05 a 10)
