@@ -35,3 +35,8 @@ def test_rechaza_archivos_prohibidos(tmp_path: Path, archivo: str) -> None:
     resultado = _repo_con(tmp_path, archivo)
     assert resultado.returncode != 0
     assert archivo in resultado.stderr
+
+
+def test_deja_pasar_el_archivo_de_ejemplo_del_entorno(tmp_path: Path) -> None:
+    resultado = _repo_con(tmp_path, ".env.example")
+    assert resultado.returncode == 0, resultado.stderr

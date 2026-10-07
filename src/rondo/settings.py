@@ -72,9 +72,13 @@ TEMPLATES = [
     },
 ]
 
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+if not DATABASE_URL:
+    raise ImproperlyConfigured("Falta la variable de entorno DATABASE_URL.")
+
 DATABASES = {
     "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL", ""),
+        DATABASE_URL,
         conn_max_age=60,
         conn_health_checks=True,
     )
