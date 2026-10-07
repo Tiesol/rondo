@@ -1,0 +1,6 @@
+{# Avisos y errores de la inscripción. Se reemplaza en vivo (HTMX) al salir de cada campo. #}
+<div id="hallazgos" class="flex flex-col gap-2" aria-live="polite">
+  {% for hallazgo in hallazgos %}
+  {% if hallazgo.nivel == "error" %}{% include "parciales/alerta.html" with estado="error" texto=hallazgo.mensaje %}{% else %}{% include "parciales/alerta.html" with estado="aviso" texto=hallazgo.mensaje %}{% endif %}
+  {% endfor %}
+</div>

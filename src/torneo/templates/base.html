@@ -38,6 +38,10 @@
   </main>
   {% endif %}
   {% endblock %}
-  {% for mensaje in messages %}{% include "parciales/aviso.html" with texto=mensaje %}{% endfor %}
+  {% if messages %}
+  <div class="flotantes" role="status">
+    {% for mensaje in messages %}{% include "parciales/aviso.html" with texto=mensaje estado=mensaje.tags %}{% endfor %}
+  </div>
+  {% endif %}
 </body>
 </html>

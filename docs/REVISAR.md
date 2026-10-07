@@ -41,3 +41,6 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R29 | T2.5 | El escudo de cada equipo es provisorio: la sigla (las 3 primeras letras) en el color de la camiseta. Los escudos reales llegan con las imágenes | Decisión del 2026-10-07: imágenes para después |
 | R30 | T2.5 | Todavía no se puede editar ni borrar un equipo desde las pantallas (solo crearlo); hoy se hace en el admin | Se suma cuando haga falta; cargar bien es lo primero |
 | R31 | T2.5 | La mesa de control también crea equipos (no solo listas) | Los roles acordados dicen "cargar equipos y listas" |
+| R32 | T2.6 | Después de guardar a un jugador, los avisos de edad, documento y otros equipos quedan en pantalla hasta cerrarlos. Los de "faltan N", "sin dorsal" y "documento pendiente" no se repiten, porque ya se ven en la ficha | Menos ruido al cargar una lista entera |
+| R33 | T2.6 | Verificar a un jugador es tocar su estado ("Verificar" → "Verificado"); tocarlo de nuevo lo desmarca. No queda registro de quién verificó | Para la demo alcanza. Quién y cuándo se puede sumar antes de la fase 6 |
+| R34 | T2.6 | Todavía no se pueden editar ni sacar jugadores o profes desde las pantallas | Llega después; hoy se hace en el admin |

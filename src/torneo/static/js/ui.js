@@ -23,12 +23,15 @@ document.addEventListener("click", (evento) => {
   }
 });
 
-// Avisos flotantes: se van solos.
+// Avisos flotantes: los de éxito se van solos; los que piden atención (data-queda), al cerrarlos.
 function ocultarAvisos(raiz) {
-  raiz.querySelectorAll("[data-aviso]").forEach((aviso) => {
+  raiz.querySelectorAll("[data-aviso]:not([data-queda])").forEach((aviso) => {
     setTimeout(() => aviso.remove(), 5000);
   });
 }
+document.addEventListener("click", (evento) => {
+  evento.target.closest("[data-cerrar-aviso]")?.closest("[data-aviso]")?.remove();
+});
 ocultarAvisos(document);
 document.addEventListener("htmx:load", (evento) => ocultarAvisos(evento.target));
 

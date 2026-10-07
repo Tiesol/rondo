@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}{% if que == "jugador" %}Agregar jugador{% else %}Agregar al cuerpo técnico{% endif %}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% if que == 'jugador' %}{% url 'equipo' equipo.pk 'plantel' %}{% else %}{% url 'equipo' equipo.pk 'cuerpo-tecnico' %}{% endif %}" aria-label="Volver a {{ equipo.nombre }}">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}{% if que == "jugador" %}Agregar jugador{% else %}Cuerpo técnico{% endif %}{% endblock %}
+{% block contenido %}
+{% if que == "jugador" %}{% url "revisar-jugador" equipo.pk as url_revisar %}{% else %}{% url "revisar-profe" equipo.pk as url_revisar %}{% endif %}
+<form method="post" class="seccion gap-3.5" novalidate
+      hx-post="{{ url_revisar }}" hx-trigger="change" hx-target="#hallazgos" hx-swap="outerHTML" hx-sync="this:replace">
+  {% csrf_token %}
+  <p class="peq tenue">{{ equipo.nombre }} · {{ equipo.categoria }}</p>
+  {% include "parciales/campo.html" with campo=form.documento %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.nombres %}
+    {% include "parciales/campo.html" with campo=form.apellidos %}
+  </div>
+  {% if que == "jugador" %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.nacimiento %}
+    {% include "parciales/campo.html" with campo=form.dorsal %}
+  </div>
+  {% else %}
+  {% include "parciales/campo.html" with campo=form.rol %}
+  {% endif %}
+  {% include "equipos/_hallazgos.html" %}
+  <div class="botones">
+    <a class="btn" href="{% if que == 'jugador' %}{% url 'equipo' equipo.pk 'plantel' %}{% else %}{% url 'equipo' equipo.pk 'cuerpo-tecnico' %}{% endif %}">Cancelar</a>
+    <button type="submit" class="btn principal">Guardar</button>
+  </div>
+  <p class="peq tenue">Los avisos no impiden guardar. Los errores, en rojo, sí.</p>
+</form>
+{% endblock %}
