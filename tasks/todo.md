@@ -363,9 +363,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Restricciones en la base: CI único si existe, dorsal único por equipo si existe, una persona una sola vez por equipo y un equipo por club + categoría-nivel + nombre visible.
-- [ ] Un test provoca un `IntegrityError` con un CI repetido y comprueba que el log no contiene el número.
-- [ ] El admin de Club permite cargar alias, y el catálogo de clubes de 2023 (6.2, solo nombres) se carga con un comando.
+- [x] Restricciones en la base: CI único si existe, dorsal único por equipo si existe, una persona una sola vez por equipo y un equipo por club + categoría-nivel + nombre visible.
+- [x] Un test provoca un `IntegrityError` con un CI repetido y comprueba que el log no contiene el número.
+- [x] El admin de Club permite cargar alias, y el catálogo de clubes de 2023 (6.2, solo nombres) se carga con un comando.
 
 **Verificación:** verde, más `makemigrations --check`.
 **Depende de:** T2.1.

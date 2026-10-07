@@ -2,10 +2,11 @@
 
 from typing import Any
 
+from django import forms
 from django.contrib import admin
 from django.http import HttpRequest
 
-from torneo.models import Cancha, CategoriaNivel, Franja, Organizador, Torneo
+from torneo.models import Cancha, CategoriaNivel, Club, Franja, Organizador, Torneo
 
 admin.site.site_header = "Rondo · configuración"
 admin.site.site_title = "Rondo"
@@ -72,3 +73,35 @@ class OrganizadorAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request: HttpRequest, obj: Any = None) -> bool:
         return False
+
+
+class FormularioClub(forms.ModelForm):
+    """Los alias se escriben uno por línea, en lugar de una lista JSON."""
+
+    alias_texto = forms.CharField(
+        label="Alias",
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 3}),
+        help_text="Otras formas de escribir el nombre del club, una por línea.",
+    )
+
+    class Meta:
+        model = Club
+        fields = ("nombre",)
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["alias_texto"].initial = "\n".join(self.instance.alias)
+
+    def save(self, commit: bool = True) -> Club:
+        lineas = self.cleaned_data["alias_texto"].splitlines()
+        self.instance.alias = [linea.strip() for linea in lineas if linea.strip()]
+        club: Club = super().save(commit)
+        return club
+
+
+@admin.register(Club)
+class ClubAdmin(admin.ModelAdmin):
+    form = FormularioClub
+    list_display = ("nombre", "alias")
+    search_fields = ("nombre",)

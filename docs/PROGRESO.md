@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 2, inscripción. La fase 1b está cerrada y revisada.
-- **Siguiente paso:** T2.3 (modelos de inscripción y logs sin datos personales).
+- **Siguiente paso:** T2.4 (servicio de inscripción).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -52,6 +52,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 - 2026-10-07: T2.1 lista: `dominio/documentos.py` normaliza CI, CI de extranjero y pasaporte. La clave de comparación usa número, complemento y "E-"; la sigla se guarda pero no se compara. Vacío o sin dígitos es "sin documento"; lo demás que no se reconoce da un error con ejemplos. Incluye un test de propiedad (hypothesis) sobre las formas de escribir un mismo CI.
 - 2026-10-07: T2.2 lista: `dominio/inscripcion.py` con funciones puras que devuelven hallazgos (error o aviso, con el ID de la regla): edad (INS-02), cantidad (INS-03), otros equipos (INS-05 a INS-07), cuerpo técnico (INS-08), dorsal (INS-09), documento (INS-10) y cierre de inscripción (INS-11, sumado porque el checkpoint de la fase pide un test por regla). 35 tests, uno o más por regla.
+- 2026-10-07: T2.3 lista: modelos Club (global, con alias), Equipo, Persona (la única con datos personales; clave de documento única si existe), Jugador y Profe, con sus restricciones en la base (migración 0008). Filtro de logs `rondo/logs.py`: de un error de la base queda solo el tipo, nunca el detalle (probado con un CI repetido). `django.db.backends` queda en WARNING. Catálogo de 21 clubes de 6.2 en `datos/config/clubes.json` y comando `cargar_clubes`; admin de Club con alias uno por línea.
 
 ## Pendiente
 

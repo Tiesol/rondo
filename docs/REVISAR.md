@@ -34,3 +34,5 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R22 | T2.2 | "Misma categoría" para INS-05 compara la categoría sin nivel: Sub 9 Inicial y Sub 9 Avanzado son la misma categoría, así que un jugador no puede estar en los dos | El reglamento habla de "otra categoría" |
 | R23 | T2.2 | Sin fecha de nacimiento no se puede cargar a un jugador (es la única forma de validar la edad) | A diferencia del CI, que puede quedar pendiente (P39) |
 | R24 | T2.2 | Se agregó la validación del cierre de inscripción (INS-11): después de esa fecha, solo la organización cambia listas | El checkpoint de la fase 2 pide un test por regla INS, e INS-11 no estaba en ninguna tarea |
+| R25 | T2.3 | En el catálogo de clubes, los nombres dudosos de 6.2 quedaron como alias: Petrolero y Oriente Petrolero 2 → Oriente Petrolero; Juniors → Atlético Juniors; Leones PFC → Leones. JMP Soccer y JMP Academy son alias del club JMP | Es lo que sugiere el contexto. Si alguno es otro club, se separa en el admin de Club |
+| R26 | T2.3 | El catálogo de clubes se carga en la demo con `manage.py cargar_clubes` (como `cargar_config`, lo corres tú contra la rama `demo`) | — |

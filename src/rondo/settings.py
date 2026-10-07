@@ -128,8 +128,13 @@ TAILWIND_CLI_DIST_CSS = "css/tailwind.css"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"consola": {"class": "logging.StreamHandler"}},
+    "filters": {"sin_datos_de_la_base": {"()": "rondo.logs.SinDatosDeLaBase"}},
+    "handlers": {
+        "consola": {"class": "logging.StreamHandler", "filters": ["sin_datos_de_la_base"]}
+    },
     "root": {"handlers": ["consola"], "level": "INFO"},
+    # Las consultas con sus parámetros (que pueden traer un CI) nunca van al log.
+    "loggers": {"django.db.backends": {"level": "WARNING"}},
 }
 
 if not DEBUG:
