@@ -43,11 +43,13 @@ class _Plantel:
 
 
 def verificar_que_es_demo() -> None:
-    if Equipo.objects.filter(categoria__torneo__es_demo=False).exists() or (
-        Persona.objects.filter(
-            Q(jugadores__equipo__categoria__torneo__es_demo=False)
-            | Q(profes__equipo__categoria__torneo__es_demo=False)
-        ).exists()
+    """Toda persona tiene que estar en un equipo de demo: una sin equipo puede ser real."""
+    de_la_demo = Q(jugadores__equipo__categoria__torneo__es_demo=True) | Q(
+        profes__equipo__categoria__torneo__es_demo=True
+    )
+    if (
+        Equipo.objects.filter(categoria__torneo__es_demo=False).exists()
+        or Persona.objects.exclude(de_la_demo).exists()
     ):
         raise NoEsLaDemo("La base tiene equipos o personas que no son de demo.")
 

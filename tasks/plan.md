@@ -97,9 +97,10 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 
 **Checkpoint de la fase 2:**
 
-- [ ] Se cumplen los criterios de inscripción de la sección 10, con un test por regla INS.
-- [ ] La demo tiene unos 80 equipos inventados, y ningún dato personal aparece en los logs.
-- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+- [x] Se cumplen los criterios de inscripción de la sección 10, con un test por regla INS.
+- [x] La demo tiene unos 80 equipos inventados (93), y ningún dato personal aparece en los logs. *(Probado en local; en la demo lo corre Sebastian: DESPLIEGUE.md, 3c.)*
+- [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
+- [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
 ### Fases 3 a 6: se detallan al llegar
 

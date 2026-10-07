@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 2, inscripción. La fase 1b está cerrada y revisada.
-- **Siguiente paso:** revisión de cierre de la fase 2.
+- **Fase:** 3, fixture y verificador. Las fases 1b y 2 están cerradas y revisadas.
+- **Siguiente paso:** detallar las tareas de la fase 3 (`planning-and-task-breakdown`) y empezar por la primera.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -57,6 +57,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T2.5 lista: la pestaña Equipos de Torneo lista los equipos con escudo (sigla y color), jugadores sobre el máximo y "Faltan N". Alta de equipo (organización y mesa) con club del catálogo, categoría, nombre visible y colores. Ficha del equipo con chips de estado y pestañas Plantel y Cuerpo técnico. Inicio cuenta de verdad las categorías sin equipos y los equipos debajo del mínimo.
 - 2026-10-07: T2.6 lista: alta de jugadores y del cuerpo técnico desde la ficha del equipo, con avisos en vivo (HTMX al salir de cada campo, sin guardar: `/revisar/`). Los avisos no bloquean; los errores sí. Formularios sensibles (`sensitive_post_parameters`). La mesa marca a cada jugador como verificado tocando su estado (INS-12). Los mensajes se apilan; los avisos quedan hasta cerrarlos, y no se repite lo que ya muestra la ficha. Cada criterio de inscripción de la sección 10 tiene su test desde la pantalla.
 - 2026-10-07: T2.7 lista: `manage.py generar_demo --soy-la-demo` arma 93 equipos (los 84 de 2023 en las categorías 2026 y 3 en cada categoría nueva), con 1.331 jugadores y 201 profes inventados por faker con semilla fija, en 1,4 s y en bloque. Incluye los profes y los 7 jugadores compartidos de 6.4, y casos para ver los avisos: menores, sin CI, sin dorsales y 3 equipos cortos. `Torneo.es_demo` (migración 0010) protege los datos que no son de demo. `faker` entra como dependencia de desarrollo.
+- 2026-10-07: revisión de cierre de la fase 2; se corrigieron 2 hallazgos (ver "Revisión de la fase 2").
 
 ## Pendiente
 
@@ -233,6 +234,33 @@ Cada uno tiene su test en `tests/torneo/test_revision_1b.py`.
 - `frontend/tailwind.css` tiene 905 líneas. Si pasa de unas 1.000, conviene partirlo por componente con `@import`.
 - El formulario de reglas acepta tuplas como valor inicial (Django las trata como listas): se probó y no es un problema.
 - Las capturas de cada pantalla se hicieron con Firefox, a 360 y 1024 px, en claro y en oscuro. No se probó en un celular real (R1).
+
+## Revisión de la fase 2 (2026-10-07, `code-review-and-quality`)
+
+**Veredicto: aprobada, después de corregir 2 hallazgos.** El visto bueno de Sebastian queda para su vuelta (REVISAR.md).
+
+| Hallazgo | Corrección |
+|---|---|
+| **Seguridad:** la ficha del equipo (nombres y CI de menores) se abría con cualquier sesión, aunque el usuario no tuviera rol | Pide `inscribir_equipos` (organización y mesa) |
+| La guarda de `generar_demo` miraba personas de torneos reales, algo que ya cubría la de equipos (la mutación sobrevivía), y no veía a las personas sin equipo, que pueden ser datos reales a medio cargar | Se niega si hay una persona que no está en un equipo de demo |
+
+Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
+
+**Mutaciones** (antes de corregir):
+
+| Mutación | Resultado |
+|---|---|
+| INS-05 deja jugar en otro club | Detectada |
+| El filtro de logs no oculta nada | Detectada |
+| El formulario de profes deja de ser sensible | Detectada |
+| El servicio no busca a la persona por su CI | Detectada |
+| La guarda de la demo no mira personas | **No detectada:** era redundante; ver la segunda corrección |
+
+**FYI:**
+
+- Quien carga listas puede saber si un CI ya está cargado y a nombre de quién (el aviso lo dice). Son 2 o 3 personas de confianza, y es justo lo que pide INS-05.
+- `generar_demo` vuelve a cargar la configuración 2026 en cada corrida: pisa lo que se haya editado en el torneo de demo.
+- La imagen de producción no tiene `faker` (`uv sync --no-dev`): `generar_demo` se corre desde la máquina de Sebastian (DESPLIEGUE.md, 3c).
 
 ## Supuestos
 
