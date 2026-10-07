@@ -1,660 +1,676 @@
 <title>Prototipo Rondo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: una columna de app (máx. 440 px) centrada; barra superior fija, navegación inferior fija, pantallas por hash. */
+/* Layout: app de una columna en el celular (barra inferior); desde 900 px, barra lateral y contenido de hasta 960 px. Identidad JMP CUP: azul marino y dorado (docs/DISENO.md). */
 :root {
-  --bg: #e9efe9;           /* fondo detrás de la app */
-  --app: #f6f8f5;          /* fondo de la app: tiza verdosa */
-  --surface: #ffffff;
-  --surface-2: #eef3ee;
-  --line: #d5ded6;
-  --fg: #142019;
-  --muted: #5c6b61;
-  --pitch: #0f6b44;        /* verde de cancha: acento */
-  --pitch-strong: #0a5034;
-  --pitch-soft: #dcefe3;
-  --on-pitch: #ffffff;
-  --sky: #1f5e9c;          /* información */
-  --sky-soft: #e1ecf7;
-  --warn: #9a5b00;
-  --warn-soft: #fbefd9;
-  --bad: #b3261e;
-  --bad-soft: #fbe3e1;
-  --good: #1d7a3e;
-  --shadow: 0 1px 2px rgb(20 32 25 / .06), 0 8px 24px rgb(20 32 25 / .08);
-  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
-  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --r: 14px;
+  --bg: #e9edf4; --surface: #ffffff; --surface-2: #f3f5f9; --line: #dde3ec;
+  --fg: #0f1b2d; --muted: #5a6577;
+  --navy: #0d2440; --navy-2: #163463; --on-navy: #ffffff; --on-navy-muted: #b9c6dc;
+  --oro: #f2cf3a; --oro-texto: #7d6200;
+  --accion: #0d2440; --on-accion: #ffffff;
+  --good: #1b7a43; --good-soft: #e3f3e9; --warn: #8f5a00; --warn-soft: #fdf0d5;
+  --bad: #b3261e; --bad-soft: #fbe4e2; --info: #1f5e9c; --info-soft: #e3edf8;
+  --titulo: "Bebas Neue", "Oswald", "Arial Narrow", sans-serif;
+  --texto: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 8px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0b110d; --app: #101813; --surface: #17211b; --surface-2: #1d2a22; --line: #2a392f;
-    --fg: #e6eee8; --muted: #9db0a3; --pitch: #3fbf7f; --pitch-strong: #6fd6a0; --pitch-soft: #183829;
-    --on-pitch: #04130b; --sky: #7fb4ea; --sky-soft: #172a3d; --warn: #f0b85a; --warn-soft: #33270f;
-    --bad: #f28b82; --bad-soft: #3a1a18; --good: #6fd6a0;
-    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px rgb(0 0 0 / .35); color-scheme: dark;
+    --bg: #060b14; --surface: #0f1b2d; --surface-2: #152538; --line: #22344d; --fg: #e8edf5; --muted: #9aa8bd;
+    --navy: #132a4a; --navy-2: #1b3a63; --on-navy: #ffffff; --on-navy-muted: #b9c6dc; --oro-texto: #f2cf3a;
+    --accion: #f2cf3a; --on-accion: #0d2440;
+    --good: #6fd19a; --good-soft: #12301f; --warn: #f0b85a; --warn-soft: #33270f; --bad: #f28b82; --bad-soft: #3a1a18;
+    --info: #8fbdf0; --info-soft: #14263b; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0b110d; --app: #101813; --surface: #17211b; --surface-2: #1d2a22; --line: #2a392f;
-  --fg: #e6eee8; --muted: #9db0a3; --pitch: #3fbf7f; --pitch-strong: #6fd6a0; --pitch-soft: #183829;
-  --on-pitch: #04130b; --sky: #7fb4ea; --sky-soft: #172a3d; --warn: #f0b85a; --warn-soft: #33270f;
-  --bad: #f28b82; --bad-soft: #3a1a18; --good: #6fd6a0;
-  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px rgb(0 0 0 / .35); color-scheme: dark;
+  --bg: #060b14; --surface: #0f1b2d; --surface-2: #152538; --line: #22344d; --fg: #e8edf5; --muted: #9aa8bd;
+  --navy: #132a4a; --navy-2: #1b3a63; --on-navy: #ffffff; --on-navy-muted: #b9c6dc; --oro-texto: #f2cf3a;
+  --accion: #f2cf3a; --on-accion: #0d2440;
+  --good: #6fd19a; --good-soft: #12301f; --warn: #f0b85a; --warn-soft: #33270f; --bad: #f28b82; --bad-soft: #3a1a18;
+  --info: #8fbdf0; --info-soft: #14263b; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { height: 100%; }
-body { background: var(--bg); color: var(--fg); font: 15px/1.45 var(--body); }
+body { background: var(--bg); color: var(--fg); font: 15px/1.45 var(--texto); }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--pitch); outline-offset: 2px; border-radius: 6px; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--oro); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-
-.app { max-width: 440px; min-height: 100%; margin: 0 auto; background: var(--app); position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow); }
-.aviso-prototipo { background: var(--sky-soft); color: var(--sky); font-size: 12.5px; padding: 6px 16px; text-align: center; }
-
-/* Barra superior */
-.barra { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--app); border-bottom: 1px solid var(--line); }
-.barra h1 { font: 700 22px/1.1 var(--display); letter-spacing: .01em; margin: 0; flex: 1; min-width: 0; text-wrap: balance; }
-.barra .sub { display: block; font: 500 12.5px/1.3 var(--body); color: var(--muted); letter-spacing: 0; }
-.icono-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; flex: none; }
-.icono-btn svg { width: 20px; height: 20px; }
-.marca { width: 36px; height: 36px; border-radius: 10px; background: var(--pitch); color: var(--on-pitch); display: grid; place-items: center; font: 700 18px var(--display); flex: none; }
-
-main { flex: 1; padding-inline: 16px; padding-block: 16px 110px; display: flex; flex-direction: column; gap: 16px; }
-.pantalla[hidden] { display: none !important; }
-.pantalla { display: flex; flex-direction: column; gap: 16px; }
-
-/* Navegación inferior */
-.nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; z-index: 30; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); }
-.nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; color: var(--muted); text-decoration: none; font-size: 12px; font-weight: 600; border-radius: 10px; }
-.nav a svg { width: 22px; height: 22px; }
-.nav a[aria-current="page"] { color: var(--pitch); background: var(--pitch-soft); }
-
-/* Tipografía y piezas */
-.titulo-seccion { font: 700 15px var(--display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 4px 0 -6px; }
-.tarjeta { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
-.fila { display: flex; align-items: center; gap: 12px; }
-.fila > .grow { flex: 1; min-width: 0; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.num { font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }
 .peq { font-size: 13px; }
-.num { font-variant-numeric: tabular-nums; }
-.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
-.chip.ok { background: var(--pitch-soft); color: var(--good); }
+
+/* ---------- Armazón ---------- */
+.app { max-width: 1200px; min-height: 100%; margin: 0 auto; background: var(--surface); display: flex; flex-direction: column; }
+.aviso-prototipo { background: var(--oro); color: #0d2440; font-size: 12.5px; font-weight: 600; padding: 6px 16px; text-align: center; }
+.cuerpo { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.barra { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--navy); color: var(--on-navy); display: flex; align-items: center; gap: 12px; padding: 10px 16px; min-height: 56px; }
+.barra h1 { font: 26px/1 var(--titulo); letter-spacing: .03em; flex: 1; min-width: 0; }
+.marca { width: 34px; height: 34px; border-radius: 50%; background: var(--oro); color: #0d2440; display: grid; place-items: center; font: 15px/1 var(--titulo); letter-spacing: .04em; flex: none; }
+.icono-btn { width: 40px; height: 40px; border-radius: var(--r); border: 0; background: transparent; color: inherit; display: grid; place-items: center; flex: none; }
+.icono-btn svg, .ico { width: 20px; height: 20px; flex: none; }
+.rol-actual { font-size: 12px; font-weight: 600; color: var(--on-navy-muted); border: 1px solid rgb(255 255 255 / .25); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+
+main { flex: 1; padding-block: 0 96px; }
+.pantalla { display: flex; flex-direction: column; }
+.seccion { padding: 20px 16px 0; display: flex; flex-direction: column; gap: 8px; }
+.seccion-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.seccion-cab h2 { font: 22px/1 var(--titulo); letter-spacing: .04em; }
+
+/* Banda azul con la identidad del torneo */
+.banda { background: var(--navy); color: var(--on-navy); padding: 4px 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.banda .titulo-torneo { font: 44px/.95 var(--titulo); letter-spacing: .02em; }
+.banda .titulo-torneo span { color: var(--oro); }
+.banda .meta { color: var(--on-navy-muted); font-size: 13.5px; }
+
+/* Etapas del torneo */
+.etapas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.etapa { font-size: 12px; font-weight: 600; color: var(--on-navy-muted); }
+.etapa::before { content: ""; display: block; height: 4px; border-radius: 2px; background: rgb(255 255 255 / .2); margin-bottom: 6px; }
+.etapa[data-estado="hecho"]::before { background: var(--oro); }
+.etapa[data-estado="actual"] { color: var(--on-navy); }
+.etapa[data-estado="actual"]::before { background: linear-gradient(90deg, var(--oro) 80%, rgb(255 255 255 / .2) 80%); }
+
+/* Listas */
+.lista { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.lista > li { border-bottom: 1px solid var(--line); }
+.fila { display: flex; align-items: center; gap: 12px; padding: 12px 0; text-decoration: none; color: inherit; width: 100%; background: none; border: 0; text-align: left; }
+.fila .grow { flex: 1; min-width: 0; }
+.fila strong { font-weight: 600; display: block; }
+.fila .sub { font-size: 13px; color: var(--muted); }
+.chev { color: var(--muted); width: 18px; height: 18px; flex: none; }
+.marcas { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.chip.ok { background: var(--good-soft); color: var(--good); }
 .chip.warn { background: var(--warn-soft); color: var(--warn); }
 .chip.bad { background: var(--bad-soft); color: var(--bad); }
-.chip.info { background: var(--sky-soft); color: var(--sky); }
+.chip.info { background: var(--info-soft); color: var(--info); }
 .chip.neutro { background: var(--surface-2); color: var(--muted); }
-.p { font: 600 11px/1 var(--body); color: var(--sky); background: var(--sky-soft); padding: 3px 6px; border-radius: 6px; letter-spacing: .02em; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; min-height: 44px; text-decoration: none; color: var(--fg); }
-.btn.primario { background: var(--pitch); border-color: var(--pitch); color: var(--on-pitch); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
+.p { font: 600 11px/1 var(--texto); color: var(--info); background: var(--info-soft); padding: 3px 6px; border-radius: 4px; }
+.icono-estado { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.icono-estado.warn { background: var(--warn-soft); color: var(--warn); }
+.icono-estado.bad { background: var(--bad-soft); color: var(--bad); }
+.icono-estado.info { background: var(--info-soft); color: var(--info); }
+.icono-estado.neutro { background: var(--surface-2); color: var(--fg); }
+.icono-estado svg { width: 17px; height: 17px; }
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); font-weight: 600; text-decoration: none; color: var(--fg); }
+.btn.principal { background: var(--accion); border-color: var(--accion); color: var(--on-accion); }
+.btn.chico { min-height: 36px; padding: 6px 12px; font-size: 14px; }
 .btn.bloque { width: 100%; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
 .btn svg { width: 18px; height: 18px; }
-.acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.botones { display: flex; gap: 10px; }
+.botones > * { flex: 1; }
 
-/* Escudos: iniciales con el color del club */
-.escudo { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 700 14px var(--display); letter-spacing: .03em; color: #fff; flex: none; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--line); }
-.escudo.ch { width: 30px; height: 30px; font-size: 11px; }
+/* Escudos */
+.escudo { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font: 14px/1 var(--titulo); letter-spacing: .04em; color: #fff; flex: none; }
+.escudo.ch { width: 26px; height: 26px; font-size: 11px; }
+.escudo.gr { width: 56px; height: 56px; font-size: 20px; }
 
-/* Inicio */
-.torneo-activo { background: var(--pitch); color: var(--on-pitch); border: 0; position: relative; overflow: hidden; }
-.torneo-activo::after { /* líneas de cancha */ content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border: 2px solid rgb(255 255 255 / .18); border-radius: 50%; }
-.torneo-activo h2 { font: 700 30px/1 var(--display); margin: 0; }
-.torneo-activo .muted { color: inherit; opacity: .82; }
-.etapas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px; }
-.etapa { font-size: 11.5px; font-weight: 600; }
-.etapa .barrita { height: 5px; border-radius: 3px; background: rgb(255 255 255 / .25); margin-bottom: 6px; overflow: hidden; }
-.etapa .barrita span { display: block; height: 100%; background: currentColor; }
-.lista { display: flex; flex-direction: column; }
-.lista > * + * { border-top: 1px solid var(--line); }
-.item { display: flex; align-items: center; gap: 12px; padding: 12px 0; text-decoration: none; color: inherit; }
-.item:first-child { padding-top: 0; } .item:last-child { padding-bottom: 0; }
-.item .grow { flex: 1; min-width: 0; }
-.item strong { display: block; font-weight: 600; }
-.flecha { color: var(--muted); width: 18px; height: 18px; flex: none; }
-.franja-estado { width: 4px; align-self: stretch; border-radius: 2px; flex: none; }
+/* Selector de categoría sobre la banda */
+.categorias { display: flex; gap: 8px; overflow-x: auto; margin-inline: -16px; padding-inline: 16px; scrollbar-width: none; }
+.categorias::-webkit-scrollbar { display: none; }
+.categorias button { flex: none; border: 1px solid rgb(255 255 255 / .28); background: transparent; color: var(--on-navy); border-radius: 999px; padding: 6px 12px; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+.categorias button[aria-pressed="true"] { background: var(--oro); border-color: var(--oro); color: #0d2440; }
 
-/* Selector de categoría y pestañas (como Copa Fácil, pero con estado visible) */
-.chips-cat { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-inline: -16px; padding-inline: 16px; scrollbar-width: none; }
-.chips-cat::-webkit-scrollbar { display: none; }
-.chips-cat button { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 13px; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
-.chips-cat button[aria-pressed="true"] { background: var(--fg); color: var(--app); border-color: var(--fg); }
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface-2); border-radius: 12px; padding: 4px; gap: 4px; }
-.tabs button { border: 0; background: transparent; border-radius: 9px; padding: 8px 4px; font-size: 13.5px; font-weight: 600; color: var(--muted); }
-.tabs button[aria-selected="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
-.resumen-cat { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Pestañas subrayadas */
+.pestanas { display: flex; border-bottom: 1px solid var(--line); padding-inline: 8px; overflow-x: auto; scrollbar-width: none; background: var(--surface); position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); z-index: 10; }
+.pestanas button { border: 0; background: none; padding: 13px 10px 11px; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+.pestanas button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--oro); }
 
 /* Partidos */
-.partido { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 12px 0; }
-.partido .equipo { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 600; font-size: 14px; }
-.partido .equipo.der { flex-direction: row-reverse; text-align: right; }
-.partido .equipo span { min-width: 0; overflow-wrap: anywhere; }
-.partido .medio { text-align: center; font: 600 13px/1.2 var(--body); color: var(--muted); min-width: 64px; }
-.partido .medio b { display: block; font: 700 18px var(--display); color: var(--fg); }
-.fecha-cab { display: flex; justify-content: space-between; align-items: baseline; }
-.fecha-cab h3 { font: 700 20px var(--display); margin: 0; }
-.por-definir { color: var(--muted); font-style: italic; font-weight: 500; }
+.partido { display: grid; grid-template-columns: 1fr 74px 1fr; align-items: center; gap: 8px; padding: 12px 0; }
+.partido .eq { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; min-width: 0; }
+.partido .eq span { min-width: 0; overflow-wrap: anywhere; }
+.partido .eq.der { flex-direction: row-reverse; text-align: right; }
+.partido .medio { text-align: center; font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.2; }
+.partido .medio b { display: block; font: 20px/1 var(--titulo); letter-spacing: .03em; color: var(--fg); }
+.por-definir { color: var(--muted); font-weight: 500; font-style: italic; }
+.subtitulo { font: 18px/1 var(--titulo); letter-spacing: .05em; color: var(--muted); padding-top: 14px; display: flex; justify-content: space-between; }
+.subtitulo span { font: 600 12px var(--texto); letter-spacing: 0; }
 
 /* Equipo */
-.cabecera-equipo { display: flex; align-items: center; gap: 14px; }
-.cabecera-equipo .escudo { width: 64px; height: 64px; font-size: 22px; }
-.cabecera-equipo h2 { font: 700 26px/1 var(--display); margin: 0; }
-.jugador { display: flex; align-items: center; gap: 12px; padding: 11px 0; }
-.dorsal { width: 34px; height: 34px; border-radius: 9px; background: var(--surface-2); display: grid; place-items: center; font: 700 16px var(--display); flex: none; }
-.dorsal.falta { color: var(--warn); background: var(--warn-soft); font-size: 13px; }
-.verif { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.cab-equipo { display: flex; align-items: center; gap: 14px; }
+.cab-equipo h2 { font: 32px/1 var(--titulo); letter-spacing: .03em; }
+.dorsal { width: 32px; height: 32px; border-radius: var(--r); background: var(--surface-2); display: grid; place-items: center; font: 18px var(--titulo); flex: none; }
+.dorsal.falta { background: var(--warn-soft); color: var(--warn); font: 600 12px var(--texto); }
 
 /* Interruptor */
 .interruptor { position: relative; width: 46px; height: 28px; flex: none; border-radius: 999px; border: 0; background: var(--line); transition: background .15s; }
-.interruptor::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / .25); transition: transform .15s; }
-.interruptor[aria-checked="true"] { background: var(--pitch); }
+.interruptor::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.interruptor[aria-checked="true"] { background: var(--navy); }
+:root[data-theme="dark"] .interruptor[aria-checked="true"] { background: var(--oro); }
 .interruptor[aria-checked="true"]::after { transform: translateX(18px); }
 
-/* Ajustes (reglas) */
-.ajuste { display: flex; gap: 12px; padding: 14px 0; align-items: center; }
-.ajuste .grow { flex: 1; min-width: 0; }
-.ajuste .nombre { font-weight: 600; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.ajuste .ayuda { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.contador { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; flex: none; }
+/* Ajustes */
+.ajuste .grow .nombre { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 600; }
+.contador { display: flex; align-items: center; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; flex: none; }
 .contador button { width: 34px; height: 36px; border: 0; background: var(--surface-2); font-size: 18px; font-weight: 600; }
-.contador output { min-width: 34px; text-align: center; font: 700 17px var(--display); }
-.selector { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface); max-width: 160px; font-size: 13.5px; }
-
-/* Asistente */
-.pasos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.paso { font-size: 11.5px; font-weight: 600; color: var(--muted); }
-.paso .barrita { height: 5px; border-radius: 3px; background: var(--line); margin-bottom: 6px; }
-.paso[data-estado="hecho"] .barrita, .paso[data-estado="actual"] .barrita { background: var(--pitch); }
-.paso[data-estado="actual"] { color: var(--fg); }
-.opcion { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 1.5px solid var(--line); border-radius: var(--r); background: var(--surface); text-align: left; width: 100%; }
-.opcion[aria-pressed="true"] { border-color: var(--pitch); background: var(--pitch-soft); }
-.opcion strong { display: block; }
+.contador output { min-width: 34px; text-align: center; font: 20px var(--titulo); }
+.selector { border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; background: var(--surface); max-width: 170px; font-size: 13.5px; }
 .campo { display: flex; flex-direction: column; gap: 6px; }
 .campo label { font-weight: 600; font-size: 13.5px; }
-.campo input, .campo select { border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; background: var(--surface); min-height: 44px; width: 100%; }
+.campo input, .campo select { border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; background: var(--surface); min-height: 44px; width: 100%; }
 .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.cat-fila { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
-.cat-fila .grow { flex: 1; min-width: 0; }
-.niveles { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-.cancha { display: flex; flex-direction: column; gap: 10px; }
-.mitades { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.mitades span { border: 1.5px dashed var(--line); border-radius: 10px; padding: 8px; text-align: center; font: 700 15px var(--display); color: var(--muted); }
+
+/* Asistente */
+.pasos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 16px 0; }
+.paso { font-size: 12px; font-weight: 600; color: var(--muted); }
+.paso::before { content: ""; display: block; height: 4px; border-radius: 2px; background: var(--line); margin-bottom: 6px; }
+.paso[data-estado="hecho"]::before, .paso[data-estado="actual"]::before { background: var(--oro); }
+.paso[data-estado="actual"] { color: var(--fg); }
+.eleccion { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 1.5px solid var(--line); border-radius: var(--r); background: var(--surface); text-align: left; width: 100%; }
+.eleccion[aria-pressed="true"] { border-color: var(--navy); background: var(--surface-2); box-shadow: inset 4px 0 0 var(--oro); }
+.eleccion strong { display: block; }
 
 /* Capacidad */
-.barra-cap { height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; margin-top: 8px; }
-.barra-cap span { display: block; height: 100%; border-radius: 5px; background: var(--pitch); }
-.barra-cap span.warn { background: var(--warn); }
+.barra-cap { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-top: 8px; }
+.barra-cap span { display: block; height: 100%; background: var(--navy); }
+:root[data-theme="dark"] .barra-cap span { background: var(--oro); }
 .barra-cap span.bad { background: var(--bad); }
+.esqueleto { height: 44px; border-radius: var(--r); background: var(--surface-2); animation: pulso 1.2s ease-in-out infinite; }
+@keyframes pulso { 50% { opacity: .5; } }
 
 /* Calendario */
 .dias { display: flex; gap: 8px; overflow-x: auto; margin-inline: -16px; padding-inline: 16px; scrollbar-width: none; }
 .dias::-webkit-scrollbar { display: none; }
-.dia { flex: none; width: 58px; padding: 8px 0; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-align: center; }
-.dia b { display: block; font: 700 22px var(--display); }
-.dia span { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-.dia[aria-pressed="true"] { background: var(--pitch); border-color: var(--pitch); color: var(--on-pitch); }
-.dia[aria-pressed="true"] span { color: inherit; opacity: .85; }
-.turno { display: grid; grid-template-columns: 52px 1fr; gap: 10px; padding: 10px 0; align-items: center; }
-.turno .hora { font: 700 18px var(--display); font-variant-numeric: tabular-nums; }
-.turno .cat { font-size: 12px; color: var(--muted); font-weight: 600; }
-.cancha-cab { display: flex; justify-content: space-between; align-items: center; }
-.cancha-cab h3 { margin: 0; font: 700 20px var(--display); }
+.dia { flex: none; width: 56px; padding: 6px 0; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); text-align: center; }
+.dia b { display: block; font: 24px/1.1 var(--titulo); }
+.dia span { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.dia[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: var(--on-navy); box-shadow: inset 0 -3px 0 var(--oro); }
+.dia[aria-pressed="true"] span { color: var(--on-navy-muted); }
+.turno { display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: center; padding: 10px 0; }
+.turno .hora { font: 22px/1 var(--titulo); letter-spacing: .03em; }
+.turno .vs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; }
 
-/* Propuestas */
-.propuesta { display: flex; flex-direction: column; gap: 10px; }
-.propuesta h3 { margin: 0; font: 700 21px var(--display); }
-.mov { display: grid; grid-template-columns: 1fr; gap: 2px; padding: 8px 10px; background: var(--surface-2); border-radius: 10px; font-size: 13.5px; }
-.mov .antes { text-decoration: line-through; color: var(--muted); }
-.mov .despues { font-weight: 600; color: var(--pitch-strong); }
+/* Propuestas: objetos aparte, sí van en tarjeta */
+.propuesta { border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.propuesta.recomendada { border-color: var(--navy); box-shadow: inset 4px 0 0 var(--oro); }
+.propuesta h3 { font: 22px/1 var(--titulo); letter-spacing: .03em; }
+.mov { display: grid; grid-template-columns: 1fr; font-size: 13.5px; padding-left: 10px; border-left: 2px solid var(--line); }
+.mov .antes { color: var(--muted); text-decoration: line-through; }
+.mov .despues { font-weight: 600; }
 
-/* Hoja inferior */
-.velo { position: fixed; inset: 0; background: rgb(0 0 0 / .4); z-index: 40; }
-.hoja { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 440px; max-height: 90%; overflow-y: auto; background: var(--app); z-index: 41; border-radius: 20px 20px 0 0; padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; }
-.hoja .asa { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto; }
-.hoja h2 { font: 700 24px var(--display); margin: 0; }
-.alerta { display: flex; gap: 10px; padding: 12px; border-radius: 12px; font-size: 13.5px; }
+/* Avisos en línea */
+.alerta { display: flex; gap: 10px; padding: 10px 12px; border-radius: var(--r); font-size: 13.5px; }
 .alerta svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
-.alerta.ok { background: var(--pitch-soft); color: var(--good); }
+.alerta.ok { background: var(--good-soft); color: var(--good); }
 .alerta.warn { background: var(--warn-soft); color: var(--warn); }
-.alerta.info { background: var(--sky-soft); color: var(--sky); }
+.alerta.bad { background: var(--bad-soft); color: var(--bad); }
+.alerta.info { background: var(--info-soft); color: var(--info); }
 
-.toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: var(--fg); color: var(--app); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; z-index: 50; max-width: calc(100% - 32px); }
-.fab { position: fixed; z-index: 25; right: max(16px, calc(50% - 220px + 16px)); bottom: calc(80px + env(safe-area-inset-bottom, 0px)); border-radius: 16px; padding: 14px 18px; box-shadow: var(--shadow); }
-.sin-margen { margin: 0; }
-h2.titulo { font: 700 26px/1.05 var(--display); margin: 0; text-wrap: balance; }
+/* Vacío y permisos */
+.vacio { text-align: center; padding: 36px 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.vacio .icono-estado { width: 48px; height: 48px; }
+.vacio .icono-estado svg { width: 24px; height: 24px; }
+
+/* Segmentado (rol) */
+.segmentado { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.segmentado button { border: 0; background: var(--surface); padding: 10px; font-weight: 600; font-size: 14px; }
+.segmentado button[aria-pressed="true"] { background: var(--navy); color: var(--on-navy); }
+
+/* Navegación */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)); }
+.nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0 4px; color: var(--muted); text-decoration: none; font-size: 11.5px; font-weight: 600; border-top: 3px solid transparent; }
+.nav a svg { width: 22px; height: 22px; }
+.nav a[aria-current="page"] { color: var(--fg); border-top-color: var(--oro); }
+.nav .solo-lateral { display: none; }
+
+/* Hoja inferior y aviso flotante */
+.velo { position: fixed; inset: 0; background: rgb(6 11 20 / .5); z-index: 40; }
+.hoja { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 560px; max-height: 92%; overflow-y: auto; background: var(--surface); z-index: 41; border-radius: 12px 12px 0 0; padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -8px 30px rgb(0 0 0 / .25); }
+.hoja .asa { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto; }
+.hoja h2 { font: 28px/1 var(--titulo); letter-spacing: .03em; }
+.aviso { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: var(--navy); color: var(--on-navy); padding: 10px 16px; border-radius: var(--r); font-weight: 600; font-size: 14px; z-index: 50; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgb(0 0 0 / .25); }
+
+/* Vista previa del PNG */
+.png { width: 100%; aspect-ratio: 1220 / 690; background: #0d2440; border-radius: var(--r); position: relative; overflow: hidden; color: #fff; }
+.png .t { position: absolute; top: 4%; left: 0; width: 78%; text-align: center; font: clamp(28px, 11vw, 64px)/1 var(--titulo); color: #f2cf3a; }
+.png .d { position: absolute; top: 27%; left: 0; width: 78%; text-align: center; font: 700 clamp(9px, 2.6vw, 15px) var(--texto); }
+.png .filas { position: absolute; top: 36%; left: 0; width: 78%; display: flex; flex-direction: column; gap: 6%; height: 50%; }
+.png .f { height: 15%; background: linear-gradient(180deg, #f7e27a, #f2cf3a); color: #0d2440; display: grid; grid-template-columns: 1.2fr 1.6fr 1.6fr .8fr; align-items: center; font: 600 clamp(7px, 2vw, 12px) var(--texto); text-transform: uppercase; padding-inline: 3%; gap: 2%; }
+.png .lado { position: absolute; right: 0; top: 0; width: 20%; height: 87%; background: linear-gradient(160deg, #e9c74a, #c9a227); border-radius: 40% 0 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6%; color: #0d2440; font: clamp(10px, 3.2vw, 22px)/1 var(--titulo); text-align: center; }
+.png .pie { position: absolute; left: 0; right: 0; bottom: 0; height: 13%; background: #fff; display: flex; align-items: center; justify-content: space-around; color: #8a93a3; font: 600 clamp(6px, 1.6vw, 10px) var(--texto); }
+
+/* ---------- Página pública ---------- */
+body[data-vista="publica"] .nav, body[data-vista="publica"] .barra { display: none; }
+.pub-cab { background: var(--navy); color: var(--on-navy); padding: 18px 16px 14px; display: flex; flex-direction: column; gap: 12px; }
+.pub-cab .fila { padding: 0; }
+.pub-cab .marca { width: 52px; height: 52px; font-size: 22px; }
+.pub-cab h1 { font: 40px/.95 var(--titulo); letter-spacing: .02em; }
+.pub-cab .sub { color: var(--on-navy-muted); }
+.volver-app { color: var(--on-navy-muted); font-size: 13px; text-decoration: underline; }
+
+/* ---------- Roles ---------- */
+body[data-rol="mesa"] [data-solo-org] { display: none !important; }
+body:not([data-rol="mesa"]) [data-aviso-mesa] { display: none !important; }
+
+/* ---------- Pantalla grande ---------- */
+@media (min-width: 900px) {
+  .app { flex-direction: row; flex-wrap: wrap; }
+  .aviso-prototipo { flex-basis: 100%; }
+  .nav { position: sticky; top: 0; align-self: flex-start; height: 100vh; width: 232px; flex: none; display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; border-top: 0; border-right: 1px solid var(--line); }
+  .nav a { flex-direction: row; gap: 10px; padding: 10px 12px; font-size: 14.5px; border-top: 0; border-left: 3px solid transparent; border-radius: 0 var(--r) var(--r) 0; }
+  .nav a[aria-current="page"] { border-left-color: var(--oro); background: var(--surface-2); }
+  .nav .solo-lateral { display: flex; align-items: center; gap: 10px; padding: 4px 12px 16px; font: 24px/1 var(--titulo); letter-spacing: .03em; }
+  .cuerpo { flex: 1; }
+  main { padding-bottom: 40px; }
+  main > .pantalla > *, .banda > *, .pestanas { max-width: 960px; }
+  .seccion, .pasos { padding-inline: 32px; }
+  .banda { padding-inline: 32px; }
+  .pestanas { padding-inline: 24px; }
+  .aviso { bottom: 24px; }
+  body[data-vista="publica"] .cuerpo { flex-basis: 100%; }
+}
 </style>
 
 <div class="app">
   <div class="aviso-prototipo" role="note">Prototipo con datos inventados: los botones no guardan nada.</div>
 
-  <header class="barra">
-    <button class="icono-btn" id="volver" aria-label="Volver" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="marca" id="marca" aria-hidden="true">R</div>
-    <h1 id="titulo-barra">Inicio <span class="sub">JMP Soccer School</span></h1>
-  </header>
-
-  <main>
-    <!-- ============ INICIO ============ -->
-    <section class="pantalla" data-pantalla="inicio">
-      <div class="tarjeta torneo-activo">
-        <span class="peq muted">Torneo activo · 5.ª edición</span>
-        <h2>JMP CUP 2026</h2>
-        <div class="muted peq">Viernes 23 de octubre al domingo 22 de noviembre · 5 fines de semana</div>
-        <div class="etapas" aria-label="Avance del torneo">
-          <div class="etapa"><div class="barrita"><span style="width:100%"></span></div>Configurado</div>
-          <div class="etapa"><div class="barrita"><span style="width:80%"></span></div>Inscripción<br><span class="num">68 de 85</span></div>
-          <div class="etapa"><div class="barrita"><span style="width:0"></span></div>Fixture</div>
-          <div class="etapa"><div class="barrita"><span style="width:0"></span></div>Calendario</div>
-        </div>
-      </div>
-
-      <p class="titulo-seccion">Necesita atención</p>
-      <div class="tarjeta lista">
-        <a class="item" href="#torneo">
-          <span class="franja-estado" style="background:var(--warn)"></span>
-          <div class="grow"><strong>3 equipos tienen menos jugadores que el mínimo</strong><span class="peq muted">Sub 8 Avanzado, Sub 12 Inicial y Sub 17 Avanzado</span></div>
-          <svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-        </a>
-        <a class="item" href="#equipo">
-          <span class="franja-estado" style="background:var(--sky)"></span>
-          <div class="grow"><strong>41 jugadores sin verificar el CI</strong><span class="peq muted">La mesa los marca al ver el documento original</span></div>
-          <svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-        </a>
-        <a class="item" href="#programar">
-          <span class="franja-estado" style="background:var(--bad)"></span>
-          <div class="grow"><strong>La eliminación no entra en el último fin de semana</strong><span class="peq muted">Faltan 15 horas en las canchas C1 y C2. Mira la capacidad.</span></div>
-          <svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-        </a>
-      </div>
-
-      <p class="titulo-seccion">Accesos rápidos</p>
-      <div class="acciones">
-        <a class="btn" href="#torneo">Equipos y listas</a>
-        <a class="btn" href="#calendario">Calendario</a>
-        <a class="btn" href="#programar">Programar partidos</a>
-        <a class="btn" href="#reprogramar">Partido de la ACF</a>
-      </div>
-      <a class="btn bloque" href="#crear">Crear un torneo nuevo</a>
-    </section>
-
-    <!-- ============ CREAR TORNEO (asistente) ============ -->
-    <section class="pantalla" data-pantalla="crear" hidden>
-      <div class="pasos" id="pasos">
-        <div class="paso" data-estado="actual"><div class="barrita"></div>Datos</div>
-        <div class="paso"><div class="barrita"></div>Categorías</div>
-        <div class="paso"><div class="barrita"></div>Canchas y horarios</div>
-        <div class="paso"><div class="barrita"></div>Reglas</div>
-      </div>
-
-      <div data-paso="1" class="pantalla">
-        <h2 class="titulo">¿Cómo quieres empezar?</h2>
-        <button class="opcion" aria-pressed="true" data-grupo="plantilla">
-          <span class="marca" aria-hidden="true">26</span>
-          <span><strong>Con el reglamento de la JMP CUP 2026</strong><span class="peq muted">23 categorías, 3 canchas con C1 dividida, horarios de viernes a domingo y todas las reglas ya cargadas. Después puedes cambiar lo que quieras.</span></span>
-        </button>
-        <button class="opcion" aria-pressed="false" data-grupo="plantilla">
-          <span class="marca" aria-hidden="true" style="background:var(--surface-2);color:var(--muted)">+</span>
-          <span><strong>Desde cero</strong><span class="peq muted">Cargas todo a mano.</span></span>
-        </button>
-        <div class="campo"><label for="nombre-torneo">Nombre del torneo</label><input id="nombre-torneo" value="JMP CUP 2026"></div>
-        <div class="dos">
-          <div class="campo"><label for="inicio-torneo">Empieza</label><input id="inicio-torneo" type="date" value="2026-10-23"></div>
-          <div class="campo"><label for="fin-torneo">Termina</label><input id="fin-torneo" type="date" value="2026-11-22"></div>
-        </div>
-      </div>
-
-      <div data-paso="2" class="pantalla" hidden>
-        <h2 class="titulo">Categorías del torneo</h2>
-        <p class="muted sin-margen">Año de nacimiento calculado para 2026. Toca una categoría para ajustar topes y minutos.</p>
-        <div class="tarjeta lista" id="lista-categorias"></div>
-      </div>
-
-      <div data-paso="3" class="pantalla" hidden>
-        <h2 class="titulo">Canchas y horarios</h2>
-        <div class="tarjeta cancha">
-          <div class="fila"><div class="grow"><strong>Cancha 1</strong><div class="peq muted">Fútbol 7 y fútbol 8</div></div><span class="chip neutro">C1</span></div>
-          <div class="ajuste" style="padding:0"><div class="grow"><div class="nombre">Se divide en dos mitades</div><div class="ayuda">Para Sub 5 y Sub 6. Si se usa entera, ocupa las dos.</div></div><button class="interruptor" role="switch" aria-checked="true" aria-label="Cancha 1 se divide en dos mitades"></button></div>
-          <div class="mitades"><span>C1A</span><span>C1B</span></div>
-        </div>
-        <div class="tarjeta cancha">
-          <div class="fila"><div class="grow"><strong>Cancha 2</strong><div class="peq muted">Fútbol 7</div></div><span class="chip neutro">C2</span></div>
-          <div class="ajuste" style="padding:0"><div class="grow"><div class="nombre">Se divide en dos mitades <span class="p">P13</span></div><div class="ayuda">En 2023 aparecía como 2A y 2B. Falta confirmarlo.</div></div><button class="interruptor" role="switch" aria-checked="false" aria-label="Cancha 2 se divide en dos mitades"></button></div>
-        </div>
-        <div class="tarjeta cancha">
-          <div class="fila"><div class="grow"><strong>Cancha 3</strong><div class="peq muted">Fútbol 11</div></div><span class="chip neutro">C3</span></div>
-        </div>
-        <button class="btn">+ Agregar cancha</button>
-        <p class="titulo-seccion">Horarios de juego</p>
-        <div class="tarjeta lista">
-          <div class="item"><div class="grow"><strong>Viernes</strong></div><span class="num">16:00 a 20:00</span></div>
-          <div class="item"><div class="grow"><strong>Sábado</strong></div><span class="num">08:00 a 16:00</span></div>
-          <div class="item"><div class="grow"><strong>Domingo</strong></div><span class="num">08:00 a 16:00</span></div>
-        </div>
-        <div class="alerta info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Son 15 días de juego y 100 horas por cancha. Si llueve, agregas un día entre semana desde el calendario.</span></div>
-      </div>
-
-      <div data-paso="4" class="pantalla" hidden>
-        <h2 class="titulo">Reglas del torneo</h2>
-        <p class="muted sin-margen">Vienen del reglamento. Las marcadas con una P todavía esperan la respuesta del organizador.</p>
-        <div id="reglas"></div>
-      </div>
-
-      <div class="dos" style="margin-top:4px">
-        <button class="btn" id="paso-atras">Atrás</button>
-        <button class="btn primario" id="paso-sig">Siguiente</button>
-      </div>
-    </section>
-
-    <!-- ============ TORNEO: categorías y pestañas ============ -->
-    <section class="pantalla" data-pantalla="torneo" hidden>
-      <div class="chips-cat" id="chips-cat" role="group" aria-label="Categoría"></div>
-      <div class="resumen-cat" id="resumen-cat"></div>
-      <div class="tabs" role="tablist">
-        <button role="tab" aria-selected="true" data-tab="equipos">Equipos</button>
-        <button role="tab" aria-selected="false" data-tab="fixture">Fixture</button>
-        <button role="tab" aria-selected="false" data-tab="posiciones">Posiciones</button>
-        <button role="tab" aria-selected="false" data-tab="reglas-cat">Ajustes</button>
-      </div>
-
-      <div data-panel="equipos" class="pantalla">
-        <div class="tarjeta lista" id="lista-equipos"></div>
-      </div>
-
-      <div data-panel="fixture" class="pantalla" hidden>
-        <div class="alerta info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span><strong>6 equipos:</strong> series A y B de 3. Cada equipo juega contra los 3 de la otra serie. Después, Copa de Oro y de Plata.</span></div>
-        <div id="fixture"></div>
-      </div>
-
-      <div data-panel="posiciones" class="pantalla" hidden>
-        <div class="tarjeta"><strong>Las posiciones aparecen cuando haya resultados.</strong><p class="muted peq sin-margen" style="margin-top:6px">Desempate: puntos, goles a favor, menos goles en contra y fair play, contando solo los partidos entre los empatados.</p></div>
-      </div>
-
-      <div data-panel="reglas-cat" class="pantalla" hidden>
-        <div class="tarjeta lista">
-          <div class="item"><div class="grow"><strong>Modalidad</strong></div><span>Fútbol 7</span></div>
-          <div class="item"><div class="grow"><strong>Jugadores por lista</strong></div><span class="num">12 a 14</span></div>
-          <div class="item"><div class="grow"><strong>Duración</strong><span class="peq muted">2 tiempos de 20 min, 5 de descanso y 5 de cambio</span></div><span class="num">Turno 50 min</span></div>
-          <div class="item"><div class="grow"><strong>Nacidos en</strong></div><span class="num">2017 o después</span></div>
-          <div class="item"><div class="grow"><strong>Canchas</strong></div><span>C1 o C2</span></div>
-        </div>
-      </div>
-      <button class="btn primario fab" data-ir="#equipo">+ Equipo</button>
-    </section>
-
-    <!-- ============ EQUIPO ============ -->
-    <section class="pantalla" data-pantalla="equipo" hidden>
-      <div class="cabecera-equipo">
-        <span class="escudo" style="background:#c8102e">RIV</span>
-        <div><h2>River Plate</h2><div class="muted peq">Sub 9 Avanzado · Serie A · Camiseta blanca y roja</div></div>
-      </div>
-      <div class="resumen-cat">
-        <span class="chip ok num">13 de 14 jugadores</span>
-        <span class="chip warn num" id="sin-verificar">4 sin verificar</span>
-        <span class="chip warn">2 sin dorsal</span>
-      </div>
-      <div class="tabs" role="tablist" style="grid-template-columns:1fr 1fr">
-        <button role="tab" aria-selected="true" data-tab-eq="plantel">Plantel</button>
-        <button role="tab" aria-selected="false" data-tab-eq="tecnico">Cuerpo técnico</button>
-      </div>
-      <div data-panel-eq="plantel" class="tarjeta lista" id="plantel"></div>
-      <div data-panel-eq="tecnico" class="tarjeta lista" hidden>
-        <div class="jugador"><span class="dorsal">E</span><div class="grow"><strong>Ramiro Céspedes</strong><div class="peq muted">Entrenador · también dirige Sub 6 y Sub 7</div></div><span class="chip info">2 equipos más</span></div>
-        <div class="jugador"><span class="dorsal">A</span><div class="grow"><strong>Gabriela Sanjinés</strong><div class="peq muted">Asistente</div></div></div>
-        <div class="jugador"><span class="dorsal">D</span><div class="grow"><strong>Óscar Vargas</strong><div class="peq muted">Delegado</div></div></div>
-        <div class="alerta info" style="margin-top:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Máximo 3 personas y un solo entrenador. Ramiro dirige otros equipos: esos partidos nunca se programan a la vez.</span></div>
-      </div>
-      <button class="btn primario fab" id="abrir-hoja">+ Jugador</button>
-    </section>
-
-    <!-- ============ PROGRAMAR ============ -->
-    <section class="pantalla" data-pantalla="programar" hidden>
-      <h2 class="titulo">Programar partidos</h2>
-      <p class="muted sin-margen">Primero mira si los partidos entran en las canchas. Después la app arma el calendario sin choques.</p>
-      <p class="titulo-seccion">Capacidad</p>
-      <div class="tarjeta lista">
-        <div class="item" style="display:block">
-          <div class="fila"><strong class="grow">Canchas C1 y C2 · fase de grupos</strong><span class="num peq">122 de 160 h</span></div>
-          <div class="barra-cap"><span style="width:76%"></span></div>
-        </div>
-        <div class="item" style="display:block">
-          <div class="fila"><strong class="grow">Cancha C3 · fase de grupos</strong><span class="num peq">55 de 80 h</span></div>
-          <div class="barra-cap"><span style="width:69%"></span></div>
-        </div>
-        <div class="item" style="display:block">
-          <div class="fila"><strong class="grow">C1 y C2 · eliminación, último fin de semana</strong><span class="num peq" style="color:var(--bad)">55 de 40 h</span></div>
-          <div class="barra-cap"><span class="bad" style="width:100%"></span></div>
-          <div class="peq" style="color:var(--bad);margin-top:6px">No entra. Puedes empezar la eliminación un fin de semana antes o dividir la cancha 2.</div>
-        </div>
-      </div>
-      <button class="btn primario bloque" id="programar-btn">Programar los 191 partidos</button>
-      <div id="resultado-prog" hidden class="pantalla">
-        <div class="alerta ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5 9-11"/></svg><span><strong>187 de 191 partidos programados, sin choques.</strong> Equipos del mismo club agrupados el mismo día en 82 % de los casos.</span></div>
-        <p class="titulo-seccion">4 partidos sin lugar</p>
-        <div class="tarjeta lista">
-          <div class="item"><div class="grow"><strong>Final de Oro · Sub 15 Avanzado</strong><span class="peq muted">No queda ningún turno de 70 min libre en C3 el último fin de semana.</span></div><span class="chip bad">Cancha</span></div>
-          <div class="item"><div class="grow"><strong>Semifinal de Plata · Sub 9 Inicial</strong><span class="peq muted">Los turnos libres chocan con un profe de Leones que dirige Sub 9 Avanzado.</span></div><span class="chip warn">Profe</span></div>
-        </div>
-        <a class="btn bloque" href="#calendario">Ver el calendario</a>
-      </div>
-    </section>
-
-    <!-- ============ CALENDARIO ============ -->
-    <section class="pantalla" data-pantalla="calendario" hidden>
-      <div class="dias" id="dias" role="group" aria-label="Día"></div>
-      <div class="dos">
-        <button class="btn">Por cancha</button>
-        <button class="btn" data-ir="#reprogramar">Partido de la ACF</button>
-      </div>
-      <div id="canchas-dia"></div>
-      <button class="btn primario bloque" id="compartir-btn">Compartir el día por WhatsApp</button>
-      <p class="peq muted sin-margen" style="text-align:center">La imagen va a usar el diseño que pase el organizador.</p>
-    </section>
-
-    <!-- ============ REPROGRAMAR ============ -->
-    <section class="pantalla" data-pantalla="reprogramar" hidden>
-      <h2 class="titulo">Partido de la ACF</h2>
-      <p class="muted sin-margen">Carga cuándo juega un equipo en la ACF. La app busca cómo mover lo mínimo.</p>
-      <div class="tarjeta pantalla" style="gap:12px">
-        <div class="campo"><label for="eq-acf">Equipo</label><select id="eq-acf"><option>Atlético Juniors · Sub 9 Avanzado</option></select></div>
-        <div class="dos">
-          <div class="campo"><label for="dia-acf">Día</label><input id="dia-acf" type="date" value="2026-10-24"></div>
-          <div class="campo"><label for="hora-acf">Horario</label><input id="hora-acf" value="10:00 a 12:00"></div>
-        </div>
-        <div class="alerta warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg><span>Choca con <strong>Atlético Juniors vs Super Campeones</strong>, sábado 24 a las 10:10 en C1.</span></div>
-      </div>
-      <p class="titulo-seccion">3 propuestas, de menos a más cambios</p>
-      <div class="tarjeta propuesta">
-        <div class="fila"><h3 class="grow">Mover 1 partido</h3><span class="chip ok">Recomendada</span></div>
-        <div class="mov"><span class="antes">Sáb 24 · 10:10 · C1</span><span class="despues">Sáb 24 · 13:30 · C2</span><span class="peq muted">Atlético Juniors vs Super Campeones</span></div>
-        <button class="btn primario" data-aplicar>Aplicar</button>
-      </div>
-      <div class="tarjeta propuesta">
-        <h3>Intercambiar 2 partidos</h3>
-        <div class="mov"><span class="antes">Sáb 24 · 10:10 · C1</span><span class="despues">Dom 25 · 09:20 · C1</span><span class="peq muted">Atlético Juniors vs Super Campeones</span></div>
-        <div class="mov"><span class="antes">Dom 25 · 09:20 · C1</span><span class="despues">Sáb 24 · 10:10 · C1</span><span class="peq muted">Maquinita vs Planeta FC</span></div>
-        <button class="btn" data-aplicar>Aplicar</button>
-      </div>
-      <div class="tarjeta propuesta">
-        <h3>Mover 2 partidos al viernes</h3>
-        <div class="mov"><span class="antes">Sáb 24 · 10:10 · C1</span><span class="despues">Vie 23 · 18:30 · C1</span><span class="peq muted">Atlético Juniors vs Super Campeones</span></div>
-        <div class="mov"><span class="antes">Vie 23 · 18:30 · C1</span><span class="despues">Sáb 24 · 11:50 · C2</span><span class="peq muted">JMP Academy vs Planeta FC</span></div>
-        <button class="btn" data-aplicar>Aplicar</button>
-      </div>
-    </section>
-
-    <!-- ============ MÁS ============ -->
-    <section class="pantalla" data-pantalla="mas" hidden>
-      <p class="titulo-seccion">Personas con acceso</p>
-      <div class="tarjeta lista">
-        <div class="item"><span class="escudo ch" style="background:var(--pitch)">SG</span><div class="grow"><strong>Sebastian</strong><span class="peq muted">Puede hacer todo</span></div><span class="chip ok">Organización</span></div>
-        <div class="item"><span class="escudo ch" style="background:#5b6b8c">MC</span><div class="grow"><strong>Mesa de control 1</strong><span class="peq muted">Carga listas, verifica jugadores y ve el calendario</span></div><span class="chip info">Mesa</span></div>
-      </div>
-      <button class="btn">+ Invitar a alguien</button>
-      <p class="titulo-seccion">Datos de la escuela</p>
-      <div class="tarjeta pantalla" style="gap:12px">
-        <div class="fila"><span class="marca" style="width:56px;height:56px;font-size:24px">R</span><div class="grow"><strong>JMP Soccer School</strong><div class="peq muted">Aparece en las pantallas y en las imágenes del calendario</div></div></div>
-        <div class="dos"><button class="btn">Cambiar logo</button><button class="btn">Color de marca</button></div>
-      </div>
-      <p class="titulo-seccion">Torneos</p>
-      <div class="tarjeta lista">
-        <a class="item" href="#inicio"><div class="grow"><strong>JMP CUP 2026</strong><span class="peq muted">En inscripción</span></div><span class="chip ok">Activo</span></a>
-        <a class="item" href="#crear"><div class="grow"><strong>Crear un torneo nuevo</strong><span class="peq muted">Desde la plantilla del reglamento o desde cero</span></div><svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a>
-      </div>
-    </section>
-  </main>
-
   <nav class="nav" aria-label="Principal">
-    <a href="#inicio" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</a>
-    <a href="#torneo" data-nav="torneo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 12v4M8 20h8M10 16h4v4h-4z"/></svg>Torneo</a>
-    <a href="#calendario" data-nav="calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendario</a>
+    <div class="solo-lateral"><span class="marca" aria-hidden="true">JMP</span>Rondo</div>
+    <a href="#inicio" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</a>
+    <a href="#torneo" data-nav="torneo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 12v4M9 20h6M10 16h4v4h-4z"/></svg>Torneo</a>
+    <a href="#calendario" data-nav="calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendario</a>
     <a href="#mas" data-nav="mas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>Más</a>
   </nav>
+
+  <div class="cuerpo">
+    <header class="barra">
+      <button class="icono-btn" id="volver" aria-label="Volver" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="marca" id="marca" aria-hidden="true">JMP</span>
+      <h1 id="titulo-barra">Inicio</h1>
+      <span class="rol-actual" id="rol-actual">Organización</span>
+    </header>
+
+    <main>
+      <!-- ================= INICIO ================= -->
+      <section class="pantalla" data-pantalla="inicio" aria-label="Inicio">
+        <div class="banda">
+          <p class="meta">Torneo activo · 5.ª edición</p>
+          <p class="titulo-torneo">JMP CUP <span>2026</span></p>
+          <p class="meta">Del viernes 23 de octubre al domingo 22 de noviembre · 5 fines de semana</p>
+          <div class="etapas" aria-label="Avance del torneo">
+            <div class="etapa" data-estado="hecho">Configurado</div>
+            <div class="etapa" data-estado="actual">Inscripción · <span class="num">68/85</span></div>
+            <div class="etapa">Fixture</div>
+            <div class="etapa">Calendario</div>
+          </div>
+        </div>
+
+        <div class="seccion">
+          <div class="seccion-cab"><h2>Pendientes</h2><span class="chip warn num">3</span></div>
+          <ul class="lista">
+            <li><a class="fila" href="#torneo"><span class="icono-estado warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg></span><span class="grow"><strong>3 equipos debajo del mínimo de jugadores</strong><span class="sub">Sub 8 Avanzado, Sub 12 Inicial y Sub 17 Avanzado</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+            <li><a class="fila" href="#equipo"><span class="icono-estado info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M7 11h6"/></svg></span><span class="grow"><strong>41 jugadores sin verificar el CI</strong><span class="sub">La mesa los marca al ver el documento original</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+            <li data-solo-org><a class="fila" href="#programar"><span class="icono-estado bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span><span class="grow"><strong>La eliminación no entra en el último fin de semana</strong><span class="sub">Faltan 15 horas en C1 y C2</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          </ul>
+        </div>
+
+        <div class="seccion">
+          <div class="seccion-cab"><h2>Ir a</h2></div>
+          <ul class="lista">
+            <li><a class="fila" href="#torneo"><span class="icono-estado neutro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M12 12v4M9 20h6"/></svg></span><span class="grow"><strong>Equipos y listas</strong></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+            <li data-solo-org><a class="fila" href="#programar"><span class="icono-estado neutro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 14h3"/></svg></span><span class="grow"><strong>Programar partidos</strong></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+            <li data-solo-org><a class="fila" href="#reprogramar"><span class="icono-estado neutro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 10a8 8 0 0 0-14-4L4 10M4 14a8 8 0 0 0 14 4l2-4"/></svg></span><span class="grow"><strong>Cargar un partido de la ACF</strong><span class="sub">Y reprogramar lo que choque</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+            <li><a class="fila" href="#publico"><span class="icono-estado neutro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span class="grow"><strong>Ver la página pública</strong><span class="sub">Lo que ven las familias y los clubes</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================= CREAR TORNEO ================= -->
+      <section class="pantalla" data-pantalla="crear" aria-label="Crear torneo" hidden>
+        <div data-aviso-mesa class="vacio"><span class="icono-estado neutro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><strong>Solo la organización puede crear torneos</strong><p class="muted peq">Pídele a Sebastian que te dé el rol de Organización.</p></div>
+        <div data-solo-org class="pantalla">
+          <div class="pasos" id="pasos">
+            <div class="paso" data-estado="actual">Datos</div><div class="paso">Categorías</div><div class="paso">Canchas y horarios</div><div class="paso">Reglas</div>
+          </div>
+          <div data-paso="1" class="seccion" style="gap:14px">
+            <div class="seccion-cab"><h2>¿Cómo quieres empezar?</h2></div>
+            <button class="eleccion" aria-pressed="true" data-grupo="plantilla"><span class="marca" aria-hidden="true">26</span><span><strong>Con el reglamento de la JMP CUP 2026</strong><span class="peq muted">23 categorías, 3 canchas con la 1 dividida, horarios de viernes a domingo y las reglas cargadas. Después cambias lo que quieras.</span></span></button>
+            <button class="eleccion" aria-pressed="false" data-grupo="plantilla"><span class="marca" aria-hidden="true" style="background:var(--surface-2);color:var(--fg)">+</span><span><strong>Desde cero</strong><span class="peq muted">Cargas todo a mano.</span></span></button>
+            <div class="campo"><label for="nombre-torneo">Nombre</label><input id="nombre-torneo" value="JMP CUP 2026"></div>
+            <div class="dos"><div class="campo"><label for="inicio-t">Empieza</label><input id="inicio-t" type="date" value="2026-10-23"></div><div class="campo"><label for="fin-t">Termina</label><input id="fin-t" type="date" value="2026-11-22"></div></div>
+          </div>
+          <div data-paso="2" class="seccion" hidden>
+            <div class="seccion-cab"><h2>Categorías</h2><span class="peq muted">Año de nacimiento para 2026</span></div>
+            <ul class="lista" id="lista-categorias"></ul>
+          </div>
+          <div data-paso="3" class="seccion" hidden>
+            <div class="seccion-cab"><h2>Canchas</h2><button class="btn chico">Agregar cancha</button></div>
+            <ul class="lista">
+              <li class="fila ajuste"><span class="escudo" style="background:var(--navy)">C1</span><span class="grow"><span class="nombre">Cancha 1 · fútbol 7 y 8</span><span class="sub">Se divide en mitades C1A y C1B para Sub 5 y Sub 6</span></span><button class="interruptor" role="switch" aria-checked="true" aria-label="Cancha 1 se divide en mitades"></button></li>
+              <li class="fila ajuste"><span class="escudo" style="background:var(--navy)">C2</span><span class="grow"><span class="nombre">Cancha 2 · fútbol 7 <span class="p">P13</span></span><span class="sub">¿Se divide? En 2023 aparecía como 2A y 2B</span></span><button class="interruptor" role="switch" aria-checked="false" aria-label="Cancha 2 se divide en mitades"></button></li>
+              <li class="fila ajuste"><span class="escudo" style="background:var(--navy)">C3</span><span class="grow"><span class="nombre">Cancha 3 · fútbol 11</span></span></li>
+            </ul>
+            <div class="seccion-cab" style="margin-top:12px"><h2>Horarios</h2></div>
+            <ul class="lista">
+              <li class="fila"><strong class="grow">Viernes</strong><span class="num">16:00 a 20:00</span></li>
+              <li class="fila"><strong class="grow">Sábado</strong><span class="num">08:00 a 16:00</span></li>
+              <li class="fila"><strong class="grow">Domingo</strong><span class="num">08:00 a 16:00</span></li>
+            </ul>
+            <p class="muted peq">15 días de juego y 100 horas por cancha. Si llueve, se agrega un día entre semana desde el calendario.</p>
+          </div>
+          <div data-paso="4" class="seccion" hidden>
+            <div class="seccion-cab"><h2>Reglas</h2></div>
+            <p class="muted peq">Vienen del reglamento. Las que tienen una P esperan la respuesta del organizador.</p>
+            <div id="reglas"></div>
+          </div>
+          <div class="seccion"><div class="botones"><button class="btn" id="paso-atras">Atrás</button><button class="btn principal" id="paso-sig">Siguiente</button></div></div>
+        </div>
+      </section>
+
+      <!-- ================= TORNEO ================= -->
+      <section class="pantalla" data-pantalla="torneo" aria-label="Torneo" hidden>
+        <div class="banda">
+          <p class="titulo-torneo" id="cat-titulo">Sub 9 <span>Avanzado</span></p>
+          <p class="meta">6 equipos · fútbol 7 · turno de 50 min · nacidos en 2017</p>
+          <div class="categorias" id="categorias" role="group" aria-label="Categoría"></div>
+        </div>
+        <div class="pestanas" role="tablist" aria-label="Secciones de la categoría">
+          <button role="tab" aria-selected="true" data-tab="equipos">Equipos</button>
+          <button role="tab" aria-selected="false" data-tab="fixture">Fixture</button>
+          <button role="tab" aria-selected="false" data-tab="posiciones">Posiciones</button>
+          <button role="tab" aria-selected="false" data-tab="ajustes">Ajustes</button>
+        </div>
+        <div data-panel="equipos" class="seccion">
+          <div class="seccion-cab"><h2>Equipos</h2><button class="btn principal chico" data-ir="#equipo">Agregar equipo</button></div>
+          <ul class="lista" id="lista-equipos"></ul>
+        </div>
+        <div data-panel="fixture" class="seccion" hidden>
+          <p class="alerta info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Con 6 equipos: series A y B de 3. Cada equipo juega contra los 3 de la otra serie. Después, Copa de Oro y de Plata.</span></p>
+          <div id="fixture"></div>
+        </div>
+        <div data-panel="posiciones" class="seccion" hidden>
+          <div class="vacio"><span class="icono-estado neutro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></span><strong>Todavía no hay resultados</strong><p class="muted peq">La tabla aparece con el primer partido jugado. Desempate: puntos, goles a favor, menos goles en contra y fair play entre los empatados.</p></div>
+        </div>
+        <div data-panel="ajustes" class="seccion" hidden>
+          <div data-aviso-mesa class="alerta info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Puedes verlos, pero solo la organización puede cambiarlos.</span></div>
+          <ul class="lista">
+            <li class="fila"><strong class="grow">Modalidad</strong><span>Fútbol 7</span></li>
+            <li class="fila"><strong class="grow">Jugadores por lista</strong><span class="num">12 a 14</span></li>
+            <li class="fila"><span class="grow"><strong>Duración</strong><span class="sub">2 tiempos de 20 min, 5 de descanso y 5 de cambio</span></span><span class="num">50 min</span></li>
+            <li class="fila"><strong class="grow">Nacidos en</strong><span class="num">2017 o después</span></li>
+            <li class="fila"><strong class="grow">Canchas</strong><span>C1 o C2</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================= EQUIPO ================= -->
+      <section class="pantalla" data-pantalla="equipo" aria-label="Equipo" hidden>
+        <div class="seccion">
+          <div class="cab-equipo"><span class="escudo gr" style="background:#c8102e">RIV</span><div><h2>River Plate</h2><p class="muted peq">Sub 9 Avanzado · Serie A · Camisetas blanca y roja</p></div></div>
+          <div class="marcas"><span class="chip ok num">13 de 14 jugadores</span><span class="chip warn num" id="sin-verificar">4 sin verificar</span><span class="chip warn">2 sin dorsal</span></div>
+        </div>
+        <div class="pestanas" role="tablist" aria-label="Secciones del equipo" style="margin-top:12px">
+          <button role="tab" aria-selected="true" data-tab-eq="plantel">Plantel</button>
+          <button role="tab" aria-selected="false" data-tab-eq="tecnico">Cuerpo técnico</button>
+        </div>
+        <div class="seccion" data-panel-eq="plantel">
+          <div class="seccion-cab"><h2>Jugadores</h2><button class="btn principal chico" id="abrir-hoja">Agregar jugador</button></div>
+          <ul class="lista" id="plantel"></ul>
+        </div>
+        <div class="seccion" data-panel-eq="tecnico" hidden>
+          <div class="seccion-cab"><h2>Cuerpo técnico</h2><span class="peq muted num">3 de 3</span></div>
+          <ul class="lista">
+            <li class="fila"><span class="dorsal">E</span><span class="grow"><strong>Ramiro Céspedes</strong><span class="sub">Entrenador · también dirige Sub 6 y Sub 7</span></span><span class="chip info">2 equipos más</span></li>
+            <li class="fila"><span class="dorsal">A</span><span class="grow"><strong>Gabriela Sanjinés</strong><span class="sub">Asistente</span></span></li>
+            <li class="fila"><span class="dorsal">D</span><span class="grow"><strong>Óscar Vargas</strong><span class="sub">Delegado</span></span></li>
+          </ul>
+          <p class="muted peq">Como Ramiro dirige otros equipos, esos partidos nunca se programan a la vez.</p>
+        </div>
+      </section>
+
+      <!-- ================= PROGRAMAR ================= -->
+      <section class="pantalla" data-pantalla="programar" aria-label="Programar" hidden>
+        <div data-aviso-mesa class="vacio"><span class="icono-estado neutro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><strong>Solo la organización puede programar</strong><p class="muted peq">Puedes ver el resultado en el calendario.</p></div>
+        <div data-solo-org class="pantalla">
+          <div class="seccion">
+            <div class="seccion-cab"><h2>¿Entra todo?</h2><span class="peq muted">Horas de partido contra horas de cancha</span></div>
+            <ul class="lista">
+              <li class="fila" style="display:block"><span class="seccion-cab"><strong>C1 y C2 · fase de grupos</strong><span class="num peq">122 de 160 h</span></span><span class="barra-cap" style="display:block"><span style="width:76%"></span></span></li>
+              <li class="fila" style="display:block"><span class="seccion-cab"><strong>C3 · fase de grupos</strong><span class="num peq">55 de 80 h</span></span><span class="barra-cap" style="display:block"><span style="width:69%"></span></span></li>
+              <li class="fila" style="display:block"><span class="seccion-cab"><strong>C1 y C2 · eliminación, último fin de semana</strong><span class="chip bad num">55 de 40 h</span></span><span class="barra-cap" style="display:block"><span class="bad" style="width:100%"></span></span><span class="sub" style="display:block;margin-top:6px">No entra. Puedes empezar la eliminación un fin de semana antes o dividir la cancha 2.</span></li>
+            </ul>
+            <button class="btn principal bloque" id="programar-btn" style="margin-top:8px">Programar 191 partidos</button>
+          </div>
+          <div class="seccion" id="programando" hidden aria-busy="true" aria-label="Programando"><div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div></div>
+          <div class="seccion" id="resultado" hidden>
+            <p class="alerta ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5 9-11"/></svg><span><strong>187 de 191 partidos programados, sin choques.</strong> En el 82 % de los casos, los equipos de un mismo club juegan el mismo día.</span></p>
+            <div class="seccion-cab" style="margin-top:8px"><h2>Sin lugar</h2><span class="chip warn num">4</span></div>
+            <ul class="lista">
+              <li class="fila"><span class="grow"><strong>Final de Oro · Sub 15 Avanzado</strong><span class="sub">No queda ningún turno de 70 min libre en C3 el último fin de semana</span></span><span class="chip bad">Cancha</span></li>
+              <li class="fila"><span class="grow"><strong>Semifinal de Plata · Sub 9 Inicial</strong><span class="sub">Los turnos libres chocan con un profe de Leones que dirige Sub 9 Avanzado</span></span><span class="chip warn">Profe</span></li>
+            </ul>
+            <a class="btn bloque" href="#calendario" style="margin-top:8px">Ver el calendario</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CALENDARIO ================= -->
+      <section class="pantalla" data-pantalla="calendario" aria-label="Calendario" hidden>
+        <div class="seccion">
+          <div class="dias" id="dias" role="group" aria-label="Día"></div>
+        </div>
+        <div id="canchas-dia"></div>
+        <div class="seccion"><div class="botones"><button class="btn principal" id="compartir-btn">Compartir el día</button><a class="btn" href="#reprogramar" data-solo-org>Partido de la ACF</a></div></div>
+      </section>
+
+      <!-- ================= REPROGRAMAR ================= -->
+      <section class="pantalla" data-pantalla="reprogramar" aria-label="Partido de la ACF" hidden>
+        <div data-aviso-mesa class="vacio"><span class="icono-estado neutro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><strong>Solo la organización puede reprogramar</strong></div>
+        <div data-solo-org class="pantalla">
+          <div class="seccion" style="gap:12px">
+            <p class="muted">Carga cuándo juega un equipo en la ACF. Rondo busca cómo mover lo mínimo.</p>
+            <div class="campo"><label for="eq-acf">Equipo</label><select id="eq-acf"><option>Atlético Juniors · Sub 9 Avanzado</option></select></div>
+            <div class="dos"><div class="campo"><label for="dia-acf">Día</label><input id="dia-acf" type="date" value="2026-10-24"></div><div class="campo"><label for="hora-acf">Horario</label><input id="hora-acf" value="10:00 a 12:00"></div></div>
+            <p class="alerta warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg><span>Choca con <strong>Atlético Juniors vs Super Campeones</strong>, sábado 24 a las 10:10 en C1.</span></p>
+          </div>
+          <div class="seccion" style="gap:12px">
+            <div class="seccion-cab"><h2>Propuestas</h2><span class="peq muted">De menos a más cambios</span></div>
+            <div class="propuesta recomendada">
+              <div class="seccion-cab"><h3>Mover 1 partido</h3><span class="chip ok">Recomendada</span></div>
+              <div class="mov"><span class="antes">Sáb 24 · 10:10 · C1</span><span class="despues">Sáb 24 · 13:30 · C2</span><span class="peq muted">Atlético Juniors vs Super Campeones</span></div>
+              <button class="btn principal" data-aplicar>Aplicar</button>
+            </div>
+            <div class="propuesta">
+              <h3>Intercambiar 2 partidos</h3>
+              <div class="mov"><span class="antes">Sáb 24 · 10:10 · C1</span><span class="despues">Dom 25 · 09:20 · C1</span><span class="peq muted">Atlético Juniors vs Super Campeones</span></div>
+              <div class="mov"><span class="antes">Dom 25 · 09:20 · C1</span><span class="despues">Sáb 24 · 10:10 · C1</span><span class="peq muted">Maquinita vs Planeta FC</span></div>
+              <button class="btn" data-aplicar>Aplicar</button>
+            </div>
+            <div class="propuesta">
+              <h3>Mover 2 partidos al viernes</h3>
+              <div class="mov"><span class="antes">Sáb 24 · 10:10 · C1</span><span class="despues">Vie 23 · 18:30 · C1</span><span class="peq muted">Atlético Juniors vs Super Campeones</span></div>
+              <div class="mov"><span class="antes">Vie 23 · 18:30 · C1</span><span class="despues">Sáb 24 · 11:50 · C2</span><span class="peq muted">JMP Academy vs Planeta FC</span></div>
+              <button class="btn" data-aplicar>Aplicar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= MÁS ================= -->
+      <section class="pantalla" data-pantalla="mas" aria-label="Más" hidden>
+        <div class="seccion">
+          <div class="seccion-cab"><h2>Ver el prototipo como</h2></div>
+          <div class="segmentado" id="rol" role="group" aria-label="Rol"><button aria-pressed="true" data-rol="org">Organización</button><button aria-pressed="false" data-rol="mesa">Mesa de control</button></div>
+          <p class="muted peq">La mesa de control carga listas, verifica jugadores y ve el calendario. No configura, no programa ni reprograma.</p>
+        </div>
+        <div class="seccion">
+          <div class="seccion-cab"><h2>Personas</h2><button class="btn chico" data-solo-org>Invitar</button></div>
+          <ul class="lista">
+            <li class="fila"><span class="escudo ch" style="background:var(--navy)">SG</span><span class="grow"><strong>Sebastian</strong></span><span class="chip info">Organización</span></li>
+            <li class="fila"><span class="escudo ch" style="background:var(--navy)">JP</span><span class="grow"><strong>Organizador JMP</strong></span><span class="chip info">Organización</span></li>
+            <li class="fila"><span class="escudo ch" style="background:#5b6b8c">M1</span><span class="grow"><strong>Mesa de control 1</strong></span><span class="chip neutro">Mesa</span></li>
+          </ul>
+        </div>
+        <div class="seccion" data-solo-org>
+          <div class="seccion-cab"><h2>Datos de la escuela</h2></div>
+          <ul class="lista">
+            <li class="fila"><span class="marca" style="width:44px;height:44px;font-size:18px">JMP</span><span class="grow"><strong>JMP Soccer School</strong><span class="sub">Aparece en las pantallas, la página pública y las imágenes</span></span><button class="btn chico">Editar</button></li>
+            <li class="fila"><span class="grow"><strong>Patrocinadores</strong><span class="sub">6 logos para el pie de las imágenes</span></span><button class="btn chico">Editar</button></li>
+          </ul>
+        </div>
+        <div class="seccion">
+          <div class="seccion-cab"><h2>Torneos</h2></div>
+          <ul class="lista">
+            <li><a class="fila" href="#inicio"><span class="grow"><strong>JMP CUP 2026</strong><span class="sub">En inscripción</span></span><span class="chip ok">Activo</span></a></li>
+            <li data-solo-org><a class="fila" href="#crear"><span class="grow"><strong>Crear un torneo</strong><span class="sub">Desde la plantilla del reglamento o desde cero</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+            <li><a class="fila" href="#publico"><span class="grow"><strong>Página pública</strong><span class="sub">rondo-demo.onrender.com/jmp-cup-2026</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================= PÁGINA PÚBLICA ================= -->
+      <section class="pantalla" data-pantalla="publico" aria-label="Página pública" hidden>
+        <div class="pub-cab">
+          <a class="volver-app" href="#inicio">← Volver a la app (esto no aparece en la página real)</a>
+          <div class="fila"><span class="marca" aria-hidden="true">JMP</span><div class="grow"><h1>JMP CUP 2026</h1><p class="sub peq">JMP Soccer School · Urubo · 23 de octubre al 22 de noviembre</p></div></div>
+          <div class="categorias" id="categorias-pub" role="group" aria-label="Categoría"></div>
+        </div>
+        <div class="pestanas" role="tablist" aria-label="Secciones públicas" style="top:0">
+          <button role="tab" aria-selected="true" data-tab-pub="partidos">Partidos</button>
+          <button role="tab" aria-selected="false" data-tab-pub="tabla">Posiciones</button>
+          <button role="tab" aria-selected="false" data-tab-pub="equipos-pub">Equipos</button>
+        </div>
+        <div class="seccion" data-panel-pub="partidos"><div id="partidos-pub"></div></div>
+        <div class="seccion" data-panel-pub="tabla" hidden>
+          <div class="subtitulo">SERIE A <span>PJ · PTS</span></div>
+          <ul class="lista" id="tabla-pub"></ul>
+          <p class="muted peq">Ejemplo con resultados inventados.</p>
+        </div>
+        <div class="seccion" data-panel-pub="equipos-pub" hidden><ul class="lista" id="equipos-pub"></ul><p class="muted peq">La página pública muestra equipos, partidos y resultados. Nunca nombres de jugadores, CI ni fechas de nacimiento.</p></div>
+      </section>
+    </main>
+  </div>
 
   <div class="velo" id="velo" hidden></div>
   <div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hoja-titulo" hidden>
     <div class="asa"></div>
     <h2 id="hoja-titulo">Agregar jugador</h2>
-    <div class="campo"><label for="ci">CI o pasaporte</label><input id="ci" value="4521873 SC" inputmode="text"></div>
-    <div class="alerta warn" id="aviso-ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg><span><strong>Ya juega en Sub 11 Avanzado de River Plate.</strong> Se permite porque es el mismo club y otra categoría. Esos dos equipos no van a jugar a la vez.</span></div>
-    <div class="dos">
-      <div class="campo"><label for="nombres">Nombres</label><input id="nombres" value="Joaquín"></div>
-      <div class="campo"><label for="apellidos">Apellidos</label><input id="apellidos" value="Mendoza Rivero"></div>
-    </div>
-    <div class="dos">
-      <div class="campo"><label for="nac">Nacimiento</label><input id="nac" type="date" value="2017-03-14"></div>
-      <div class="campo"><label for="dorsal-in">Dorsal</label><input id="dorsal-in" inputmode="numeric" placeholder="Opcional"></div>
-    </div>
-    <div class="alerta ok" id="edad-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5 9-11"/></svg><span id="edad-texto">Nacido en 2017: puede jugar Sub 9.</span></div>
-    <div class="alerta info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Sin dorsal se puede guardar. Hace falta antes del primer partido.</span></div>
-    <div class="dos"><button class="btn" id="cerrar-hoja">Cancelar</button><button class="btn primario" id="guardar-jugador">Guardar</button></div>
+    <div class="campo"><label for="ci">CI o pasaporte</label><input id="ci" value="4521873 SC"></div>
+    <p class="alerta warn" id="aviso-ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg><span><strong>Ya juega en Sub 11 Avanzado de River Plate.</strong> Se permite porque es el mismo club y otra categoría. Esos dos equipos no van a jugar a la vez.</span></p>
+    <div class="dos"><div class="campo"><label for="nombres">Nombres</label><input id="nombres" value="Joaquín"></div><div class="campo"><label for="apellidos">Apellidos</label><input id="apellidos" value="Mendoza Rivero"></div></div>
+    <div class="dos"><div class="campo"><label for="nac">Nacimiento</label><input id="nac" type="date" value="2017-03-14"></div><div class="campo"><label for="dorsal-in">Dorsal</label><input id="dorsal-in" inputmode="numeric" placeholder="Opcional"></div></div>
+    <p class="alerta ok" id="edad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5 9-11"/></svg><span id="edad-texto">Nacido en 2017: puede jugar Sub 9.</span></p>
+    <p class="alerta info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Sin dorsal se puede guardar. Hace falta antes del primer partido.</span></p>
+    <div class="botones"><button class="btn" id="cerrar-hoja">Cancelar</button><button class="btn principal" id="guardar-jugador">Guardar</button></div>
   </div>
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <div class="velo" id="velo-png" hidden></div>
+  <div class="hoja" id="hoja-png" role="dialog" aria-modal="true" aria-labelledby="png-titulo" hidden>
+    <div class="asa"></div>
+    <h2 id="png-titulo">Sábado 24 · Cancha 1</h2>
+    <div class="png" aria-label="Vista previa de la imagen del fixture">
+      <div class="t">FIXTURE</div><div class="d">SÁBADO 24</div>
+      <div class="filas"><div class="f"><span>Sub 11 Av</span><span>River Plate</span><span>Super Campeones</span><span>09:20</span></div><div class="f"><span>Sub 9 Av</span><span>Atl. Juniors</span><span>Super Campeones</span><span>10:10</span></div><div class="f"><span>Sub 9 Ini</span><span>Torito García</span><span>Real FC</span><span>11:00</span></div></div>
+      <div class="lado"><span>CANCHA 1</span><span class="marca" style="width:44%;height:auto;aspect-ratio:1;background:#0d2440;color:#f2cf3a">JMP</span><span>JMP CUP</span></div>
+      <div class="pie"><span>Patrocinador</span><span>Patrocinador</span><span>Patrocinador</span><span>Patrocinador</span></div>
+    </div>
+    <p class="muted peq">Una imagen por cancha. Con tu diseño y las imágenes reales, queda igual a la de 2025.</p>
+    <div class="botones"><button class="btn" id="cerrar-png">Cerrar</button><button class="btn principal" id="mandar-png">Compartir por WhatsApp</button></div>
+  </div>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
 </div>
 
 <script>
 (() => {
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-
+  const chev = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
   const CLUBES = {
-    "JMP Academy": ["JMA", "#0f6b44"], "River Plate": ["RIV", "#c8102e"], "Atlético Juniors": ["AJU", "#1f4e9c"],
-    "Super Campeones": ["SCA", "#e07a00"], "Maquinita": ["MAQ", "#6b3fa0"], "Planeta FC": ["PLA", "#0e8a9a"],
-    "Leones": ["LEO", "#b8860b"], "Inter Star": ["INT", "#2b2b72"], "Real FC": ["REA", "#7a1f3d"],
-    "Leoncitos": ["LCT", "#9a6b00"], "Torito García": ["TOR", "#8a3b12"], "Crack FC": ["CRK", "#334155"],
+    "JMP Academy": ["JMA", "#163463"], "River Plate": ["RIV", "#c8102e"], "Atlético Juniors": ["AJU", "#1f4e9c"],
+    "Super Campeones": ["SCA", "#d06d00"], "Maquinita": ["MAQ", "#6b3fa0"], "Planeta FC": ["PLA", "#1d1d1d"],
+    "Leones": ["LEO", "#a8101a"], "Inter Star": ["INT", "#2b2b72"], "Real FC": ["REA", "#7a1f3d"],
+    "Leoncitos": ["LCT", "#8a6100"], "Torito García": ["TOR", "#8a3b12"], "Crack FC": ["CRK", "#2f8f8a"],
   };
-  const escudo = (club, chico) => {
-    const [ini, color] = CLUBES[club] || ["?", "#888"];
-    return `<span class="escudo${chico ? " ch" : ""}" style="background:${color}">${ini}</span>`;
-  };
-  const flecha = '<svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
+  const escudo = (club, t = "") => { const [i, c] = CLUBES[club] || ["?", "#666"]; return `<span class="escudo ${t}" style="background:${c}" aria-hidden="true">${i}</span>`; };
 
-  // ---------- Navegación por hash ----------
-  const TITULOS = {
-    inicio: ["Inicio", "JMP Soccer School"], crear: ["Nuevo torneo", "Asistente de 4 pasos"],
-    torneo: ["JMP CUP 2026", "Equipos, fixture y posiciones"], equipo: ["Equipo", "Sub 9 Avanzado"],
-    programar: ["Programar", "JMP CUP 2026"], calendario: ["Calendario", "JMP CUP 2026"],
-    reprogramar: ["Reprogramar", "Partido de la ACF"], mas: ["Más", "Personas, escuela y torneos"],
-  };
+  function aviso(texto) {
+    const t = $("#aviso"); t.textContent = texto; t.hidden = false;
+    clearTimeout(aviso.t); aviso.t = setTimeout(() => { t.hidden = true; }, 2600);
+  }
+
+  // ---------- Navegación ----------
+  const TITULOS = { inicio: "Inicio", crear: "Nuevo torneo", torneo: "JMP CUP 2026", equipo: "Equipo", programar: "Programar", calendario: "Calendario", reprogramar: "Partido de la ACF", mas: "Más", publico: "Página pública" };
   const PRINCIPALES = ["inicio", "torneo", "calendario", "mas"];
+  const PADRE = { equipo: "torneo", crear: "mas", programar: "inicio", reprogramar: "calendario" };
   function mostrar() {
     const id = (location.hash || "#inicio").slice(1);
-    const pantalla = TITULOS[id] ? id : "inicio";
-    $$("[data-pantalla]").forEach(s => { s.hidden = s.dataset.pantalla !== pantalla; });
-    const [t, sub] = TITULOS[pantalla];
-    $("#titulo-barra").innerHTML = `${t} <span class="sub">${sub}</span>`;
-    const principal = PRINCIPALES.includes(pantalla);
-    $("#volver").hidden = principal;
-    $("#marca").hidden = !principal;
-    const activa = principal ? pantalla : (pantalla === "equipo" ? "torneo" : pantalla === "crear" ? "mas" : pantalla === "reprogramar" ? "calendario" : "inicio");
+    const p = TITULOS[id] ? id : "inicio";
+    $$("[data-pantalla]").forEach(s => { s.hidden = s.dataset.pantalla !== p; });
+    document.body.dataset.vista = p === "publico" ? "publica" : "app";
+    $("#titulo-barra").textContent = TITULOS[p];
+    const principal = PRINCIPALES.includes(p);
+    $("#volver").hidden = principal; $("#marca").hidden = !principal;
+    const activa = principal ? p : PADRE[p] || "inicio";
     $$("[data-nav]").forEach(a => { if (a.dataset.nav === activa) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", mostrar);
-  $("#volver").addEventListener("click", () => history.length > 1 ? history.back() : (location.hash = "#inicio"));
-  document.addEventListener("click", e => {
-    const ir = e.target.closest("[data-ir]");
-    if (ir) location.hash = ir.dataset.ir;
-  });
+  $("#volver").addEventListener("click", () => { const id = (location.hash || "").slice(1); location.hash = "#" + (PADRE[id] || "inicio"); });
 
-  function aviso(texto) {
-    const t = $("#toast"); t.textContent = texto; t.hidden = false;
-    clearTimeout(aviso.t); aviso.t = setTimeout(() => { t.hidden = true; }, 2400);
-  }
-
-  // ---------- Interruptores, contadores y opciones ----------
+  // ---------- Controles genéricos ----------
   document.addEventListener("click", e => {
-    const sw = e.target.closest(".interruptor");
+    const ir = e.target.closest("[data-ir]"); if (ir) location.hash = ir.dataset.ir;
+    const sw = e.target.closest(".interruptor:not([data-verif])");
     if (sw) sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") === "true" ? "false" : "true");
     const b = e.target.closest(".contador button");
-    if (b) {
-      const out = b.parentElement.querySelector("output");
-      const v = Math.max(0, Number(out.value) + (b.dataset.d === "+" ? 1 : -1));
-      out.value = v;
-    }
-    const op = e.target.closest(".opcion[data-grupo]");
-    if (op) $$(`.opcion[data-grupo="${op.dataset.grupo}"]`).forEach(o => o.setAttribute("aria-pressed", o === op ? "true" : "false"));
+    if (b) { const o = b.parentElement.querySelector("output"); o.value = Math.max(0, Number(o.value) + (b.dataset.d === "+" ? 1 : -1)); }
+    const el = e.target.closest(".eleccion[data-grupo]");
+    if (el) $$(`.eleccion[data-grupo="${el.dataset.grupo}"]`).forEach(x => x.setAttribute("aria-pressed", x === el ? "true" : "false"));
+    if (e.target.closest("[data-aplicar]")) { aviso("Propuesta aplicada. Quedó en el historial de cambios."); setTimeout(() => { location.hash = "#calendario"; }, 900); }
+  });
+  function pestanas(atributo, panel) {
+    $$(`[${atributo}]`).forEach(t => t.addEventListener("click", () => {
+      $$(`[${atributo}]`).forEach(x => x.setAttribute("aria-selected", x === t ? "true" : "false"));
+      $$(`[${panel}]`).forEach(p => { p.hidden = p.getAttribute(panel) !== t.getAttribute(atributo); });
+    }));
+  }
+  pestanas("data-tab", "data-panel"); pestanas("data-tab-eq", "data-panel-eq"); pestanas("data-tab-pub", "data-panel-pub");
+
+  // ---------- Rol ----------
+  $("#rol").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    $$("#rol button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    document.body.dataset.rol = b.dataset.rol;
+    $("#rol-actual").textContent = b.dataset.rol === "mesa" ? "Mesa de control" : "Organización";
+    aviso(b.dataset.rol === "mesa" ? "Ahora ves la app como la mesa de control" : "Ahora ves la app como la organización");
   });
 
-  // ---------- Asistente: categorías ----------
-  const CATS = [
-    ["Sub 5", 2021, ["Único · F5 · 8 a 10"]], ["Sub 6", 2020, ["Único · F7 · 8 a 12"]],
-    ...[7, 8, 9].map(n => [`Sub ${n}`, 2026 - n, ["Inicial · F7", "Avanzado · F7"]]),
-    ...[10, 11].map(n => [`Sub ${n}`, 2026 - n, ["Inicial · F7", "Avanzado · F8"]]),
-    ...[12, 13, 14, 15].map(n => [`Sub ${n}`, 2026 - n, ["Inicial · F7", "Avanzado · F11"]]),
-    ["Sub 17", "2009 y 2010", ["Inicial · F7", "Avanzado · F11"]], ["Sub 15 Femenino", 2011, ["Único · F7 · 10 a 14"]],
-  ];
-  $("#lista-categorias").innerHTML = CATS.map(([n, a, nv], i) => `
-    <div class="cat-fila">
-      <div class="grow"><strong>${n}</strong> <span class="peq muted num">· nacidos en ${a}</span>
-        <div class="niveles">${nv.map(x => `<span class="chip neutro">${x}</span>`).join("")}</div></div>
-      <button class="interruptor" role="switch" aria-checked="true" aria-label="Incluir ${n}" id="cat-${i}"></button>
-    </div>`).join("");
-
-  // ---------- Asistente: reglas ----------
+  // ---------- Crear torneo ----------
+  const CATS = [["Sub 5", "2021", ["Único · F5"]], ["Sub 6", "2020", ["Único · F7"]],
+    ...[7, 8, 9].map(n => [`Sub ${n}`, `${2026 - n}`, ["Inicial · F7", "Avanzado · F7"]]),
+    ...[10, 11].map(n => [`Sub ${n}`, `${2026 - n}`, ["Inicial · F7", "Avanzado · F8"]]),
+    ...[12, 13, 14, 15].map(n => [`Sub ${n}`, `${2026 - n}`, ["Inicial · F7", "Avanzado · F11"]]),
+    ["Sub 17", "2009 y 2010", ["Inicial · F7", "Avanzado · F11"]], ["Sub 15 Femenino", "2011", ["Único · F7"]]];
+  $("#lista-categorias").innerHTML = CATS.map(([n, a, nv], i) => `<li class="fila"><span class="grow"><strong>${n} <span class="muted num" style="font-weight:500">· ${a}</span></strong><span class="marcas">${nv.map(x => `<span class="chip neutro">${x}</span>`).join("")}</span></span><button class="interruptor" role="switch" aria-checked="true" aria-label="Incluir ${n}" id="cat-${i}"></button></li>`).join("");
   const contador = (v, id) => `<div class="contador"><button data-d="-" aria-label="Menos">−</button><output id="${id}">${v}</output><button data-d="+" aria-label="Más">+</button></div>`;
-  const sw = (on, label) => `<button class="interruptor" role="switch" aria-checked="${on}" aria-label="${label}"></button>`;
-  const sel = (ops, id) => `<select class="selector" id="${id}">${ops.map(o => `<option>${o}</option>`).join("")}</select>`;
+  const sw = (on, l) => `<button class="interruptor" role="switch" aria-checked="${on}" aria-label="${l}"></button>`;
+  const sel = (ops, id, l) => `<select class="selector" id="${id}" aria-label="${l}">${ops.map(o => `<option>${o}</option>`).join("")}</select>`;
   const GRUPOS = [
-    ["Inscripción", [
-      ["Se puede jugar en una categoría mayor", "Un chico de 2018 puede jugar Sub 9. Al revés, nunca.", "P6", sw(true, "Categoría mayor")],
-      ["Avisar si juega más de… años arriba", "Solo es un aviso, no impide inscribirlo.", "P42", contador(2, "r-anios")],
-      ["Un jugador en dos equipos de su club", "Esos dos equipos no juegan a la vez.", "P7", sel(["En otra categoría", "Nunca"], "r-dos")],
-      ["Dorsal obligatorio", "", "P9", sel(["Antes del primer partido", "Al inscribir"], "r-dorsal")],
-      ["CI obligatorio", "Sin CI no se detectan jugadores repetidos.", "P39", sel(["Antes del primer partido", "Al inscribir"], "r-ci")],
-    ]],
-    ["Cuerpo técnico", [
-      ["Personas por equipo", "Entrenador, asistente y delegado.", "", contador(3, "r-ct")],
-      ["Entrenadores por equipo", "Solo el entrenador dirige desde la cancha.", "P40", contador(1, "r-ent")],
-    ]],
-    ["Partidos", [
-      ["Descanso entre tiempos (min)", "", "", contador(5, "r-desc")],
-      ["Cambio entre partidos (min)", "Con 5 min, los turnos son de 40, 50, 60 y 70.", "P16", contador(5, "r-cambio")],
-      ["Marcador por W.O.", "", "P23", sel(["3 a 0", "2 a 0", "1 a 0"], "r-wo")],
-    ]],
-    ["Fixture", [
-      ["Equipos del mismo club se enfrentan en la fecha 1", "", "P24", sw(true, "Mismo club en la fecha 1")],
-      ["Separar equipos del mismo club en las series", "", "P45", sw(true, "Separar mismo club")],
-    ]],
-    ["Programación", [
-      ["Partidos por día de un equipo", "", "P47", contador(2, "r-pdia")],
-      ["Turnos libres entre dos partidos del mismo día", "", "P17", contador(1, "r-libres")],
-      ["Minutos para que un profe cambie de cancha", "Partidos seguidos en la misma cancha no lo necesitan.", "P35", contador(10, "r-profe")],
-      ["Respetar el orden de las fechas", "", "P19", sw(true, "Orden de fechas")],
-      ["La eliminación empieza el fin de semana", "", "P33", sel(["5 (el último)", "4", "3"], "r-elim")],
-    ]],
+    ["Inscripción", [["Se puede jugar en una categoría mayor", "Uno de 2018 puede jugar Sub 9. Al revés, nunca.", "P6", sw(true, "Categoría mayor")],
+      ["Avisar si juega más de… años arriba", "Es solo un aviso.", "P42", contador(2, "r-anios")],
+      ["Jugador en dos equipos de su club", "Esos equipos no juegan a la vez.", "P7", sel(["En otra categoría", "Nunca"], "r-dos", "Jugador en dos equipos")],
+      ["Dorsal obligatorio", "", "P9", sel(["Antes del 1.er partido", "Al inscribir"], "r-dorsal", "Dorsal obligatorio")],
+      ["CI obligatorio", "Sin CI no se detectan repetidos.", "P39", sel(["Antes del 1.er partido", "Al inscribir"], "r-ci", "CI obligatorio")]]],
+    ["Cuerpo técnico", [["Personas por equipo", "Entrenador, asistente y delegado.", "", contador(3, "r-ct")], ["Entrenadores por equipo", "", "P40", contador(1, "r-ent")]]],
+    ["Partidos", [["Descanso entre tiempos (min)", "", "", contador(5, "r-desc")], ["Cambio entre partidos (min)", "Con 5, los turnos son de 40, 50, 60 y 70.", "P16", contador(5, "r-cambio")], ["Marcador por W.O.", "", "P23", sel(["3 a 0", "2 a 0", "1 a 0"], "r-wo", "Marcador por W.O.")]]],
+    ["Fixture", [["El mismo club se enfrenta en la fecha 1", "", "P24", sw(true, "Mismo club en la fecha 1")], ["Separar al mismo club en las series", "", "P45", sw(true, "Separar mismo club")]]],
+    ["Programación", [["Partidos por día de un equipo", "", "P47", contador(2, "r-pdia")], ["Turnos libres entre dos partidos del mismo día", "", "P17", contador(1, "r-libres")], ["Minutos para que un profe cambie de cancha", "En la misma cancha no hace falta.", "P35", contador(10, "r-profe")], ["Respetar el orden de las fechas", "", "P19", sw(true, "Orden de fechas")], ["La eliminación empieza el fin de semana", "", "P33", sel(["5 (el último)", "4", "3"], "r-elim", "Fin de semana de la eliminación")]]],
   ];
-  $("#reglas").innerHTML = GRUPOS.map(([g, items]) => `
-    <p class="titulo-seccion">${g}</p>
-    <div class="tarjeta lista" style="padding-block:4px">${items.map(([n, ayuda, p, ctl]) => `
-      <div class="ajuste"><div class="grow"><div class="nombre">${n}${p ? ` <span class="p">${p}</span>` : ""}</div>${ayuda ? `<div class="ayuda">${ayuda}</div>` : ""}</div>${ctl}</div>`).join("")}
-    </div>`).join("");
-
+  $("#reglas").innerHTML = GRUPOS.map(([g, items]) => `<p class="subtitulo">${g.toUpperCase()}</p><ul class="lista">${items.map(([n, a, p, c]) => `<li class="fila ajuste"><span class="grow"><span class="nombre">${n}${p ? ` <span class="p">${p}</span>` : ""}</span>${a ? `<span class="sub">${a}</span>` : ""}</span>${c}</li>`).join("")}</ul>`).join("");
   let paso = 1;
   function irAPaso(n) {
     paso = n;
@@ -664,134 +680,92 @@ h2.titulo { font: 700 26px/1.05 var(--display); margin: 0; text-wrap: balance; }
     $("#paso-sig").textContent = n === 4 ? "Crear el torneo" : "Siguiente";
     window.scrollTo(0, 0);
   }
-  $("#paso-sig").addEventListener("click", () => {
-    if (paso < 4) irAPaso(paso + 1);
-    else { aviso("Torneo creado con 23 categorías, 5 canchas y 15 días de juego"); setTimeout(() => { location.hash = "#inicio"; irAPaso(1); }, 900); }
-  });
+  $("#paso-sig").addEventListener("click", () => { if (paso < 4) irAPaso(paso + 1); else { aviso("Torneo creado: 23 categorías, 5 canchas y 15 días de juego"); setTimeout(() => { location.hash = "#inicio"; irAPaso(1); }, 900); } });
   $("#paso-atras").addEventListener("click", () => paso > 1 && irAPaso(paso - 1));
   irAPaso(1);
 
-  // ---------- Torneo: categorías, equipos y fixture ----------
+  // ---------- Torneo ----------
   const CHIPS = ["Sub 5", "Sub 6", "Sub 7 Ini", "Sub 7 Av", "Sub 8 Ini", "Sub 8 Av", "Sub 9 Ini", "Sub 9 Av", "Sub 10 Ini", "Sub 10 Av", "Sub 11 Ini", "Sub 11 Av", "Sub 12 Ini", "Sub 12 Av", "Sub 13 Ini", "Sub 13 Av", "Sub 14 Ini", "Sub 14 Av", "Sub 15 Ini", "Sub 15 Av", "Sub 17 Ini", "Sub 17 Av", "Sub 15 Fem"];
-  $("#chips-cat").innerHTML = CHIPS.map(c => `<button aria-pressed="${c === "Sub 9 Av"}">${c}</button>`).join("");
-  $("#chips-cat").addEventListener("click", e => {
-    const b = e.target.closest("button"); if (!b) return;
-    $$("#chips-cat button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-    aviso(`En el prototipo, todas las categorías muestran los equipos de Sub 9 Avanzado`);
-  });
-  setTimeout(() => { const s = $('#chips-cat [aria-pressed="true"]'); s && s.scrollIntoView({ inline: "center", block: "nearest" }); }, 0);
-  $("#resumen-cat").innerHTML = '<span class="chip ok">6 equipos</span><span class="chip neutro">Fútbol 7 · turno 50 min</span><span class="chip neutro num">Nacidos en 2017</span>';
-
-  const EQUIPOS = [
-    ["River Plate", "A", 13, 14, 4, ""], ["JMP Academy", "A", 14, 14, 0, ""], ["Atlético Juniors", "A", 11, 14, 2, "ACF sáb 24"],
-    ["Super Campeones", "B", 12, 14, 0, ""], ["Maquinita", "B", 9, 14, 6, ""], ["Planeta FC", "B", 14, 14, 1, ""],
-  ];
-  $("#lista-equipos").innerHTML = EQUIPOS.map(([club, serie, n, max, sinv, acf]) => {
-    const estado = n < 12 ? `<span class="chip warn num">Faltan ${12 - n} para el mínimo</span>` : `<span class="chip ok num">${n} de ${max}</span>`;
-    return `<a class="item" href="#equipo">${escudo(club)}<div class="grow"><strong>${club}</strong>
-      <span class="peq muted">Serie ${serie}${sinv ? ` · ${sinv} sin verificar` : " · todos verificados"}</span>
-      <div class="niveles">${estado}${acf ? `<span class="chip info">${acf}</span>` : ""}</div></div>${flecha}</a>`;
-  }).join("");
-
-  const fila = (a, b, medio) => `<div class="partido"><div class="equipo">${escudo(a, true)}<span>${a}</span></div><div class="medio">${medio}</div><div class="equipo der">${escudo(b, true)}<span>${b}</span></div></div>`;
-  const FECHAS = [
-    ["Fecha 1", "Fin de semana 1", [["JMP Academy", "Super Campeones", "<b>Sáb 24</b>08:50 · C1"], ["River Plate", "Maquinita", "<b>Sáb 24</b>09:40 · C2"], ["Atlético Juniors", "Planeta FC", "<b>Dom 25</b>08:00 · C1"]]],
-    ["Fecha 2", "Fin de semana 2", [["JMP Academy", "Maquinita", "<b>Sáb 31</b>08:00 · C2"], ["River Plate", "Planeta FC", "<b>Sáb 31</b>10:30 · C1"], ["Atlético Juniors", "Super Campeones", "<b>Sin programar</b>"]]],
-    ["Fecha 3", "Fin de semana 3", [["JMP Academy", "Planeta FC", "<b>Dom 8</b>11:20 · C2"], ["River Plate", "Super Campeones", "<b>Dom 8</b>12:10 · C2"], ["Atlético Juniors", "Maquinita", "<b>Vie 6</b>18:30 · C1"]]],
-  ];
-  $("#fixture").innerHTML = FECHAS.map(([f, cuando, ps]) => `
-    <div class="tarjeta"><div class="fecha-cab"><h3>${f}</h3><span class="peq muted">${cuando}</span></div>
-      <div class="lista">${ps.map(([a, b, m]) => fila(a, b, m)).join("")}</div></div>`).join("") + `
-    <div class="tarjeta"><div class="fecha-cab"><h3>Copa de Oro</h3><span class="peq muted">Último fin de semana</span></div>
-      <div class="lista">
-        <div class="partido"><div class="equipo por-definir">1.º Serie A</div><div class="medio"><b>Semi</b>Sáb 21</div><div class="equipo der por-definir">2.º Serie A</div></div>
-        <div class="partido"><div class="equipo por-definir">1.º Serie B</div><div class="medio"><b>Semi</b>Sáb 21</div><div class="equipo der por-definir">2.º Serie B</div></div>
-        <div class="partido"><div class="equipo por-definir">Ganador semi 1</div><div class="medio"><b>Final</b>Dom 22</div><div class="equipo der por-definir">Ganador semi 2</div></div>
-      </div></div>`;
-
-  $$("[data-tab]").forEach(t => t.addEventListener("click", () => {
-    $$("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === t ? "true" : "false"));
-    $$("[data-panel]").forEach(p => { p.hidden = p.dataset.panel !== t.dataset.tab; });
-  }));
+  function chipsCategorias(contenedor) {
+    contenedor.innerHTML = CHIPS.map(c => `<button aria-pressed="${c === "Sub 9 Av"}">${c}</button>`).join("");
+    contenedor.addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      $$("button", contenedor).forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+      aviso("En el prototipo, todas las categorías muestran Sub 9 Avanzado");
+    });
+  }
+  chipsCategorias($("#categorias")); chipsCategorias($("#categorias-pub"));
+  const centrarElegida = () => $$(".categorias").forEach(c => { const b = $('[aria-pressed="true"]', c); if (b && c.offsetParent) c.scrollLeft = b.offsetLeft - (c.clientWidth - b.offsetWidth) / 2; });
+  window.addEventListener("hashchange", () => setTimeout(centrarElegida, 0));
+  setTimeout(centrarElegida, 0);
+  const EQUIPOS = [["River Plate", "A", 13, 4, ""], ["JMP Academy", "A", 14, 0, ""], ["Atlético Juniors", "A", 11, 2, "Partido ACF el sáb 24"], ["Super Campeones", "B", 12, 0, ""], ["Maquinita", "B", 9, 6, ""], ["Planeta FC", "B", 14, 1, ""]];
+  $("#lista-equipos").innerHTML = EQUIPOS.map(([club, serie, n, sv, acf]) => `<li><a class="fila" href="#equipo">${escudo(club)}<span class="grow"><strong>${club}</strong><span class="sub">Serie ${serie} · <span class="num">${n} de 14</span></span><span class="marcas">${n < 12 ? `<span class="chip warn num">${12 - n === 1 ? "Falta" : "Faltan"} ${12 - n} para el mínimo</span>` : ""}${sv ? `<span class="chip neutro num">${sv} sin verificar</span>` : `<span class="chip ok">Verificados</span>`}${acf ? `<span class="chip info">${acf}</span>` : ""}</span></span>${chev}</a></li>`).join("");
+  const partido = (a, b, m) => `<li class="partido"><span class="eq">${escudo(a, "ch")}<span>${a}</span></span><span class="medio">${m}</span><span class="eq der">${escudo(b, "ch")}<span>${b}</span></span></li>`;
+  const FECHAS = [["FECHA 1", "Fin de semana 1", [["JMP Academy", "Super Campeones", "<b>Sáb 24</b>08:50 · C2"], ["River Plate", "Maquinita", "<b>Sáb 24</b>09:40 · C2"], ["Atlético Juniors", "Planeta FC", "<b>Dom 25</b>08:00 · C1"]]],
+    ["FECHA 2", "Fin de semana 2", [["JMP Academy", "Maquinita", "<b>Sáb 31</b>08:00 · C2"], ["River Plate", "Planeta FC", "<b>Sáb 31</b>10:30 · C1"], ["Atlético Juniors", "Super Campeones", "<b>Sáb 24</b>10:10 · C1"]]],
+    ["FECHA 3", "Fin de semana 3", [["JMP Academy", "Planeta FC", "<b>Dom 8</b>11:20 · C2"], ["River Plate", "Super Campeones", "<b>Dom 8</b>12:10 · C2"], ["Atlético Juniors", "Maquinita", "<b>Vie 6</b>18:30 · C1"]]]];
+  const fixtureHtml = FECHAS.map(([f, c, ps]) => `<p class="subtitulo">${f} <span>${c}</span></p><ul class="lista">${ps.map(([a, b, m]) => partido(a, b, m)).join("")}</ul>`).join("") +
+    `<p class="subtitulo">COPA DE ORO <span>Último fin de semana</span></p><ul class="lista">
+      <li class="partido"><span class="eq por-definir">1.º Serie A</span><span class="medio"><b>Semi</b>Sáb 21</span><span class="eq der por-definir">2.º Serie A</span></li>
+      <li class="partido"><span class="eq por-definir">1.º Serie B</span><span class="medio"><b>Semi</b>Sáb 21</span><span class="eq der por-definir">2.º Serie B</span></li>
+      <li class="partido"><span class="eq por-definir">Ganador semi 1</span><span class="medio"><b>Final</b>Dom 22</span><span class="eq der por-definir">Ganador semi 2</span></li></ul>`;
+  $("#fixture").innerHTML = fixtureHtml;
 
   // ---------- Equipo ----------
-  const PLANTEL = [
-    [1, "Santiago Peña Ibáñez", 2017, true], [3, "Joaquín Rocha", 2017, true], [4, "Mateo Suárez Arce", 2017, false],
-    [5, "Thiago Ortiz", 2018, true], [7, "Benjamín Aguilera", 2017, true], [8, "Lucas Céspedes", 2017, false],
-    [9, "Gael Montaño", 2017, true], [10, "Emiliano Rivero", 2017, true], [11, "Dylan Soliz", 2017, false],
-    [14, "Iker Villarroel", 2017, true], [17, "Liam Saucedo", 2017, true], [null, "Bruno Justiniano", 2017, false], [null, "Alan Cuéllar", 2017, true],
-  ];
+  const PLANTEL = [[1, "Santiago Peña Ibáñez", 2017, true], [3, "Joaquín Rocha", 2017, true], [4, "Mateo Suárez Arce", 2017, false], [5, "Thiago Ortiz", 2018, true], [7, "Benjamín Aguilera", 2017, true], [8, "Lucas Céspedes", 2017, false], [9, "Gael Montaño", 2017, true], [10, "Emiliano Rivero", 2017, true], [11, "Dylan Soliz", 2017, false], [14, "Iker Villarroel", 2017, true], [17, "Liam Saucedo", 2017, true], [null, "Bruno Justiniano", 2017, false], [null, "Alan Cuéllar", 2017, true]];
   function pintarPlantel() {
-    $("#plantel").innerHTML = PLANTEL.map(([d, nombre, anio, v], i) => {
-      const edad = anio === 2018 ? '<span class="chip info">Juega 1 año arriba</span>' : "";
-      return `<div class="jugador"><span class="dorsal${d ? "" : " falta"}">${d ?? "—"}</span>
-        <div class="grow"><strong>${nombre}</strong><div class="niveles"><span class="peq muted num">${anio}</span>${edad}</div></div>
-        <label class="verif" for="v-${i}">${v ? "Verificado" : "Verificar"}<button class="interruptor" id="v-${i}" role="switch" aria-checked="${v}" data-verif="${i}" aria-label="Verificar CI de ${nombre}"></button></label></div>`;
-    }).join("");
-    const faltan = PLANTEL.filter(p => !p[3]).length;
-    $("#sin-verificar").textContent = faltan ? `${faltan} sin verificar` : "Todos verificados";
-    $("#sin-verificar").className = `chip ${faltan ? "warn" : "ok"} num`;
+    $("#plantel").innerHTML = PLANTEL.map(([d, n, a, v], i) => `<li class="fila"><span class="dorsal${d ? "" : " falta"}">${d ?? "s/n"}</span><span class="grow"><strong>${n}</strong><span class="sub num">${a}${a === 2018 ? " · juega 1 año arriba" : ""}</span></span><span class="peq muted">${v ? "Verificado" : "Sin verificar"}</span><button class="interruptor" role="switch" aria-checked="${v}" data-verif="${i}" aria-label="CI de ${n} verificado"></button></li>`).join("");
+    const f = PLANTEL.filter(p => !p[3]).length;
+    $("#sin-verificar").textContent = f ? `${f} sin verificar` : "Todos verificados";
+    $("#sin-verificar").className = `chip ${f ? "warn" : "ok"} num`;
   }
   pintarPlantel();
-  $("#plantel").addEventListener("click", e => {
-    const b = e.target.closest("[data-verif]"); if (!b) return;
-    e.preventDefault();
-    const p = PLANTEL[Number(b.dataset.verif)]; p[3] = !p[3]; pintarPlantel();
-    aviso(p[3] ? `${p[1]}: CI verificado` : `${p[1]}: verificación quitada`);
-  });
-  $$("[data-tab-eq]").forEach(t => t.addEventListener("click", () => {
-    $$("[data-tab-eq]").forEach(x => x.setAttribute("aria-selected", x === t ? "true" : "false"));
-    $$("[data-panel-eq]").forEach(p => { p.hidden = p.dataset.panelEq !== t.dataset.tabEq; });
-  }));
+  $("#plantel").addEventListener("click", e => { const b = e.target.closest("[data-verif]"); if (!b) return; const p = PLANTEL[Number(b.dataset.verif)]; p[3] = !p[3]; pintarPlantel(); aviso(p[3] ? `${p[1]}: CI verificado` : `${p[1]}: verificación quitada`); });
 
-  const hoja = $("#hoja"), velo = $("#velo");
-  const abrir = () => { hoja.hidden = false; velo.hidden = false; $("#ci").focus(); };
-  const cerrar = () => { hoja.hidden = true; velo.hidden = true; };
-  $("#abrir-hoja").addEventListener("click", abrir);
-  $("#cerrar-hoja").addEventListener("click", cerrar);
-  velo.addEventListener("click", cerrar);
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && !hoja.hidden) cerrar(); });
-  $("#guardar-jugador").addEventListener("click", () => { cerrar(); aviso("Joaquín Mendoza Rivero agregado a River Plate · Sub 9 Avanzado"); });
+  function hojaControl(hoja, velo, abrirBtn, cerrarBtn, foco) {
+    const abrir = () => { hoja.hidden = false; velo.hidden = false; (foco ? $(foco) : hoja).focus?.(); };
+    const cerrar = () => { hoja.hidden = true; velo.hidden = true; abrirBtn.focus(); };
+    abrirBtn.addEventListener("click", abrir); cerrarBtn.addEventListener("click", cerrar); velo.addEventListener("click", cerrar);
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !hoja.hidden) cerrar(); });
+    return cerrar;
+  }
+  const cerrarJugador = hojaControl($("#hoja"), $("#velo"), $("#abrir-hoja"), $("#cerrar-hoja"), "#ci");
+  $("#guardar-jugador").addEventListener("click", () => { cerrarJugador(); aviso("Joaquín Mendoza Rivero agregado a River Plate"); });
   $("#ci").addEventListener("input", e => { $("#aviso-ci").hidden = !/4521873/.test(e.target.value); });
   $("#nac").addEventListener("change", e => {
-    const anio = Number(e.target.value.slice(0, 4)), caja = $("#edad-ok"), texto = $("#edad-texto");
-    const mayor = anio && anio < 2017;
-    caja.className = `alerta ${mayor ? "warn" : "ok"}`;
-    caja.style.background = mayor ? "var(--bad-soft)" : ""; caja.style.color = mayor ? "var(--bad)" : "";
-    texto.textContent = mayor ? `Nacido en ${anio}: es mayor para Sub 9 y no se puede inscribir.` : anio > 2017 ? `Nacido en ${anio}: juega ${anio - 2017} ${anio - 2017 === 1 ? "año" : "años"} arriba. Se permite.` : `Nacido en ${anio}: puede jugar Sub 9.`;
+    const anio = Number(e.target.value.slice(0, 4)), caja = $("#edad"), mayor = anio && anio < 2017;
+    caja.className = `alerta ${mayor ? "bad" : "ok"}`;
+    $("#edad-texto").textContent = mayor ? `Nacido en ${anio}: es mayor para Sub 9. No se puede inscribir.` : anio > 2017 ? `Nacido en ${anio}: juega ${anio - 2017} ${anio - 2017 === 1 ? "año" : "años"} arriba. Se permite.` : `Nacido en ${anio}: puede jugar Sub 9.`;
     $("#guardar-jugador").disabled = mayor;
   });
 
   // ---------- Programar ----------
   $("#programar-btn").addEventListener("click", e => {
     const b = e.currentTarget; b.disabled = true; b.textContent = "Buscando el mejor calendario…";
-    setTimeout(() => { b.textContent = "Volver a programar"; b.disabled = false; $("#resultado-prog").hidden = false; }, 1400);
+    $("#programando").hidden = false; $("#resultado").hidden = true;
+    setTimeout(() => { b.disabled = false; b.textContent = "Volver a programar"; $("#programando").hidden = true; $("#resultado").hidden = false; }, 1500);
   });
 
   // ---------- Calendario ----------
-  const DIAS = [["Vie", 23], ["Sáb", 24], ["Dom", 25], ["Vie", 30], ["Sáb", 31], ["Dom", 1], ["Vie", 6], ["Sáb", 7]];
+  const DIAS = [["Vie", 23], ["Sáb", 24], ["Dom", 25], ["Vie", 30], ["Sáb", 31], ["Dom", 1], ["Vie", 6], ["Sáb", 7], ["Dom", 8]];
   $("#dias").innerHTML = DIAS.map(([d, n], i) => `<button class="dia" aria-pressed="${i === 1}"><span>${d}</span><b class="num">${n}</b></button>`).join("");
-  $("#dias").addEventListener("click", e => {
-    const b = e.target.closest(".dia"); if (!b) return;
-    $$("#dias .dia").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-  });
-  const CANCHAS = [
-    ["C1A · mitad", "Sub 5 y Sub 6", [["08:00", "Sub 6", "JMP Academy", "Maquinita"], ["08:40", "Sub 5", "Leones", "Real FC"]]],
-    ["C1B · mitad", "Sub 5 y Sub 6", [["08:00", "Sub 6", "Planeta FC", "Super Campeones"], ["08:40", "Sub 6", "River Plate", "Atlético Juniors"]]],
-    ["C1 · entera", "Desde las 09:20", [["09:20", "Sub 11 Av", "River Plate", "Super Campeones"], ["10:10", "Sub 9 Av", "Atlético Juniors", "Super Campeones"], ["11:00", "Sub 9 Ini", "Torito García", "Real FC"]]],
+  $("#dias").addEventListener("click", e => { const b = e.target.closest(".dia"); if (!b) return; $$("#dias .dia").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); });
+  const CANCHAS = [["C1A · MITAD", "Sub 5 y Sub 6", [["08:00", "Sub 6", "JMP Academy", "Maquinita"], ["08:40", "Sub 5", "Leones", "Real FC"]]],
+    ["C1B · MITAD", "Sub 5 y Sub 6", [["08:00", "Sub 6", "Planeta FC", "Super Campeones"], ["08:40", "Sub 6", "River Plate", "Atlético Juniors"]]],
+    ["C1 · ENTERA", "Desde las 09:20", [["09:20", "Sub 11 Av", "River Plate", "Super Campeones"], ["10:10", "Sub 9 Av", "Atlético Juniors", "Super Campeones"], ["11:00", "Sub 9 Ini", "Torito García", "Real FC"]]],
     ["C2", "Fútbol 7", [["08:00", "Sub 8 Ini", "Leoncitos", "Real FC"], ["08:50", "Sub 9 Av", "JMP Academy", "Super Campeones"], ["09:40", "Sub 9 Av", "River Plate", "Maquinita"], ["10:30", "Sub 10 Ini", "Inter Star", "Leones"]]],
-    ["C3", "Fútbol 11", [["08:00", "Sub 12 Av", "Planeta FC", "Crack FC"], ["09:00", "Sub 13 Av", "Inter Star", "Atlético Juniors"], ["10:00", "Sub 15 Av", "JMP Academy", "River Plate"]]],
-  ];
-  $("#canchas-dia").innerHTML = CANCHAS.map(([c, sub, ps]) => `
-    <div class="tarjeta" style="margin-bottom:12px"><div class="cancha-cab"><h3>${c}</h3><span class="peq muted">${sub}</span></div>
-      <div class="lista">${ps.map(([h, cat, a, b]) => `<div class="turno"><span class="hora">${h}</span>
-        <div><div class="cat">${cat}</div><div class="fila" style="gap:6px;flex-wrap:wrap">${escudo(a, true)}<strong class="peq">${a}</strong><span class="muted peq">vs</span>${escudo(b, true)}<strong class="peq">${b}</strong></div></div></div>`).join("")}</div></div>`).join("");
-  $("#compartir-btn").addEventListener("click", () => aviso("En la app real, abre WhatsApp con la imagen del día"));
+    ["C3", "Fútbol 11", [["08:00", "Sub 12 Av", "Planeta FC", "Crack FC"], ["09:00", "Sub 13 Av", "Inter Star", "Atlético Juniors"], ["10:00", "Sub 15 Av", "JMP Academy", "River Plate"]]]];
+  const turnos = ps => ps.map(([h, c, a, b]) => `<li class="turno"><span class="hora">${h}</span><span><span class="sub">${c}</span><span class="vs">${escudo(a, "ch")}${a}<span class="muted">vs</span>${escudo(b, "ch")}${b}</span></span></li>`).join("");
+  $("#canchas-dia").innerHTML = CANCHAS.map(([c, s, ps]) => `<div class="seccion"><p class="subtitulo" style="color:var(--fg)">${c} <span class="muted">${s}</span></p><ul class="lista">${turnos(ps)}</ul></div>`).join("");
+  const cerrarPng = hojaControl($("#hoja-png"), $("#velo-png"), $("#compartir-btn"), $("#cerrar-png"));
+  $("#mandar-png").addEventListener("click", () => { cerrarPng(); aviso("En la app real, abre WhatsApp con las imágenes del día"); });
 
-  // ---------- Reprogramar ----------
-  document.addEventListener("click", e => {
-    if (e.target.closest("[data-aplicar]")) { aviso("Propuesta aplicada. Quedó en el historial de cambios."); setTimeout(() => { location.hash = "#calendario"; }, 900); }
-  });
+  // ---------- Página pública ----------
+  $("#partidos-pub").innerHTML = `<p class="subtitulo">SÁBADO 24 DE OCTUBRE <span>Cancha · hora</span></p><ul class="lista">${partido("JMP Academy", "Super Campeones", "<b>08:50</b>C2")}${partido("River Plate", "Maquinita", "<b>09:40</b>C2")}${partido("Atlético Juniors", "Super Campeones", "<b>10:10</b>C1")}</ul>
+    <p class="subtitulo">DOMINGO 25 DE OCTUBRE <span>Cancha · hora</span></p><ul class="lista">${partido("Atlético Juniors", "Planeta FC", "<b>08:00</b>C1")}</ul>`;
+  const TABLA = [["River Plate", 2, 6], ["JMP Academy", 2, 4], ["Atlético Juniors", 1, 0]];
+  $("#tabla-pub").innerHTML = TABLA.map(([e, pj, pts], i) => `<li class="fila"><span class="num" style="width:18px;font-weight:700">${i + 1}</span>${escudo(e, "ch")}<strong class="grow">${e}</strong><span class="num muted">${pj}</span><span class="num" style="font:22px var(--titulo);width:32px;text-align:right">${pts}</span></li>`).join("");
+  $("#equipos-pub").innerHTML = EQUIPOS.map(([club, serie]) => `<li class="fila">${escudo(club)}<span class="grow"><strong>${club}</strong><span class="sub">Serie ${serie}</span></span></li>`).join("");
 
   mostrar();
 })();

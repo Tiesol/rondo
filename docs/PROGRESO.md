@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** que Sebastian revise el prototipo de interfaz y pase el diseño del calendario. Con eso se replanifica: pantallas propias en lugar del admin, y después la fase 2.
+- **Siguiente paso:** que Sebastian revise el prototipo 2 (mismo enlace) y pase las imágenes (logo, patrocinadores y escudos) y capturas de la página de Copa Fácil. Con eso se replanifica: pantallas propias en Django, siguiendo `docs/DISENO.md`, antes de la fase 2.
 
 ## Hecho
 
@@ -54,6 +54,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
 | 2026-10-06 | Tailwind CSS v4 en lugar de Pico CSS | Que la interfaz se vea bien es una prioridad, y Tailwind da control total del diseño, incluido el que pase el organizador (P32). Se compila sin Node |
 | 2026-10-06 | Tailwind se compila con `django-tailwind-cli`, que descarga el ejecutable oficial (sin Node). El CSS generado no entra al repo: se compila en local y en el Docker | Aprobado por Sebastian |
+| 2026-10-07 | La página pública entra en la demo, en una versión simple: partidos por día, posiciones y equipos, sin login y sin datos personales (P53) | Sebastian quiere que familias y clubes la vean como en Copa Fácil |
+| 2026-10-07 | Interfaz con la identidad de la JMP CUP (azul marino y dorado), listas en lugar de tarjetas y contrato de diseño en `docs/DISENO.md` | El prototipo 1 se rechazó por feo, por tener demasiadas tarjetas y por usar un verde inventado |
 | 2026-10-07 | El logo del organizador queda para la fase 5, con el diseño del PNG (P32) | El disco de Render gratis se borra en cada reinicio: una imagen subida se perdería. Hay que guardarla en la base o en un almacenamiento externo |
 | 2026-10-07 | El organizador se crea como superusuario (`crear_usuario --admin`) | Un staff sin permisos no ve nada en el admin. Los roles finos (mesa sin staff) quedan para antes de la fase 6 |
 | 2026-10-07 | `cargar_config` no corre al arrancar el contenedor: se corre a mano | Cada arranque pisaría lo que se edite en el admin |
@@ -205,7 +207,7 @@ Valores que no están en el contexto. Quedan como configuración:
 | P50 | Resultados y tabla quedan fuera de la demo, pero en 2026 la eliminación necesita saber quién pasa. ¿Cómo se definen los cruces? | El organizador calcula las posiciones como hasta ahora y asigna a mano en la app los participantes de cada partido de eliminación |
 | P51 | ¿Cuántas listas se esperan en 2026 y quién las carga? A mano son unos 1.700 jugadores | La organización las carga con el formulario. Si no alcanza el tiempo, se agrega pegar filas copiadas de Excel |
 | P52 | ¿Hace falta guardar fotos de los jugadores? Son datos personales de menores | No, hasta que se confirme y se defina quién las ve |
-| P53 | ¿La página pública (calendario, fixture y posiciones sin login, como Copa Fácil) entra en la demo o queda para después? | Entra una versión simple, solo de lectura: calendario por día y cancha, fixture por categoría. Sin datos personales |
+| P53 | ¿La página pública (calendario, fixture y posiciones sin login, como Copa Fácil) entra en la demo o queda para después? | **Respondida por Sebastian:** entra una versión simple, solo de lectura, sin datos personales |
 
 ## Planes gratuitos (revisados el 2026-10-06)
 
