@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** fase 2 (inscripción). Antes de empezarla: el visto bueno de Sebastian a las fases 0 y 1, y el detalle de las tareas de la fase 2 con `planning-and-task-breakdown`, que Sebastian aprueba. Pendientes de Sebastian: probar el PNG en Android (T0.7) y correr `cargar_config` en la demo (DESPLIEGUE.md, 3b).
+- **Siguiente paso:** acordar con Sebastian los roles, las pantallas propias de configuración (en lugar del admin) y el almacenamiento de imágenes. Ver "Comentarios de Sebastian sobre la demo". La fase 2 sigue en espera.
 
 ## Hecho
 
@@ -124,6 +124,13 @@ Se usó un modelo CP-SAT sintético con la forma del real (T0.6): canchas con mi
 - **Para el torneo real de 2026, 0,1 CPU queda corto** si hay que reprogramar rápido con el calendario lleno. Antes de la fase 6 hay que decidir entre Render Starter (0,5 CPU, de pago) y Cloud Run, si la cuenta queda en regla.
 - La imagen pesa 1 GB, por OR-Tools, pandas y numpy. El build de Render tarda más, pero no hay límite que lo impida.
 
+## Comentarios de Sebastian sobre la demo (2026-10-07)
+
+- **PNG:** técnicamente funciona, pero no es el diseño que se quiere. Sebastian va a pasar el diseño de calendario de este año (P32).
+- **Interfaz:** fea y poco intuitiva. El admin de Django ("Configuración") no sirve como pantalla del organizador: muestra reglas en JSON, "Usuarios" y "Grupos" sin explicar, y el "Organizador" se confunde con quién organiza. **Hacen falta pantallas propias**, con interruptores y números en lugar de JSON, y un flujo guiado: crear torneo → equipos → fixture → calendario. El admin queda solo como herramienta técnica.
+- **Roles:** no está claro quién puede hacer qué. Hay que definir qué hace la organización y qué la mesa de control.
+- **Imágenes:** el logo, los escudos de los equipos y quizá fotos de jugadores necesitan un almacenamiento persistente (un bucket). Las fotos de jugadores son datos de menores y no están en el contexto: hay que confirmar si hacen falta (P52).
+
 ## Revisión de la fase 0 (2026-10-07, `code-review-and-quality`)
 
 **Veredicto: aprobada.** El código es chico y sigue la spec. Quedan pendientes la prueba del PNG en Android y el visto bueno de Sebastian.
@@ -192,6 +199,7 @@ Valores que no están en el contexto. Quedan como configuración:
 | P49 | ¿Cuánto tiempo se guardan los datos de los jugadores después del torneo? | Hasta fin de año; después se anonimizan y quedan los planteles sin nombres ni CI |
 | P50 | Resultados y tabla quedan fuera de la demo, pero en 2026 la eliminación necesita saber quién pasa. ¿Cómo se definen los cruces? | El organizador calcula las posiciones como hasta ahora y asigna a mano en la app los participantes de cada partido de eliminación |
 | P51 | ¿Cuántas listas se esperan en 2026 y quién las carga? A mano son unos 1.700 jugadores | La organización las carga con el formulario. Si no alcanza el tiempo, se agrega pegar filas copiadas de Excel |
+| P52 | ¿Hace falta guardar fotos de los jugadores? Son datos personales de menores | No, hasta que se confirme y se defina quién las ve |
 
 ## Planes gratuitos (revisados el 2026-10-06)
 
