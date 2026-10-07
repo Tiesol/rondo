@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T0.4 (ver [tasks/todo.md](../tasks/todo.md)).
+- **Siguiente paso:** T0.5, el deploy en Cloud Run. Necesita la cuenta de Google Cloud de Sebastian lista (ver [tasks/todo.md](../tasks/todo.md)). Mientras tanto se puede avanzar con T1.1 en local.
 
 ## Hecho
 
@@ -22,6 +22,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-06: T0.2 lista: proyecto Django con settings por variables de entorno. `check --deploy` sin advertencias en modo producción, y sin `SECRET_KEY` no arranca.
 - 2026-10-06: T0.3 lista: login obligatorio en toda la app, plantilla base con Tailwind 4.3 y HTMX 2.0.4, y comando `crear_usuario`, que valida la clave y no la muestra. Login revisado a 360 px. Falta mirar el inicio en un celular real.
 - 2026-10-06: PR #1 (T0.1) y PR #2 (T0.2) abiertos en GitHub.
+- 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
 

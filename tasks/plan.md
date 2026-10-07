@@ -33,7 +33,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] T0.1 Proyecto Python con herramientas de calidad
 - [x] T0.2 Proyecto Django con settings por entorno
 - [x] T0.3 Login y plantilla base para el celular
-- [ ] T0.4 Guardas del repo: dominio sin Django y chequeo antes de cada commit
+- [x] T0.4 Guardas del repo: dominio sin Django y chequeo antes de cada commit
 - [ ] T0.5 Deploy repetible en Cloud Run con Neon (demo) *(necesita pasos tuyos)*
 - [ ] T0.6 Prueba de riesgo: OR-Tools en Cloud Run
 - [ ] T0.7 Prueba de riesgo: PNG y compartir desde el celular

@@ -63,8 +63,8 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Agregar `import django` en `src/dominio/` hace fallar el test de arquitectura.
-- [ ] Un commit que incluye un `.xlsx` (aunque se fuerce con `git add -f`) se rechaza con un mensaje claro.
+- [x] Agregar `import django` en `src/dominio/` hace fallar el test de arquitectura.
+- [x] Un commit que incluye un `.xlsx` (aunque se fuerce con `git add -f`) se rechaza con un mensaje claro.
 
 **Verificación:** verde, más una prueba manual del hook con un archivo trampa.
 
