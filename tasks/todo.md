@@ -168,12 +168,12 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Restricciones en la base:
+- [x] Restricciones en la base:
   - código de cancha único por torneo;
   - categoría y nivel únicos por torneo;
   - franjas con fin posterior al inicio.
-- [ ] Guardar un Torneo con reglas inválidas falla con un error de validación, no con un error 500.
-- [ ] Las fechas se guardan en UTC y se muestran en America/La_Paz.
+- [x] Guardar un Torneo con reglas inválidas falla con un error de validación, no con un error 500.
+- [x] Las fechas se guardan en UTC y se muestran en America/La_Paz.
 
 **Verificación:** verde, con tests de modelos en `tests/torneo/test_modelos_configuracion.py`.
 
