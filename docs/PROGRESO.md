@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T1.2 (franjas y compatibilidad). Pendiente de Sebastian: probar el PNG en Android (T0.7) y dar el visto bueno a la fase 0.
+- **Siguiente paso:** T1.3 (modelos Django de configuración). Pendiente de Sebastian: probar el PNG en Android (T0.7) y dar el visto bueno a la fase 0.
 
 ## Hecho
 
@@ -27,6 +27,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T0.6 lista. Medición del solver en un contenedor limitado como Render (0,1 CPU y 512 MB); ver H6.
 - 2026-10-07: T0.7 lista para probar: `/diagnostico/png/` (solo staff) genera el PNG de un calendario de prueba de 1080 px con `modern-screenshot` 4.7.0, y lo comparte con la Web Share API o lo descarga. Falta la prueba de Sebastian en su Android.
 - 2026-10-07: T1.1 lista: `dominio/config.py` (Pydantic, inmutable y sin claves desconocidas) y `datos/config/jmp_cup_2026.json` (4.1 y los valores por defecto). Pasan CAT-01 (años de nacimiento) y CAT-03 (turnos de 40, 50, 60 y 70), y se rechazan las configuraciones inválidas.
+- 2026-10-07: T1.2 lista: `dominio/franjas.py` (15 franjas en UTC para 2026) y `dominio/canchas.py` (compatibilidad con la regla por categoría por encima de la de modalidad, y canchas físicas: C1 ocupa C1A y C1B). Todas las categorías-nivel de 2026 tienen alguna cancha.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente

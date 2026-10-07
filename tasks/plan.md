@@ -50,7 +50,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 ### Fase 1: configuración (día 1, tarde)
 
 - [x] T1.1 Dominio: modelos de configuración y reglas (CAT-01 a CAT-03)
-- [ ] T1.2 Dominio: franjas con fechas concretas y compatibilidad resuelta (CAT-04)
+- [x] T1.2 Dominio: franjas con fechas concretas y compatibilidad resuelta (CAT-04)
 - [ ] T1.3 Modelos Django de configuración
 - [ ] T1.4 Comando `cargar_config` con la configuración 2026
 - [ ] T1.5 Admin de la configuración e identidad del organizador
