@@ -1,0 +1,328 @@
+{
+  "torneo": {
+    "nombre": "JMP CUP 2026",
+    "edicion": 5,
+    "anio": 2026,
+    "inicio": "2026-10-23",
+    "fin": "2026-11-22",
+    "zona_horaria": "America/La_Paz"
+  },
+  "partido": {
+    "descanso_min": 5,
+    "cambio_entre_partidos_min": 5
+  },
+  "categorias": [
+    {
+      "nombre": "Sub 5",
+      "edad": 5,
+      "niveles": {
+        "unico": {
+          "modalidad": "F5",
+          "min": 8,
+          "max": 10,
+          "min_por_tiempo": 15
+        }
+      }
+    },
+    {
+      "nombre": "Sub 6",
+      "edad": 6,
+      "niveles": {
+        "unico": {
+          "modalidad": "F7",
+          "min": 8,
+          "max": 12,
+          "min_por_tiempo": 15
+        }
+      }
+    },
+    {
+      "nombre": "Sub 7",
+      "edad": 7,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 10,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F7",
+          "min": 10,
+          "max": 14,
+          "min_por_tiempo": 20
+        }
+      }
+    },
+    {
+      "nombre": "Sub 8",
+      "edad": 8,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 10,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F7",
+          "min": 10,
+          "max": 14,
+          "min_por_tiempo": 20
+        }
+      }
+    },
+    {
+      "nombre": "Sub 9",
+      "edad": 9,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        }
+      }
+    },
+    {
+      "nombre": "Sub 10",
+      "edad": 10,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F8",
+          "min": 12,
+          "max": 16,
+          "min_por_tiempo": 20
+        }
+      }
+    },
+    {
+      "nombre": "Sub 11",
+      "edad": 11,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F8",
+          "min": 12,
+          "max": 16,
+          "min_por_tiempo": 20
+        }
+      }
+    },
+    {
+      "nombre": "Sub 12",
+      "edad": 12,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F11",
+          "min": 18,
+          "max": 22,
+          "min_por_tiempo": 25,
+          "convocados_por_partido": 18
+        }
+      }
+    },
+    {
+      "nombre": "Sub 13",
+      "edad": 13,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F11",
+          "min": 18,
+          "max": 22,
+          "min_por_tiempo": 25,
+          "convocados_por_partido": 18
+        }
+      }
+    },
+    {
+      "nombre": "Sub 14",
+      "edad": 14,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F11",
+          "min": 18,
+          "max": 22,
+          "min_por_tiempo": 30,
+          "convocados_por_partido": 18
+        }
+      }
+    },
+    {
+      "nombre": "Sub 15",
+      "edad": 15,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F11",
+          "min": 18,
+          "max": 22,
+          "min_por_tiempo": 30,
+          "convocados_por_partido": 18
+        }
+      }
+    },
+    {
+      "nombre": "Sub 17",
+      "edad": 17,
+      "niveles": {
+        "inicial": {
+          "modalidad": "F7",
+          "min": 12,
+          "max": 14,
+          "min_por_tiempo": 20
+        },
+        "avanzado": {
+          "modalidad": "F11",
+          "min": 18,
+          "max": 22,
+          "min_por_tiempo": 30,
+          "convocados_por_partido": 18
+        }
+      },
+      "anios_nacimiento": 2
+    },
+    {
+      "nombre": "Sub 15 Femenino",
+      "edad": 15,
+      "genero": "F",
+      "niveles": {
+        "unico": {
+          "modalidad": "F7",
+          "min": 10,
+          "max": 14,
+          "min_por_tiempo": 20
+        }
+      }
+    }
+  ],
+  "canchas": [
+    {
+      "codigo": "C1",
+      "nombre": "Cancha 1",
+      "mitades": [
+        "C1A",
+        "C1B"
+      ]
+    },
+    {
+      "codigo": "C2",
+      "nombre": "Cancha 2",
+      "mitades": []
+    },
+    {
+      "codigo": "C3",
+      "nombre": "Cancha 3",
+      "mitades": []
+    }
+  ],
+  "compatibilidad": {
+    "por_categoria": {
+      "Sub 5": [
+        "C1A",
+        "C1B"
+      ],
+      "Sub 6": [
+        "C1A",
+        "C1B"
+      ]
+    },
+    "por_modalidad": {
+      "F7": [
+        "C1",
+        "C2"
+      ],
+      "F8": [
+        "C1"
+      ],
+      "F11": [
+        "C3"
+      ]
+    }
+  },
+  "franjas": {
+    "viernes": [
+      "16:00",
+      "20:00"
+    ],
+    "sabado": [
+      "08:00",
+      "16:00"
+    ],
+    "domingo": [
+      "08:00",
+      "16:00"
+    ]
+  },
+  "cuerpo_tecnico": {
+    "max_por_equipo": 3,
+    "max_entrenadores": 1,
+    "roles": [
+      "entrenador",
+      "asistente",
+      "delegado"
+    ]
+  },
+  "reglas": {
+    "jugar_en_categoria_mayor": true,
+    "aviso_anios_menor": 2,
+    "jugador_en_dos_equipos": "mismo_club_otra_categoria",
+    "jugador_y_profe": true,
+    "dorsal_obligatorio": "antes_del_primer_partido",
+    "ci_obligatorio": "antes_del_primer_partido",
+    "cierre_inscripcion": null,
+    "mismo_club_fecha_1": true,
+    "sorteo_separa_clubes": true,
+    "rehacer_fixture": true,
+    "turnos_libres_mismo_dia": 1,
+    "max_partidos_por_dia": 2,
+    "profe_minutos_cambio_de_cancha": 10,
+    "orden_de_fechas": "dura",
+    "eliminacion_desde_fin_de_semana": 5,
+    "marcador_wo": [
+      3,
+      0
+    ],
+    "propuestas_reprogramacion": 3
+  }
+}

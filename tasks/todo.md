@@ -136,9 +136,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] CAT-01: en 2026, Sub 9 corresponde a 2017, y Sub 17 a 2009 y 2010.
-- [ ] CAT-03: los turnos dan 40, 50, 60 y 70 según la tabla 4.4, en todas las categorías-nivel.
-- [ ] Una configuración inválida (máximo menor que mínimo, nivel desconocido, regla con tipo incorrecto) se rechaza con un mensaje que dice qué campo falla.
+- [x] CAT-01: en 2026, Sub 9 corresponde a 2017, y Sub 17 a 2009 y 2010.
+- [x] CAT-03: los turnos dan 40, 50, 60 y 70 según la tabla 4.4, en todas las categorías-nivel.
+- [x] Una configuración inválida (máximo menor que mínimo, nivel desconocido, regla con tipo incorrecto) se rechaza con un mensaje que dice qué campo falla.
 
 **Verificación:** verde, con mypy estricto en `dominio`.
 
