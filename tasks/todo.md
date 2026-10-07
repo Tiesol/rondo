@@ -26,9 +26,9 @@
 
 **Aceptación:**
 
-- [ ] `migrate` y `runserver` funcionan contra el Postgres local.
-- [ ] `manage.py check --deploy` no da advertencias con los settings de producción.
-- [ ] Sin `SECRET_KEY` en producción, la app no arranca. No hay un valor por defecto inseguro.
+- [x] `migrate` y `runserver` funcionan contra el Postgres local.
+- [x] `manage.py check --deploy` no da advertencias con los settings de producción.
+- [x] Sin `SECRET_KEY` en producción, la app no arranca. No hay un valor por defecto inseguro.
 
 **Verificación:** verde, más `uv run python manage.py check --deploy` con variables de producción.
 
