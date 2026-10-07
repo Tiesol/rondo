@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 1b, pantallas propias. Aprobada; TU.1 a TU.5 listas.
-- **Siguiente paso:** TU.6 (página pública). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
+- **Fase:** 1b, pantallas propias. Aprobada; TU.1 a TU.6 listas.
+- **Siguiente paso:** TU.7 (datos de la escuela). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -46,6 +46,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: TU.3 lista: cada regla de `dominio.config.Reglas` trae título, ayuda, grupo, P# e ID de regla; `describir_reglas()` deduce el tipo (sí/no, número con sus límites, opción, fecha o par) y el formulario se arma solo. Pantalla `/torneos/<id>/reglas/`, solo para la organización, con interruptores, contadores y listas.
 - 2026-10-07: TU.4 lista: asistente de 4 pasos en `/torneos/nuevo/` (datos, categorías, horarios y reglas). Parte de `datos/config/jmp_cup_2026.json` (setting `PLANTILLA_TORNEO`), guarda las respuestas en la sesión, arma la configuración con `servicios/asistente.armar()`, la valida con el dominio y la carga con `cargar_configuracion`. Sin cambios crea lo mismo que `cargar_config`. No pisa un torneo con el mismo nombre y año.
 - 2026-10-07: TU.5 lista: Inicio con el torneo activo (`Torneo.activo()`: el más reciente), sus pendientes (`servicios/pendientes.py`) y accesos, o la invitación a crearlo. Torneo en `/torneo/<categoría>/<pestaña>/`, con selector de categoría y pestañas por HTMX (solo se reemplaza `#categoria` y la URL cambia). Ajustes de la categoría (plantel, minutos, convocados y canchas), editables solo por la organización.
+- 2026-10-07: TU.6 lista: página pública en `/t/<torneo>/<categoría>/<pestaña>/` (Partidos, Posiciones y Equipos, por ahora vacías), sin login y solo para torneos con `publico` encendido (migración 0006). La organización la enciende y apaga desde "Más". Tests que fallan si una plantilla pública nombra datos personales o si la vista importa un modelo que no está en la lista permitida.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente

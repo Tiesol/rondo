@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}{{ torneo.nombre }} · {{ nombre }}{% endblock %}
+{% block cuerpo %}
+<div class="app publica">
+  <div class="cuerpo">
+    <header class="pub-cab">
+      <div class="flex items-center gap-3">
+        <span class="marca grande" aria-hidden="true">{{ organizador.sigla }}</span>
+        <div class="min-w-0">
+          <h1>{{ torneo.nombre }}</h1>
+          <p class="meta">{{ organizador.nombre }} · {{ fechas }}</p>
+        </div>
+      </div>
+    </header>
+    <main id="contenido">{% include "publico/_categoria.html" %}</main>
+  </div>
+</div>
+{% endblock %}

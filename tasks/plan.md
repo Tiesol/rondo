@@ -72,7 +72,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] TU.3 Reglas del torneo con interruptores
 - [x] TU.4 Crear torneo con el asistente
 - [x] TU.5 Inicio y Torneo
-- [ ] TU.6 Página pública (base)
+- [x] TU.6 Página pública (base)
 - [ ] TU.7 Datos de la escuela
 
 **Checkpoint de la fase 1b:**

@@ -26,3 +26,5 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R14 | TU.5 | El "torneo activo" es el más reciente (por año y fecha de inicio). No hay forma de elegir otro | Hay un torneo por año |
 | R15 | TU.5 | Pendientes de Inicio: "N categorías sin equipos" y "16 reglas esperan la respuesta del organizador" (todas las que tienen una P) | No hay registro de qué preguntas ya se respondieron. Cuando lleguen las respuestas, se puede marcar cada regla como confirmada |
 | R16 | TU.5 | Los ajustes de una categoría se editan en Torneo → Ajustes: plantel mínimo y máximo, minutos por tiempo, convocados y canchas. La modalidad y la edad no se editan ahí | Cambiar la modalidad o la edad es cambiar de categoría; eso va en el asistente o en el JSON |
+| R17 | TU.6 | La página pública está en `/t/<número>/`, no en una dirección con nombre (como `/jmp-cup-2026`) | Alcanza para la demo. Una dirección con nombre se agrega antes de la fase 6 si hace falta |
+| R18 | TU.6 | Un torneo nuevo nace sin página pública; la organización la enciende en "Más" | Así nada se publica por accidente |

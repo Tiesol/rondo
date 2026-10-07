@@ -22,7 +22,20 @@
   {% include "parciales/seccion_cab.html" with titulo="Torneos" %}
   <ul class="lista">
     {% for torneo in torneos %}
-    <li>{% include "parciales/fila.html" with titulo=torneo.nombre sub=torneo.fechas %}</li>
+    <li class="fila">
+      <span class="crece">
+        <strong>{{ torneo.nombre }}</strong>
+        <span class="sub">{{ torneo.fechas }}{% if torneo.publico %} · <a href="{% url 'publico' torneo.pk %}">ver la página pública</a>{% endif %}</span>
+      </span>
+      {% if perms.torneo.configurar_torneo %}
+      <form method="post" action="{% url 'publicar' torneo.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn chico">{% if torneo.publico %}Dejar de publicar{% else %}Publicar{% endif %}</button>
+      </form>
+      {% elif torneo.publico %}
+      {% include "parciales/chip.html" with texto="Pública" estado="bien" %}
+      {% endif %}
+    </li>
     {% empty %}
     <li>{% include "parciales/fila.html" with titulo="Todavía no hay torneos" %}</li>
     {% endfor %}
