@@ -187,11 +187,11 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Después de cargar hay 23 categorías-nivel, 5 canchas (C1, C1A, C1B, C2 y C3), la compatibilidad de 4.1 y 15 franjas.
-- [ ] Cargar dos veces deja las mismas cantidades.
-- [ ] Un JSON inválido no deja nada a medias: todo va en una transacción.
+- [x] Después de cargar hay 23 categorías-nivel, 5 canchas (C1, C1A, C1B, C2 y C3), la compatibilidad de 4.1 y 15 franjas.
+- [x] Cargar dos veces deja las mismas cantidades.
+- [x] Un JSON inválido no deja nada a medias: todo va en una transacción.
 
-**Verificación:** verde, más el comando corrido en la demo de la nube.
+**Verificación:** verde, más el comando corrido en local. En la demo de la nube lo corre Sebastian (DESPLIEGUE.md, 3b), porque necesita la cadena de Neon.
 
 **Depende de:** T1.3.
 **Archivos:** `src/torneo/servicios/configuracion.py`, `src/torneo/management/commands/cargar_config.py`, `tests/torneo/test_cargar_config.py`.

@@ -44,6 +44,17 @@ DATABASE_URL="$DATABASE_URL" RONDO_CLAVE_USUARIO="$RONDO_CLAVE_USUARIO" \
 unset DATABASE_URL RONDO_CLAVE_USUARIO
 ```
 
+### 3b. Configuración del torneo 2026
+
+Igual que el usuario: desde tu máquina, contra la rama `demo`. Se puede repetir sin duplicar nada. Pero ojo: **pisa lo que se haya editado en el admin** en categorías, canchas y reglas. Las franjas de entre semana se conservan.
+
+```bash
+read -rs -p "Cadena de conexión de la rama demo: " DATABASE_URL; echo
+DATABASE_URL="$DATABASE_URL" RONDO_ENV_FILE= DEBUG=true SECRET_KEY=local \
+  uv run python manage.py cargar_config datos/config/jmp_cup_2026.json
+unset DATABASE_URL
+```
+
 ### 4. Verificación
 
 Abre `https://rondo-demo.onrender.com` (o la dirección que muestre Render) desde el celular y entra con ese usuario.

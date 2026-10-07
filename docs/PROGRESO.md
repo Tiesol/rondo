@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T1.4 (comando `cargar_config`). Pendiente de Sebastian: probar el PNG en Android (T0.7) y dar el visto bueno a la fase 0.
+- **Siguiente paso:** T1.5 (admin de la configuración). Pendiente de Sebastian: correr `cargar_config` contra la demo (DESPLIEGUE.md, 3b). Pendiente de Sebastian: probar el PNG en Android (T0.7) y dar el visto bueno a la fase 0.
 
 ## Hecho
 
@@ -29,6 +29,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T1.1 lista: `dominio/config.py` (Pydantic, inmutable y sin claves desconocidas) y `datos/config/jmp_cup_2026.json` (4.1 y los valores por defecto). Pasan CAT-01 (años de nacimiento) y CAT-03 (turnos de 40, 50, 60 y 70), y se rechazan las configuraciones inválidas.
 - 2026-10-07: T1.2 lista: `dominio/franjas.py` (15 franjas en UTC para 2026) y `dominio/canchas.py` (compatibilidad con la regla por categoría por encima de la de modalidad, y canchas físicas: C1 ocupa C1A y C1B). Todas las categorías-nivel de 2026 tienen alguna cancha.
 - 2026-10-07: T1.3 lista: modelos Torneo, CategoriaNivel (con sus canchas compatibles), Cancha (con sus mitades) y Franja, y su migración. Las reglas y el cuerpo técnico se validan con el dominio en cada `save()`. Las restricciones (unicidad, máximo ≥ mínimo, fin > inicio) viven en la base.
+- 2026-10-07: T1.4 lista: `manage.py cargar_config` pasa el JSON validado a la base en una transacción. Es idempotente: no borra categorías ni canchas, regenera las franjas regulares y conserva las de entre semana. Probado en local (23 categorías-nivel, 5 canchas y 15 franjas).
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
@@ -51,6 +52,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
 | 2026-10-06 | Tailwind CSS v4 en lugar de Pico CSS | Que la interfaz se vea bien es una prioridad, y Tailwind da control total del diseño, incluido el que pase el organizador (P32). Se compila sin Node |
 | 2026-10-06 | Tailwind se compila con `django-tailwind-cli`, que descarga el ejecutable oficial (sin Node). El CSS generado no entra al repo: se compila en local y en el Docker | Aprobado por Sebastian |
+| 2026-10-07 | `cargar_config` no corre al arrancar el contenedor: se corre a mano | Cada arranque pisaría lo que se edite en el admin |
 | 2026-10-07 | Render gratis sirve para la demo. El programador real usa varios workers de CP-SAT. Antes de la fase 6 se revisa si hace falta más CPU | Medición T0.6 (H6) |
 | 2026-10-07 | Claude hace `push` por HTTPS con las credenciales de `gh`, configurado solo en este repo | La clave SSH de Sebastian tiene contraseña, y así Claude puede trabajar solo sin pedirla |
 | 2026-10-07 | Claude fusiona los PR con `gh` sin preguntar, si pasan los tests | Autorizado por Sebastian, para no frenar el avance |

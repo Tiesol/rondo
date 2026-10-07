@@ -49,7 +49,9 @@ class Torneo(models.Model):
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(fin__gte=models.F("inicio")), name="torneo_fin_despues_de_inicio"
-            )
+            ),
+            # cargar_config reconoce al torneo por nombre y año.
+            models.UniqueConstraint(fields=["nombre", "anio"], name="torneo_unico_por_anio"),
         ]
 
     def __str__(self) -> str:
