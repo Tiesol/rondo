@@ -57,10 +57,11 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 
 **Checkpoint de la fase 1:**
 
-- [ ] El torneo 2026 está cargado en la demo, con 23 categorías-nivel, 5 canchas (incluidas C1A y C1B) y 15 franjas.
+- [ ] El torneo 2026 está cargado en la demo, con 23 categorías-nivel, 5 canchas (incluidas C1A y C1B) y 15 franjas. *(Probado en local; en la demo lo corre Sebastian.)*
 - [x] Se edita en el admin, y una regla inválida se rechaza con un mensaje junto al campo.
 - [x] Cada regla CAT tiene su test.
-- [ ] Revisión y tu visto bueno.
+- [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
+- [ ] Tu visto bueno.
 
 ### Fases 2 a 6: se detallan al llegar
 
