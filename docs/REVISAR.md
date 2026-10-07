@@ -30,3 +30,7 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R18 | TU.6 | Un torneo nuevo nace sin página pública; la organización la enciende en "Más" | Así nada se publica por accidente |
 | R19 | T2.1 | El complemento del CI se reconoce solo con guion (`1234567-1E`). Sin guion (`12345671E`) da error | Sin guion no se distingue el complemento de los dígitos del número |
 | R20 | T2.1 | Una "E" seguida solo de dígitos (`E1234567`) se toma como CI de extranjero, no como pasaporte | Es la forma más común en Bolivia. Un pasaporte empieza con letras y sigue con dígitos (`AB123456`) |
+| R21 | T2.2 | Los dorsales válidos van del 1 al 99 | Es lo habitual en camisetas de fútbol; no está en el reglamento |
+| R22 | T2.2 | "Misma categoría" para INS-05 compara la categoría sin nivel: Sub 9 Inicial y Sub 9 Avanzado son la misma categoría, así que un jugador no puede estar en los dos | El reglamento habla de "otra categoría" |
+| R23 | T2.2 | Sin fecha de nacimiento no se puede cargar a un jugador (es la única forma de validar la edad) | A diferencia del CI, que puede quedar pendiente (P39) |
+| R24 | T2.2 | Se agregó la validación del cierre de inscripción (INS-11): después de esa fecha, solo la organización cambia listas | El checkpoint de la fase 2 pide un test por regla INS, e INS-11 no estaba en ninguna tarea |

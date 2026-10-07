@@ -88,7 +88,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 > Se avanza con la autorización general del 2026-10-07 (sin visto bueno entre fases; dudas en `docs/REVISAR.md`). El detalle está en [todo.md](todo.md).
 
 - [x] T2.1 Dominio: normalización de documentos (INS-04)
-- [ ] T2.2 Dominio: validaciones de inscripción (INS-02, 03, 05 a 10)
+- [x] T2.2 Dominio: validaciones de inscripción (INS-02, 03, 05 a 10)
 - [ ] T2.3 Modelos de inscripción, y datos personales fuera de los logs
 - [ ] T2.4 Servicio de inscripción
 - [ ] T2.5 Pantallas: equipos
