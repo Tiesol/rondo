@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T0.6, la prueba de riesgo de OR-Tools en Render (ver [tasks/todo.md](../tasks/todo.md)).
+- **Siguiente paso:** T0.7, la prueba del PNG. La página queda lista para que Sebastian la pruebe en su Android.
 
 ## Hecho
 
@@ -24,6 +24,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: PR #1 a #4 (T0.1 a T0.4) fusionados en `main` con merge commits. `main` queda con la fase 0 hasta T0.4.
 - 2026-10-07: T0.5 lista: la demo está en https://rondo-demo.onrender.com (Render gratis, Virginia), con Neon N. Virginia en la rama `demo`. Se despliega sola en cada merge a `main`. Sebastian entró con su usuario.
 - 2026-10-07: el login no distingue mayúsculas en el usuario, porque el teclado del celular pone la primera sola. `crear_usuario` guarda los nombres en minúsculas.
+- 2026-10-07: T0.6 lista. Medición del solver en un contenedor limitado como Render (0,1 CPU y 512 MB); ver H6.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
@@ -46,6 +47,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
 | 2026-10-06 | Tailwind CSS v4 en lugar de Pico CSS | Que la interfaz se vea bien es una prioridad, y Tailwind da control total del diseño, incluido el que pase el organizador (P32). Se compila sin Node |
 | 2026-10-06 | Tailwind se compila con `django-tailwind-cli`, que descarga el ejecutable oficial (sin Node). El CSS generado no entra al repo: se compila en local y en el Docker | Aprobado por Sebastian |
+| 2026-10-07 | Render gratis sirve para la demo. El programador real usa varios workers de CP-SAT. Antes de la fase 6 se revisa si hace falta más CPU | Medición T0.6 (H6) |
+| 2026-10-07 | Claude hace `push` por HTTPS con las credenciales de `gh`, configurado solo en este repo | La clave SSH de Sebastian tiene contraseña, y así Claude puede trabajar solo sin pedirla |
 | 2026-10-07 | Claude fusiona los PR con `gh` sin preguntar, si pasan los tests | Autorizado por Sebastian, para no frenar el avance |
 | 2026-10-07 | Los PR se fusionan con merge commit, no con squash | Los PR van encadenados; con squash, el siguiente choca con las líneas que tocaron los dos |
 | 2026-10-07 | El proyecto de Google Cloud `rondo-jmp` queda sin organización | Para traspasarlo a JMP alcanza con agregarlos como dueños y cambiar la facturación |
@@ -92,6 +95,24 @@ En todo el torneo entra, pero muy justo. La eliminación no cabe en un solo fin 
 ### H5. El desempate "solo entre ellos" no funciona en las series cruzadas
 
 Con 6 y 7 equipos, los de una misma serie nunca se enfrentan. Entonces no hay "partidos entre ellos" y cualquier empate va directo a sorteo. Lo mismo pasa al comparar equipos de series distintas (mejor 3.º, mejor perdedor). No afecta a la demo, porque no hay resultados, pero la regla queda incompleta (P34).
+
+### H6. El solver alcanza en Render para la demo, pero no sobra para 2026
+
+Se usó un modelo CP-SAT sintético con la forma del real (T0.6): canchas con mitades, un turno libre entre partidos del mismo equipo, profes compartidos y franjas reales. Solo fase de grupos, con los formatos de 4.5. Se midió en Docker con `--cpus=0.1 --memory=512m`, lo mismo que da Render gratis.
+
+| Instancia | CPU | Workers | Primer calendario válido | Memoria pico |
+|---|---|---|---|---|
+| Tamaño 2023: 84 equipos, 139 partidos, 4 fines de semana | 0,1 | 1 | 0,4 s | 91 MB |
+| La misma, con 3 fines de semana o 36 profes compartidos | 0,1 | 1 | 0,4 a 0,5 s | 94 a 97 MB |
+| Estimación 2026: 117 equipos, 191 partidos, 5 fines de semana | 0,1 | 1 | 0,7 s | 73 MB |
+| Estimación 2026, en 4 fines de semana | completa | 1 | no encontró en 60 s | — |
+| Estimación 2026, en 4 fines de semana | completa | 8 | 2,0 s | — |
+| Estimación 2026, en 4 fines de semana | 0,1 | 8 | 94 s | 117 MB |
+
+- **Para la demo, Render gratis alcanza de sobra.** La memoria nunca pasa de 120 MB.
+- **El problema justo (2026 en 4 fines de semana) depende más de la estrategia que de la CPU:** con un solo worker no encuentra solución ni con CPU completa, y con 8 sí. El programador real va a usar varios workers, y además una solución inicial armada a mano como pista (*hint*) o una resolución por fin de semana.
+- **Para el torneo real de 2026, 0,1 CPU queda corto** si hay que reprogramar rápido con el calendario lleno. Antes de la fase 6 hay que decidir entre Render Starter (0,5 CPU, de pago) y Cloud Run, si la cuenta queda en regla.
+- La imagen pesa 1 GB, por OR-Tools, pandas y numpy. El build de Render tarda más, pero no hay límite que lo impida.
 
 ## Supuestos
 
