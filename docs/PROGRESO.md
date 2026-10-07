@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 2, inscripción. La fase 1b está cerrada y revisada.
-- **Siguiente paso:** T2.7 (generador de datos de demo).
+- **Siguiente paso:** revisión de cierre de la fase 2.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -56,6 +56,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T2.4 lista: `servicios/inscripcion.py` con `agregar_jugador`, `agregar_profe` y sus versiones sin guardar (`revisar_*`, para los avisos en vivo). Normaliza el documento, busca a la persona por su clave, arma la entrada del dominio con sus otros equipos y guarda solo sin errores, en una transacción que bloquea al equipo. Si el documento ya existe, valen los datos guardados, con un aviso.
 - 2026-10-07: T2.5 lista: la pestaña Equipos de Torneo lista los equipos con escudo (sigla y color), jugadores sobre el máximo y "Faltan N". Alta de equipo (organización y mesa) con club del catálogo, categoría, nombre visible y colores. Ficha del equipo con chips de estado y pestañas Plantel y Cuerpo técnico. Inicio cuenta de verdad las categorías sin equipos y los equipos debajo del mínimo.
 - 2026-10-07: T2.6 lista: alta de jugadores y del cuerpo técnico desde la ficha del equipo, con avisos en vivo (HTMX al salir de cada campo, sin guardar: `/revisar/`). Los avisos no bloquean; los errores sí. Formularios sensibles (`sensitive_post_parameters`). La mesa marca a cada jugador como verificado tocando su estado (INS-12). Los mensajes se apilan; los avisos quedan hasta cerrarlos, y no se repite lo que ya muestra la ficha. Cada criterio de inscripción de la sección 10 tiene su test desde la pantalla.
+- 2026-10-07: T2.7 lista: `manage.py generar_demo --soy-la-demo` arma 93 equipos (los 84 de 2023 en las categorías 2026 y 3 en cada categoría nueva), con 1.331 jugadores y 201 profes inventados por faker con semilla fija, en 1,4 s y en bloque. Incluye los profes y los 7 jugadores compartidos de 6.4, y casos para ver los avisos: menores, sin CI, sin dorsales y 3 equipos cortos. `Torneo.es_demo` (migración 0010) protege los datos que no son de demo. `faker` entra como dependencia de desarrollo.
 
 ## Pendiente
 

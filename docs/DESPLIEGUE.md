@@ -57,6 +57,19 @@ DATABASE_URL="$DATABASE_URL" RONDO_ENV_FILE= DEBUG=true SECRET_KEY=local \
 unset DATABASE_URL
 ```
 
+### 3c. Clubes y datos de demo
+
+Desde tu máquina, contra la rama `demo` (necesita las dependencias de desarrollo, por `faker`; `uv sync` las instala). `generar_demo` arma 93 equipos con jugadores y profes **inventados**, con la forma de 2023. Se puede repetir: borra y rehace solo los datos de demo. Se niega si la base tiene equipos o personas de un torneo que no es de demo.
+
+```bash
+read -rs -p "Cadena de conexión de la rama demo: " DATABASE_URL; echo
+DATABASE_URL="$DATABASE_URL" RONDO_ENV_FILE= DEBUG=true SECRET_KEY=local \
+  uv run python manage.py generar_demo --soy-la-demo
+unset DATABASE_URL
+```
+
+Carga también el catálogo de clubes (`cargar_clubes`) y la configuración 2026, y deja el torneo marcado como de demo y con su página pública encendida.
+
 ### 4. Verificación
 
 Abre `https://rondo-demo.onrender.com` (o la dirección que muestre Render) desde el celular y entra con ese usuario.

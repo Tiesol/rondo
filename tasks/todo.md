@@ -423,9 +423,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Genera unos 80 equipos, con planteles dentro de los topes y los 7 jugadores compartidos de 6.4.
-- [ ] Correrlo dos veces no duplica nada.
-- [ ] Sin la bandera `--soy-la-demo`, no hace nada.
+- [x] Genera unos 80 equipos, con planteles dentro de los topes y los 7 jugadores compartidos de 6.4.
+- [x] Correrlo dos veces no duplica nada.
+- [x] Sin la bandera `--soy-la-demo`, no hace nada.
 
 **Verificación:** verde, más correrlo contra la rama `demo` de Neon (lo hace Sebastian).
 **Depende de:** T2.4.

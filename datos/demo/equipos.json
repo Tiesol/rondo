@@ -1,0 +1,41 @@
+{
+  "_fuente": "CONTEXTO 6.2 y 6.4 (2023), pasados a las categorías de 2026. Solo nombres de equipos; las personas las inventa generar_demo.",
+  "equipos": {
+    "Sub 5|unico": ["JMP Soccer", "JMP Academy", "Leones"],
+    "Sub 6|unico": ["JMP Soccer", "River Plate", "Atlético Juniors", "De Taquito", "Panteras FC", "JMP Academy", "Super Campeones", "Planeta FC", "Maravillita"],
+    "Sub 7|avanzado": ["JMP Soccer", "Crack FC", "River Plate", "Maquinita", "Atlético Juniors", "Planeta FC"],
+    "Sub 8|inicial": ["Leoncitos", "Real FC", "JMP Soccer", "Super Campeones", "Blooming", "Leones", "De Taquito", "River Plate"],
+    "Sub 8|avanzado": ["JMP Academy", "Atlético Juniors", "Planeta FC", "Crack FC", "River Plate"],
+    "Sub 9|inicial": ["Torito García", "Real FC", "Leones", "Inter Star", "River Plate", "Leoncitos"],
+    "Sub 9|avanzado": ["JMP Academy", "River Plate", "Atlético Juniors", "Super Campeones", "Maquinita", "Planeta FC"],
+    "Sub 10|inicial": ["Semillero", "Leonsangos", "Inter Star", "Leones PFC"],
+    "Sub 10|avanzado": ["JMP Soccer", "Atlético Juniors", "Planeta FC", "Libertad", "Leones"],
+    "Sub 11|inicial": ["JMP Soccer", "Inter Star", "Real FC", "Petrolero"],
+    "Sub 11|avanzado": ["JMP Academy", "Petrolero", "River Plate", "Super Campeones", "Blooming", "Torito García", "Planeta FC", "Oriente Petrolero"],
+    "Sub 12|avanzado": ["JMP Soccer", "Planeta FC", "Juniors", "Oriente Petrolero", "Semillero", "Atlético Juniors", "Crack FC", "Blooming"],
+    "Sub 13|avanzado": ["Inter Star", "Atlético Juniors", "JMP Academy", "Torito García", "River Plate"],
+    "Sub 15|avanzado": ["JMP Academy", "Oriente Petrolero", "Planeta FC", "JMP Soccer", "Oriente Petrolero 2", "West Riders", "River Plate"],
+    "Sub 14|avanzado": ["River Plate", "Planeta FC", "JMP Academy"],
+    "Sub 17|avanzado": ["Oriente Petrolero", "Blooming", "JMP Soccer"],
+    "Sub 15 Femenino|unico": ["JMP Academy", "River Plate", "Planeta FC"]
+  },
+  "profes_compartidos": [
+    {"veces": 3, "equipos": ["Crack FC|Sub 7|avanzado", "Crack FC|Sub 8|avanzado", "Crack FC|Sub 12|avanzado"]},
+    {"veces": 1, "equipos": ["River Plate|Sub 6|unico", "River Plate|Sub 8|avanzado"]},
+    {"veces": 1, "equipos": ["River Plate|Sub 6|unico", "River Plate|Sub 7|avanzado"]},
+    {"veces": 1, "equipos": ["River Plate|Sub 8|avanzado", "River Plate|Sub 9|inicial"]},
+    {"veces": 1, "equipos": ["River Plate|Sub 8|inicial", "River Plate|Sub 9|avanzado"]},
+    {"veces": 1, "equipos": ["River Plate|Sub 9|inicial", "River Plate|Sub 13|avanzado"]},
+    {"veces": 1, "equipos": ["River Plate|Sub 11|avanzado", "River Plate|Sub 15|avanzado"]},
+    {"veces": 1, "equipos": ["River Plate|Sub 11|avanzado", "River Plate|Sub 13|avanzado", "River Plate|Sub 15|avanzado"]},
+    {"veces": 2, "equipos": ["Super Campeones|Sub 9|avanzado", "Super Campeones|Sub 11|avanzado"]},
+    {"veces": 1, "equipos": ["JMP Soccer|Sub 6|unico", "JMP Soccer|Sub 11|inicial"]},
+    {"veces": 2, "equipos": ["Planeta FC|Sub 9|avanzado", "Leones|Sub 9|inicial", "Leoncitos|Sub 9|inicial"]},
+    {"veces": 2, "equipos": ["Inter Star|Sub 10|inicial", "Inter Star|Sub 11|inicial"]}
+  ],
+  "jugadores_compartidos": [
+    {"veces": 4, "equipos": ["Inter Star|Sub 10|inicial", "Inter Star|Sub 11|inicial"]},
+    {"veces": 2, "equipos": ["River Plate|Sub 6|unico", "River Plate|Sub 7|avanzado"]},
+    {"veces": 1, "equipos": ["River Plate|Sub 11|avanzado", "River Plate|Sub 13|avanzado"]}
+  ]
+}
