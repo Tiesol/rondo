@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** acordar con Sebastian los roles, las pantallas propias de configuración (en lugar del admin) y el almacenamiento de imágenes. Ver "Comentarios de Sebastian sobre la demo". La fase 2 sigue en espera.
+- **Siguiente paso:** que Sebastian revise el prototipo de interfaz y pase el diseño del calendario. Con eso se replanifica: pantallas propias en lugar del admin, y después la fase 2.
 
 ## Hecho
 
@@ -130,6 +130,8 @@ Se usó un modelo CP-SAT sintético con la forma del real (T0.6): canchas con mi
 - **Interfaz:** fea y poco intuitiva. El admin de Django ("Configuración") no sirve como pantalla del organizador: muestra reglas en JSON, "Usuarios" y "Grupos" sin explicar, y el "Organizador" se confunde con quién organiza. **Hacen falta pantallas propias**, con interruptores y números en lugar de JSON, y un flujo guiado: crear torneo → equipos → fixture → calendario. El admin queda solo como herramienta técnica.
 - **Roles:** no está claro quién puede hacer qué. Hay que definir qué hace la organización y qué la mesa de control.
 - **Imágenes:** el logo, los escudos de los equipos y quizá fotos de jugadores necesitan un almacenamiento persistente (un bucket). Las fotos de jugadores son datos de menores y no están en el contexto: hay que confirmar si hacen falta (P52).
+- **Roles acordados:** Organización puede hacer todo. Mesa de control puede cargar equipos y listas, verificar jugadores y ver o exportar el calendario.
+- **Prototipo de interfaz** al estilo de Copa Fácil, con mejoras (asistente para crear el torneo, reglas con interruptores, avisos al cargar listas, capacidad, propuestas de reprogramación): https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a. Copia en `docs/prototipo/prototipo-rondo.html`. Pendiente: los comentarios de Sebastian.
 
 ## Revisión de la fase 0 (2026-10-07, `code-review-and-quality`)
 
