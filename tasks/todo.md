@@ -347,10 +347,10 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] INS-02: un jugador mayor que su categoría es un error. Uno menor se acepta, con un aviso si son más de `aviso_anios_menor` años. Sub 17 acepta los dos años de nacimiento.
-- [ ] INS-03: no se puede pasar del máximo de jugadores, y por debajo del mínimo hay aviso.
-- [ ] INS-05 a 07: una persona en otro equipo del mismo club y otra categoría da aviso; en otro club o en la misma categoría, error. Un profe en varios equipos está permitido. Jugador en un equipo y profe en otro, según la regla.
-- [ ] INS-08 a 10: hasta 3 en el cuerpo técnico, con un solo entrenador; dorsal único dentro del equipo; falta de CI o de dorsal es aviso hasta el primer partido.
+- [x] INS-02: un jugador mayor que su categoría es un error. Uno menor se acepta, con un aviso si son más de `aviso_anios_menor` años. Sub 17 acepta los dos años de nacimiento.
+- [x] INS-03: no se puede pasar del máximo de jugadores, y por debajo del mínimo hay aviso.
+- [x] INS-05 a 07: una persona en otro equipo del mismo club y otra categoría da aviso; en otro club o en la misma categoría, error. Un profe en varios equipos está permitido. Jugador en un equipo y profe en otro, según la regla.
+- [x] INS-08 a 10: hasta 3 en el cuerpo técnico, con un solo entrenador; dorsal único dentro del equipo; falta de CI o de dorsal es aviso hasta el primer partido.
 
 **Verificación:** verde. Cada test lleva el ID de su regla en el nombre.
 **Depende de:** T2.1.
