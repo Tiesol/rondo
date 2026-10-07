@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T0.5 en Render. Faltan los pasos de Sebastian en Neon y Render, según [DESPLIEGUE.md](DESPLIEGUE.md).
+- **Siguiente paso:** T0.6, la prueba de riesgo de OR-Tools en Render (ver [tasks/todo.md](../tasks/todo.md)).
 
 ## Hecho
 
@@ -22,6 +22,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-06: T0.2 lista: proyecto Django con settings por variables de entorno. `check --deploy` sin advertencias en modo producción, y sin `SECRET_KEY` no arranca.
 - 2026-10-06: T0.3 lista: login obligatorio en toda la app, plantilla base con Tailwind 4.3 y HTMX 2.0.4, y comando `crear_usuario`, que valida la clave y no la muestra. Login revisado a 360 px. Falta mirar el inicio en un celular real.
 - 2026-10-07: PR #1 a #4 (T0.1 a T0.4) fusionados en `main` con merge commits. `main` queda con la fase 0 hasta T0.4.
+- 2026-10-07: T0.5 lista: la demo está en https://rondo-demo.onrender.com (Render gratis, Virginia), con Neon N. Virginia en la rama `demo`. Se despliega sola en cada merge a `main`. Sebastian entró con su usuario.
+- 2026-10-07: el login no distingue mayúsculas en el usuario, porque el teclado del celular pone la primera sola. `crear_usuario` guarda los nombres en minúsculas.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
