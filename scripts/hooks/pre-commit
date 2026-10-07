@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Chequeo antes de cada commit. Se instala con: git config core.hooksPath scripts/hooks
+set -euo pipefail
+
+# 1. Listas reales y secretos nunca entran al repo (CONTEXTO, sección 11; SPEC, "Límites").
+#    Se revisa aunque el archivo se haya agregado con `git add -f`.
+prohibidos=$(git diff --cached --name-only --diff-filter=ACMR | grep -iE \
+  '\.(xlsx|xls|xlsm|ods|docx|doc|odt|pdf|jpe?g|heic|sql|dump)$|(^|/)\.env($|\.)' \
+  | grep -vE '(^|/)\.env\.example$' || true)
+if [[ -n "$prohibidos" ]]; then
+  {
+    echo "Commit rechazado: estos archivos no pueden entrar al repo (listas reales o secretos):"
+    echo "$prohibidos" | sed 's/^/  - /'
+    echo "Si es un falso positivo, conversalo antes de saltear el chequeo."
+  } >&2
+  exit 1
+fi
+
+# 2. Calidad: estilo y tests rápidos.
+if [[ -f pyproject.toml ]] && command -v uv >/dev/null; then
+  uv run ruff check . -q
+  uv run ruff format --check . -q
+  uv run pytest -m "not lento" -q -p no:cacheprovider
+fi

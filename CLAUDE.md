@@ -33,6 +33,7 @@ Leer antes de decidir nada:
 ## Verificación ("verde")
 
 ```bash
+git config core.hooksPath scripts/hooks      # una vez por copia del repo: chequeo antes del commit
 docker compose up -d db                      # Postgres 18 local
 uv run pytest -m "not lento"
 uv run mypy
