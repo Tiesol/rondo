@@ -106,7 +106,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 
 > Planificada el 2026-10-07. Se avanza con la autorización general del mismo día. El detalle está en [todo.md](todo.md).
 
-- [ ] T3.1 Formatos como datos (FIX-01, FIX-02, FIX-07)
+- [x] T3.1 Formatos como datos (FIX-01, FIX-02, FIX-07)
 - [ ] T3.2 Dominio: cruces de la fase de grupos (FIX-03 a FIX-05)
 - [ ] T3.3 Dominio: sorteo de series y fixture completo (FIX-06, FIX-08)
 - [ ] T3.4 Modelos Serie y Partido, y servicio de fixture (FIX-09)

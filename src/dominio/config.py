@@ -19,13 +19,13 @@ DiaSemana = Literal["lunes", "martes", "miercoles", "jueves", "viernes", "sabado
 Momento = Literal["al_inscribir", "antes_del_primer_partido"]
 
 
-class _Estricto(BaseModel):
+class Estricto(BaseModel):
     """Inmutable y sin campos desconocidos: una clave mal escrita es un error, no se ignora."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
 
-class Nivel(_Estricto):
+class Nivel(Estricto):
     modalidad: Modalidad  # 4.1, P14, P15
     min: int = Field(ge=1)  # jugadores en la lista (4.1)
     max: int = Field(ge=1)
@@ -41,7 +41,7 @@ class Nivel(_Estricto):
         return self
 
 
-class Categoria(_Estricto):
+class Categoria(Estricto):
     nombre: str = Field(min_length=1)
     edad: int = Field(ge=1)  # la N de "Sub N"
     anios_nacimiento: int = Field(default=1, ge=1, le=3)  # Sub 17 abarca dos (4.1)
@@ -61,31 +61,31 @@ class Categoria(_Estricto):
         return tuple(range(primero, primero + self.anios_nacimiento))
 
 
-class Partido(_Estricto):
+class Partido(Estricto):
     descanso_min: int = Field(default=5, ge=0)  # 4.4
     cambio_entre_partidos_min: int = Field(default=5, ge=0)  # 4.4, P16
 
 
-class Cancha(_Estricto):
+class Cancha(Estricto):
     codigo: str = Field(min_length=1)
     nombre: str = Field(min_length=1)
     mitades: tuple[str, ...] = ()  # C1 se usa entera o en dos mitades (5.1)
 
 
-class Compatibilidad(_Estricto):
+class Compatibilidad(Estricto):
     """Canchas por categoría (manda) o por modalidad (CAT-04)."""
 
     por_categoria: dict[str, tuple[str, ...]] = {}
     por_modalidad: dict[Modalidad, tuple[str, ...]] = {}
 
 
-class CuerpoTecnico(_Estricto):
+class CuerpoTecnico(Estricto):
     max_por_equipo: int = Field(default=3, ge=1)  # 4.2, P11
     max_entrenadores: int = Field(default=1, ge=1)  # P40
     roles: tuple[str, ...] = ("entrenador", "asistente", "delegado")  # 4.2
 
 
-class Torneo(_Estricto):
+class Torneo(Estricto):
     nombre: str = Field(min_length=1)
     edicion: int = Field(ge=1)
     anio: int = Field(ge=2000)
@@ -136,7 +136,7 @@ _MOMENTOS = {
 }
 
 
-class Reglas(_Estricto):
+class Reglas(Estricto):
     """Reglas sueltas del reglamento. El valor por defecto es el de la pregunta P# indicada.
 
     Una regla nueva solo se agrega acá: la pantalla de reglas se arma con describir_reglas().
@@ -372,7 +372,7 @@ def describir_reglas(modelo: type[Reglas] = Reglas) -> list[DescripcionRegla]:
     return descripciones
 
 
-class ConfigTorneo(_Estricto):
+class ConfigTorneo(Estricto):
     torneo: Torneo
     partido: Partido = Partido()
     categorias: tuple[Categoria, ...] = Field(min_length=1)

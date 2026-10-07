@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 3, fixture y verificador. Las fases 1b y 2 están cerradas y revisadas.
-- **Siguiente paso:** T3.1 (formatos como datos).
+- **Siguiente paso:** T3.2 (cruces de la fase de grupos).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -59,6 +59,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T2.7 lista: `manage.py generar_demo --soy-la-demo` arma 93 equipos (los 84 de 2023 en las categorías 2026 y 3 en cada categoría nueva), con 1.331 jugadores y 201 profes inventados por faker con semilla fija, en 1,4 s y en bloque. Incluye los profes y los 7 jugadores compartidos de 6.4, y casos para ver los avisos: menores, sin CI, sin dorsales y 3 equipos cortos. `Torneo.es_demo` (migración 0010) protege los datos que no son de demo. `faker` entra como dependencia de desarrollo.
 - 2026-10-07: revisión de cierre de la fase 2; se corrigieron 2 hallazgos (ver "Revisión de la fase 2").
 - 2026-10-07: fase 3 planificada (T3.1 a T3.7 en `tasks/todo.md`).
+- 2026-10-07: T3.1 lista: `datos/config/formatos.json` con los formatos de 2 a 10 equipos (4.5, P25, P26 y P27) y `dominio/formatos.py`, que los valida (series que suman, referencias a partidos anteriores y a series y puestos que existen) y da los textos de cada participante ("1.º A", "Ganador de la semi 1 de Oro", "Mejor 3.º"). De 3 a 10 equipos dan 8, 10, 12, 14, 17, 18, 22 y 27 partidos; con más de 10, `FormatoFaltante` cita P27. `Estricto` pasa a ser público en `dominio.config`.
 
 ## Pendiente
 
