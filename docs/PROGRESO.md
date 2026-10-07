@@ -132,6 +132,9 @@ Se usó un modelo CP-SAT sintético con la forma del real (T0.6): canchas con mi
 - **Imágenes:** el logo, los escudos de los equipos y quizá fotos de jugadores necesitan un almacenamiento persistente (un bucket). Las fotos de jugadores son datos de menores y no están en el contexto: hay que confirmar si hacen falta (P52).
 - **Roles acordados:** Organización puede hacer todo. Mesa de control puede cargar equipos y listas, verificar jugadores y ver o exportar el calendario.
 - **Prototipo de interfaz** al estilo de Copa Fácil, con mejoras (asistente para crear el torneo, reglas con interruptores, avisos al cargar listas, capacidad, propuestas de reprogramación): https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a. Copia en `docs/prototipo/prototipo-rondo.html`. Pendiente: los comentarios de Sebastian.
+- **Diseño del PNG (2026-10-07):** el organizador usa el de 2025, con una imagen por cancha y por día: fondo azul marino, filas amarillas (categoría, escudo, equipo, equipo, escudo, hora), panel dorado con "CANCHA N", la copa y "JMP CUP · N.ª EDICIÓN", y una franja de patrocinadores abajo. Réplica: https://claude.ai/artifact/H9uyeRSzhDwFj7CbfEMSKv (copia en `docs/prototipo/fixture-png.html`). Faltan las imágenes reales: copa o logo, escudos y patrocinadores.
+- **Identidad visual:** azul marino y dorado, los colores de la JMP CUP. El prototipo verde no los respetaba.
+- **Página pública (cambio de alcance):** Sebastian quiere que quienes entran a mirar (familias y clubes) vean algo como la página de Copa Fácil (https://copafacil.com/-78bk8). El contexto la dejaba para después de la demo (P53).
 
 ## Revisión de la fase 0 (2026-10-07, `code-review-and-quality`)
 
@@ -202,6 +205,7 @@ Valores que no están en el contexto. Quedan como configuración:
 | P50 | Resultados y tabla quedan fuera de la demo, pero en 2026 la eliminación necesita saber quién pasa. ¿Cómo se definen los cruces? | El organizador calcula las posiciones como hasta ahora y asigna a mano en la app los participantes de cada partido de eliminación |
 | P51 | ¿Cuántas listas se esperan en 2026 y quién las carga? A mano son unos 1.700 jugadores | La organización las carga con el formulario. Si no alcanza el tiempo, se agrega pegar filas copiadas de Excel |
 | P52 | ¿Hace falta guardar fotos de los jugadores? Son datos personales de menores | No, hasta que se confirme y se defina quién las ve |
+| P53 | ¿La página pública (calendario, fixture y posiciones sin login, como Copa Fácil) entra en la demo o queda para después? | Entra una versión simple, solo de lectura: calendario por día y cancha, fixture por categoría. Sin datos personales |
 
 ## Planes gratuitos (revisados el 2026-10-06)
 
