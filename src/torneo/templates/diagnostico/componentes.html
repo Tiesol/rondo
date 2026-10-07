@@ -75,5 +75,8 @@
 </div>
 
 {% include "parciales/hoja.html" with id="hoja-muestra" titulo="Agregar jugador" cuerpo="diagnostico/_hoja_muestra.html" %}
-{% include "parciales/aviso.html" with texto="Así se ve un aviso flotante" %}
+<div class="flotantes">
+  {% include "parciales/aviso.html" with texto="Así se ve un aviso flotante" %}
+  {% include "parciales/aviso.html" with texto="Un aviso que queda hasta cerrarlo" estado="warning" %}
+</div>
 {% endblock %}

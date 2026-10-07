@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 2, inscripción. La fase 1b está cerrada y revisada.
-- **Siguiente paso:** T2.6 (jugadores y cuerpo técnico, con avisos en vivo).
+- **Siguiente paso:** T2.7 (generador de datos de demo).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -55,6 +55,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T2.3 lista: modelos Club (global, con alias), Equipo, Persona (la única con datos personales; clave de documento única si existe), Jugador y Profe, con sus restricciones en la base (migración 0008). Filtro de logs `rondo/logs.py`: de un error de la base queda solo el tipo, nunca el detalle (probado con un CI repetido). `django.db.backends` queda en WARNING. Catálogo de 21 clubes de 6.2 en `datos/config/clubes.json` y comando `cargar_clubes`; admin de Club con alias uno por línea.
 - 2026-10-07: T2.4 lista: `servicios/inscripcion.py` con `agregar_jugador`, `agregar_profe` y sus versiones sin guardar (`revisar_*`, para los avisos en vivo). Normaliza el documento, busca a la persona por su clave, arma la entrada del dominio con sus otros equipos y guarda solo sin errores, en una transacción que bloquea al equipo. Si el documento ya existe, valen los datos guardados, con un aviso.
 - 2026-10-07: T2.5 lista: la pestaña Equipos de Torneo lista los equipos con escudo (sigla y color), jugadores sobre el máximo y "Faltan N". Alta de equipo (organización y mesa) con club del catálogo, categoría, nombre visible y colores. Ficha del equipo con chips de estado y pestañas Plantel y Cuerpo técnico. Inicio cuenta de verdad las categorías sin equipos y los equipos debajo del mínimo.
+- 2026-10-07: T2.6 lista: alta de jugadores y del cuerpo técnico desde la ficha del equipo, con avisos en vivo (HTMX al salir de cada campo, sin guardar: `/revisar/`). Los avisos no bloquean; los errores sí. Formularios sensibles (`sensitive_post_parameters`). La mesa marca a cada jugador como verificado tocando su estado (INS-12). Los mensajes se apilan; los avisos quedan hasta cerrarlos, y no se repite lo que ya muestra la ficha. Cada criterio de inscripción de la sección 10 tiene su test desde la pantalla.
 
 ## Pendiente
 

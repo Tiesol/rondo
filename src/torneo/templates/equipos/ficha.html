@@ -33,14 +33,7 @@
   {% if jugadores %}
   <ul class="lista">
     {% for jugador in jugadores %}
-    <li class="fila" id="jugador-{{ jugador.pk }}">
-      {% if jugador.dorsal %}<span class="dorsal num">{{ jugador.dorsal }}</span>{% else %}<span class="dorsal falta">s/n</span>{% endif %}
-      <span class="crece">
-        <strong>{{ jugador.persona }}</strong>
-        <span class="sub">{% if jugador.persona.documento %}{{ jugador.persona.documento }}{% else %}Documento pendiente{% endif %}{% if jugador.persona.nacimiento %} · {{ jugador.persona.nacimiento.year }}{% endif %}</span>
-      </span>
-      {% if jugador.verificado %}{% include "parciales/chip.html" with texto="Verificado" estado="bien" %}{% else %}{% include "parciales/chip.html" with texto="Sin verificar" estado="aviso" %}{% endif %}
-    </li>
+    {% include "equipos/_jugador.html" %}
     {% endfor %}
   </ul>
   {% else %}

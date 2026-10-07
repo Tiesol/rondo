@@ -842,20 +842,33 @@
     font: 28px/1 var(--font-titulo);
     letter-spacing: 0.03em;
   }
-  .flotante {
+  .flotantes {
     position: fixed;
     left: 50%;
     bottom: 84px;
     z-index: 50;
-    max-width: calc(100% - 32px);
-    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: min(480px, calc(100% - 32px));
     transform: translateX(-50%);
+  }
+  .flotante {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
     border-radius: var(--radius-control);
     background: var(--color-azul);
     color: var(--color-sobre-azul);
     font-size: 14px;
     font-weight: 600;
     box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+  }
+  .flotante.aviso {
+    padding-right: 4px;
+    background: var(--color-aviso-suave);
+    color: var(--color-aviso);
   }
 
   /* ---------- Página pública ---------- */
@@ -947,7 +960,7 @@
       margin-inline: 0;
       padding-inline: 0;
     }
-    .flotante {
+    .flotantes {
       bottom: 24px;
     }
     .ingreso {

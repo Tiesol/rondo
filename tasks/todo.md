@@ -408,9 +408,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Los criterios de inscripción de la sección 10 del contexto se cumplen desde la pantalla.
-- [ ] Los avisos no bloquean el guardado; los errores sí.
-- [ ] El formulario con datos personales es sensible: no aparece en los logs.
+- [x] Los criterios de inscripción de la sección 10 del contexto se cumplen desde la pantalla.
+- [x] Los avisos no bloquean el guardado; los errores sí.
+- [x] El formulario con datos personales es sensible: no aparece en los logs.
 
 **Verificación:** verde, con tests de vistas, más una prueba manual en el celular.
 **Depende de:** T2.4 y T2.5.
