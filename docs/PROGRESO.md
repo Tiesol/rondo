@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T0.2 (ver [tasks/todo.md](../tasks/todo.md)). Pendiente: decidir entre Pico CSS y Tailwind antes de T0.3.
+- **Siguiente paso:** T0.2 (ver [tasks/todo.md](../tasks/todo.md)).
 
 ## Hecho
 
@@ -30,7 +30,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 | Fecha | Decisión | Motivo |
 |---|---|---|
-| 2026-10-06 | Django 6.1 + HTMX, un solo servicio. El núcleo de dominio va en Python puro y tipado | Login, admin, formularios y migraciones ya incluidos; Sebastian quiere practicar Python con tipado y tests |
+| 2026-10-06 | Django 6.1 + HTMX, un solo servicio. El núcleo de dominio va en Python puro y tipado | El solver (OR-Tools CP-SAT) es nativo de Python: un backend en Python evita un segundo servicio solo para el solver. Las pantallas son formularios, tablas y un calendario para pocos usuarios, y eso no necesita una SPA; el contexto lo dice. Django trae login, admin, formularios y migraciones. Que Sebastian quiera practicar Python no fue un criterio |
 | 2026-10-06 | Cloud Run y Neon, los dos en São Paulo | CPU real para el solver (2 vCPU) y requests de hasta 60 minutos, dentro de la capa gratuita. Pide tarjeta |
 | 2026-10-06 | La prueba de 6.4 se separa por tipo de choque: personas 2, canchas 3 y compatibilidad 0 (con las canchas de 2023) | Ver H1, H2 y H3 |
 | 2026-10-06 | La app se usa en el torneo 2026 | Suma la fase 6 (producción) después de la demo, con backups, usuarios y separación entre demo y producción |
@@ -38,6 +38,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | Todo va en cuentas de Sebastian: un proyecto dedicado en Google Cloud, con su tarjeta, y un proyecto en Neon. Se traspasan a JMP si compra la app | La idea es venderle la app a JMP; así el traspaso no obliga a volver a desplegar |
 | 2026-10-06 | No se usa la configuración de Neon para Node (`neon link`, `neon.ts`, `neon deploy`) ni su MCP | La app es Python en Cloud Run: de Neon solo hace falta la cadena de conexión |
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
+| 2026-10-06 | Tailwind CSS v4 en lugar de Pico CSS | Que la interfaz se vea bien es una prioridad, y Tailwind da control total del diseño, incluido el que pase el organizador (P32). Se compila sin Node |
 | 2026-10-06 | Una instalación por cliente: si otra organización compra la app, tiene su propio proyecto en Google Cloud y en Neon, con su facturación y el mismo código. La base no separa clientes | Por ahora el único cliente es JMP. Así el modelo de datos queda simple y cada cliente queda aislado. Nada propio de JMP va en el código: nombre, logo y colores van en la configuración |
 
 ## Hallazgos

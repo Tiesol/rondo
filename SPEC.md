@@ -23,7 +23,7 @@ Una app web para la organización de la JMP CUP: el organizador y la mesa de con
 
 ## Stack
 
-- **Lenguaje y web:** Python 3.14 (con `uv`), Django 6.1, HTMX con `django-htmx`, Pico CSS y WhiteNoise.
+- **Lenguaje y web:** Python 3.14 (con `uv`), Django 6.1, HTMX con `django-htmx`, Tailwind CSS v4 (compilado con su ejecutable propio, sin Node) y WhiteNoise.
 - **Configuración y solver:** Pydantic v2 para la configuración; OR-Tools 9.15 (CP-SAT) para la programación.
 - **Base de datos:** PostgreSQL 18 en Neon, proyecto `rondo-jmp` en São Paulo. En desarrollo, Postgres 18 en Docker.
 - **Hosting:** Cloud Run en `southamerica-east1`, con facturación por request.

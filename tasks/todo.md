@@ -38,7 +38,7 @@
 
 ### T0.3 Login y plantilla base para el celular
 
-**Descripción:** activar `LoginRequiredMiddleware`, con login y logout de Django en español. La plantilla base usa Pico CSS y HTMX (copiados en `static/`), tiene un menú que funciona en el celular y una página de inicio vacía. El comando `crear_usuario` toma la contraseña de una variable de entorno.
+**Descripción:** activar `LoginRequiredMiddleware`, con login y logout de Django en español. La plantilla base usa Tailwind CSS (compilado, sin Node) y HTMX (copiado en `static/`), tiene un menú que funciona en el celular y una página de inicio vacía. El comando `crear_usuario` toma la contraseña de una variable de entorno.
 
 **Aceptación:**
 

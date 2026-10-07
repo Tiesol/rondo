@@ -20,7 +20,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
   - **Producción:** `django`, `django-htmx`, `whitenoise`, `gunicorn`, `psycopg[binary]`, `dj-database-url`, `pydantic` y `ortools`.
   - **Desarrollo:** `pytest`, `pytest-django`, `hypothesis`, `mypy`, `django-stubs` y `ruff`.
   - **Más adelante:** `faker`, recién en la fase 2.
-  - **En el navegador,** copiadas dentro del repo sin CDN: `htmx`, Pico CSS y `modern-screenshot`.
+  - **En el navegador,** copiadas dentro del repo sin CDN: `htmx` y `modern-screenshot`. Tailwind CSS v4 se compila con su ejecutable propio, sin Node.
 - **Configuración por variables de entorno:** `DATABASE_URL`, `SECRET_KEY`, `DEBUG` y `ALLOWED_HOSTS`. En local salen de `.env`; en Cloud Run, de Secret Manager.
 - **Migraciones en la nube:** se corren como un Cloud Run Job antes de cada deploy, no al arrancar el contenedor. Así nunca hay dos migraciones a la vez.
 - **Usuarios iniciales:** un comando `crear_usuario` que toma la contraseña de una variable de entorno y no la imprime nunca.
