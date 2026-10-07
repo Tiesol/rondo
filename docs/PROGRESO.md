@@ -7,6 +7,14 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - **Fase:** 0, cimientos. Plan aprobado.
 - **Siguiente paso:** que Sebastian apruebe la fase 1b (TU.1 a TU.7 en `tasks/todo.md`) y responda P54 (grupos con muchos equipos). Siguen pendientes las imágenes y las capturas de Copa Fácil.
 
+## Para retomar (actualizado el 2026-10-07)
+
+- **Dónde estamos:** las fases 0 y 1 están terminadas y revisadas. Falta solo el visto bueno formal de Sebastian. Está planificada la **fase 1b, pantallas propias** (TU.1 a TU.7 en `tasks/todo.md`), que va antes de la inscripción.
+- **Próxima acción:** si Sebastian aprueba la fase 1b, empezar con **TU.1**, la base visual. Si no la aprobó, preguntarle antes de implementar.
+- **Diseño:** seguir `docs/DISENO.md`. El prototipo aprobado, sin barra de avance, está en https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a (copia en `docs/prototipo/prototipo-rondo.html`). La réplica del PNG está en https://claude.ai/artifact/H9uyeRSzhDwFj7CbfEMSKv.
+- **Demo:** https://rondo-demo.onrender.com. Se despliega sola con cada merge a `main`. El repo es https://github.com/Tiesol/rondo.
+- **Esperando a Sebastian (no bloquea la fase 1b):** respuesta a P54 (grupos con muchos equipos); correr `cargar_config` en la demo (DESPLIEGUE.md, 3b); capturas de la página de Copa Fácil. Las imágenes (logo, patrocinadores y escudos) quedan para después, junto con el PNG.
+
 ## Hecho
 
 - 2026-10-06: lectura completa del contexto.
@@ -54,6 +62,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 | 2026-10-06 | Sin crédito de prueba de Google Cloud. El tope de gasto aceptado es de unos 5 USD al mes | Sebastian ya usó Google Cloud. La capa gratuita vale igual para las cuentas pagas |
 | 2026-10-06 | Tailwind CSS v4 en lugar de Pico CSS | Que la interfaz se vea bien es una prioridad, y Tailwind da control total del diseño, incluido el que pase el organizador (P32). Se compila sin Node |
 | 2026-10-06 | Tailwind se compila con `django-tailwind-cli`, que descarga el ejecutable oficial (sin Node). El CSS generado no entra al repo: se compila en local y en el Docker | Aprobado por Sebastian |
+| 2026-10-07 | Las imágenes (logo, patrocinadores y escudos) y el PNG definitivo quedan para después | Prioridad de Sebastian: avanzar con las pantallas |
 | 2026-10-07 | Sin barra de avance en Inicio (configurado, inscripción, etc.); se quedan los pendientes | No le gustó a Sebastian |
 | 2026-10-07 | Antes de la inscripción va una fase de pantallas propias (1b) que reemplaza al admin | La interfaz es una prioridad, y la inscripción se construye sobre esas pantallas |
 | 2026-10-07 | La página pública entra en la demo, en una versión simple: partidos por día, posiciones y equipos, sin login y sin datos personales (P53) | Sebastian quiere que familias y clubes la vean como en Copa Fácil |
