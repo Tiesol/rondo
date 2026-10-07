@@ -1,0 +1,61 @@
+{# Lo que cambia al elegir categoría o pestaña. Con HTMX se reemplaza solo esto. #}
+<div id="categoria">
+  <div class="banda">
+    <p class="titulo-grande">{{ categoria.categoria }}{% if nivel %} <span>{{ nivel }}</span>{% endif %}</p>
+    <p class="meta">{{ resumen }}</p>
+    <nav class="categorias" aria-label="Categoría">
+      {% for c in categorias %}
+      <a href="{{ c.url }}"{% if c.actual %} aria-current="page"{% endif %} hx-get="{{ c.url }}" hx-target="#categoria" hx-swap="outerHTML" hx-push-url="true">{{ c.texto }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+  {% include "parciales/pestanas.html" with etiqueta="Secciones de la categoría" htmx_destino="categoria" %}
+
+  <div class="seccion">
+  {% if pestana == "equipos" %}
+    {% with titulo="Todavía no hay equipos en "|add:nombre %}
+    {% include "parciales/vacio.html" with icono="personas" titulo=titulo texto="La carga de equipos y listas llega en la próxima etapa." %}
+    {% endwith %}
+  {% elif pestana == "fixture" %}
+    {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay fixture" texto="Se arma cuando estén inscritos los equipos." %}
+  {% elif pestana == "posiciones" %}
+    {% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay resultados" texto="La tabla aparece con el primer partido jugado." %}
+  {% else %}
+    <ul class="lista">
+      <li class="fila"><strong class="crece">Modalidad</strong><span>{{ categoria.get_modalidad_display }}</span></li>
+      <li class="fila"><strong class="crece">Nacidos en</strong><span class="num">{{ nacidos }}</span></li>
+      <li class="fila"><span class="crece"><strong>Turno</strong><span class="sub">2 tiempos de {{ categoria.min_por_tiempo }} min, {{ categoria.torneo.descanso_min }} de descanso y {{ categoria.torneo.cambio_entre_partidos_min }} de cambio</span></span><span class="num">{{ categoria.minutos_turno }} min</span></li>
+      {% if not form %}
+      <li class="fila"><strong class="crece">Jugadores por lista</strong><span class="num">{{ categoria.min_jugadores }} a {{ categoria.max_jugadores }}</span></li>
+      {% if categoria.convocados_por_partido %}<li class="fila"><strong class="crece">Convocados por partido</strong><span class="num">{{ categoria.convocados_por_partido }}</span></li>{% endif %}
+      <li class="fila"><strong class="crece">Canchas</strong><span>{{ canchas }}</span></li>
+      {% endif %}
+    </ul>
+    {% if form %}
+    <form method="post" class="flex flex-col gap-3.5 pt-4" novalidate>
+      {% csrf_token %}
+      <div class="dos">
+        {% include "parciales/campo.html" with campo=form.min_jugadores %}
+        {% include "parciales/campo.html" with campo=form.max_jugadores %}
+      </div>
+      <div class="dos">
+        {% include "parciales/campo.html" with campo=form.min_por_tiempo %}
+        {% include "parciales/campo.html" with campo=form.convocados_por_partido %}
+      </div>
+      <fieldset class="campo">
+        <legend class="mb-1.5 text-[13.5px] font-semibold">{{ form.canchas.label }}</legend>
+        <div class="flex flex-wrap gap-2">
+          {% for opcion in form.canchas %}
+          <label class="opcion">{{ opcion.tag }} {{ opcion.choice_label }}</label>
+          {% endfor %}
+        </div>
+        {% for error in form.canchas.errors %}<span class="error-campo" role="alert">{{ error }}</span>{% endfor %}
+      </fieldset>
+      {% include "parciales/boton.html" with texto="Guardar los ajustes" principal=True bloque=True %}
+    </form>
+    {% else %}
+    <div class="pt-3">{% include "parciales/alerta.html" with estado="info" texto="Puedes ver los ajustes, pero solo la organización puede cambiarlos." %}</div>
+    {% endif %}
+  {% endif %}
+  </div>
+</div>

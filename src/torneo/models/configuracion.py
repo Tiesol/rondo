@@ -83,6 +83,25 @@ class Torneo(models.Model):
             cambio_entre_partidos_min=self.cambio_entre_partidos_min,
         )
 
+    @classmethod
+    def activo(cls) -> Torneo | None:
+        """El torneo que muestran Inicio y Torneo: el más reciente."""
+        return cls.objects.order_by("-anio", "-inicio").first()
+
+    @property
+    def nombre_sin_anio(self) -> str:
+        """ "JMP CUP 2026" da "JMP CUP", para mostrar el año aparte, en dorado."""
+        return self.nombre.removesuffix(str(self.anio)).strip() or self.nombre
+
+    @property
+    def fines_de_semana(self) -> int:
+        """Semanas con días de juego regulares."""
+        semanas = {
+            timezone.localtime(f.inicio).isocalendar()[:2]
+            for f in self.franjas.filter(tipo=Franja.Tipo.REGULAR)
+        }
+        return len(semanas)
+
 
 class CategoriaNivel(models.Model):
     """La unidad de competencia, por ejemplo "Sub 9 Inicial" (ARQUITECTURA, sección 6)."""

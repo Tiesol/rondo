@@ -1,10 +1,11 @@
 {% comment %}
 Un ítem del menú. Si la URL "destino" todavía no existe (la pantalla llega en otra tarea),
 se muestra desactivado; `{% url … as %}` no falla cuando falta la ruta.
+Con tambien (otro nombre de URL), el ítem se marca también en esas pantallas.
 {% endcomment %}
 {% url destino as url_destino %}
 {% if url_destino %}
-<a href="{{ url_destino }}"{% if request.resolver_match.url_name == destino %} aria-current="page"{% endif %}>{% include "parciales/icono.html" with nombre=icono %}{{ texto }}</a>
+<a href="{{ url_destino }}"{% if request.resolver_match.url_name == destino or request.resolver_match.url_name == tambien %} aria-current="page"{% endif %}>{% include "parciales/icono.html" with nombre=icono %}{{ texto }}</a>
 {% else %}
 <span aria-disabled="true">{% include "parciales/icono.html" with nombre=icono %}{{ texto }}<span class="sr-only"> (todavía no está)</span></span>
 {% endif %}

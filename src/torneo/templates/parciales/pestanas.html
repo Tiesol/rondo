@@ -1,9 +1,10 @@
 {% comment %}
 Pestañas subrayadas; cada una es un enlace, así la URL refleja dónde se está.
 Parámetros: etiqueta (para lectores de pantalla) y pestanas: diccionarios con url, texto y actual.
+Con htmx_destino (un id), cambiar de pestaña reemplaza solo ese elemento y actualiza la URL.
 {% endcomment %}
 <nav class="pestanas" aria-label="{{ etiqueta }}">
   {% for p in pestanas %}
-  <a href="{{ p.url }}"{% if p.actual %} aria-current="page"{% endif %}>{{ p.texto }}</a>
+  <a href="{{ p.url }}"{% if p.actual %} aria-current="page"{% endif %}{% if htmx_destino %} hx-get="{{ p.url }}" hx-target="#{{ htmx_destino }}" hx-swap="outerHTML" hx-push-url="true"{% endif %}>{{ p.texto }}</a>
   {% endfor %}
 </nav>

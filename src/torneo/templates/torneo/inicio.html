@@ -2,5 +2,38 @@
 {% block titulo %}Inicio{% endblock %}
 {% block encabezado %}Inicio{% endblock %}
 {% block contenido %}
-{% include "parciales/banda.html" with antes=organizador.nombre titulo="Hola," resaltado=user.get_short_name|default:user.username despues="Desde acá vas a organizar el torneo: inscripción, fixture, programación y calendario." %}
+{% if torneo %}
+{% include "parciales/banda.html" with titulo=torneo.nombre_sin_anio resaltado=torneo.anio despues=fechas %}
+
+<div class="seccion">
+  {% with cantidad=pendientes|length|stringformat:"s" %}
+  {% include "parciales/seccion_cab.html" with titulo="Pendientes" chip=cantidad chip_estado="aviso" %}
+  {% endwith %}
+  {% include "parciales/lista.html" with filas=pendientes %}
+</div>
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Ir a" %}
+  <ul class="lista">
+    {% url "torneo" as url_torneo %}
+    <li>{% include "parciales/fila.html" with titulo="Categorías, equipos y fixture" url=url_torneo icono="torneo" %}</li>
+    {% if perms.torneo.configurar_torneo %}
+    {% url "reglas" torneo.pk as url_reglas %}
+    <li>{% include "parciales/fila.html" with titulo="Reglas del torneo" sub="Interruptores y números, con su pregunta al organizador" url=url_reglas icono="documento" %}</li>
+    {% endif %}
+    {% url "publico" torneo.pk as url_publico %}
+    {% if url_publico %}
+    <li>{% include "parciales/fila.html" with titulo="Ver la página pública" sub="Lo que ven las familias y los clubes" url=url_publico icono="mundo" %}</li>
+    {% endif %}
+  </ul>
+</div>
+{% else %}
+{% include "parciales/banda.html" with antes=organizador.nombre titulo="Hola," resaltado=user.get_short_name|default:user.username %}
+{% if perms.torneo.configurar_torneo %}
+{% url "crear-torneo" as url_crear %}
+{% include "parciales/vacio.html" with icono="torneo" titulo="Todavía no hay un torneo" texto="Créalo desde la plantilla del reglamento: categorías, canchas, horarios y reglas vienen cargados." accion="Crear el torneo" accion_url=url_crear %}
+{% else %}
+{% include "parciales/vacio.html" with icono="torneo" titulo="Todavía no hay un torneo" texto="Cuando la organización lo cree, aparece acá." %}
+{% endif %}
+{% endif %}
 {% endblock %}

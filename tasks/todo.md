@@ -284,9 +284,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Sin torneo creado, Inicio invita a crearlo (estado vacío).
-- [ ] Cambiar de categoría actualiza la pantalla sin recargarla (HTMX), y la URL lo refleja.
-- [ ] La mesa ve los ajustes, pero no los puede cambiar.
+- [x] Sin torneo creado, Inicio invita a crearlo (estado vacío).
+- [x] Cambiar de categoría actualiza la pantalla sin recargarla (HTMX), y la URL lo refleja.
+- [x] La mesa ve los ajustes, pero no los puede cambiar.
 
 **Verificación:** verde, más capturas.
 **Depende de:** TU.2.
