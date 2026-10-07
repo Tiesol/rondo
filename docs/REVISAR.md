@@ -28,3 +28,5 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R16 | TU.5 | Los ajustes de una categoría se editan en Torneo → Ajustes: plantel mínimo y máximo, minutos por tiempo, convocados y canchas. La modalidad y la edad no se editan ahí | Cambiar la modalidad o la edad es cambiar de categoría; eso va en el asistente o en el JSON |
 | R17 | TU.6 | La página pública está en `/t/<número>/`, no en una dirección con nombre (como `/jmp-cup-2026`) | Alcanza para la demo. Una dirección con nombre se agrega antes de la fase 6 si hace falta |
 | R18 | TU.6 | Un torneo nuevo nace sin página pública; la organización la enciende en "Más" | Así nada se publica por accidente |
+| R19 | T2.1 | El complemento del CI se reconoce solo con guion (`1234567-1E`). Sin guion (`12345671E`) da error | Sin guion no se distingue el complemento de los dígitos del número |
+| R20 | T2.1 | Una "E" seguida solo de dígitos (`E1234567`) se toma como CI de extranjero, no como pasaporte | Es la forma más común en Bolivia. Un pasaporte empieza con letras y sigue con dígitos (`AB123456`) |

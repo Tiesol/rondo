@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 2, inscripción. La fase 1b está cerrada y revisada.
-- **Siguiente paso:** T2.1 (normalización de documentos). Sebastian autorizó seguir fase tras fase sin su visto bueno (solo esta vez); las dudas van a [REVISAR.md](REVISAR.md), con el supuesto que se tomó.
+- **Siguiente paso:** T2.2 (validaciones de inscripción).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -50,6 +50,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: TU.7 lista: pantalla `/escuela/` con el nombre y los colores del organizador (principal y acento, con vista previa en vivo). Los colores pintan toda la interfaz: base.html pone `--marca`, `--acento` y `--sobre-acento` (calculado por contraste, `torneo/colores.py`), y los tokens derivan de ahí, también en modo oscuro. El principal tiene que dejar leer texto blanco (contraste de 4,5 o más). La migración 0007 cambia el verde viejo por el azul marino.
 - 2026-10-07: revisión de cierre de la fase 1b; se corrigieron 5 hallazgos (ver "Revisión de la fase 1b").
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
+- 2026-10-07: T2.1 lista: `dominio/documentos.py` normaliza CI, CI de extranjero y pasaporte. La clave de comparación usa número, complemento y "E-"; la sigla se guarda pero no se compara. Vacío o sin dígitos es "sin documento"; lo demás que no se reconoce da un error con ejemplos. Incluye un test de propiedad (hypothesis) sobre las formas de escribir un mismo CI.
 
 ## Pendiente
 
