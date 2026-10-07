@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}Rondo{% endblock %} · JMP CUP</title>
+  <title>{% block titulo %}Rondo{% endblock %} · {{ organizador.nombre }}</title>
   {% tailwind_css %}
   <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
 </head>
-<body class="min-h-full bg-slate-50 text-slate-900 antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body class="min-h-full bg-slate-50 text-slate-900 antialiased" style="--color-marca: {{ organizador.color_primario }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   {% if user.is_authenticated %}
   <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
     <nav class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3" aria-label="Principal">
       <a href="{% url 'inicio' %}" class="flex items-center gap-2 font-semibold tracking-tight">
-        <span class="grid size-8 place-items-center rounded-lg bg-emerald-600 text-sm font-bold text-white" aria-hidden="true">R</span>
-        <span>Rondo</span>
+        <span class="grid size-8 place-items-center rounded-lg bg-(--color-marca) text-sm font-bold text-white" aria-hidden="true">R</span>
+        <span>Rondo <span class="font-normal text-slate-500">· {{ organizador.nombre }}</span></span>
       </a>
       <div class="flex items-center gap-1 text-sm">
         {% if user.is_staff %}

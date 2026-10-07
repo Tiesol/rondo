@@ -57,6 +57,12 @@ check_untyped_defs = true
 module = ["dominio", "dominio.*"]
 strict = true
 
+# Las clases del admin de Django no aceptan genéricos al ejecutarse (ModelAdmin[Torneo] falla
+# sin django-stubs-ext). Se exime solo ese módulo.
+[[tool.mypy.overrides]]
+module = ["torneo.admin"]
+disallow_any_generics = false
+
 [tool.django-stubs]
 django_settings_module = "rondo.settings_test"
 

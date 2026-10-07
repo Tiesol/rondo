@@ -53,13 +53,13 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] T1.2 Dominio: franjas con fechas concretas y compatibilidad resuelta (CAT-04)
 - [x] T1.3 Modelos Django de configuración
 - [x] T1.4 Comando `cargar_config` con la configuración 2026
-- [ ] T1.5 Admin de la configuración e identidad del organizador
+- [x] T1.5 Admin de la configuración e identidad del organizador
 
 **Checkpoint de la fase 1:**
 
 - [ ] El torneo 2026 está cargado en la demo, con 23 categorías-nivel, 5 canchas (incluidas C1A y C1B) y 15 franjas.
-- [ ] Se edita en el admin, y una regla inválida se rechaza con un mensaje claro.
-- [ ] Cada regla CAT tiene su test.
+- [x] Se edita en el admin, y una regla inválida se rechaza con un mensaje junto al campo.
+- [x] Cada regla CAT tiene su test.
 - [ ] Revisión y tu visto bueno.
 
 ### Fases 2 a 6: se detallan al llegar
