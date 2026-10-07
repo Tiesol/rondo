@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** revisión de cierre de la fase 1. Pendientes de Sebastian: probar el PNG en Android (T0.7), correr `cargar_config` en la demo (DESPLIEGUE.md, 3b) y dar el visto bueno a las fases 0 y 1.
+- **Siguiente paso:** fase 2 (inscripción). Antes de empezarla: el visto bueno de Sebastian a las fases 0 y 1, y el detalle de las tareas de la fase 2 con `planning-and-task-breakdown`, que Sebastian aprueba. Pendientes de Sebastian: probar el PNG en Android (T0.7) y correr `cargar_config` en la demo (DESPLIEGUE.md, 3b).
 
 ## Hecho
 
@@ -138,6 +138,24 @@ Se usó un modelo CP-SAT sintético con la forma del real (T0.6): canchas con mi
 - **Datos personales en los logs (fase 2, obligatorio):** los errores de Postgres incluyen los valores. Una violación de unicidad del CI dejaría el número en el log ("Key (ci)=(…) already exists"). Los duplicados de CI se validan antes de guardar, y se agrega un filtro de logs que no deje pasar el texto de errores de la base.
 - **Roles (antes de la fase 6):** `crear_usuario` hace staff a todos, y con eso la mesa de control podría editar la configuración en el admin. Hace falta un usuario de mesa sin staff.
 - **FYI:** `django-tailwind-cli` descarga el ejecutable oficial de Tailwind desde GitHub durante el build, y nosotros no verificamos su checksum. La imagen pesa 1 GB, por OR-Tools, pandas y numpy.
+
+## Revisión de la fase 1 (2026-10-07, `code-review-and-quality`)
+
+**Veredicto: aprobada.** Falta el visto bueno de Sebastian.
+
+**Mutaciones:** se rompieron a propósito cuatro piezas clave para ver si los tests lo detectan.
+
+| Mutación | Resultado |
+|---|---|
+| `cargar_config` borra también las franjas de entre semana | Detectada |
+| La compatibilidad ignora la regla por categoría | Detectada (3 tests) |
+| `Torneo.save()` guarda sin validar las reglas | Detectada |
+| El Organizador no fija `pk=1` | **No la detectaba ningún test.** Se agregó uno: guardar otro organizador reemplaza al único |
+
+**FYI:**
+
+- `cargar_config` no borra categorías ni canchas que se saquen del JSON, porque podrían tener equipos. Si hace falta, se borran en el admin.
+- El procesador de contexto hace una consulta por página para traer al Organizador. Es despreciable con 2 o 3 usuarios.
 
 ## Supuestos
 
