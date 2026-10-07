@@ -152,9 +152,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] 2026 da 15 franjas: 5 viernes, 5 sábados y 5 domingos, entre el 23 de octubre y el 22 de noviembre.
-- [ ] Sub 6 va a C1A y C1B; Sub 10 Avanzado (F8), solo a C1; Sub 12 Avanzado (F11), solo a C3.
-- [ ] Las canchas físicas de C1 son C1A y C1B, y las de C2 son solo C2.
+- [x] 2026 da 15 franjas: 5 viernes, 5 sábados y 5 domingos, entre el 23 de octubre y el 22 de noviembre.
+- [x] Sub 6 va a C1A y C1B; Sub 10 Avanzado (F8), solo a C1; Sub 12 Avanzado (F11), solo a C3.
+- [x] Las canchas físicas de C1 son C1A y C1B, y las de C2 son solo C2.
 
 **Verificación:** verde.
 
