@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Reglas · {{ torneo.nombre }}{% endblock %}
+{% block encabezado %}Reglas{% endblock %}
+{% block contenido %}
+{% include "parciales/banda.html" with antes="Reglas del torneo" titulo=torneo.nombre despues="Vienen del reglamento. Las que tienen una P esperan la respuesta del organizador." %}
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+  <div class="seccion">{% for error in form.non_field_errors %}{% include "parciales/alerta.html" with estado="error" texto=error %}{% endfor %}</div>
+  {% endif %}
+  {% for grupo, reglas in form.grupos %}
+  <div class="seccion">
+    {% include "parciales/seccion_cab.html" with titulo=grupo %}
+    <ul class="lista">
+      {% for descripcion, campo in reglas %}
+      <li class="fila ajuste">
+        <span class="crece">
+          <span class="nombre">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {% if descripcion.pregunta %}<span class="pregunta">{{ descripcion.pregunta }}</span>{% endif %}
+          </span>
+          <span class="sub" id="{{ campo.auto_id }}_helptext">{{ campo.help_text }}</span>
+          {% for error in campo.errors %}<span class="error-campo" role="alert">{{ error }}</span>{% endfor %}
+        </span>
+        {% if descripcion.tipo == "numero" %}
+        <span class="control">
+          <span class="contador">
+            <button type="button" data-paso="-1" aria-label="Menos">−</button>{{ campo }}<button type="button" data-paso="1" aria-label="Más">+</button>
+          </span>
+          {% if descripcion.unidad %}<span class="peq tenue">{{ descripcion.unidad }}</span>{% endif %}
+        </span>
+        {% elif descripcion.tipo == "par" %}
+        <span class="control par">{{ campo }}</span>
+        {% elif descripcion.tipo == "si_no" %}
+        <span class="control">{{ campo }}</span>
+        {% else %}
+        <span class="control ancho">{{ campo }}</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+  <div class="seccion">
+    {% include "parciales/boton.html" with texto="Guardar las reglas" principal=True bloque=True %}
+  </div>
+</form>
+{% endblock %}

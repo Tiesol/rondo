@@ -31,3 +31,14 @@ function ocultarAvisos(raiz) {
 }
 ocultarAvisos(document);
 document.addEventListener("htmx:load", (evento) => ocultarAvisos(evento.target));
+
+// Contadores: los botones − y + junto a un campo numérico (data-paso="-1" o "1").
+document.addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-paso]");
+  const campo = boton?.parentElement.querySelector("input[type=number]");
+  if (!campo) return;
+  if (campo.value === "") campo.value = campo.min || 0;
+  else if (boton.dataset.paso === "1") campo.stepUp();
+  else campo.stepDown();
+  campo.dispatchEvent(new Event("change", { bubbles: true }));
+});

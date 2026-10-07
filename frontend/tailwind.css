@@ -476,6 +476,119 @@
     gap: 10px;
   }
 
+  /* ---------- Ajustes: interruptores, contadores y listas ---------- */
+  .ajuste {
+    flex-wrap: wrap;
+  }
+  .ajuste .nombre {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+  .ajuste .error-campo {
+    display: block;
+    margin-top: 4px;
+    color: var(--color-error);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .ajuste .control {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  /* Listas y fechas: en el celular van debajo del texto, a todo el ancho. */
+  .ajuste .control.ancho {
+    flex-basis: 100%;
+  }
+  .ajuste .control.ancho > * {
+    width: 100%;
+  }
+  @media (min-width: 900px) {
+    .ajuste .control.ancho {
+      flex-basis: auto;
+    }
+    .ajuste .control.ancho > * {
+      width: auto;
+    }
+  }
+  .ajuste select,
+  .ajuste input[type="date"] {
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    font-size: 14px;
+  }
+  .interruptor {
+    position: relative;
+    flex: none;
+    width: 46px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--color-linea);
+    appearance: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .interruptor::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--color-superficie);
+    transition: transform 0.15s;
+  }
+  .interruptor:checked {
+    background: var(--color-accion);
+  }
+  .interruptor:checked::after {
+    transform: translateX(18px);
+  }
+  .contador {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+  }
+  .contador button {
+    width: 36px;
+    height: 40px;
+    background: var(--color-superficie-2);
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .contador input,
+  .par input {
+    width: 44px;
+    border: 0;
+    background: transparent;
+    text-align: center;
+    font: 20px/1 var(--font-titulo);
+    appearance: textfield;
+  }
+  .contador input::-webkit-inner-spin-button,
+  .par input::-webkit-inner-spin-button {
+    appearance: none;
+  }
+  .par input {
+    min-height: 40px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+  }
+  .par input + input {
+    margin-left: 8px;
+  }
+
   /* ---------- Avisos en línea, estado vacío ---------- */
   .alerta {
     display: flex;
