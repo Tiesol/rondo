@@ -442,9 +442,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] De 3 a 10 equipos, el formato da 8, 10, 12, 14, 17, 18, 22 y 27 partidos; con 2, da 2.
-- [ ] Una referencia a un partido o a una serie que no existe hace fallar la validación, con un mensaje que dice cuál.
-- [ ] Con 11 equipos, `formato_para(11)` lanza `FormatoFaltante`, que menciona P27.
+- [x] De 3 a 10 equipos, el formato da 8, 10, 12, 14, 17, 18, 22 y 27 partidos; con 2, da 2.
+- [x] Una referencia a un partido o a una serie que no existe hace fallar la validación, con un mensaje que dice cuál.
+- [x] Con 11 equipos, `formato_para(11)` lanza `FormatoFaltante`, que menciona P27.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** nada.
