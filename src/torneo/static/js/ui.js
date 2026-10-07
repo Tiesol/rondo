@@ -49,3 +49,10 @@ function mostrarCategoriaActual(raiz) {
 }
 mostrarCategoriaActual(document);
 document.addEventListener("htmx:load", (evento) => mostrarCategoriaActual(evento.target));
+
+// Vista previa de los colores de la escuela: el campo con data-token pinta la pantalla al
+// instante. El texto sobre el acento se recalcula en el servidor al guardar.
+document.addEventListener("input", (evento) => {
+  const token = evento.target.dataset?.token;
+  if (token) document.documentElement.style.setProperty(token, evento.target.value);
+});

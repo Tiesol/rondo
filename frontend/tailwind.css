@@ -37,17 +37,18 @@
   --color-tinta: #0f1b2d;
   --color-tenue: #5a6577;
 
-  /* Identidad: azul marino y dorado. El dorado nunca va como texto sobre blanco. */
-  --color-azul: #0d2440;
-  --color-azul-2: #163463;
+  /* Identidad: azul marino y dorado, o los colores del organizador (--marca y --acento, que
+     pone base.html desde "Datos de la escuela"). El dorado nunca va como texto sobre blanco. */
+  --color-azul: var(--marca, #0d2440);
+  --color-azul-2: color-mix(in oklab, var(--marca, #0d2440) 85%, white);
   --color-sobre-azul: #ffffff;
-  --color-sobre-azul-tenue: #b9c6dc;
-  --color-oro: #f2cf3a;
-  --color-oro-texto: #7d6200;
-  --color-sobre-oro: #0d2440;
+  --color-sobre-azul-tenue: color-mix(in oklab, var(--marca, #0d2440) 25%, white);
+  --color-oro: var(--acento, #f2cf3a);
+  --color-oro-texto: color-mix(in oklab, var(--acento, #f2cf3a) 50%, black);
+  --color-sobre-oro: var(--sobre-acento, #0d2440);
 
   /* La acción principal: azul en claro, dorado en oscuro. */
-  --color-accion: #0d2440;
+  --color-accion: var(--marca, #0d2440);
   --color-sobre-accion: #ffffff;
 
   /* Estado: siempre con texto o ícono, nunca solo el color. */
@@ -72,11 +73,11 @@
     --color-linea: #22344d;
     --color-tinta: #e8edf5;
     --color-tenue: #9aa8bd;
-    --color-azul: #132a4a;
-    --color-azul-2: #1b3a63;
-    --color-oro-texto: #f2cf3a;
-    --color-accion: #f2cf3a;
-    --color-sobre-accion: #0d2440;
+    --color-azul: color-mix(in oklab, var(--marca, #0d2440) 92%, white);
+    --color-azul-2: color-mix(in oklab, var(--marca, #0d2440) 82%, white);
+    --color-oro-texto: var(--acento, #f2cf3a);
+    --color-accion: var(--acento, #f2cf3a);
+    --color-sobre-accion: var(--sobre-acento, #0d2440);
     --color-bien: #6fd19a;
     --color-bien-suave: #12301f;
     --color-aviso: #f0b85a;
