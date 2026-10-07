@@ -42,6 +42,11 @@ def nombre_del_rol(usuario: AbstractBaseUser | AnonymousUser) -> str:
     return ""
 
 
+def sin_permiso(request: HttpRequest, que: str) -> HttpResponse:
+    """La pantalla "Solo la organización puede <que>", con un 403."""
+    return render(request, "sin_permiso.html", {"que": que}, status=403)
+
+
 def requiere(permiso: str, que: str) -> Callable[[Vista], Vista]:
     """Sin el permiso, la vista dice "Solo la organización puede <que>" con un 403."""
 
@@ -49,7 +54,7 @@ def requiere(permiso: str, que: str) -> Callable[[Vista], Vista]:
         @wraps(vista)
         def envuelta(request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
             if not request.user.has_perm(permiso):
-                return render(request, "sin_permiso.html", {"que": que}, status=403)
+                return sin_permiso(request, que)
             return vista(request, *args, **kwargs)
 
         return envuelta

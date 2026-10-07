@@ -23,3 +23,6 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R11 | TU.4 | En el asistente, las canchas no se editan (se muestran como vienen) | Cambiar la división de C1 o C2 rompe la compatibilidad de Sub 5 y Sub 6. Queda para cuando se responda P13 |
 | R12 | TU.4 | El asistente no deja crear un torneo con el mismo nombre y año que otro | Así no se pisa uno existente por error |
 | R13 | TU.4 | En el celular angosto (menos de 420 px), la barra superior esconde el rol y deja solo el ícono de "Salir" | El título de la pantalla entra entero; el rol se ve en "Más" |
+| R14 | TU.5 | El "torneo activo" es el más reciente (por año y fecha de inicio). No hay forma de elegir otro | Hay un torneo por año |
+| R15 | TU.5 | Pendientes de Inicio: "N categorías sin equipos" y "16 reglas esperan la respuesta del organizador" (todas las que tienen una P) | No hay registro de qué preguntas ya se respondieron. Cuando lleguen las respuestas, se puede marcar cada regla como confirmada |
+| R16 | TU.5 | Los ajustes de una categoría se editan en Torneo → Ajustes: plantel mínimo y máximo, minutos por tiempo, convocados y canchas. La modalidad y la edad no se editan ahí | Cambiar la modalidad o la edad es cambiar de categoría; eso va en el asistente o en el JSON |

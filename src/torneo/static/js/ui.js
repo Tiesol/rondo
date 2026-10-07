@@ -42,3 +42,10 @@ document.addEventListener("click", (evento) => {
   else campo.stepDown();
   campo.dispatchEvent(new Event("change", { bubbles: true }));
 });
+
+// Selector de categoría: la elegida queda a la vista aunque la lista sea larga.
+function mostrarCategoriaActual(raiz) {
+  raiz.querySelector?.(".categorias [aria-current]")?.scrollIntoView({ block: "nearest", inline: "center" });
+}
+mostrarCategoriaActual(document);
+document.addEventListener("htmx:load", (evento) => mostrarCategoriaActual(evento.target));

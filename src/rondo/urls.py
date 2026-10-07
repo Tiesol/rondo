@@ -1,11 +1,13 @@
 from django.contrib import admin
 from django.urls import include, path
 
-from torneo.views import asistente, diagnostico, inicio, mas, reglas
+from torneo.views import asistente, categoria, diagnostico, inicio, mas, reglas, torneo
 
 urlpatterns = [
     path("", inicio, name="inicio"),
     path("mas/", mas, name="mas"),
+    path("torneo/", torneo, name="torneo"),
+    path("torneo/<int:pk>/<str:pestana>/", categoria, name="categoria"),
     path("torneos/nuevo/", asistente.empezar, name="crear-torneo"),
     path("torneos/nuevo/<int:paso>/", asistente.asistente, name="asistente"),
     path("torneos/<int:pk>/reglas/", reglas, name="reglas"),
