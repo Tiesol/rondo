@@ -42,9 +42,9 @@
 
 **Aceptación:**
 
-- [ ] Un visitante anónimo que entra a cualquier URL va al login. Un usuario con sesión ve el inicio.
-- [ ] La página se ve bien a 360 px de ancho, sin scroll horizontal.
-- [ ] `crear_usuario` no imprime la contraseña, y falla si falta la variable.
+- [x] Un visitante anónimo que entra a cualquier URL va al login. Un usuario con sesión ve el inicio.
+- [x] La página se ve bien a 360 px de ancho, sin scroll horizontal.
+- [x] `crear_usuario` no imprime la contraseña, y falla si falta la variable.
 
 **Verificación:** verde, con tests de acceso en `tests/torneo/test_acceso.py`, más una mirada manual en el celular con `runserver 0.0.0.0`.
 

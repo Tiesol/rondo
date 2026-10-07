@@ -11,6 +11,7 @@ dependencies = [
     "psycopg[binary]>=3.3",
     "dj-database-url>=2.3",
     "pydantic>=2.11",
+    "django-tailwind-cli>=4.8.1",
 ]
 
 [dependency-groups]
@@ -61,6 +62,8 @@ DJANGO_SETTINGS_MODULE = "rondo.settings_test"
 pythonpath = ["src"]
 testpaths = ["tests"]
 addopts = "--strict-markers"
+# WhiteNoise avisa que no existe staticfiles/: en los tests no se corre collectstatic.
+filterwarnings = ["ignore:No directory at:UserWarning"]
 markers = [
     "lento: tarda más de 5 segundos; no corre en el chequeo antes del commit",
 ]

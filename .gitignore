@@ -41,6 +41,9 @@ build/
 # --- Django ---------------------------------------------------------------------
 staticfiles/
 media/
+# CSS generado por Tailwind y su ejecutable descargado
+assets/css/
+.django_tailwind_cli/
 
 # --- Herramientas -----------------------------------------------------------------
 .claude/settings.local.json
