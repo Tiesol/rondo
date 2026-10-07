@@ -314,8 +314,8 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] La organización cambia el nombre y aparece en todas las pantallas y en la página pública.
-- [ ] Un color inválido muestra el error en el campo.
+- [x] La organización cambia el nombre y aparece en todas las pantallas y en la página pública.
+- [x] Un color inválido muestra el error en el campo.
 
 **Verificación:** verde.
 **Depende de:** TU.2.

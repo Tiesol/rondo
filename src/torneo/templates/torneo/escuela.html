@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Datos de la escuela{% endblock %}
+{% block encabezado %}Escuela{% endblock %}
+{% block contenido %}
+{% include "parciales/banda.html" with antes="Datos de la escuela" titulo=organizador.nombre despues="Aparecen en todas las pantallas y en la página pública." %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% include "parciales/campo.html" with campo=form.nombre %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.color_primario %}
+    {% include "parciales/campo.html" with campo=form.color_acento %}
+  </div>
+  <p class="peq tenue">Al elegir un color, la pantalla lo muestra al instante. Se guarda con el botón.</p>
+  {% include "parciales/alerta.html" with estado="info" texto="El logo y los patrocinadores se agregan más adelante, cuando haya un lugar donde guardar las imágenes." %}
+  {% include "parciales/boton.html" with texto="Guardar" principal=True bloque=True %}
+</form>
+{% endblock %}

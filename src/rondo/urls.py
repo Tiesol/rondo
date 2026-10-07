@@ -1,13 +1,14 @@
 from django.contrib import admin
 from django.urls import include, path
 
-from torneo.views import asistente, categoria, diagnostico, inicio, mas, reglas, torneo
+from torneo.views import asistente, categoria, diagnostico, escuela, inicio, mas, reglas, torneo
 from torneo.views import publico as vistas_publicas
 from torneo.views.publicar import publicar
 
 urlpatterns = [
     path("", inicio, name="inicio"),
     path("mas/", mas, name="mas"),
+    path("escuela/", escuela, name="escuela"),
     path("torneo/", torneo, name="torneo"),
     path("torneo/<int:pk>/<str:pestana>/", categoria, name="categoria"),
     path("torneos/nuevo/", asistente.empezar, name="crear-torneo"),
