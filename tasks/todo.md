@@ -119,7 +119,7 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Aceptación:**
 
 - [ ] Desde tu celular Android, el PNG llega a un chat de WhatsApp y se ve nítido.
-- [ ] Desde la PC, se descarga.
+- [ ] Desde la PC, se descarga. (Pendiente de prueba manual: la página ya está en la demo.)
 - [ ] iPhone: no se prueba, porque no hay uno a mano. Queda como riesgo.
 
 **Verificación:** manual, con capturas anotadas en `PROGRESO.md`.

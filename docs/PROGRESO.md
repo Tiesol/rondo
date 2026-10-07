@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 0, cimientos. Plan aprobado.
-- **Siguiente paso:** T0.7, la prueba del PNG. La página queda lista para que Sebastian la pruebe en su Android.
+- **Siguiente paso:** que Sebastian pruebe el PNG desde su Android en https://rondo-demo.onrender.com/diagnostico/png/ (T0.7). Mientras tanto, la fase 1 (T1.1 a T1.5) avanza en local.
 
 ## Hecho
 
@@ -25,6 +25,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T0.5 lista: la demo está en https://rondo-demo.onrender.com (Render gratis, Virginia), con Neon N. Virginia en la rama `demo`. Se despliega sola en cada merge a `main`. Sebastian entró con su usuario.
 - 2026-10-07: el login no distingue mayúsculas en el usuario, porque el teclado del celular pone la primera sola. `crear_usuario` guarda los nombres en minúsculas.
 - 2026-10-07: T0.6 lista. Medición del solver en un contenedor limitado como Render (0,1 CPU y 512 MB); ver H6.
+- 2026-10-07: T0.7 lista para probar: `/diagnostico/png/` (solo staff) genera el PNG de un calendario de prueba de 1080 px con `modern-screenshot` 4.7.0, y lo comparte con la Web Share API o lo descarga. Falta la prueba de Sebastian en su Android.
 - 2026-10-06: T0.4 lista: test de arquitectura (el dominio no importa Django) y hook antes del commit que rechaza listas reales y `.env`, y corre ruff y los tests rápidos. Las dos guardas se probaron con archivos trampa.
 
 ## Pendiente
