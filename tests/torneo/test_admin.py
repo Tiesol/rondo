@@ -119,3 +119,11 @@ def test_el_color_del_organizador_tiene_que_ser_hexadecimal() -> None:
     organizador.color_primario = "verde"
     with pytest.raises(ValidationError):
         organizador.full_clean()
+
+
+@pytest.mark.django_db
+def test_guardar_otro_organizador_reemplaza_al_unico_que_hay() -> None:
+    Organizador.objects.create(nombre="Primero")
+    Organizador(nombre="Segundo").save()
+    assert Organizador.objects.count() == 1
+    assert Organizador.actual().nombre == "Segundo"
