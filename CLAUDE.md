@@ -27,7 +27,7 @@ Leer antes de decidir nada:
 - **Planificación:** la spec ya existe. `spec-driven-development` es solo para algo que la spec no cubre. Antes de empezar una fase sin detalle (de la 2 en adelante), se detallan sus tareas con `planning-and-task-breakdown`, y Sebastian las aprueba.
 - **Al implementar:** `incremental-implementation` y `test-driven-development`. El test va primero y tiene que fallar.
 - **Al cerrar cada fase:** `code-review-and-quality`, y el visto bueno de Sebastian antes de seguir.
-- **Git:** una rama por tarea (`fase-N/descripcion`) y un PR a `main` con `gh`. Los commits son chicos y con todo en verde. **El `push` lo hace Sebastian**, porque su clave SSH tiene contraseña: hay que pedírselo.
+- **Git:** una rama por tarea (`fase-N/descripcion`) y un PR a `main` con `gh`, que se fusiona con *merge commit* (nunca *squash*: los PR van encadenados). Los commits son chicos y con todo en verde. **El `push` lo hace Sebastian**, porque su clave SSH tiene contraseña: hay que pedírselo.
 - **Al terminar una tarea:** marcar sus casillas en `tasks/todo.md` y `tasks/plan.md`, y actualizar el "Estado", lo "Hecho" y las "Decisiones" de `docs/PROGRESO.md`.
 
 ## Verificación ("verde")
