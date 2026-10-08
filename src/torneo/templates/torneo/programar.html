@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Programar{% endblock %}
+{% block encabezado %}Programar{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="¿Entra todo?" %}
+  <p class="peq tenue">Horas de partido contra horas de cancha, por grupo de canchas.</p>
+  {% if filas %}
+  <ul class="lista">
+    {% for fila in filas %}
+    <li class="fila capacidad">
+      <span class="crece">
+        <span class="seccion-cab"><strong>{{ fila.titulo }}</strong>
+          {% if fila.entra %}<span class="num peq whitespace-nowrap">{{ fila.pedido }} de {{ fila.disponible }} h</span>{% else %}<span class="chip error num whitespace-nowrap">{{ fila.pedido }} de {{ fila.disponible }} h</span>{% endif %}
+        </span>
+        <span class="barra-cap" role="img" aria-label="{{ fila.uso }} % de las horas"><span class="{% if not fila.entra %}error{% endif %}" style="width: {{ fila.uso }}%"></span></span>
+        <span class="sub">{% if not fila.entra %}No entra: faltan {{ fila.faltan }} h. {% endif %}{{ fila.categorias }}</span>
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay partidos para medir" texto="Aparecen cuando las categorías tengan equipos." %}
+  {% endif %}
+  {% if estimadas %}{% include "parciales/alerta.html" with estado="info" titulo="Sin fixture todavía:" texto=estimadas|add:". Se estimaron con su formato." %}{% endif %}
+  {% if sin_formato %}{% include "parciales/alerta.html" with estado="aviso" titulo="Sin formato (P27):" texto=sin_formato|add:". No se cuentan." %}{% endif %}
+  <p class="peq tenue">El torneo tiene {{ capacidad.fines_de_semana }} fines de semana. Si algo no entra, puedes empezar la eliminación antes (en Reglas) o agregar franjas.</p>
+  <button type="button" class="btn principal bloque" disabled>Programar los partidos (próximamente)</button>
+</div>
+{% endblock %}

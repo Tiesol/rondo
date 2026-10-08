@@ -492,6 +492,27 @@
     font-size: 14px;
   }
 
+  /* ---------- Capacidad ---------- */
+  .barra-cap {
+    display: block;
+    height: 8px;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--color-superficie-2);
+  }
+  .barra-cap span {
+    display: block;
+    height: 100%;
+    background: var(--color-accion);
+  }
+  .barra-cap span.error {
+    background: var(--color-error);
+  }
+  .fila.capacidad .sub {
+    margin-top: 6px;
+  }
+
   /* ---------- Equipos ---------- */
   .escudo {
     flex: none;
