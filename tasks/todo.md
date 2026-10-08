@@ -749,8 +749,8 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Por club: todos los partidos de sus equipos, en orden.
-- [ ] Por categoría: sus partidos, en orden.
+- [x] Por club: todos los partidos de sus equipos, en orden.
+- [x] Por categoría: sus partidos, en orden.
 
 **Verificación:** verde.
 **Depende de:** fase 4.

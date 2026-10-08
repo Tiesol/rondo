@@ -5,13 +5,14 @@ from typing import Any
 
 from django import forms
 from django.contrib import messages
+from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from torneo.models import Cancha, Franja, Partido, Torneo
+from torneo.models import Cancha, Club, Franja, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.reprogramar import suspender_dia
 from torneo.views.fixture import lado
@@ -101,6 +102,9 @@ def calendario_dia(request: HttpRequest, fecha: str) -> HttpResponse:
         ],
         "canchas": canchas,
         "hay_partidos": any(c["partidos"] for c in canchas),
+        "clubes": Club.objects.filter(equipos__categoria__torneo=torneo)
+        .distinct()
+        .order_by("nombre"),
     }
     plantilla = "calendario/_dia.html" if pide_fragmento(request) else "calendario/dia.html"
     return render(request, plantilla, contexto)
@@ -151,3 +155,51 @@ def agregar_dia(request: HttpRequest) -> HttpResponse:
     )
     messages.success(request, "Día agregado: lo usan el programador y las propuestas")
     return redirect("calendario-dia", fecha=dia.isoformat())
+
+
+def elegir_club(request: HttpRequest) -> HttpResponse:
+    """El selector de club del calendario manda acá por GET."""
+    club = request.GET.get("club", "")
+    if not club.isdigit():
+        return redirect("calendario")
+    return redirect("calendario-club", pk=int(club))
+
+
+def por_club(request: HttpRequest, pk: int) -> HttpResponse:
+    """T5.7: todos los partidos de los equipos de un club, por día."""
+    torneo = Torneo.activo()
+    club = get_object_or_404(Club, pk=pk)
+    if torneo is None:
+        return redirect("inicio")
+    partidos = (
+        Partido.objects.filter(categoria__torneo=torneo, inicio__isnull=False)
+        .filter(Q(local__club=club) | Q(visitante__club=club))
+        .select_related("cancha", "local", "visitante", "categoria")
+        .order_by("inicio")
+    )
+    dias: dict[date, list[dict[str, Any]]] = {}
+    for partido in partidos:
+        if partido.inicio is None:
+            continue
+        local = timezone.localtime(partido.inicio)
+        dias.setdefault(local.date(), []).append(
+            {
+                "hora": f"{local:%H:%M}",
+                "cancha": partido.cancha.codigo if partido.cancha else "",
+                "categoria": str(partido.categoria),
+                "nombre": partido.nombre,
+                "local": lado(partido.local, partido.texto_local),
+                "visitante": lado(partido.visitante, partido.texto_visitante),
+            }
+        )
+    return render(
+        request,
+        "calendario/club.html",
+        {
+            "club": club,
+            "dias": [
+                {"titulo": f"{DIAS[d.weekday()]} {d.day}", "partidos": filas}
+                for d, filas in dias.items()
+            ],
+        },
+    )

@@ -7,6 +7,16 @@
       {% endfor %}
     </nav>
   </div>
+  {% if clubes %}
+  <div class="seccion">
+    <form method="get" action="{% url 'elegir-club' %}" class="flex items-end gap-2">
+      <div class="campo crece flex-1"><label for="club">Ver los partidos de un club</label>
+        <select id="club" name="club">{% for club in clubes %}<option value="{{ club.pk }}">{{ club.nombre }}</option>{% endfor %}</select>
+      </div>
+      <button type="submit" class="btn">Ver</button>
+    </form>
+  </div>
+  {% endif %}
   {% if suspendido %}
   <div class="seccion">{% include "parciales/alerta.html" with estado="aviso" titulo="Día suspendido." texto="No se programa nada en este día." %}</div>
   {% endif %}
