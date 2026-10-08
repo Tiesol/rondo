@@ -128,7 +128,30 @@ T3.6 (independiente: recibe cualquier calendario)
 - [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
 - [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
-### Fases 4 a 6: se detallan al llegar
+### Fase 4: programador (día 4)
+
+> Planificada el 2026-10-07. Se avanza con la autorización general del mismo día. El detalle está en [todo.md](todo.md).
+
+- [ ] T4.1 Pares de equipos que comparten personas
+- [ ] T4.2 Dominio: modelo CP-SAT (cancha, franja y equipo)
+- [ ] T4.3 Dominio: personas, bloqueos, orden y eliminación
+- [ ] T4.4 Dominio: por qué no entra un partido
+- [ ] T4.5 Corrida y servicio de programación
+- [ ] T4.6 Pantallas: programar y calendario por día y cancha
+- [ ] T4.7 El torneo de demo programado, y limpieza de la espiga
+
+```
+T4.2 → T4.3 → T4.4 ─┐
+T4.1 ───────────────┴→ T4.5 → T4.6 → T4.7
+```
+
+**Checkpoint de la fase 4:**
+
+- [ ] El torneo de demo queda programado con 0 choques duros, o la app lista lo que no entra y por qué.
+- [ ] La programación corre dentro del request, con límite de tiempo, y no se pueden lanzar dos a la vez.
+- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+
+### Fases 5 y 6: se detallan al llegar
 
 | Fase | Tareas previstas |
 |---|---|
