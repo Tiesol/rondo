@@ -1,0 +1,23 @@
+{# El resultado de la última programación. HTMX reemplaza este bloque al programar. #}
+<div id="resultado-programacion" class="flex flex-col gap-2">
+  {% if resultado.fallida %}
+  {% include "parciales/alerta.html" with estado="error" texto="La última programación falló. Prueba de nuevo; si sigue fallando, avísale a Sebastian." %}
+  {% elif resultado %}
+  {% if resultado.choques %}
+  <p class="alerta error" role="alert">{% include "parciales/icono.html" with nombre="error" %}<span><strong>{{ resultado.ubicados }} de {{ resultado.total }} partidos programados, pero el verificador encontró {{ resultado.choques }} choque{{ resultado.choques|pluralize }}.</strong> Avísale a Sebastian.</span></p>
+  {% else %}
+  <p class="alerta bien">{% include "parciales/icono.html" with nombre="bien" %}<span><strong>{{ resultado.ubicados }} de {{ resultado.total }} partidos programados, sin choques.</strong> Revisado por el verificador.</span></p>
+  {% endif %}
+  {% if resultado.sin_ubicar %}
+  {% with cantidad=resultado.sin_ubicar|length|stringformat:"s" %}
+  {% include "parciales/seccion_cab.html" with titulo="Sin lugar" chip=cantidad chip_estado="aviso" %}
+  {% endwith %}
+  <ul class="lista">
+    {% for partido in resultado.sin_ubicar %}
+    <li class="fila"><span class="crece"><strong>{{ partido.partido }}</strong><span class="sub">{{ partido.motivo }}</span></span></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <a class="btn bloque" href="{% url 'calendario' %}">Ver el calendario</a>
+  {% endif %}
+</div>

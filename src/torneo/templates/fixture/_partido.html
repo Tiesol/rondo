@@ -1,6 +1,6 @@
 {# Un cruce: local, "vs" y visitante. Si un participante está por definir, va su referencia. #}
 <li class="partido">
   <span class="eq">{% if partido.local.escudo %}{% include "parciales/escudo.html" with escudo=partido.local.escudo tamano="ch" %}<span>{{ partido.local.nombre }}</span>{% else %}<span class="por-definir">{{ partido.local.nombre }}</span>{% endif %}</span>
-  <span class="medio">{% if partido.nombre %}{{ partido.nombre }}{% else %}vs{% endif %}</span>
+  <span class="medio">{% if partido.nombre %}{{ partido.nombre }}{% if partido.cuando %}<br>{% endif %}{% endif %}{% if partido.cuando %}<b>{{ partido.cuando.hora }}</b>{{ partido.cuando.dia }} · {{ partido.cuando.cancha }}{% elif not partido.nombre %}vs{% endif %}</span>
   <span class="eq der">{% if partido.visitante.escudo %}{% include "parciales/escudo.html" with escudo=partido.visitante.escudo tamano="ch" %}<span>{{ partido.visitante.nombre }}</span>{% else %}<span class="por-definir">{{ partido.visitante.nombre }}</span>{% endif %}</span>
 </li>

@@ -25,6 +25,16 @@
   {% if estimadas %}{% include "parciales/alerta.html" with estado="info" titulo="Sin fixture todavía:" texto=estimadas|add:". Se estimaron con su formato." %}{% endif %}
   {% if sin_formato %}{% include "parciales/alerta.html" with estado="aviso" titulo="Sin formato (P27):" texto=sin_formato|add:". No se cuentan." %}{% endif %}
   <p class="peq tenue">El torneo tiene {{ capacidad.fines_de_semana }} fines de semana. Si algo no entra, puedes empezar la eliminación antes (en Reglas) o agregar franjas.</p>
-  <button type="button" class="btn principal bloque" disabled>Programar los partidos (próximamente)</button>
+  <form method="post" hx-post="{% url 'programar' torneo.pk %}" hx-target="#resultado-programacion" hx-swap="outerHTML" hx-indicator="#programando" hx-disabled-elt="find button">
+    {% csrf_token %}
+    <button type="submit" class="btn principal bloque">{% if resultado %}Volver a programar{% else %}Programar los partidos{% endif %}</button>
+  </form>
+  <p class="peq tenue">Puede tardar hasta un minuto. Los partidos jugados o fijados a mano no se mueven.</p>
+</div>
+<div class="seccion">
+  <div id="programando" class="esperando" aria-busy="true" aria-label="Programando">
+    <div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div>
+  </div>
+  {% include "torneo/_resultado_programacion.html" %}
 </div>
 {% endblock %}

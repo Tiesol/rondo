@@ -626,9 +626,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] La organización programa y ve el resultado; la mesa ve el calendario pero no programa.
-- [ ] El calendario de un día muestra cada cancha con sus partidos en orden.
-- [ ] Se ve bien a 360 px.
+- [x] La organización programa y ve el resultado; la mesa ve el calendario pero no programa.
+- [x] El calendario de un día muestra cada cancha con sus partidos en orden.
+- [x] Se ve bien a 360 px.
 
 **Verificación:** verde, más capturas.
 **Depende de:** T4.5.

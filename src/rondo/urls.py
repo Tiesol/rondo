@@ -4,6 +4,7 @@ from django.urls import include, path
 
 from torneo.views import (
     asistente,
+    calendario,
     categoria,
     diagnostico,
     equipos,
@@ -22,6 +23,8 @@ from torneo.views.publicar import publicar
 urlpatterns = [
     path("", inicio, name="inicio"),
     path("mas/", mas, name="mas"),
+    path("calendario/", calendario.calendario, name="calendario"),
+    path("calendario/<str:fecha>/", calendario.calendario_dia, name="calendario-dia"),
     path("escuela/", escuela, name="escuela"),
     path("torneo/", torneo, name="torneo"),
     path("torneo/<int:pk>/equipos/nuevo/", equipos.nuevo_equipo, name="nuevo-equipo"),

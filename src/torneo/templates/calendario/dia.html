@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block titulo %}Calendario · {{ titulo_dia }}{% endblock %}
+{% block encabezado %}Calendario{% endblock %}
+{% block contenido %}{% include "calendario/_dia.html" %}{% endblock %}
