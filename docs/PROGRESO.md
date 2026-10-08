@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 5, reprogramación y calendario. Las fases 1b a 4 están cerradas y revisadas.
-- **Siguiente paso:** revisión de cierre de la fase 5.
+- **Fase:** 5 cerrada. Las fases 1b a 5 están terminadas y revisadas: la app está lista para la demo (`docs/DEMO.md`).
+- **Siguiente paso:** planificar la fase 6 (producción 2026). Lo que necesita a Sebastian (nube, producción, respuestas del organizador) espera su vuelta; lo demás se puede avanzar.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -85,6 +85,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T5.6 lista: `/calendario/<fecha>/png/` arma una pieza de 1220 × 690 por cancha (de a 5 partidos; si hay más, "1/2"), con el diseño de 2025: FIXTURE, el día, filas doradas con categoría, escudos, equipos y hora, el panel con la cancha, la marca y la edición, y la franja de patrocinadores. Colores de `--marca` y `--acento` (no cambian con el modo oscuro); fuente Arvo (OFL). Compartir una o todas (Web Share API con varios archivos, o descarga). Tests de que no usa datos personales. Se borró la página de prueba de T0.7.
 - 2026-10-07: T5.7 lista: `/calendario/club/<id>/` muestra todos los partidos de los equipos de un club, por día y en orden; el calendario tiene un selector de club. La vista por categoría es la pestaña Fixture de Torneo (con día, hora y cancha), cubierta con un test.
 - 2026-10-07: T5.8 lista: manifest (`/manifest.webmanifest`, con el nombre y el color del organizador) y service worker (`/sw.js`, sin guardar datos: si no hay red, un aviso), servidos sin login; íconos generados con `scripts/generar_iconos.py` (solo biblioteca estándar). `docs/DEMO.md` con el guion y las preguntas P13, P33, P35, P44, P46 y P50. Test lento de punta a punta: demo → fixtures → programar → bloqueo → propuestas → aplicar → PNG sin datos personales.
+- 2026-10-08: revisión de cierre de la fase 5; se corrigió 1 hallazgo y se cerró un hueco de los tests (ver "Revisión de la fase 5").
 
 ## Pendiente
 
@@ -335,6 +336,31 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 
 - En Render gratis (0,1 CPU), el solver va a tardar mucho más que en local (H6, R44). Para mostrarle la demo al organizador, conviene programar antes.
 - Si se rehace el fixture de una categoría, sus partidos pierden el horario y hay que volver a programar.
+
+## Revisión de la fase 5 (2026-10-08, `code-review-and-quality`)
+
+**Veredicto: aprobada.** El visto bueno de Sebastian queda para su vuelta (REVISAR.md).
+
+**Resultado de punta a punta** (test lento): demo de 93 equipos → fixtures → 223 de 223 partidos programados sin choques → bloqueo de la ACF → 2 o 3 propuestas → aplicar sin choques → PNG del día sin datos personales.
+
+**Mutaciones:**
+
+| Mutación | Resultado |
+|---|---|
+| Las propuestas pueden repetir el mismo conjunto de movidos | Detectada |
+| Las propuestas pueden mover partidos antes de la ventana | **No detectada** al principio: el objetivo y el máximo por día ya lo evitaban en los tests. Se agregó un caso mínimo que la detecta |
+| Se aplica una propuesta vieja (calendario cambiado) | Detectada |
+| El cambio manual no pasa por el verificador | Detectada |
+| Suspender no marca el día | Detectada |
+| El programador usa días suspendidos | Detectada |
+
+**Corregido:** `calcular_propuestas` le daba a cada una de sus 3 resoluciones el límite entero de `PROGRAMADOR_SEGUNDOS`: podía tardar el triple, cerca del corte de gunicorn (300 s). Ahora lo reparte. Test en `tests/torneo/test_revision_5.py`.
+
+**FYI:**
+
+- Al aplicar una propuesta, las otras de la misma corrida quedan viejas (la firma cambió) y se rechazan. Es lo esperado.
+- Si se suspende un día y no se aplica ninguna propuesta, sus partidos quedan sin programar hasta volver a programar o aplicar una.
+- La prueba del PNG en Android sigue pendiente (R45).
 
 ## Supuestos
 

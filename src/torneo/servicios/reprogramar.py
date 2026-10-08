@@ -24,6 +24,8 @@ from torneo.servicios.programador import (
     verificar_torneo,
 )
 
+PROPUESTAS = 3  # PRO-13: 2 o 3 propuestas
+
 
 class NoSePuedeAplicar(Exception):
     """La propuesta ya no vale (el calendario cambió) o dejaría choques."""
@@ -80,7 +82,9 @@ def calcular_propuestas_en(
         calendario_actual(partidos),
         desde=desde,
         hasta=hasta,
-        segundos=settings.PROGRAMADOR_SEGUNDOS,
+        cuantas=PROPUESTAS,
+        # El límite se reparte: son hasta tres resoluciones dentro del mismo request.
+        segundos=max(5, settings.PROGRAMADOR_SEGUNDOS // PROPUESTAS),
         trabajadores=settings.PROGRAMADOR_TRABAJADORES,
     )
     return Corrida.objects.create(
