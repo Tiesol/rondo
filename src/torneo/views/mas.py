@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
-from torneo.models import Torneo
+from torneo.models import Cambio, Torneo
 from torneo.permisos import MESA, ORGANIZACION, nombre_del_rol
+from torneo.presentacion import cruce, lugar
 
 ESTADO_DEL_ROL = {ORGANIZACION: "info", MESA: "neutro"}
 
@@ -32,4 +33,26 @@ def mas(request: HttpRequest) -> HttpResponse:
         }
         for t in Torneo.objects.order_by("-anio", "nombre")
     ]
-    return render(request, "torneo/mas.html", {"personas": personas, "torneos": torneos})
+    cambios = [
+        {
+            "cruce": f"{cruce(c.partido)} · {c.partido.categoria}",
+            "antes": lugar(c.inicio_antes, c.cancha_antes.codigo if c.cancha_antes else ""),
+            "despues": lugar(c.inicio_despues, c.cancha_despues.codigo if c.cancha_despues else ""),
+            "quien": c.usuario.get_full_name() or c.usuario.username if c.usuario else "",
+            "cuando": c.fecha,
+            "motivo": c.motivo,
+        }
+        for c in Cambio.objects.select_related(
+            "partido__local",
+            "partido__visitante",
+            "partido__categoria",
+            "cancha_antes",
+            "cancha_despues",
+            "usuario",
+        )[:10]
+    ]
+    return render(
+        request,
+        "torneo/mas.html",
+        {"personas": personas, "torneos": torneos, "cambios": cambios},
+    )

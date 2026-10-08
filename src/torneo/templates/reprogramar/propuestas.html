@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Propuestas{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'acf' corrida.torneo_id %}" aria-label="Volver a los partidos de la ACF">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Propuestas{% endblock %}
+{% block contenido %}
+<div class="seccion gap-3">
+  {% include "parciales/seccion_cab.html" with titulo="Propuestas" nota="De menos a más cambios" %}
+  <p class="peq tenue">{{ motivo }}. Se mueve solo lo de ese fin de semana y el siguiente; lo jugado y lo fijado a mano no se toca. Cada propuesta pasó por el verificador.</p>
+  {% for propuesta in propuestas %}
+  <div class="propuesta{% if forloop.first %} recomendada{% endif %}">
+    <div class="seccion-cab"><h3>{{ propuesta.titulo }}</h3>{% if forloop.first %}{% include "parciales/chip.html" with texto="Recomendada" estado="bien" %}{% endif %}</div>
+    {% for mov in propuesta.movimientos %}
+    <div class="mov">
+      <span class="antes">{{ mov.antes }}</span>
+      <span class="despues">{{ mov.despues }}</span>
+      <span class="peq tenue">{{ mov.cruce }} · {{ mov.categoria }}</span>
+    </div>
+    {% endfor %}
+    <form method="post" action="{% url 'aplicar-propuesta' corrida.pk propuesta.indice %}">
+      {% csrf_token %}
+      <button type="submit" class="btn bloque{% if forloop.first %} principal{% endif %}">Aplicar</button>
+    </form>
+  </div>
+  {% empty %}
+  {% include "parciales/vacio.html" with icono="calendario" titulo="No hay propuestas" texto="O no hace falta mover nada, o no hay forma de hacerlo sin romper una regla dentro de este fin de semana y el siguiente. Prueba agregar un día entre semana." %}
+  {% endfor %}
+</div>
+{% endblock %}

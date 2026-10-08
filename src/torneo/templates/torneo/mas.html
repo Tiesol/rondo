@@ -58,6 +58,17 @@
 {% endif %}
 {% endif %}
 
+{% if cambios %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Cambios recientes" %}
+  <ul class="lista">
+    {% for cambio in cambios %}
+    <li class="fila"><span class="crece"><strong>{{ cambio.cruce }}</strong><span class="sub">{{ cambio.antes }} → {{ cambio.despues }}</span><span class="sub">{{ cambio.motivo }}{% if cambio.quien %} · {{ cambio.quien }}{% endif %} · {{ cambio.cuando|date:"d/m H:i" }}</span></span></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
 {% if user.is_superuser %}
 <div class="seccion">
   {% include "parciales/seccion_cab.html" with titulo="Técnico" %}

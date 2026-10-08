@@ -9,7 +9,7 @@ from dominio.config import cargar_config
 from torneo.models import Club, Equipo, Partido, Torneo
 from torneo.servicios.configuracion import cargar_configuracion
 from torneo.servicios.fixture import generar_fixture
-from torneo.servicios.programador import _problema
+from torneo.servicios.programador import problema_del_torneo
 
 
 def consultas_para(categorias: list[str]) -> int:
@@ -28,7 +28,7 @@ def consultas_para(categorias: list[str]) -> int:
         )
     )
     with CaptureQueriesContext(connection) as consultas:
-        _problema(torneo, partidos)
+        problema_del_torneo(torneo, partidos)
     return len(consultas)
 
 

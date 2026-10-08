@@ -690,9 +690,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con la demo programada, un bloqueo ACF da 2 o 3 propuestas ordenadas, y aplicar una deja el calendario sin choques.
-- [ ] Cada movimiento queda en el historial con quién y cuándo.
-- [ ] Aplicar una propuesta vieja (si el calendario cambió después) se rechaza con un mensaje.
+- [x] Con la demo programada, un bloqueo ACF da 2 o 3 propuestas ordenadas, y aplicar una deja el calendario sin choques.
+- [x] Cada movimiento queda en el historial con quién y cuándo.
+- [x] Aplicar una propuesta vieja (si el calendario cambió después) se rechaza con un mensaje.
 
 **Verificación:** verde, más capturas.
 **Depende de:** T5.2.

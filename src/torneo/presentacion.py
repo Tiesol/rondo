@@ -1,9 +1,12 @@
 """Textos que se repiten en varias pantallas, armados en un solo lugar."""
 
+from datetime import datetime
+
+from django.utils import timezone
 from django.utils.formats import date_format
 
 from torneo.colores import texto_sobre
-from torneo.models import CategoriaNivel, Equipo, Torneo
+from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 
 
 def fechas_del_torneo(torneo: Torneo) -> str:
@@ -50,3 +53,22 @@ def escudo(equipo: Equipo) -> dict[str, str]:
         "color": equipo.color_1,
         "texto": texto_sobre(equipo.color_1) if equipo.color_1 else "",
     }
+
+
+DIAS_CORTOS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+
+
+def lugar(inicio: datetime | None, cancha: str = "") -> str:
+    """ "Sáb 24 · 10:10 · C1", en hora de Bolivia. Vacío si no está programado."""
+    if inicio is None:
+        return "Sin programar"
+    local = timezone.localtime(inicio)
+    texto = f"{DIAS_CORTOS[local.weekday()]} {local.day} · {local:%H:%M}"
+    return f"{texto} · {cancha}" if cancha else texto
+
+
+def cruce(partido: Partido) -> str:
+    """ "River Plate vs Planeta FC", o las referencias si está por definir."""
+    local = partido.local.nombre if partido.local else partido.texto_local
+    visitante = partido.visitante.nombre if partido.visitante else partido.texto_visitante
+    return f"{local} vs {visitante}"
