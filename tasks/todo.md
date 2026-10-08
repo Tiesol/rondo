@@ -611,9 +611,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Programar el torneo guarda los partidos programados y una Corrida con cuántos se ubicaron, los que no (con su motivo) y los choques que encontró el verificador (0).
-- [ ] Mientras corre una programación, otra se rechaza con un mensaje.
-- [ ] Los partidos jugados o fijados no cambian.
+- [x] Programar el torneo guarda los partidos programados y una Corrida con cuántos se ubicaron, los que no (con su motivo) y los choques que encontró el verificador (0).
+- [x] Mientras corre una programación, otra se rechaza con un mensaje.
+- [x] Los partidos jugados o fijados no cambian.
 
 **Verificación:** verde, más `makemigrations --check`.
 **Depende de:** T4.1, T4.4.
