@@ -813,9 +813,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Un test recorre todas las URLs y confirma que piden login (salvo las públicas y la PWA) y que las de la organización dan 403 a la mesa.
-- [ ] Hay CSP y los demás encabezados, y la app sigue funcionando (HTMX, PNG).
-- [ ] Muchos intentos fallidos de login desde la misma IP se frenan por un rato.
+- [x] Un test recorre todas las URLs y confirma que piden login (salvo las públicas y la PWA) y que las de la organización dan 403 a la mesa.
+- [x] Hay CSP y los demás encabezados, y la app sigue funcionando (HTMX, PNG).
+- [x] Muchos intentos fallidos de login desde la misma IP se frenan por un rato.
 
 **Verificación:** verde, más `check --deploy` sin advertencias.
 **Archivos:** `src/rondo/settings.py`, middleware o vistas del login, `tests/torneo/test_seguridad.py`, PROGRESO.md.

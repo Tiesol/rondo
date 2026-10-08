@@ -185,7 +185,7 @@ T5.3 + T5.6 → T5.8
 
 - [x] T6.1 Asignar a mano los participantes de la eliminación (P50)
 - [x] T6.2 Personas: invitar, cambiar el rol y la contraseña
-- [ ] T6.3 Revisión de seguridad
+- [x] T6.3 Revisión de seguridad
 - [ ] T6.4 Retención de datos (P49)
 - [ ] T6.5 Producción separada de la demo *(necesita a Sebastian)*
 - [ ] T6.6 Configuración con las respuestas del organizador *(necesita a Sebastian)*

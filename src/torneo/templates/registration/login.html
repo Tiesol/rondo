@@ -11,7 +11,9 @@
 <form method="post" class="seccion gap-4">
   <div class="seccion-cab"><h2>Iniciar sesión</h2></div>
   {% csrf_token %}
-  {% if form.non_field_errors %}
+  {% if bloqueado %}
+  {% include "parciales/alerta.html" with estado="error" texto="Demasiados intentos fallidos. Espera unos minutos y vuelve a probar." %}
+  {% elif form.non_field_errors %}
   {% include "parciales/alerta.html" with estado="error" texto="Usuario o contraseña incorrectos." %}
   {% endif %}
   <div class="campo">
