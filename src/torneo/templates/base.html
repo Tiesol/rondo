@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block titulo %}Rondo{% endblock %} · {{ organizador.nombre }}</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="{{ organizador.color_primario }}">
+  <link rel="apple-touch-icon" href="{% static 'iconos/icono-192.png' %}">
   <link rel="preload" href="{% static 'fuentes/figtree-latin-variable.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fuentes/bebas-neue-latin-400.woff2' %}" as="font" type="font/woff2" crossorigin>
   {% tailwind_css %}

@@ -763,9 +763,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] El manifest se sirve y la app se puede instalar (Chrome la reconoce como PWA).
-- [ ] El test de punta a punta pasa.
-- [ ] `docs/DEMO.md` tiene el guion, con las preguntas prioritarias para el organizador (P13, P33, P35, P44, P46 y P50).
+- [x] El manifest se sirve y la app se puede instalar (Chrome la reconoce como PWA).
+- [x] El test de punta a punta pasa.
+- [x] `docs/DEMO.md` tiene el guion, con las preguntas prioritarias para el organizador (P13, P33, P35, P44, P46 y P50).
 
 **Verificación:** verde, `pytest -m lento`.
 **Depende de:** T5.3, T5.6.

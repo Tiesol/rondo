@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 5, reprogramación y calendario. Las fases 1b a 4 están cerradas y revisadas.
-- **Siguiente paso:** T5.8 (instalación en el celular y ensayo de la demo).
+- **Siguiente paso:** revisión de cierre de la fase 5.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -84,6 +84,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T5.5 lista: `Franja.suspendida` (migración 0015), que el programador, las propuestas y la capacidad ya no usan. "Suspender este día" deja sus partidos sin programar (con su Cambio) y calcula propuestas para ubicarlos ese fin de semana o el siguiente, en la misma pantalla de propuestas ("Ubicar N partidos"). "Agregar un día entre semana" crea una franja de ese tipo. `calcular_propuestas_en` es el cálculo genérico (bloqueo o suspensión).
 - 2026-10-07: T5.6 lista: `/calendario/<fecha>/png/` arma una pieza de 1220 × 690 por cancha (de a 5 partidos; si hay más, "1/2"), con el diseño de 2025: FIXTURE, el día, filas doradas con categoría, escudos, equipos y hora, el panel con la cancha, la marca y la edición, y la franja de patrocinadores. Colores de `--marca` y `--acento` (no cambian con el modo oscuro); fuente Arvo (OFL). Compartir una o todas (Web Share API con varios archivos, o descarga). Tests de que no usa datos personales. Se borró la página de prueba de T0.7.
 - 2026-10-07: T5.7 lista: `/calendario/club/<id>/` muestra todos los partidos de los equipos de un club, por día y en orden; el calendario tiene un selector de club. La vista por categoría es la pestaña Fixture de Torneo (con día, hora y cancha), cubierta con un test.
+- 2026-10-07: T5.8 lista: manifest (`/manifest.webmanifest`, con el nombre y el color del organizador) y service worker (`/sw.js`, sin guardar datos: si no hay red, un aviso), servidos sin login; íconos generados con `scripts/generar_iconos.py` (solo biblioteca estándar). `docs/DEMO.md` con el guion y las preguntas P13, P33, P35, P44, P46 y P50. Test lento de punta a punta: demo → fixtures → programar → bloqueo → propuestas → aplicar → PNG sin datos personales.
 
 ## Pendiente
 
