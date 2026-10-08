@@ -596,9 +596,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Un partido sin lugar por falta de cancha dice "No queda ningún turno libre en C3…".
-- [ ] Uno que solo choca con un profe dice eso.
-- [ ] Cada partido sin ubicar tiene un motivo.
+- [x] Un partido sin lugar por falta de cancha dice "No queda ningún turno libre en C3…".
+- [x] Uno que solo choca con un profe dice eso.
+- [x] Cada partido sin ubicar tiene un motivo.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** T4.3.
