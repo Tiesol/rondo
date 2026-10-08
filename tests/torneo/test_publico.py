@@ -22,7 +22,8 @@ VISTA_PUBLICA = RAIZ / "src" / "torneo" / "views" / "publico.py"
 DATOS_PERSONALES = re.compile(
     r"(jugador|persona|profe|documento|nacimiento|fecha_nac|\bci\b|apellido|telefono)", re.I
 )
-MODELOS_PERMITIDOS = {"Torneo", "CategoriaNivel", "Organizador"}
+# Ninguno de estos tiene datos de personas (Persona, Jugador y Profe nunca).
+MODELOS_PERMITIDOS = {"Torneo", "CategoriaNivel", "Organizador", "Equipo", "Partido", "Serie"}
 
 
 @pytest.fixture

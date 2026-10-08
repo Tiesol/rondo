@@ -502,9 +502,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] La organización genera el fixture de una categoría y lo ve por fecha; la mesa lo ve, pero no lo genera (403 con el aviso del rol).
-- [ ] Mover un equipo de serie antes de generar cambia los cruces.
-- [ ] La página pública muestra los cruces de la categoría.
+- [x] La organización genera el fixture de una categoría y lo ve por fecha; la mesa lo ve, pero no lo genera (403 con el aviso del rol).
+- [x] Mover un equipo de serie antes de generar cambia los cruces.
+- [x] La página pública muestra los cruces de la categoría.
 
 **Verificación:** verde, más capturas a 360 px.
 **Depende de:** T3.4.

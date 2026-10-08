@@ -55,9 +55,14 @@ def _revisar_que_se_puede(categoria: CategoriaNivel, reglas: Reglas) -> None:
 
 @transaction.atomic
 def generar_fixture(
-    categoria: CategoriaNivel, *, nuevo_sorteo: bool = False, semilla: int | None = None
+    categoria: CategoriaNivel,
+    *,
+    nuevo_sorteo: bool = False,
+    semilla: int | None = None,
+    series: dict[str, list[Equipo]] | None = None,
 ) -> None:
-    """Arma y guarda el fixture. Con nuevo_sorteo, las series se vuelven a sortear."""
+    """Arma y guarda el fixture. Con nuevo_sorteo, las series se vuelven a sortear; con
+    series, se usan esas (las que la organización eligió a mano)."""
     equipos = list(categoria.equipos.select_related("club").order_by("pk"))
     if len(equipos) < 2:
         raise FixtureNoSePuede(f"{categoria} necesita al menos 2 equipos para tener fixture.")
@@ -68,7 +73,8 @@ def generar_fixture(
     reglas = Reglas.model_validate(categoria.torneo.reglas)
     _revisar_que_se_puede(categoria, reglas)
 
-    series = None if nuevo_sorteo else (_series_guardadas(categoria, equipos) or None)
+    if series is None and not nuevo_sorteo:
+        series = _series_guardadas(categoria, equipos) or None
     try:
         fixture = armar_fixture(
             formato,
@@ -105,6 +111,19 @@ def generar_fixture(
         )
         for p in fixture.partidos
     )
+
+
+def series_elegidas(
+    categoria: CategoriaNivel, asignacion: dict[int, str]
+) -> dict[str, list[Equipo]]:
+    """Las series a partir de "equipo → letra". Un equipo sin letra es un error claro."""
+    series: dict[str, list[Equipo]] = {}
+    for equipo in categoria.equipos.order_by("pk"):
+        letra = asignacion.get(equipo.pk)
+        if not letra:
+            raise FixtureNoSePuede(f"Falta elegir la serie de {equipo.nombre}.")
+        series.setdefault(letra, []).append(equipo)
+    return dict(sorted(series.items()))
 
 
 @dataclass

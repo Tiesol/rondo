@@ -1,5 +1,5 @@
 {# Lo que cambia al elegir categoría o pestaña. Con HTMX se reemplaza solo esto. #}
-<div id="categoria">
+<div id="categoria" class="envoltura">
   <div class="banda">
     <p class="titulo-grande">{{ categoria.categoria }}{% if nivel %} <span>{{ nivel }}</span>{% endif %}</p>
     <p class="meta">{{ resumen }}</p>
@@ -38,7 +38,7 @@
     {% endwith %}
     {% endif %}
   {% elif pestana == "fixture" %}
-    {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay fixture" texto="Se arma cuando estén inscritos los equipos." %}
+    {% include "fixture/_fixture.html" with editable=perms.torneo.configurar_torneo %}
   {% elif pestana == "posiciones" %}
     {% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay resultados" texto="La tabla aparece con el primer partido jugado." %}
   {% else %}

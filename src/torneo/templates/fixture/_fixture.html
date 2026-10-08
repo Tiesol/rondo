@@ -1,0 +1,62 @@
+{% comment %}
+El fixture de una categoría (datos_del_fixture). Sin datos de personas: lo usa también la
+página pública. Con editable, la organización ve los botones y el editor de series.
+{% endcomment %}
+{% if fixture.faltan_equipos %}
+{% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay fixture" texto="Hacen falta al menos 2 equipos para armarlo." %}
+{% elif fixture.problema %}
+{% include "parciales/alerta.html" with estado="aviso" texto=fixture.problema %}
+{% elif not fixture.hay_fixture %}
+{% if editable %}
+{% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay fixture" texto="Se sortean las series, separando a los equipos del mismo club, y se arman los cruces del formato." %}
+<form method="post" action="{% url 'generar-fixture' categoria.pk %}">{% csrf_token %}{% include "parciales/boton.html" with texto="Generar el fixture" principal=True bloque=True %}</form>
+{% else %}
+{% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay fixture" texto="Aparece cuando la organización lo genere." %}
+{% endif %}
+{% else %}
+
+{% if fixture.series %}
+<ul class="lista">
+  {% for serie in fixture.series %}
+  <li class="fila"><span class="crece"><strong>Serie {{ serie.nombre }}</strong><span class="sub">{{ serie.nombres }}</span></span></li>
+  {% endfor %}
+</ul>
+{% if editable %}
+<details class="desplegable">
+  <summary>Cambiar las series</summary>
+  <form method="post" action="{% url 'guardar-series' categoria.pk %}" class="flex flex-col gap-2">
+    {% csrf_token %}
+    <ul class="lista">
+      {% for serie in fixture.series %}{% for equipo in serie.equipos %}
+      <li class="fila">
+        <label class="crece" for="serie-{{ equipo.pk }}"><strong>{{ equipo.nombre }}</strong></label>
+        <select id="serie-{{ equipo.pk }}" name="serie_{{ equipo.pk }}" class="selector">
+          {% for letra in fixture.letras %}<option value="{{ letra }}"{% if letra == serie.nombre %} selected{% endif %}>Serie {{ letra }}</option>{% endfor %}
+        </select>
+      </li>
+      {% endfor %}{% endfor %}
+    </ul>
+    <button type="submit" class="btn bloque">Guardar las series y rehacer el fixture</button>
+  </form>
+</details>
+{% endif %}
+{% endif %}
+
+{% for fecha in fixture.fechas %}
+<div class="subtitulo">Fecha {{ fecha.numero }} <span class="num">{{ fecha.partidos|length }} partido{{ fecha.partidos|length|pluralize }}</span></div>
+<ul class="lista">{% for partido in fecha.partidos %}{% include "fixture/_partido.html" %}{% endfor %}</ul>
+{% endfor %}
+
+{% for copa in fixture.eliminacion %}
+<div class="subtitulo">{{ copa.copa }}</div>
+<ul class="lista">{% for partido in copa.partidos %}{% include "fixture/_partido.html" %}{% endfor %}</ul>
+{% endfor %}
+
+{% if editable %}
+<form method="post" action="{% url 'generar-fixture' categoria.pk %}" class="pt-4">
+  {% csrf_token %}<input type="hidden" name="nuevo_sorteo" value="1">
+  <button type="submit" class="btn bloque">Rehacer con un sorteo nuevo</button>
+</form>
+<p class="peq tenue">Rehacer borra el fixture actual. No se puede si ya hay partidos jugados.</p>
+{% endif %}
+{% endif %}

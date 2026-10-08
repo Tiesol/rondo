@@ -422,6 +422,76 @@
     font: 600 11px/1 var(--font-sans);
   }
 
+  /* ---------- Partidos ---------- */
+  .partido {
+    display: grid;
+    grid-template-columns: 1fr 74px 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+  }
+  .partido .eq {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .partido .eq span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .partido .eq.der {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+  .partido .medio {
+    color: var(--color-tenue);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .partido .medio b {
+    display: block;
+    color: var(--color-tinta);
+    font: 20px/1 var(--font-titulo);
+    letter-spacing: 0.03em;
+  }
+  .por-definir {
+    color: var(--color-tenue);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .subtitulo {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 14px;
+    color: var(--color-tenue);
+    font: 18px/1 var(--font-titulo);
+    letter-spacing: 0.05em;
+  }
+  .subtitulo span {
+    font: 600 12px var(--font-sans);
+    letter-spacing: 0;
+  }
+  .desplegable summary {
+    padding: 12px 0;
+    color: var(--color-tinta);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .selector {
+    max-width: 170px;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    font-size: 14px;
+  }
+
   /* ---------- Equipos ---------- */
   .escudo {
     flex: none;
@@ -865,6 +935,11 @@
     font-weight: 600;
     box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
   }
+  .flotante.error {
+    padding-right: 4px;
+    background: var(--color-error-suave);
+    color: var(--color-error);
+  }
   .flotante.aviso {
     padding-right: 4px;
     background: var(--color-aviso-suave);
@@ -942,7 +1017,10 @@
     main {
       padding-bottom: 40px;
     }
-    main > :not(.banda),
+    /* La banda azul va de lado a lado; el resto, hasta 960 px. Los envoltorios que HTMX
+       reemplaza (.envoltura) no se limitan: se limita lo que tienen adentro. */
+    main > :not(.banda, .envoltura),
+    .envoltura > :not(.banda),
     .banda > * {
       max-width: 960px;
     }

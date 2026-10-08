@@ -1,5 +1,5 @@
 {# Lo que cambia al elegir categoría o pestaña. Solo datos del torneo: nunca de personas. #}
-<div id="publico">
+<div id="publico" class="envoltura">
   <div class="banda pt-3">
     <p class="titulo-grande">{{ nombre }}</p>
     <p class="meta">{{ resumen }}</p>
@@ -12,7 +12,11 @@
   {% include "parciales/pestanas.html" with etiqueta="Secciones" htmx_destino="publico" %}
   <div class="seccion">
     {% if pestana == "partidos" %}
+    {% if fixture.hay_fixture %}
+    {% include "fixture/_fixture.html" with editable=False %}
+    {% else %}
     {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay partidos" texto="El calendario aparece cuando la organización lo publique." %}
+    {% endif %}
     {% elif pestana == "posiciones" %}
     {% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay resultados" texto="La tabla aparece con el primer partido jugado." %}
     {% else %}
