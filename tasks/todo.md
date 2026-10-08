@@ -566,9 +566,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Un caso chico se programa entero y el verificador no encuentra choques.
-- [ ] Con más partidos que lugares, los que sobran quedan sin ubicar y el resto sigue sin choques.
-- [ ] Un partido fijado queda donde estaba.
+- [x] Un caso chico se programa entero y el verificador no encuentra choques.
+- [x] Con más partidos que lugares, los que sobran quedan sin ubicar y el resto sigue sin choques.
+- [x] Un partido fijado queda donde estaba.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** nada (usa el verificador de T3.6 en los tests).

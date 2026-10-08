@@ -133,7 +133,7 @@ T3.6 (independiente: recibe cualquier calendario)
 > Planificada el 2026-10-07. Se avanza con la autorización general del mismo día. El detalle está en [todo.md](todo.md).
 
 - [x] T4.1 Pares de equipos que comparten personas
-- [ ] T4.2 Dominio: modelo CP-SAT (cancha, franja y equipo)
+- [x] T4.2 Dominio: modelo CP-SAT (cancha, franja y equipo)
 - [ ] T4.3 Dominio: personas, bloqueos, orden y eliminación
 - [ ] T4.4 Dominio: por qué no entra un partido
 - [ ] T4.5 Corrida y servicio de programación

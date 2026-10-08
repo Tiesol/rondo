@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 4, programador. Las fases 1b, 2 y 3 están cerradas y revisadas.
-- **Siguiente paso:** T4.2 (modelo CP-SAT: cancha, franja y equipo).
+- **Siguiente paso:** T4.3 (personas, bloqueos, orden y eliminación en el modelo).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -69,6 +69,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: revisión de cierre de la fase 3; se corrigió 1 hallazgo y se cerró un hueco de los tests (ver "Revisión de la fase 3").
 - 2026-10-07: fase 4 planificada (T4.1 a T4.7 en `tasks/todo.md`).
 - 2026-10-07: T4.1 lista: `servicios/personas.pares_de_equipos` calcula, desde Persona, los pares de equipos que comparten a alguien, con identificadores y motivo (jugador, o profe si dirige en alguno). Con la demo: 7 pares de jugadores y 29 de profes.
+- 2026-10-07: T4.2 lista: `dominio/programador/modelo.py`, un modelo CP-SAT en pasos de 5 minutos. Cada partido elige inicio (el dominio ya trae solo las franjas, P48) y cancha compatible, o queda sin ubicar. NoOverlap por cancha física (C1 ocupa C1A y C1B), por equipo con los turnos libres del día (P17) y máximo por día (P47); partidos fijos (PRO-10). Objetivo: ubicar la mayor cantidad. Cada test se comprueba con el verificador.
 
 ## Pendiente
 
