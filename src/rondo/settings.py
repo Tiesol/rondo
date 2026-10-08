@@ -99,6 +99,7 @@ TIME_ZONE = "America/La_Paz"
 # La plantilla del reglamento con la que arranca el asistente para crear un torneo (TU.4).
 PLANTILLA_TORNEO = RAIZ / "datos" / "config" / "jmp_cup_2026.json"
 CATALOGO_CLUBES = RAIZ / "datos" / "config" / "clubes.json"
+FORMATOS = RAIZ / "datos" / "config" / "formatos.json"
 USE_I18N = True
 USE_TZ = True
 
