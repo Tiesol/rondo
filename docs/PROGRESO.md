@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 4, programador. Las fases 1b, 2 y 3 están cerradas y revisadas.
-- **Siguiente paso:** revisión de cierre de la fase 4.
+- **Fase:** 5, reprogramación y calendario. Las fases 1b a 4 están cerradas y revisadas.
+- **Siguiente paso:** detallar las tareas de la fase 5 (`planning-and-task-breakdown`) y empezar por la primera.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -75,6 +75,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T4.5 lista: modelo Corrida (migración 0012) y `servicios/programador.programar_torneo`: una transacción corta bloquea el torneo y crea la Corrida (rechaza si hay otra corriendo; una colgada se da por abandonada pasado su límite más 2 min), arma el problema desde la base (hora local sin zona; referencias de la eliminación desde el formato; jugados y fijados como fijos), resuelve con `PROGRAMADOR_SEGUNDOS` y `PROGRAMADOR_TRABAJADORES`, calcula los motivos, verifica y guarda partidos y Corrida.
 - 2026-10-07: T4.6 lista: el botón de Programar corre la programación con HTMX (esqueleto mientras trabaja, botón desactivado) y muestra el resultado de la última corrida: "N de M partidos programados, sin choques" y "Sin lugar" con motivos. Calendario por día (`/calendario/<fecha>/`, selector de días por HTMX) y por cancha, con la 1 y sus mitades. La página pública muestra día, hora y cancha. **Con la demo: 223 de 223 partidos programados, óptimo y sin choques, en 30 s en local con 8 trabajadores.**
 - 2026-10-07: T4.7 lista: `tests/torneo/test_programar_demo.py` (marcado `lento`, unos 45 s) programa la demo entera y comprueba 0 choques duros, que todo lo que no entra tenga motivo y que entre todo (223 de 223). Se borró la espiga de T0.6 (`dominio/programador/espiga.py`, `probar_solver` y su test). La página de prueba del PNG queda hasta la fase 5.
+- 2026-10-07: revisión de cierre de la fase 4; se corrigió 1 hallazgo (ver "Revisión de la fase 4").
 
 ## Pendiente
 
@@ -301,6 +302,30 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 - Con la demo (93 equipos), la eliminación entra justo en el último fin de semana: 37 de 40 h en C1 y C2 y 18 de 20 h en C3. Con los 117 equipos de H4 no entraría: P33 sigue siendo importante.
 - La capacidad es una cota optimista (R39). El programador de la fase 4 es el que dice qué entra de verdad.
 - Si mypy no ve una relación inversa nueva (`categoria.partidos`), es su caché incremental: `rm -rf .mypy_cache`.
+
+## Revisión de la fase 4 (2026-10-07, `code-review-and-quality`)
+
+**Veredicto: aprobada.** El visto bueno de Sebastian queda para su vuelta (REVISAR.md).
+
+**Resultado:** la demo (93 equipos, 223 partidos) se programa entera, con solución óptima y 0 choques según el verificador, en unos 30 s en local con 8 trabajadores (`pytest -m lento`).
+
+**Mutaciones:** las 6 las detectaron los tests:
+
+| Mutación | Resultado |
+|---|---|
+| Sin el turno libre del equipo en el día (P17) | Detectada |
+| El profe compartido sin margen (P35) | Detectada |
+| La eliminación puede ir antes de los grupos | Detectada |
+| El servicio guarda encima de jugados y fijados | Detectada |
+| Una final sin sus semis igual se ubica | Detectada |
+| C1 entera no ocupa sus mitades | Detectada |
+
+**Corregido:** al armar el problema se consultaban las canchas de la categoría por cada partido (20 consultas con 14 partidos, 50 con 42). Ahora salen todas de una vez. Test en `tests/torneo/test_revision_4.py`.
+
+**FYI:**
+
+- En Render gratis (0,1 CPU), el solver va a tardar mucho más que en local (H6, R44). Para mostrarle la demo al organizador, conviene programar antes.
+- Si se rehace el fixture de una categoría, sus partidos pierden el horario y hay que volver a programar.
 
 ## Supuestos
 

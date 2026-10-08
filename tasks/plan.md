@@ -147,9 +147,10 @@ T4.1 ───────────────┴→ T4.5 → T4.6 → T4.7
 
 **Checkpoint de la fase 4:**
 
-- [ ] El torneo de demo queda programado con 0 choques duros, o la app lista lo que no entra y por qué.
-- [ ] La programación corre dentro del request, con límite de tiempo, y no se pueden lanzar dos a la vez.
-- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+- [x] El torneo de demo queda programado con 0 choques duros, o la app lista lo que no entra y por qué. *(223 de 223, en local.)*
+- [x] La programación corre dentro del request, con límite de tiempo, y no se pueden lanzar dos a la vez.
+- [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
+- [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
 ### Fases 5 y 6: se detallan al llegar
 
