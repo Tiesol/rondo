@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Mover un partido{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'calendario' %}" aria-label="Volver al calendario">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Mover{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  <div>
+    <strong>{{ cruce }}</strong>
+    <p class="peq tenue">{{ partido.categoria }} · ahora: {{ ahora }}</p>
+  </div>
+  {% if motivos %}
+  <div class="alerta error" role="alert">{% include "parciales/icono.html" with nombre="error" %}<span><strong>No se guardó: chocaría.</strong>{% for motivo in motivos %}<br>{{ motivo }}{% endfor %}</span></div>
+  {% endif %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.dia %}
+    {% include "parciales/campo.html" with campo=form.hora %}
+  </div>
+  {% include "parciales/campo.html" with campo=form.cancha %}
+  <p class="peq tenue">El verificador lo revisa antes de guardar. Si pasa, el partido queda fijado: al volver a programar no se mueve.</p>
+  {% include "parciales/boton.html" with texto="Mover el partido" principal=True bloque=True %}
+</form>
+{% endblock %}

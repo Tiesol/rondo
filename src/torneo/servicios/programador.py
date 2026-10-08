@@ -21,7 +21,7 @@ from dominio.formatos import FormatoFaltante
 from dominio.programador.modelo import PartidoAProgramar, Problema, programar
 from dominio.programador.motivos import motivos_sin_ubicar
 from dominio.verificador import Bloqueo as BloqueoDelDominio
-from dominio.verificador import Escenario, PartidoAgendado, verificar
+from dominio.verificador import Choque, Escenario, PartidoAgendado, verificar
 from torneo.models import Bloqueo, Cancha, CategoriaNivel, Corrida, Partido, Torneo
 from torneo.servicios.fixture import formatos
 from torneo.servicios.personas import pares_de_equipos
@@ -34,7 +34,7 @@ class ProgramacionEnCurso(Exception):
     """Ya hay una programación corriendo para este torneo."""
 
 
-def _local(momento: datetime) -> datetime:
+def hora_local(momento: datetime) -> datetime:
     """El dominio trabaja con la hora de Bolivia, sin zona."""
     return timezone.localtime(momento).replace(tzinfo=None)
 
@@ -71,7 +71,7 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
         c.codigo: frozenset(m.codigo for m in c.mitades.all()) or frozenset({c.codigo})
         for c in canchas
     }
-    franjas = sorted((_local(f.inicio), _local(f.fin)) for f in torneo.franjas.all())
+    franjas = sorted((hora_local(f.inicio), hora_local(f.fin)) for f in torneo.franjas.all())
     reglas = Reglas.model_validate(torneo.reglas)
     semanas = sorted({desde.isocalendar()[:2] for desde, _ in franjas})
     desde_semana = semanas[reglas.eliminacion_desde_fin_de_semana - 1 :][:1]
@@ -96,7 +96,7 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
         fijo = None
         quieto = partido.estado == Partido.Estado.JUGADO or partido.fijado
         if quieto and partido.cancha and partido.inicio:
-            fijo = (partido.cancha.codigo, _local(partido.inicio))
+            fijo = (partido.cancha.codigo, hora_local(partido.inicio))
         a_programar.append(
             PartidoAProgramar(
                 id=partido.pk,
@@ -127,7 +127,9 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
 def bloqueos_del_torneo(torneo: Torneo) -> tuple[BloqueoDelDominio, ...]:
     """Un bloqueo del dominio por equipo bloqueado (P38: uno puede abarcar varios)."""
     return tuple(
-        BloqueoDelDominio(equipo.pk, _local(bloqueo.inicio), _local(bloqueo.fin), bloqueo.motivo)
+        BloqueoDelDominio(
+            equipo.pk, hora_local(bloqueo.inicio), hora_local(bloqueo.fin), bloqueo.motivo
+        )
         for bloqueo in Bloqueo.objects.filter(torneo=torneo).prefetch_related("equipos")
         for equipo in bloqueo.equipos.all()
     )
@@ -144,7 +146,7 @@ def partidos_del_torneo(torneo: Torneo) -> list[Partido]:
 def calendario_actual(partidos: list[Partido]) -> dict[Any, tuple[str, datetime]]:
     """Dónde está cada partido programado, en hora local sin zona (como el dominio)."""
     return {
-        p.pk: (p.cancha.codigo, _local(p.inicio))
+        p.pk: (p.cancha.codigo, hora_local(p.inicio))
         for p in partidos
         if p.cancha is not None and p.inicio is not None
     }
@@ -157,6 +159,13 @@ def verificar_torneo(torneo: Torneo) -> dict[str, int]:
 
 
 def _choques(problema: Problema, ubicados: dict[Any, tuple[str, datetime]]) -> dict[str, int]:
+    return dict(Counter(c.tipo for c in choques_del_calendario(problema, ubicados)))
+
+
+def choques_del_calendario(
+    problema: Problema, ubicados: dict[Any, tuple[str, datetime]]
+) -> list[Choque]:
+    """Los choques duros de un calendario (el actual o uno simulado), con sus motivos."""
     agendados = [
         PartidoAgendado(
             id=p.id,
@@ -178,7 +187,7 @@ def _choques(problema: Problema, ubicados: dict[Any, tuple[str, datetime]]) -> d
         bloqueos=problema.bloqueos,
         reglas=problema.reglas,
     )
-    return dict(Counter(c.tipo for c in verificar(agendados, escenario)))
+    return verificar(agendados, escenario)
 
 
 def _empezar(torneo: Torneo, usuario: AbstractBaseUser | AnonymousUser | None) -> Corrida:

@@ -159,7 +159,7 @@ T4.1 ───────────────┴→ T4.5 → T4.6 → T4.7
 - [x] T5.1 Bloqueos de la ACF
 - [x] T5.2 Dominio: propuestas de reprogramación
 - [x] T5.3 Pantalla de propuestas, aplicar e historial
-- [ ] T5.4 Cambio manual verificado
+- [x] T5.4 Cambio manual verificado
 - [ ] T5.5 Suspender un día y agregar un día entre semana
 - [ ] T5.6 PNG del día por cancha
 - [ ] T5.7 Vistas por categoría y por club

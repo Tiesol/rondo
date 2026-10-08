@@ -533,7 +533,7 @@
   }
   .turno {
     display: grid;
-    grid-template-columns: 54px 1fr;
+    grid-template-columns: 54px 1fr auto;
     align-items: center;
     gap: 12px;
     padding: 10px 0;
