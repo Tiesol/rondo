@@ -675,9 +675,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Un bloqueo sobre un partido programado da 2 o 3 propuestas válidas (0 choques), ordenadas por cuántos partidos mueven.
-- [ ] Ninguna propuesta mueve partidos jugados, fijados ni de otros fines de semana.
-- [ ] Las propuestas son distintas entre sí.
+- [x] Un bloqueo sobre un partido programado da 2 o 3 propuestas válidas (0 choques), ordenadas por cuántos partidos mueven.
+- [x] Ninguna propuesta mueve partidos jugados, fijados ni de otros fines de semana.
+- [x] Las propuestas son distintas entre sí.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** T5.1.
