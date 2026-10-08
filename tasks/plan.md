@@ -152,7 +152,33 @@ T4.1 ───────────────┴→ T4.5 → T4.6 → T4.7
 - [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
 - [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
-### Fases 5 y 6: se detallan al llegar
+### Fase 5: reprogramación y calendario (día 5)
+
+> Planificada el 2026-10-07. Se avanza con la autorización general del mismo día. El detalle está en [todo.md](todo.md).
+
+- [ ] T5.1 Bloqueos de la ACF
+- [ ] T5.2 Dominio: propuestas de reprogramación
+- [ ] T5.3 Pantalla de propuestas, aplicar e historial
+- [ ] T5.4 Cambio manual verificado
+- [ ] T5.5 Suspender un día y agregar un día entre semana
+- [ ] T5.6 PNG del día por cancha
+- [ ] T5.7 Vistas por categoría y por club
+- [ ] T5.8 Instalación en el celular y ensayo de la demo
+
+```
+T5.1 → T5.2 → T5.3 → T5.4
+                 └──→ T5.5
+T5.6 y T5.7 (independientes)
+T5.3 + T5.6 → T5.8
+```
+
+**Checkpoint de la fase 5:**
+
+- [ ] Un bloqueo ACF da 2 o 3 propuestas ordenadas, y aplicar una deja el calendario sin choques.
+- [ ] El PNG de un día se comparte sin datos personales.
+- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+
+### Fase 6: se detalla al llegar
 
 | Fase | Tareas previstas |
 |---|---|

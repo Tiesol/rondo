@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 5, reprogramación y calendario. Las fases 1b a 4 están cerradas y revisadas.
-- **Siguiente paso:** detallar las tareas de la fase 5 (`planning-and-task-breakdown`) y empezar por la primera.
+- **Siguiente paso:** T5.1 (bloqueos de la ACF).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -76,6 +76,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T4.6 lista: el botón de Programar corre la programación con HTMX (esqueleto mientras trabaja, botón desactivado) y muestra el resultado de la última corrida: "N de M partidos programados, sin choques" y "Sin lugar" con motivos. Calendario por día (`/calendario/<fecha>/`, selector de días por HTMX) y por cancha, con la 1 y sus mitades. La página pública muestra día, hora y cancha. **Con la demo: 223 de 223 partidos programados, óptimo y sin choques, en 30 s en local con 8 trabajadores.**
 - 2026-10-07: T4.7 lista: `tests/torneo/test_programar_demo.py` (marcado `lento`, unos 45 s) programa la demo entera y comprueba 0 choques duros, que todo lo que no entra tenga motivo y que entre todo (223 de 223). Se borró la espiga de T0.6 (`dominio/programador/espiga.py`, `probar_solver` y su test). La página de prueba del PNG queda hasta la fase 5.
 - 2026-10-07: revisión de cierre de la fase 4; se corrigió 1 hallazgo (ver "Revisión de la fase 4").
+- 2026-10-07: fase 5 planificada (T5.1 a T5.8 en `tasks/todo.md`).
 
 ## Pendiente
 
