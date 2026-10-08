@@ -1,5 +1,7 @@
 """Pantalla "Más": tu cuenta, las personas con su rol y los accesos de la organización."""
 
+from typing import Any
+
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -12,11 +14,14 @@ ESTADO_DEL_ROL = {ORGANIZACION: "info", MESA: "neutro"}
 
 
 def mas(request: HttpRequest) -> HttpResponse:
-    personas = []
+    personas: list[dict[str, Any]] = []
     for usuario in User.objects.filter(is_active=True).prefetch_related("groups"):
         rol = nombre_del_rol(usuario)
         personas.append(
             {
+                "pk": usuario.pk,
+                "rol": {ORGANIZACION: "organizacion", MESA: "mesa"}.get(rol, ""),
+                "editable": usuario.pk != request.user.pk and not usuario.is_superuser,
                 "titulo": usuario.get_full_name() or usuario.username,
                 "sub": usuario.username if usuario.get_full_name() else "",
                 "chip": rol or "Sin rol",

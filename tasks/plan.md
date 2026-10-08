@@ -184,7 +184,7 @@ T5.3 + T5.6 → T5.8
 > Planificada el 2026-10-08. A (T6.1 a T6.4) se puede avanzar ya; B (T6.5 a T6.7) necesita a Sebastian: producción, nube, costos y respuestas del organizador. El detalle está en [todo.md](todo.md).
 
 - [x] T6.1 Asignar a mano los participantes de la eliminación (P50)
-- [ ] T6.2 Personas: invitar, cambiar el rol y la contraseña
+- [x] T6.2 Personas: invitar, cambiar el rol y la contraseña
 - [ ] T6.3 Revisión de seguridad
 - [ ] T6.4 Retención de datos (P49)
 - [ ] T6.5 Producción separada de la demo *(necesita a Sebastian)*

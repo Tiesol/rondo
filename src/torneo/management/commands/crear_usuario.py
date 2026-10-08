@@ -9,10 +9,10 @@ from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.db import transaction
 
-from torneo.permisos import MESA, ORGANIZACION
+from torneo.permisos import ORGANIZACION
+from torneo.servicios.usuarios import ROLES
 
 VARIABLE = "RONDO_CLAVE_USUARIO"
-ROLES = {"organizacion": ORGANIZACION, "mesa": MESA}
 
 
 class Command(BaseCommand):

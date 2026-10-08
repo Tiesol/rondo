@@ -799,9 +799,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] La organización crea un usuario de mesa; la contraseña temporal se ve una vez y nunca se guarda en claro ni va al log.
-- [ ] La organización cambia el rol de alguien; la mesa no puede.
-- [ ] Cualquiera cambia su propia contraseña.
+- [x] La organización crea un usuario de mesa; la contraseña temporal se ve una vez y nunca se guarda en claro ni va al log.
+- [x] La organización cambia el rol de alguien; la mesa no puede.
+- [x] Cualquiera cambia su propia contraseña.
 
 **Verificación:** verde.
 **Archivos:** vistas y plantillas de personas, `tests/torneo/test_personas.py`.
