@@ -70,6 +70,10 @@ unset DATABASE_URL
 
 Carga también el catálogo de clubes (`cargar_clubes`) y la configuración 2026, y deja el torneo marcado como de demo y con su página pública encendida.
 
+### 3d. Fin de año: datos personales (P49)
+
+Cuando el torneo termina, sus datos personales se borran con `anonimizar_torneo <id> --confirmo` (no se puede deshacer). Quedan los planteles como "Jugador 1, 2…" con su dorsal, y los equipos y el calendario intactos. A quien también esté en otro torneo no se lo toca. Se niega con un torneo que todavía no terminó.
+
 ### 4. Verificación
 
 Abre `https://rondo-demo.onrender.com` (o la dirección que muestre Render) desde el celular y entra con ese usuario.

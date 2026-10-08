@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 5 cerrada. Las fases 1b a 5 están terminadas y revisadas: la app está lista para la demo (`docs/DEMO.md`).
-- **Siguiente paso:** T6.4 (retención de datos, P49).
+- **Siguiente paso:** revisión de cierre de lo hecho de la fase 6 (T6.5 a T6.7 esperan a Sebastian).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -90,6 +90,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T6.1 lista: en Torneo → Fixture, cada partido de eliminación tiene "Asignar equipos" (local y visitante de la categoría, distintos). La referencia ("1.º A vs 2.º B") queda a la vista, y desde ahí el programador, el verificador, el calendario y el PNG usan esos equipos. Si el partido ya estaba programado y con esos equipos choca, se guarda igual y se avisa.
 - 2026-10-07: T6.2 lista: en Más, la organización agrega personas (usuario, nombre y rol; sin staff) con una contraseña temporal generada con `secrets`, que se muestra una sola vez y no va a la sesión, los mensajes ni el log; cambia el rol de los demás (no el propio ni el del superusuario). Todos cambian su contraseña. `servicios/usuarios` también lo usa el comando `crear_usuario`.
 - 2026-10-07: T6.3 lista: revisión de seguridad con modelo de amenazas. Corregido: rutas de recuperación por correo abiertas (se sacaron), sin CSP ni Permissions-Policy (agregadas), login sin límite de intentos (10 por IP y por usuario cada 15 min) y sin 500 propia. Un test recorre todas las URLs (login obligatorio salvo las públicas). `check --deploy` y `pip-audit` sin hallazgos.
+- 2026-10-07: T6.4 lista: `manage.py anonimizar_torneo <id> --confirmo` (`servicios/retencion`) deja un torneo terminado sin nombres, documentos ni fechas de nacimiento (P49): "Jugador N" y "Profe N" según el plantel, con dorsales, equipos y calendario intactos; no toca a quien está en otro torneo; se niega con un torneo en curso o sin la bandera. Paso 3d de DESPLIEGUE.md.
 
 ## Pendiente
 
