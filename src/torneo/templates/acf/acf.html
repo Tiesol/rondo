@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Partido de la ACF{% endblock %}
+{% block encabezado %}Partido de la ACF{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate
+      hx-post="{% url 'revisar-acf' torneo.pk %}" hx-trigger="change" hx-target="#choques-acf" hx-swap="outerHTML" hx-sync="this:replace">
+  {% csrf_token %}
+  <p class="tenue">Carga cuándo juega un equipo en la ACF. El programador no le pone partidos en ese horario.</p>
+  {% include "parciales/campo.html" with campo=form.equipos %}
+  {% include "parciales/campo.html" with campo=form.dia %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.desde %}
+    {% include "parciales/campo.html" with campo=form.hasta %}
+  </div>
+  {% include "parciales/campo.html" with campo=form.motivo %}
+  {% include "acf/_choques.html" with choques=None %}
+  {% include "parciales/boton.html" with texto="Guardar el bloqueo" principal=True bloque=True %}
+</form>
+
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Bloqueos cargados" %}
+  {% if bloqueos %}
+  <ul class="lista">
+    {% for fila in bloqueos %}
+    <li class="fila ajuste">
+      <span class="crece">
+        <strong>{{ fila.bloqueo.motivo }} · {{ fila.cuando }}</strong>
+        <span class="sub">{{ fila.equipos }}</span>
+        {% if fila.choques %}<span class="sub">{{ fila.choques|length }} partido{{ fila.choques|length|pluralize:" choca, partidos chocan" }}: {% for p in fila.choques %}{{ p.cruce }} ({{ p.cuando }}){% if not forloop.last %}; {% endif %}{% endfor %}</span>{% endif %}
+      </span>
+      <form method="post" action="{% url 'borrar-bloqueo' fila.bloqueo.pk %}">{% csrf_token %}<button type="submit" class="btn chico">Borrar</button></form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="peq tenue">Todavía no hay bloqueos.</p>
+  {% endif %}
+</div>
+{% endblock %}

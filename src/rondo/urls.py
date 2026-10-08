@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
 from torneo.views import (
+    acf,
     asistente,
     calendario,
     categoria,
@@ -43,6 +44,9 @@ urlpatterns = [
     path("torneos/<int:pk>/publico/", publicar, name="publicar"),
     path("torneos/<int:pk>/fixtures/", fixture.generar_todos, name="generar-fixtures"),
     path("torneos/<int:pk>/programar/", programar.programar, name="programar"),
+    path("torneos/<int:pk>/acf/", acf.acf, name="acf"),
+    path("torneos/<int:pk>/acf/revisar/", acf.revisar, name="revisar-acf"),
+    path("bloqueos/<int:pk>/borrar/", acf.borrar, name="borrar-bloqueo"),
     path("t/<int:pk>/", vistas_publicas.publico, name="publico"),
     path(
         "t/<int:pk>/<int:categoria>/<str:pestana>/",

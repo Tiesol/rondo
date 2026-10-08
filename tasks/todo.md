@@ -660,9 +660,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Un bloqueo guardado hace que programar no ponga partidos de ese equipo en ese horario.
-- [ ] Al cargarlo, la pantalla lista los partidos que chocan, con día, hora y cancha.
-- [ ] La mesa ve el aviso del rol.
+- [x] Un bloqueo guardado hace que programar no ponga partidos de ese equipo en ese horario.
+- [x] Al cargarlo, la pantalla lista los partidos que chocan, con día, hora y cancha.
+- [x] La mesa ve el aviso del rol.
 
 **Verificación:** verde, más `makemigrations --check`.
 **Depende de:** fase 4.

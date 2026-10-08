@@ -1,0 +1,15 @@
+{# Los partidos programados que chocan con el bloqueo. HTMX lo reemplaza al cambiar un campo. #}
+<div id="choques-acf" aria-live="polite">
+  {% if choques is None %}
+  <p class="peq tenue">Elige los equipos, el día y el horario para ver si choca con algún partido.</p>
+  {% elif choques %}
+  <p class="alerta aviso">{% include "parciales/icono.html" with nombre="aviso" %}<span><strong>{{ choques|length }} partido{{ choques|length|pluralize:" choca, partidos chocan" }}</strong> con este horario.</span></p>
+  <ul class="lista">
+    {% for partido in choques %}
+    <li class="fila"><span class="crece"><strong>{{ partido.cruce }}</strong><span class="sub">{{ partido.cuando }} · {{ partido.categoria }}</span></span></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  {% include "parciales/alerta.html" with estado="bien" texto="No choca con ningún partido programado." %}
+  {% endif %}
+</div>

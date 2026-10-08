@@ -156,7 +156,7 @@ T4.1 ───────────────┴→ T4.5 → T4.6 → T4.7
 
 > Planificada el 2026-10-07. Se avanza con la autorización general del mismo día. El detalle está en [todo.md](todo.md).
 
-- [ ] T5.1 Bloqueos de la ACF
+- [x] T5.1 Bloqueos de la ACF
 - [ ] T5.2 Dominio: propuestas de reprogramación
 - [ ] T5.3 Pantalla de propuestas, aplicar e historial
 - [ ] T5.4 Cambio manual verificado
