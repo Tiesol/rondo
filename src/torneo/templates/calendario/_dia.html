@@ -21,8 +21,9 @@
             <span class="tenue">vs</span>
             {% if partido.visitante.escudo %}{% include "parciales/escudo.html" with escudo=partido.visitante.escudo tamano="ch" %}{{ partido.visitante.nombre }}{% else %}<span class="por-definir">{{ partido.visitante.nombre }}</span>{% endif %}
           </span>
-          <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if partido.mitad %} · {{ partido.mitad }}{% endif %}</span>
+          <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if partido.mitad %} · {{ partido.mitad }}{% endif %}{% if partido.fijado %} · fijado{% endif %}</span>
         </span>
+        {% if perms.torneo.configurar_torneo %}<a class="btn chico" href="{% url 'mover' partido.pk %}">Mover</a>{% endif %}
       </li>
       {% endfor %}
     </ul>

@@ -705,9 +705,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Mover un partido a un turno libre lo guarda, fijado y con su Cambio.
-- [ ] Moverlo encima de otro partido muestra el choque y no guarda nada.
-- [ ] La mesa no puede mover partidos.
+- [x] Mover un partido a un turno libre lo guarda, fijado y con su Cambio.
+- [x] Moverlo encima de otro partido muestra el choque y no guarda nada.
+- [x] La mesa no puede mover partidos.
 
 **Verificación:** verde.
 **Depende de:** T5.3.

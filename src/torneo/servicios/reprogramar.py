@@ -17,6 +17,8 @@ from dominio.programador.reprogramar import proponer
 from torneo.models import Bloqueo, Cambio, Cancha, Corrida, Partido, Torneo
 from torneo.servicios.programador import (
     calendario_actual,
+    choques_del_calendario,
+    hora_local,
     partidos_del_torneo,
     problema_del_torneo,
     verificar_torneo,
@@ -123,3 +125,46 @@ def aplicar(
     if any(cantidad > antes.get(tipo, 0) for tipo, cantidad in despues.items()):
         raise NoSePuedeAplicar("La propuesta dejaría choques nuevos. No se aplicó.")
     return Cambio.objects.bulk_create(cambios)
+
+
+class ChoqueAlMover(Exception):
+    """El cambio a mano crearía choques duros; no se guarda."""
+
+    def __init__(self, motivos: list[str]) -> None:
+        super().__init__("; ".join(motivos))
+        self.motivos = motivos
+
+
+@transaction.atomic
+def mover_a_mano(
+    partido: Partido,
+    cancha: Cancha,
+    inicio: datetime,
+    usuario: AbstractBaseUser | AnonymousUser | None = None,
+) -> Cambio:
+    """T5.4: el verificador revisa el cambio antes de guardar. Si pasa, el partido queda
+    fijado (PRO-10): el programador ya no lo mueve."""
+    torneo = Torneo.objects.select_for_update().get(pk=partido.categoria.torneo_id)
+    partidos = partidos_del_torneo(torneo)
+    calendario = calendario_actual(partidos)
+    calendario[partido.pk] = (cancha.codigo, hora_local(inicio))
+    choques = [
+        c
+        for c in choques_del_calendario(problema_del_torneo(torneo, partidos), calendario)
+        if partido.pk in c.partidos
+    ]
+    if choques:
+        raise ChoqueAlMover([m for c in choques for m in c.motivos])
+    cambio = Cambio.objects.create(
+        partido=partido,
+        cancha_antes=partido.cancha,
+        inicio_antes=partido.inicio,
+        cancha_despues=cancha,
+        inicio_despues=inicio,
+        usuario=_usuario(usuario),
+        motivo="Cambio a mano",
+    )
+    partido.cancha, partido.inicio = cancha, inicio
+    partido.estado, partido.fijado = Partido.Estado.PROGRAMADO, True
+    partido.save(update_fields=["cancha", "inicio", "estado", "fijado"])
+    return cambio
