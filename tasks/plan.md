@@ -134,7 +134,7 @@ T3.6 (independiente: recibe cualquier calendario)
 
 - [x] T4.1 Pares de equipos que comparten personas
 - [x] T4.2 Dominio: modelo CP-SAT (cancha, franja y equipo)
-- [ ] T4.3 Dominio: personas, bloqueos, orden y eliminación
+- [x] T4.3 Dominio: personas, bloqueos, orden y eliminación
 - [ ] T4.4 Dominio: por qué no entra un partido
 - [ ] T4.5 Corrida y servicio de programación
 - [ ] T4.6 Pantallas: programar y calendario por día y cancha
