@@ -68,11 +68,13 @@ def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
         "letras": letras,
         "series": [
             {
-                "nombre": s.nombre,
-                "equipos": list(s.equipos.order_by("nombre")),
-                "nombres": ", ".join(e.nombre for e in s.equipos.order_by("nombre")),
+                "nombre": serie.nombre,
+                "modelos": modelos,  # para el editor de series
+                "equipos": [e.nombre for e in modelos],
+                "nombres": ", ".join(e.nombre for e in modelos),
             }
-            for s in categoria.series.prefetch_related("equipos")
+            for serie in categoria.series.prefetch_related("equipos")
+            for modelos in [sorted(serie.equipos.all(), key=lambda e: e.nombre)]
         ],
         "fechas": [{"numero": n, "partidos": filas} for n, filas in sorted(fechas.items())],
         "eliminacion": [{"copa": copa, "partidos": filas} for copa, filas in copas.items()],

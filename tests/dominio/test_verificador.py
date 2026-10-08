@@ -291,3 +291,9 @@ def test_un_dia_sin_partidos_no_hace_nada() -> None:
 
 def test_timedelta_de_referencia() -> None:
     assert timedelta(minutes=50) == partido(1, "09:00").fin_turno - partido(1, "09:00").inicio
+
+
+def test_dos_equipos_que_comparten_profe_y_juegan_entre_si_no_chocan() -> None:
+    """Revisión de la fase 3: es un solo partido, no dos que se pisan."""
+    pares = (ParDeEquipos("A", "B", "profe"),)
+    assert tipos([partido(1, "09:00", equipos=("A", "B"))], escenario(pares=pares)) == []
