@@ -57,3 +57,4 @@ Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya
 | R45 | T5.6 | Probar "Compartir el día" desde tu Android (Calendario → un día → Compartir el día) y desde la PC. Es la prueba pendiente de T0.7, ahora con el diseño de 2025 | La Web Share API comparte varias imágenes juntas en Android; si no, se descargan |
 | R46 | T5.6 | El PNG muestra hasta 5 partidos por imagen. Una cancha con más partidos ese día sale en varias imágenes ("Cancha 1 · 1/2") | Con filas del tamaño de 2025 no entran más |
 | R47 | T5.6 | La copa, los escudos y los patrocinadores del PNG son marcadores hasta que haya imágenes reales | Decisión del 2026-10-07: imágenes para después |
+| R48 | T6.1 | Los cruces de la eliminación se asignan a mano (P50, por defecto): la app no calcula la tabla de posiciones, porque puntos y desempate no están especificados (P28, P34) | No se inventan reglas |
