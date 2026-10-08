@@ -649,3 +649,125 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Depende de:** T4.6.
 **Archivos:** `tests/torneo/test_programar_demo.py`, borrado de la espiga.
 **Tamaño:** S.
+
+## Fase 5: reprogramación y calendario
+
+> Planificada el 2026-10-07 con `planning-and-task-breakdown`. Se avanza con la autorización general del mismo día. Sin dependencias nuevas de Python. La fuente Arvo del PNG (OFL) se copia en `static/fuentes`, como las otras. Reglas: PRO-07, PRO-10, PRO-13 y el criterio 6 (PNG sin datos personales). Si no alcanza el tiempo, se recorta en este orden: vistas por club y por categoría (T5.7), tercera propuesta y franjas entre semana (T5.5).
+
+### T5.1 Bloqueos de la ACF (PRO-07)
+
+**Descripción:** modelo Bloqueo (equipos, inicio, fin y motivo) y su migración. El servicio de programación los pasa al solver y al verificador. Pantalla "Partido de la ACF" (solo la organización): se eligen los equipos, el día y el horario, y la app muestra al instante (HTMX) qué partidos programados chocan.
+
+**Aceptación:**
+
+- [ ] Un bloqueo guardado hace que programar no ponga partidos de ese equipo en ese horario.
+- [ ] Al cargarlo, la pantalla lista los partidos que chocan, con día, hora y cancha.
+- [ ] La mesa ve el aviso del rol.
+
+**Verificación:** verde, más `makemigrations --check`.
+**Depende de:** fase 4.
+**Archivos:** `src/torneo/models/bloqueo.py`, migración, `src/torneo/servicios/programador.py`, la vista y plantilla de la ACF, `tests/torneo/test_bloqueos.py`.
+**Tamaño:** M.
+
+### T5.2 Dominio: propuestas de reprogramación (PRO-13)
+
+**Descripción:** `dominio/programador/reprogramar.py`: parte del calendario actual y de un bloqueo nuevo. Solo pueden moverse los partidos de ese fin de semana y del siguiente (el resto queda fijo). El objetivo es mover la menor cantidad de partidos, afectar a la menor cantidad de equipos y preferir el mismo fin de semana. Para dar 2 o 3 propuestas distintas, después de cada solución se prohíbe repetir el mismo conjunto de movimientos. Cada propuesta pasa por el verificador.
+
+**Aceptación:**
+
+- [ ] Un bloqueo sobre un partido programado da 2 o 3 propuestas válidas (0 choques), ordenadas por cuántos partidos mueven.
+- [ ] Ninguna propuesta mueve partidos jugados, fijados ni de otros fines de semana.
+- [ ] Las propuestas son distintas entre sí.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** T5.1.
+**Archivos:** `src/dominio/programador/reprogramar.py`, `tests/dominio/test_reprogramar.py`.
+**Tamaño:** M.
+
+### T5.3 Pantalla de propuestas, aplicar e historial
+
+**Descripción:** después de cargar un bloqueo con choques, la pantalla muestra las propuestas como en el prototipo (la primera, recomendada; cada movimiento "antes → después"). Aplicar una guarda los partidos y un Cambio por movimiento (partido, antes, después, usuario, fecha, motivo y corrida), en una Corrida de tipo reprogramar. El historial de cambios se ve en "Más".
+
+**Aceptación:**
+
+- [ ] Con la demo programada, un bloqueo ACF da 2 o 3 propuestas ordenadas, y aplicar una deja el calendario sin choques.
+- [ ] Cada movimiento queda en el historial con quién y cuándo.
+- [ ] Aplicar una propuesta vieja (si el calendario cambió después) se rechaza con un mensaje.
+
+**Verificación:** verde, más capturas.
+**Depende de:** T5.2.
+**Archivos:** `src/torneo/models/cambio.py`, migración, `src/torneo/servicios/reprogramar.py`, vistas y plantillas, `tests/torneo/test_reprogramar_pantalla.py`.
+**Tamaño:** M.
+
+### T5.4 Cambio manual verificado
+
+**Descripción:** desde el calendario, la organización mueve un partido a otro día, hora y cancha. El verificador lo revisa antes de guardar: si crea un choque duro, se muestra y no se guarda. Si no, queda fijado (PRO-10) y en el historial.
+
+**Aceptación:**
+
+- [ ] Mover un partido a un turno libre lo guarda, fijado y con su Cambio.
+- [ ] Moverlo encima de otro partido muestra el choque y no guarda nada.
+- [ ] La mesa no puede mover partidos.
+
+**Verificación:** verde.
+**Depende de:** T5.3.
+**Archivos:** vistas, formulario y plantilla del cambio, `tests/torneo/test_cambio_manual.py`.
+**Tamaño:** S.
+
+### T5.5 Suspender un día y agregar un día entre semana
+
+**Descripción:** "Suspender" un día (por ejemplo, por lluvia): sus partidos quedan sin programar y la app ofrece reprogramarlos con propuestas. "Agregar un día entre semana" crea una franja de tipo entre semana, que el programador y las propuestas pueden usar.
+
+**Aceptación:**
+
+- [ ] Suspender un día deja sus partidos pendientes y las propuestas los ubican en otros días, sin choques.
+- [ ] Una franja entre semana nueva aparece en el calendario y se usa al reprogramar.
+
+**Verificación:** verde.
+**Depende de:** T5.3.
+**Archivos:** servicio y vistas de suspensión y franjas, `tests/torneo/test_suspender.py`.
+**Tamaño:** M.
+
+### T5.6 PNG del día por cancha (criterio 6)
+
+**Descripción:** una imagen de 1220 × 690 por cancha y por día, con el diseño de 2025 (`docs/prototipo/fixture-png.html`): fondo azul marino, filas doradas (categoría, escudo, equipo, equipo, escudo y hora), panel con "CANCHA N" y la edición, y franja de patrocinadores (con lugar reservado hasta que haya imágenes). Se comparte desde el calendario con la Web Share API, o se descarga. Reemplaza la página de prueba de T0.7.
+
+**Aceptación:**
+
+- [ ] Desde el calendario de un día, "Compartir" genera una imagen por cancha.
+- [ ] Un test comprueba que la plantilla del PNG no usa datos personales.
+- [ ] La página de prueba del PNG ya no está.
+
+**Verificación:** verde, más una captura del PNG.
+**Depende de:** fase 4.
+**Archivos:** `src/torneo/templates/calendario/png.html`, `src/torneo/static/js/exportar.js`, `src/torneo/static/fuentes/`, `tests/torneo/test_png.py`.
+**Tamaño:** M.
+
+### T5.7 Vistas por categoría y por club
+
+**Descripción:** el calendario se filtra por categoría y por club: la lista de partidos con día, hora y cancha. Es lo primero que se recorta si falta tiempo.
+
+**Aceptación:**
+
+- [ ] Por club: todos los partidos de sus equipos, en orden.
+- [ ] Por categoría: sus partidos, en orden.
+
+**Verificación:** verde.
+**Depende de:** fase 4.
+**Archivos:** vistas y plantillas del calendario, `tests/torneo/test_vistas_por_club.py`.
+**Tamaño:** S.
+
+### T5.8 Instalación en el celular (PWA) y ensayo de la demo
+
+**Descripción:** manifest e íconos (generados, sin imágenes del organizador) para instalar la app en el celular; funciona solo con conexión (decisión del 2026-10-06), así que el service worker no guarda datos. Guion de la demo en `docs/DEMO.md` y un test de punta a punta: demo → fixtures → programar → bloqueo ACF → propuesta → aplicar → PNG.
+
+**Aceptación:**
+
+- [ ] El manifest se sirve y la app se puede instalar (Chrome la reconoce como PWA).
+- [ ] El test de punta a punta pasa.
+- [ ] `docs/DEMO.md` tiene el guion, con las preguntas prioritarias para el organizador (P13, P33, P35, P44, P46 y P50).
+
+**Verificación:** verde, `pytest -m lento`.
+**Depende de:** T5.3, T5.6.
+**Archivos:** manifest, service worker, íconos, `docs/DEMO.md`, `tests/torneo/test_demo_de_punta_a_punta.py`.
+**Tamaño:** M.
