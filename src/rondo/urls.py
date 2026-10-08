@@ -15,6 +15,7 @@ from torneo.views import (
     jugadores,
     mas,
     mover,
+    png,
     programar,
     reglas,
     reprogramar,
@@ -30,6 +31,7 @@ urlpatterns = [
     path("calendario/agregar-dia/", calendario.agregar_dia, name="agregar-dia"),
     path("calendario/<str:fecha>/", calendario.calendario_dia, name="calendario-dia"),
     path("calendario/<str:fecha>/suspender/", calendario.suspender, name="suspender-dia"),
+    path("calendario/<str:fecha>/png/", png.png, name="png-dia"),
     path("escuela/", escuela, name="escuela"),
     path("torneo/", torneo, name="torneo"),
     path("torneo/<int:pk>/equipos/nuevo/", equipos.nuevo_equipo, name="nuevo-equipo"),
@@ -72,7 +74,6 @@ urlpatterns = [
         name="login",
     ),
     path("cuentas/", include("django.contrib.auth.urls")),
-    path("diagnostico/png/", diagnostico.png, name="diagnostico-png"),
     path("diagnostico/componentes/", diagnostico.componentes, name="diagnostico-componentes"),
     path("admin/", admin.site.urls),
 ]
