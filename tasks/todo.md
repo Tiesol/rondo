@@ -827,9 +827,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Después de correrlo no queda ningún nombre, documento ni fecha de nacimiento del torneo.
-- [ ] Sin `--confirmo` no hace nada; con un torneo en curso se niega.
-- [ ] Los equipos, partidos y el calendario quedan intactos.
+- [x] Después de correrlo no queda ningún nombre, documento ni fecha de nacimiento del torneo.
+- [x] Sin `--confirmo` no hace nada; con un torneo en curso se niega.
+- [x] Los equipos, partidos y el calendario quedan intactos.
 
 **Verificación:** verde.
 **Archivos:** `src/torneo/management/commands/anonimizar_torneo.py`, `src/torneo/servicios/retencion.py`, `tests/torneo/test_anonimizar.py`.
