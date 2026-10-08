@@ -581,9 +581,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Dos equipos con un profe en común no quedan a la vez ni en canchas distintas sin margen.
-- [ ] La final queda después de sus semis, y las semis después de los grupos de su categoría.
-- [ ] La fecha 2 de un equipo queda después de su fecha 1.
+- [x] Dos equipos con un profe en común no quedan a la vez ni en canchas distintas sin margen.
+- [x] La final queda después de sus semis, y las semis después de los grupos de su categoría.
+- [x] La fecha 2 de un equipo queda después de su fecha 1.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** T4.2.

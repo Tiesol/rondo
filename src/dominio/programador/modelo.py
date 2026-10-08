@@ -10,7 +10,17 @@ Restricciones duras:
 - compatibilidad (PRO-02) y franjas (PRO-03): ya están en los valores posibles;
 - equipos (PRO-04): no se pisan, dejan los turnos libres del día (P17) y no pasan del
   máximo de partidos por día (P47);
+- personas (PRO-05 y PRO-06): dos equipos que comparten un jugador no se pisan; si comparten
+  un profe, además dejan el margen para cambiar de cancha (P35). El margen se aplica también
+  en la misma cancha: es más estricto que la regla, y más simple;
+- bloqueos de la ACF (PRO-07): fuera de los inicios posibles;
+- orden (PRO-08, si la regla es "dura"): las fechas de cada equipo van en orden (P19);
+- eliminación (PRO-09): después de la fase de grupos de su categoría y de los partidos a
+  los que se refiere (sin ellos no se ubica), y desde su fin de semana (P33);
 - fijos (PRO-10): los partidos jugados o fijados a mano no se mueven.
+
+Objetivo: primero ubicar la mayor cantidad; después, cada fecha de grupos cerca de su fin de
+semana, para repartir la carga (PRO-12).
 """
 
 import time
@@ -18,10 +28,12 @@ from collections import defaultdict
 from collections.abc import Hashable
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
+from itertools import pairwise
 
 from ortools.sat.python import cp_model
 
 from dominio.config import Reglas
+from dominio.verificador import Bloqueo, ParDeEquipos
 
 PASO_MIN = 5
 Equipo = Hashable
@@ -36,6 +48,10 @@ class PartidoAProgramar:
     minutos_turno: int
     canchas: frozenset[str]  # las compatibles
     fijo: tuple[str, datetime] | None = None  # cancha e inicio que no se tocan
+    fase: str = "grupos"  # o "eliminacion"
+    fecha: int | None = None  # en la fase de grupos
+    clave: str = ""  # en la eliminación: "oro_semi_1"
+    despues_de: frozenset[str] = frozenset()  # claves de los partidos a los que se refiere
 
     @property
     def equipos_definidos(self) -> tuple[Equipo, ...]:
@@ -48,6 +64,9 @@ class Problema:
     fisicas: dict[str, frozenset[str]]  # cancha → canchas físicas que ocupa
     franjas: tuple[tuple[datetime, datetime], ...]
     reglas: Reglas
+    pares: tuple[ParDeEquipos, ...] = ()
+    bloqueos: tuple[Bloqueo, ...] = ()
+    eliminacion_desde: datetime | None = None  # P33
 
 
 @dataclass
@@ -106,19 +125,33 @@ class _Modelo:
                 ventanas.append((primero, ultimo))
         return ventanas
 
+    def _dominio(self, partido: PartidoAProgramar) -> cp_model.Domain:
+        """Los inicios posibles: dentro de las franjas, fuera de los bloqueos de sus equipos
+        y, en la eliminación, desde su fin de semana."""
+        dominio = cp_model.Domain.from_intervals([list(v) for v in self._inicios_posibles(partido)])
+        largo = _pasos(partido.minutos_partido)
+        for bloqueo in self.problema.bloqueos:
+            if bloqueo.equipo in partido.equipos_definidos:
+                desde = self.reloj.paso(bloqueo.inicio, hacia_arriba=False) - largo + 1
+                hasta = self.reloj.paso(bloqueo.fin, hacia_arriba=True) - 1
+                dominio = dominio.intersection_with(cp_model.Domain(desde, hasta).complement())
+        if partido.fase == "eliminacion" and self.problema.eliminacion_desde:
+            desde = self.reloj.paso(self.problema.eliminacion_desde, hacia_arriba=True)
+            dominio = dominio.intersection_with(cp_model.Domain(desde, cp_model.INT32_MAX))
+        if partido.fijo:
+            fijo = self.reloj.paso(partido.fijo[1], hacia_arriba=False)
+            dominio = dominio.union_with(cp_model.Domain(fijo, fijo))
+        return dominio
+
     def variables(self) -> None:
         m = self.modelo
         for partido in self.problema.partidos:
-            ventanas = self._inicios_posibles(partido)
-            if partido.fijo:
-                fijo = self.reloj.paso(partido.fijo[1], hacia_arriba=False)
-                ventanas.append((fijo, fijo))
-            if not ventanas:
-                ventanas = [(0, 0)]  # no entra en ninguna franja: queda sin ubicar
+            dominio = self._dominio(partido)
             presente = m.new_bool_var(f"presente {partido.id}")
-            inicio = m.new_int_var_from_domain(
-                cp_model.Domain.from_intervals([list(v) for v in ventanas]), f"inicio {partido.id}"
-            )
+            if dominio.is_empty():  # no entra en ninguna franja: queda sin ubicar
+                dominio = cp_model.Domain(0, 0)
+                m.add(presente == 0)
+            inicio = m.new_int_var_from_domain(dominio, f"inicio {partido.id}")
             self.presente[partido.id], self.inicio[partido.id] = presente, inicio
 
             canchas = sorted(partido.canchas & set(self.problema.fisicas))
@@ -181,8 +214,87 @@ class _Modelo:
                     sum(self.en_dia[p.id][dia] for p in suyos) <= reglas.max_partidos_por_dia
                 )
 
+    def personas(self) -> None:
+        por_equipo: dict[Equipo, list[PartidoAProgramar]] = defaultdict(list)
+        for partido in self.problema.partidos:
+            for equipo in partido.equipos_definidos:
+                por_equipo[equipo].append(partido)
+        margen = self.problema.reglas.profe_minutos_cambio_de_cancha
+        for par in self.problema.pares:
+            juntos = {p.id: p for p in por_equipo.get(par.a, []) + por_equipo.get(par.b, [])}
+            extra = margen if par.motivo == "profe" else 0
+            self.modelo.add_no_overlap(
+                [
+                    self.modelo.new_optional_fixed_size_interval_var(
+                        self.inicio[p.id],
+                        _pasos(p.minutos_partido + extra),
+                        self.presente[p.id],
+                        f"{par.motivo} en {p.id}",
+                    )
+                    for p in juntos.values()
+                ]
+            )
+
+    def _despues(self, antes: PartidoAProgramar, despues: PartidoAProgramar) -> None:
+        self.modelo.add(
+            self.inicio[despues.id] >= self.inicio[antes.id] + _pasos(antes.minutos_turno)
+        ).only_enforce_if([self.presente[antes.id], self.presente[despues.id]])
+
+    def orden(self) -> None:
+        partidos = self.problema.partidos
+        if self.problema.reglas.orden_de_fechas == "dura":
+            por_equipo: dict[Equipo, list[PartidoAProgramar]] = defaultdict(list)
+            for partido in partidos:
+                if partido.fase == "grupos" and partido.fecha is not None:
+                    for equipo in partido.equipos_definidos:
+                        por_equipo[equipo].append(partido)
+            for suyos in por_equipo.values():
+                suyos.sort(key=lambda p: p.fecha or 0)
+                for antes, despues in pairwise(suyos):
+                    if (antes.fecha or 0) < (despues.fecha or 0):
+                        self._despues(antes, despues)
+
+        por_clave = {(p.categoria, p.clave): p for p in partidos if p.clave}
+        grupos_de: dict[str, list[PartidoAProgramar]] = defaultdict(list)
+        for partido in partidos:
+            if partido.fase == "grupos":
+                grupos_de[partido.categoria].append(partido)
+        for llave in (p for p in partidos if p.fase == "eliminacion"):
+            for grupo in grupos_de[llave.categoria]:
+                self._despues(grupo, llave)
+            for clave in llave.despues_de:
+                anterior = por_clave.get((llave.categoria, clave))
+                if anterior is None:
+                    continue
+                self._despues(anterior, llave)
+                # Sin los partidos a los que se refiere, la llave no se juega.
+                self.modelo.add_implication(self.presente[llave.id], self.presente[anterior.id])
+
     def objetivo(self) -> None:
-        self.modelo.maximize(sum(self.presente.values()))
+        """Ubicar manda; después, que cada fecha caiga cerca de su fin de semana."""
+        semanas = sorted({desde.isocalendar()[:2] for desde, _ in self.problema.franjas})
+        if self.problema.eliminacion_desde:
+            limite = self.problema.eliminacion_desde.isocalendar()[:2]
+            semanas_de_grupos = [s for s in semanas if s < limite] or semanas
+        else:
+            semanas_de_grupos = semanas
+        indice = {semana: i for i, semana in enumerate(semanas)}
+        fechas: dict[str, int] = defaultdict(int)
+        for partido in self.problema.partidos:
+            if partido.fecha:
+                fechas[partido.categoria] = max(fechas[partido.categoria], partido.fecha)
+
+        desvio = []
+        for partido in self.problema.partidos:
+            if not partido.fecha:
+                continue
+            objetivo = (partido.fecha - 1) * len(semanas_de_grupos) // fechas[partido.categoria]
+            for dia, en_dia in self.en_dia[partido.id].items():
+                distancia = abs(indice[dia.isocalendar()[:2]] - objetivo)
+                if distancia:
+                    desvio.append(distancia * en_dia)
+        peso = 1 + sum(len(semanas) for _ in self.problema.partidos)
+        self.modelo.maximize(peso * sum(self.presente.values()) - sum(desvio))
 
     def resolver(self, segundos: float, trabajadores: int, semilla: int) -> Resultado:
         solver = cp_model.CpSolver()
@@ -214,5 +326,7 @@ def programar(
     modelo.variables()
     modelo.canchas()
     modelo.equipos()
+    modelo.personas()
+    modelo.orden()
     modelo.objetivo()
     return modelo.resolver(segundos, trabajadores, semilla)
