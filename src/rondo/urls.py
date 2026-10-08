@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import include, path
+from django.urls import path
 
+from torneo.autenticacion import VistaDeIngreso
 from torneo.views import (
     acf,
     asistente,
@@ -76,13 +77,20 @@ urlpatterns = [
         vistas_publicas.categoria,
         name="publico-categoria",
     ),
-    # Con la sesión iniciada, el login lleva al inicio en lugar de mostrarse vacío.
+    # Con la sesión iniciada, el login lleva al inicio. Tiene límite de intentos (T6.3).
+    path("cuentas/login/", VistaDeIngreso.as_view(), name="login"),
+    path("cuentas/logout/", auth_views.LogoutView.as_view(), name="logout"),
+    # Sin recuperación por correo: no hay correo configurado (T6.3).
     path(
-        "cuentas/login/",
-        auth_views.LoginView.as_view(redirect_authenticated_user=True),
-        name="login",
+        "cuentas/password_change/",
+        auth_views.PasswordChangeView.as_view(),
+        name="password_change",
     ),
-    path("cuentas/", include("django.contrib.auth.urls")),
+    path(
+        "cuentas/password_change/done/",
+        auth_views.PasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
     path("diagnostico/componentes/", diagnostico.componentes, name="diagnostico-componentes"),
     path("admin/", admin.site.urls),
 ]

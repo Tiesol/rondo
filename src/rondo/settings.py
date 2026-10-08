@@ -5,6 +5,7 @@ from pathlib import Path
 
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.csp import CSP
 
 RAIZ = Path(__file__).resolve().parents[2]
 BASE_DIR = RAIZ  # lo usa django-tailwind-cli
@@ -42,6 +43,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
+    "rondo.encabezados.PermisosDelNavegador",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -129,6 +132,28 @@ LOGOUT_REDIRECT_URL = "login"
 # que no entra al repo: se genera con `manage.py tailwind build`.
 TAILWIND_CLI_SRC_CSS = "frontend/tailwind.css"
 TAILWIND_CLI_DIST_CSS = "css/tailwind.css"
+
+# Política de contenido (T6.3): solo scripts propios, nada de terceros. Los estilos en línea
+# hacen falta para los colores de los escudos y del organizador (atributos style).
+SECURE_CSP = {
+    "default-src": [CSP.SELF],
+    "script-src": [CSP.SELF],
+    "style-src": [CSP.SELF, CSP.UNSAFE_INLINE],
+    "img-src": [CSP.SELF, "data:", "blob:"],  # el PNG se arma con imágenes en memoria
+    "font-src": [CSP.SELF, "data:"],
+    "connect-src": [CSP.SELF],
+    "worker-src": [CSP.SELF],
+    "manifest-src": [CSP.SELF],
+    "object-src": [CSP.NONE],
+    "base-uri": [CSP.SELF],
+    "form-action": [CSP.SELF],
+    "frame-ancestors": [CSP.NONE],
+}
+
+# Límite de intentos de login (T6.3), por IP y por usuario. La caché es la de memoria del
+# proceso: alcanza con una sola instancia (Render). Con varias, hace falta una caché común.
+LOGIN_MAX_INTENTOS = 10
+LOGIN_VENTANA_SEGUNDOS = 15 * 60
 
 # Logs a la salida estándar (Cloud Logging los toma de ahí). Nunca se registran cuerpos
 # de requests ni formularios: pueden tener datos personales de menores.

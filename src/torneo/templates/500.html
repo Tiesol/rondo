@@ -1,0 +1,19 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Algo salió mal · Rondo</title>
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+</head>
+<body>
+  {# Sin base.html: no depende de la base de datos ni de la sesión, que pueden ser la falla. #}
+  <main class="ingreso">
+    <div class="vacio">
+      <strong>Algo salió mal</strong>
+      <p class="peq tenue">No es tu culpa. Vuelve a intentar en un momento; si sigue pasando, avísale a Sebastian.</p>
+      <a class="btn principal" href="/">Ir al inicio</a>
+    </div>
+  </main>
+</body>
+</html>

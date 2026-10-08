@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 5 cerrada. Las fases 1b a 5 están terminadas y revisadas: la app está lista para la demo (`docs/DEMO.md`).
-- **Siguiente paso:** T6.3 (revisión de seguridad).
+- **Siguiente paso:** T6.4 (retención de datos, P49).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -89,6 +89,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-08: fase 6 planificada (T6.1 a T6.7 en `tasks/todo.md`; T6.5 a T6.7 necesitan a Sebastian).
 - 2026-10-07: T6.1 lista: en Torneo → Fixture, cada partido de eliminación tiene "Asignar equipos" (local y visitante de la categoría, distintos). La referencia ("1.º A vs 2.º B") queda a la vista, y desde ahí el programador, el verificador, el calendario y el PNG usan esos equipos. Si el partido ya estaba programado y con esos equipos choca, se guarda igual y se avisa.
 - 2026-10-07: T6.2 lista: en Más, la organización agrega personas (usuario, nombre y rol; sin staff) con una contraseña temporal generada con `secrets`, que se muestra una sola vez y no va a la sesión, los mensajes ni el log; cambia el rol de los demás (no el propio ni el del superusuario). Todos cambian su contraseña. `servicios/usuarios` también lo usa el comando `crear_usuario`.
+- 2026-10-07: T6.3 lista: revisión de seguridad con modelo de amenazas. Corregido: rutas de recuperación por correo abiertas (se sacaron), sin CSP ni Permissions-Policy (agregadas), login sin límite de intentos (10 por IP y por usuario cada 15 min) y sin 500 propia. Un test recorre todas las URLs (login obligatorio salvo las públicas). `check --deploy` y `pip-audit` sin hallazgos.
 
 ## Pendiente
 
@@ -364,6 +365,21 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 - Al aplicar una propuesta, las otras de la misma corrida quedan viejas (la firma cambió) y se rechazan. Es lo esperado.
 - Si se suspende un día y no se aplica ninguna propuesta, sus partidos quedan sin programar hasta volver a programar o aplicar una.
 - La prueba del PNG en Android sigue pendiente (R45).
+
+## Revisión de seguridad (2026-10-08, T6.3, `security-and-hardening`)
+
+**Modelo de amenazas:** los límites de confianza son los formularios, las páginas públicas, la PWA y el admin. El activo principal son los datos personales de menores. Con STRIDE: suplantación (fuerza bruta en el login), divulgación (páginas públicas, logs y errores), elevación (permisos por vista) y negación de servicio (el programador, ya acotado por tiempo y por una corrida a la vez).
+
+**Hallazgos, comprobados con un experimento y corregidos, cada uno con su test (`tests/torneo/test_seguridad.py`):**
+
+| Hallazgo | Corrección |
+|---|---|
+| La recuperación de contraseña por correo estaba abierta sin login, sin correo configurado | Se sacaron esas rutas; quedan login, logout y cambio de contraseña |
+| No había CSP ni Permissions-Policy | CSP de Django 6.1 (`SECURE_CSP`): solo scripts propios, sin `unsafe-inline` en scripts. `Permissions-Policy` apaga cámara, micrófono, ubicación y pagos |
+| El login aceptaba intentos fallidos sin límite | 10 intentos por IP y por usuario cada 15 minutos; después, 429 con un aviso, aunque la contraseña sea correcta |
+| Sin página 500 propia | `500.html` que no depende de la base ni de la sesión |
+
+**Comprobado sin cambios:** toda URL pide login salvo las públicas y la PWA (un test las recorre todas); las de la organización dan 403 a la mesa; `check --deploy` sin advertencias; `pip-audit` sobre el lockfile, sin vulnerabilidades conocidas; HSTS, cookies seguras, `X-Frame-Options: DENY`, `nosniff` y `Referrer-Policy: same-origin`.
 
 ## Supuestos
 
