@@ -179,15 +179,22 @@ T5.3 + T5.6 → T5.8
 - [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
 - [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
-### Fase 6: se detalla al llegar
+### Fase 6: producción 2026
 
-| Fase | Tareas previstas |
-|---|---|
-| 2. Inscripción (día 2) | Normalización de CI (INS-04). Validaciones de edad, cantidad, cuerpo técnico, dorsal y CI repetido (INS-02 a INS-10). Modelos y formularios para el celular: club, equipo, jugadores y profes. Avisos en vivo con HTMX. Marca de "verificado". Generador de demo con `faker`, siguiendo los patrones de 6.4 |
-| 3. Fixture y verificador (día 3) | `formatos.json` y su intérprete. Todos contra todos. Series cruzadas. Llaves con referencias. Sorteo de series. Persistencia y vista del fixture. Verificador con el caso 2023. Capacidad con flujo máximo |
-| 4. Programador (día 4) | Modelo CP-SAT con las restricciones duras. Objetivo. Partidos sin ubicar con motivo. Corrida dentro del request, con bloqueo. Vista básica por día y cancha. Caso del tamaño de 2023 |
-| 5. Reprogramación y calendario (día 5) | Bloqueos ACF. Suspensión y franjas entre semana. Propuestas diversas. Cambio manual verificado. Historial. Vistas por categoría y por club. Exportación PNG. PWA. Ensayo de la demo |
-| 6. Producción 2026 | Ajustes con las respuestas del organizador. Rama `production` de Neon y servicio aparte. Backups. Usuarios. Revisión de seguridad. Asignación a mano de los cruces de eliminación |
+> Planificada el 2026-10-08. A (T6.1 a T6.4) se puede avanzar ya; B (T6.5 a T6.7) necesita a Sebastian: producción, nube, costos y respuestas del organizador. El detalle está en [todo.md](todo.md).
+
+- [ ] T6.1 Asignar a mano los participantes de la eliminación (P50)
+- [ ] T6.2 Personas: invitar, cambiar el rol y la contraseña
+- [ ] T6.3 Revisión de seguridad
+- [ ] T6.4 Retención de datos (P49)
+- [ ] T6.5 Producción separada de la demo *(necesita a Sebastian)*
+- [ ] T6.6 Configuración con las respuestas del organizador *(necesita a Sebastian)*
+- [ ] T6.7 Carga de las listas reales y publicación *(necesita a Sebastian)*
+
+**Checkpoint de la fase 6:**
+
+- [ ] El fixture y el calendario 2026 están publicados (necesita T6.5 a T6.7).
+- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
 
 ## Grafo de dependencias
 

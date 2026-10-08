@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 5 cerrada. Las fases 1b a 5 están terminadas y revisadas: la app está lista para la demo (`docs/DEMO.md`).
-- **Siguiente paso:** planificar la fase 6 (producción 2026). Lo que necesita a Sebastian (nube, producción, respuestas del organizador) espera su vuelta; lo demás se puede avanzar.
+- **Siguiente paso:** T6.1 (asignar a mano la eliminación). T6.5 a T6.7 esperan a Sebastian.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -86,6 +86,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T5.7 lista: `/calendario/club/<id>/` muestra todos los partidos de los equipos de un club, por día y en orden; el calendario tiene un selector de club. La vista por categoría es la pestaña Fixture de Torneo (con día, hora y cancha), cubierta con un test.
 - 2026-10-07: T5.8 lista: manifest (`/manifest.webmanifest`, con el nombre y el color del organizador) y service worker (`/sw.js`, sin guardar datos: si no hay red, un aviso), servidos sin login; íconos generados con `scripts/generar_iconos.py` (solo biblioteca estándar). `docs/DEMO.md` con el guion y las preguntas P13, P33, P35, P44, P46 y P50. Test lento de punta a punta: demo → fixtures → programar → bloqueo → propuestas → aplicar → PNG sin datos personales.
 - 2026-10-08: revisión de cierre de la fase 5; se corrigió 1 hallazgo y se cerró un hueco de los tests (ver "Revisión de la fase 5").
+- 2026-10-08: fase 6 planificada (T6.1 a T6.7 en `tasks/todo.md`; T6.5 a T6.7 necesitan a Sebastian).
 
 ## Pendiente
 
