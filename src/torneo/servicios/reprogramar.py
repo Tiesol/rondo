@@ -5,7 +5,7 @@ calendario: si el calendario cambia antes de aplicar, la propuesta ya no vale y 
 """
 
 import hashlib
-from datetime import datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import Any
 
 from django.conf import settings
@@ -51,10 +51,30 @@ def ventana_de(momento: datetime) -> tuple[datetime, datetime]:
 def calcular_propuestas(
     bloqueo: Bloqueo, usuario: AbstractBaseUser | AnonymousUser | None = None
 ) -> Corrida:
-    torneo = bloqueo.torneo
+    """Propuestas para un bloqueo: ese fin de semana y el siguiente."""
+    desde, hasta = ventana_de(bloqueo.inicio)
+    return calcular_propuestas_en(
+        bloqueo.torneo,
+        desde,
+        hasta,
+        motivo=bloqueo.motivo,
+        origen={"bloqueo": bloqueo.pk},
+        usuario=usuario,
+    )
+
+
+def calcular_propuestas_en(
+    torneo: Torneo,
+    desde: datetime,
+    hasta: datetime,
+    *,
+    motivo: str,
+    origen: dict[str, Any],
+    usuario: AbstractBaseUser | AnonymousUser | None = None,
+) -> Corrida:
+    """Propuestas que solo mueven (o ubican) partidos entre desde y hasta (hora local)."""
     comienzo = timezone.now()
     partidos = partidos_del_torneo(torneo)
-    desde, hasta = ventana_de(bloqueo.inicio)
     propuestas = proponer(
         problema_del_torneo(torneo, partidos),
         calendario_actual(partidos),
@@ -68,7 +88,7 @@ def calcular_propuestas(
         tipo=Corrida.Tipo.REPROGRAMAR,
         estado=Corrida.Estado.TERMINADA,
         usuario=_usuario(usuario),
-        parametros={"bloqueo": bloqueo.pk, "motivo": bloqueo.motivo},
+        parametros={**origen, "motivo": motivo},
         duracion=(timezone.now() - comienzo).total_seconds(),
         resultado={
             "firma": firma(partidos),
@@ -168,3 +188,44 @@ def mover_a_mano(
     partido.estado, partido.fijado = Partido.Estado.PROGRAMADO, True
     partido.save(update_fields=["cancha", "inicio", "estado", "fijado"])
     return cambio
+
+
+def suspender_dia(
+    torneo: Torneo, dia: date, usuario: AbstractBaseUser | AnonymousUser | None = None
+) -> Corrida:
+    """Suspende las franjas del día: sus partidos no jugados quedan sin programar (con su
+    Cambio), y se calculan propuestas para ubicarlos ese fin de semana o el siguiente."""
+    motivo = "Día suspendido"
+    with transaction.atomic():
+        Torneo.objects.select_for_update().get(pk=torneo.pk)
+        desde = timezone.make_aware(datetime.combine(dia, time.min))
+        hasta = desde + timedelta(days=1)
+        torneo.franjas.filter(inicio__gte=desde, inicio__lt=hasta).update(suspendida=True)
+        partidos = list(
+            Partido.objects.filter(
+                categoria__torneo=torneo, inicio__gte=desde, inicio__lt=hasta
+            ).exclude(estado=Partido.Estado.JUGADO)
+        )
+        Cambio.objects.bulk_create(
+            Cambio(
+                partido=p,
+                cancha_antes_id=p.cancha_id,
+                inicio_antes=p.inicio,
+                usuario=_usuario(usuario),
+                motivo=motivo,
+            )
+            for p in partidos
+        )
+        for partido in partidos:
+            partido.cancha, partido.inicio = None, None
+            partido.estado, partido.fijado = Partido.Estado.PENDIENTE, False
+        Partido.objects.bulk_update(partidos, ["cancha", "inicio", "estado", "fijado"])
+    inicio_ventana, fin_ventana = ventana_de(desde)
+    return calcular_propuestas_en(
+        torneo,
+        inicio_ventana,
+        fin_ventana,
+        motivo=motivo,
+        origen={"dia": dia.isoformat()},
+        usuario=usuario,
+    )

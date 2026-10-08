@@ -202,6 +202,9 @@ class Franja(models.Model):
     inicio = models.DateTimeField()
     fin = models.DateTimeField()
     tipo = models.CharField(max_length=12, choices=Tipo.choices, default=Tipo.REGULAR)
+    suspendida = models.BooleanField(
+        default=False, help_text="Por lluvia u otro motivo: no se programa nada en ella"
+    )
 
     class Meta:
         ordering = ["torneo", "inicio"]

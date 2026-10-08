@@ -160,7 +160,7 @@ T4.1 ───────────────┴→ T4.5 → T4.6 → T4.7
 - [x] T5.2 Dominio: propuestas de reprogramación
 - [x] T5.3 Pantalla de propuestas, aplicar e historial
 - [x] T5.4 Cambio manual verificado
-- [ ] T5.5 Suspender un día y agregar un día entre semana
+- [x] T5.5 Suspender un día y agregar un día entre semana
 - [ ] T5.6 PNG del día por cancha
 - [ ] T5.7 Vistas por categoría y por club
 - [ ] T5.8 Instalación en el celular y ensayo de la demo

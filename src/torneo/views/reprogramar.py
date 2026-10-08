@@ -22,6 +22,19 @@ def _lugar(guardado: list[str] | None) -> str:
     return lugar(timezone.make_aware(datetime.fromisoformat(cuando)), codigo)
 
 
+def _titulo(propuesta: list[dict[str, Any]]) -> str:
+    """ "Mover 2 partidos", "Ubicar 3 partidos" o "Ubicar 3 y mover 1"."""
+    ubicar = sum(1 for m in propuesta if m["antes"] is None)
+    mover = len(propuesta) - ubicar
+
+    def partidos(n: int) -> str:
+        return f"{n} partido{'s' if n != 1 else ''}"
+
+    if ubicar and mover:
+        return f"Ubicar {ubicar} y mover {mover}"
+    return f"Ubicar {partidos(ubicar)}" if ubicar else f"Mover {partidos(mover)}"
+
+
 @require_POST
 @requiere("torneo.configurar_torneo", "reprogramar")
 def propuestas(request: HttpRequest, pk: int) -> HttpResponse:
@@ -43,11 +56,10 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
     }
     vista: list[dict[str, Any]] = []
     for indice, propuesta in enumerate(guardadas):
-        cantidad = len(propuesta)
         vista.append(
             {
                 "indice": indice,
-                "titulo": f"Mover {cantidad} partido{'s' if cantidad > 1 else ''}",
+                "titulo": _titulo(propuesta),
                 "movimientos": [
                     {
                         "antes": _lugar(m["antes"]),

@@ -35,7 +35,7 @@ def capacidad_del_torneo(torneo: Torneo) -> Capacidad:
     enteras = [codigo for codigo, padre in padres.items() if padre is None]
 
     # Franjas por fin de semana: la eliminación usa desde el que dice la regla (P33).
-    franjas = list(torneo.franjas.order_by("inicio"))
+    franjas = list(torneo.franjas.filter(suspendida=False).order_by("inicio"))
     semanas = sorted({timezone.localtime(f.inicio).isocalendar()[:2] for f in franjas})
     desde = reglas.eliminacion_desde_fin_de_semana
     semanas_de_eliminacion = set(semanas[desde - 1 :])
