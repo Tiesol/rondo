@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 3, fixture y verificador. Las fases 1b y 2 están cerradas y revisadas.
-- **Siguiente paso:** T3.6 (verificador de choques y prueba 2023).
+- **Siguiente paso:** T3.7 (capacidad con flujo máximo y pantalla Programar).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -64,6 +64,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T3.3 lista: `dominio/fixture.py` con `sortear_series` (semilla; reparte primero a los clubes con más equipos, cada uno donde tenga menos de su club, P45) y `armar_fixture`, que usa las series dadas o las sortea, valida sus tamaños contra el formato y devuelve los partidos de grupos con fecha y los de eliminación con participantes por definir (FIX-08).
 - 2026-10-07: T3.4 lista: modelos Serie y Partido (migración 0011), con local distinto de visitante y clave única por categoría en la base. `servicios/fixture.py`: `generar_fixture` respeta las series guardadas si siguen valiendo, rehace solo si la regla lo permite y no hay partidos jugados (FIX-09), y avisa P27 con más de 10 equipos; `generar_fixtures_faltantes` no pisa ninguno. `generar_demo` borra antes el fixture de demo. Nota: si mypy no ve una relación inversa nueva (`categoria.partidos`), es su caché incremental: `rm -rf .mypy_cache`.
 - 2026-10-07: T3.5 lista: Torneo → Fixture muestra las series, los partidos por fecha (con escudos) y la eliminación por copa con sus participantes por definir. La organización lo genera, lo rehace con un sorteo nuevo o cambia equipos de serie (editor plegado; rehace el fixture). La mesa lo ve sin botones. Inicio suma el pendiente "N categorías sin fixture" y "Generar los fixtures que faltan". La página pública muestra el fixture en Partidos. Los errores quedan en pantalla hasta cerrarlos.
+- 2026-10-07: T3.6 lista: `dominio/verificador.py` recibe cualquier calendario y devuelve choques por par (o por partido) con sus motivos y su tipo: cancha, compatibilidad, franja, equipo, persona y bloqueo. **Pasa la prueba 2023** (`datos/pruebas/calendario_2023.csv` con los grupos de 6.4 y las canchas de 6.1): 2 choques de personas (los de River Plate), 3 de cancha y 0 de compatibilidad. Con las canchas de 2026 aparecen los 2 de compatibilidad de H3. Un caso mínimo por tipo.
 
 ## Pendiente
 

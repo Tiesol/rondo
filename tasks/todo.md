@@ -517,9 +517,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Prueba 2023: exactamente 2 choques de personas (los de River Plate), 3 de cancha y 0 de compatibilidad, como dice la SPEC.
-- [ ] Cada tipo tiene un caso mínimo propio: equipo sin turno libre en el día, máximo de partidos por día, profe que cambia de cancha sin margen, franja y bloqueo.
-- [ ] Un par de partidos con varios motivos cuenta como un solo choque.
+- [x] Prueba 2023: exactamente 2 choques de personas (los de River Plate), 3 de cancha y 0 de compatibilidad, como dice la SPEC.
+- [x] Cada tipo tiene un caso mínimo propio: equipo sin turno libre en el día, máximo de partidos por día, profe que cambia de cancha sin margen, franja y bloqueo.
+- [x] Un par de partidos con varios motivos cuenta como un solo choque.
 
 **Verificación:** verde, con mypy estricto.
 **Depende de:** nada (recibe cualquier calendario).
