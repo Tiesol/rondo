@@ -17,6 +17,7 @@ from torneo.views import (
     mover,
     png,
     programar,
+    pwa,
     reglas,
     reprogramar,
     torneo,
@@ -26,6 +27,8 @@ from torneo.views.publicar import publicar
 
 urlpatterns = [
     path("", inicio, name="inicio"),
+    path("manifest.webmanifest", pwa.manifest, name="manifest"),
+    path("sw.js", pwa.service_worker, name="service-worker"),
     path("mas/", mas, name="mas"),
     path("calendario/", calendario.calendario, name="calendario"),
     path("calendario/agregar-dia/", calendario.agregar_dia, name="agregar-dia"),

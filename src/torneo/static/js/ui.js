@@ -59,3 +59,8 @@ document.addEventListener("input", (evento) => {
   const token = evento.target.dataset?.token;
   if (token) document.documentElement.style.setProperty(token, evento.target.value);
 });
+
+// Instalación en el celular: el service worker no guarda datos (la app funciona con conexión).
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}

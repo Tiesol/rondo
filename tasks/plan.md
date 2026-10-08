@@ -163,7 +163,7 @@ T4.1 ───────────────┴→ T4.5 → T4.6 → T4.7
 - [x] T5.5 Suspender un día y agregar un día entre semana
 - [x] T5.6 PNG del día por cancha
 - [x] T5.7 Vistas por categoría y por club
-- [ ] T5.8 Instalación en el celular y ensayo de la demo
+- [x] T5.8 Instalación en el celular y ensayo de la demo
 
 ```
 T5.1 → T5.2 → T5.3 → T5.4
