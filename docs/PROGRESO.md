@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 4, programador. Las fases 1b, 2 y 3 están cerradas y revisadas.
-- **Siguiente paso:** T4.1 (pares de equipos que comparten personas).
+- **Siguiente paso:** T4.2 (modelo CP-SAT: cancha, franja y equipo).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -68,6 +68,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T3.7 lista: `dominio/capacidad.py` con un flujo máximo de OR-Tools (cancha entera como recurso; una mitad ocupa media cancha) por grupo de canchas conectadas. `servicios/capacidad.py` cuenta los partidos del fixture (o los estima con el formato) para todo el torneo y para la eliminación desde P33. Pantalla `/torneos/<id>/programar/` con "¿Entra todo?". Con la demo de 93 equipos: C1 y C2, 118 de 200 h en todo el torneo y 37 de 40 h en la eliminación; C3, 68 de 100 h y 18 de 20 h.
 - 2026-10-07: revisión de cierre de la fase 3; se corrigió 1 hallazgo y se cerró un hueco de los tests (ver "Revisión de la fase 3").
 - 2026-10-07: fase 4 planificada (T4.1 a T4.7 en `tasks/todo.md`).
+- 2026-10-07: T4.1 lista: `servicios/personas.pares_de_equipos` calcula, desde Persona, los pares de equipos que comparten a alguien, con identificadores y motivo (jugador, o profe si dirige en alguno). Con la demo: 7 pares de jugadores y 29 de profes.
 
 ## Pendiente
 

@@ -551,9 +551,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con la demo salen los pares de 6.4: 7 jugadores compartidos y los profes compartidos (River Plate, Crack FC, etc.).
-- [ ] Un profe en tres equipos da los tres pares.
-- [ ] La salida no tiene nombres ni documentos.
+- [x] Con la demo salen los pares de 6.4: 7 jugadores compartidos y los profes compartidos (River Plate, Crack FC, etc.).
+- [x] Un profe en tres equipos da los tres pares.
+- [x] La salida no tiene nombres ni documentos.
 
 **Verificación:** verde.
 **Depende de:** nada.
