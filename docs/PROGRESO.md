@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 4, programador. Las fases 1b, 2 y 3 están cerradas y revisadas.
-- **Siguiente paso:** T4.7 (la demo programada y limpieza de la espiga).
+- **Siguiente paso:** revisión de cierre de la fase 4.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -74,6 +74,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T4.4 lista: `dominio/programador/motivos.py` prueba, para cada partido sin ubicar, sus inicios y canchas contra el calendario resultante, y da el motivo que bloquea más candidatos (cancha, equipo, persona, bloqueo u orden). Casos especiales: sin canchas compatibles, ninguna franja, espera a un partido que tampoco entra, o hay lugar pero el solver no llegó en el tiempo.
 - 2026-10-07: T4.5 lista: modelo Corrida (migración 0012) y `servicios/programador.programar_torneo`: una transacción corta bloquea el torneo y crea la Corrida (rechaza si hay otra corriendo; una colgada se da por abandonada pasado su límite más 2 min), arma el problema desde la base (hora local sin zona; referencias de la eliminación desde el formato; jugados y fijados como fijos), resuelve con `PROGRAMADOR_SEGUNDOS` y `PROGRAMADOR_TRABAJADORES`, calcula los motivos, verifica y guarda partidos y Corrida.
 - 2026-10-07: T4.6 lista: el botón de Programar corre la programación con HTMX (esqueleto mientras trabaja, botón desactivado) y muestra el resultado de la última corrida: "N de M partidos programados, sin choques" y "Sin lugar" con motivos. Calendario por día (`/calendario/<fecha>/`, selector de días por HTMX) y por cancha, con la 1 y sus mitades. La página pública muestra día, hora y cancha. **Con la demo: 223 de 223 partidos programados, óptimo y sin choques, en 30 s en local con 8 trabajadores.**
+- 2026-10-07: T4.7 lista: `tests/torneo/test_programar_demo.py` (marcado `lento`, unos 45 s) programa la demo entera y comprueba 0 choques duros, que todo lo que no entra tenga motivo y que entre todo (223 de 223). Se borró la espiga de T0.6 (`dominio/programador/espiga.py`, `probar_solver` y su test). La página de prueba del PNG queda hasta la fase 5.
 
 ## Pendiente
 
