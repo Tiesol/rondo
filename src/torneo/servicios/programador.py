@@ -65,7 +65,7 @@ def _texto(partido: Partido) -> str:
     return f"{cruce} · {partido.categoria}"
 
 
-def _problema(torneo: Torneo, partidos: list[Partido]) -> Problema:
+def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
     canchas = list(Cancha.objects.filter(torneo=torneo).prefetch_related("mitades"))
     fisicas = {
         c.codigo: frozenset(m.codigo for m in c.mitades.all()) or frozenset({c.codigo})
@@ -133,6 +133,29 @@ def bloqueos_del_torneo(torneo: Torneo) -> tuple[BloqueoDelDominio, ...]:
     )
 
 
+def partidos_del_torneo(torneo: Torneo) -> list[Partido]:
+    return list(
+        Partido.objects.filter(categoria__torneo=torneo).select_related(
+            "categoria__torneo", "cancha", "local", "visitante"
+        )
+    )
+
+
+def calendario_actual(partidos: list[Partido]) -> dict[Any, tuple[str, datetime]]:
+    """Dónde está cada partido programado, en hora local sin zona (como el dominio)."""
+    return {
+        p.pk: (p.cancha.codigo, _local(p.inicio))
+        for p in partidos
+        if p.cancha is not None and p.inicio is not None
+    }
+
+
+def verificar_torneo(torneo: Torneo) -> dict[str, int]:
+    """Los choques duros del calendario actual, por tipo (vacío si no hay)."""
+    partidos = partidos_del_torneo(torneo)
+    return _choques(problema_del_torneo(torneo, partidos), calendario_actual(partidos))
+
+
 def _choques(problema: Problema, ubicados: dict[Any, tuple[str, datetime]]) -> dict[str, int]:
     agendados = [
         PartidoAgendado(
@@ -182,12 +205,8 @@ def programar_torneo(
     corrida = _empezar(torneo, usuario)
     comienzo = timezone.now()
     try:
-        partidos = list(
-            Partido.objects.filter(categoria__torneo=torneo).select_related(
-                "categoria__torneo", "cancha", "local", "visitante"
-            )
-        )
-        problema = _problema(torneo, partidos)
+        partidos = partidos_del_torneo(torneo)
+        problema = problema_del_torneo(torneo, partidos)
         resultado = programar(
             problema,
             segundos=settings.PROGRAMADOR_SEGUNDOS,

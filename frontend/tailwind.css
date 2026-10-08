@@ -576,6 +576,37 @@
     }
   }
 
+  /* ---------- Propuestas: objetos aparte, sí van en tarjeta ---------- */
+  .propuesta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+  }
+  .propuesta.recomendada {
+    border-color: var(--color-azul);
+    box-shadow: inset 4px 0 0 var(--color-oro);
+  }
+  .propuesta h3 {
+    font: 22px/1 var(--font-titulo);
+    letter-spacing: 0.03em;
+  }
+  .mov {
+    display: grid;
+    padding-left: 10px;
+    border-left: 2px solid var(--color-linea);
+    font-size: 13.5px;
+  }
+  .mov .antes {
+    color: var(--color-tenue);
+    text-decoration: line-through;
+  }
+  .mov .despues {
+    font-weight: 600;
+  }
+
   /* ---------- Capacidad ---------- */
   .barra-cap {
     display: block;

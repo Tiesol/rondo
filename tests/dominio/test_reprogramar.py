@@ -37,7 +37,8 @@ def base() -> tuple[Problema, dict[object, tuple[str, datetime]]]:
     problema = Problema(
         partidos=tuple(partidos()), fisicas=FISICAS, franjas=franjas(), reglas=Reglas()
     )
-    resultado = programar(problema, segundos=10, trabajadores=4)
+    # Con un solo trabajador, el solver es determinista: el test no depende de la suerte.
+    resultado = programar(problema, segundos=10, trabajadores=1)
     assert resultado.sin_ubicar == []
     return problema, dict(resultado.ubicados)
 
@@ -69,7 +70,7 @@ def sin_choques(problema: Problema, calendario: dict[object, tuple[str, datetime
 
 def con_bloqueo_sobre_uno() -> tuple[Problema, dict[object, tuple[str, datetime]], object]:
     problema, actual = base()
-    victima = next(p for p in problema.partidos if actual[p.id][1].date() == SAB.date())
+    victima = min(problema.partidos, key=lambda p: actual[p.id][1])
     _, inicio = actual[victima.id]
     bloqueo = Bloqueo(
         victima.equipos[0], inicio - timedelta(minutes=10), inicio + timedelta(hours=1)
@@ -97,23 +98,21 @@ def test_pro_13_las_propuestas_son_distintas() -> None:
 
 def test_pro_13_no_mueve_lo_que_queda_fuera_de_la_ventana_ni_lo_fijo() -> None:
     problema, actual, victima = con_bloqueo_sobre_uno()
-    jugado = next(
-        p
-        for p in problema.partidos
-        if p.id != victima and actual[p.id][1].date() == SAB.date() and victima not in (p.id,)
-    )
+    por_hora = sorted(problema.partidos, key=lambda p: actual[p.id][1])
+    jugado = next(p for p in por_hora if p.id != victima)
+    hasta = actual[jugado.id][1] + timedelta(days=1)
     partidos_ = tuple(
         replace(p, fijo=actual[p.id]) if p.id == jugado.id else p for p in problema.partidos
     )
     problema = replace(problema, partidos=partidos_)
-    propuestas = proponer(problema, actual, desde=SAB, hasta=SAB + timedelta(days=2), segundos=10)
+    propuestas = proponer(problema, actual, desde=SAB, hasta=hasta, segundos=10)
     assert propuestas
     for propuesta in propuestas:
         for movimiento in propuesta.movimientos:
             assert movimiento.partido != jugado.id
             assert movimiento.antes is not None and movimiento.despues is not None
-            assert SAB <= movimiento.antes[1] < SAB + timedelta(days=2)
-            assert SAB <= movimiento.despues[1] < SAB + timedelta(days=2)
+            assert SAB <= movimiento.antes[1] < hasta
+            assert SAB <= movimiento.despues[1] < hasta
 
 
 def test_sin_choque_no_hay_nada_que_mover() -> None:

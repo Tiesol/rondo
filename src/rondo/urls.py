@@ -16,6 +16,7 @@ from torneo.views import (
     mas,
     programar,
     reglas,
+    reprogramar,
     torneo,
 )
 from torneo.views import publico as vistas_publicas
@@ -47,6 +48,13 @@ urlpatterns = [
     path("torneos/<int:pk>/acf/", acf.acf, name="acf"),
     path("torneos/<int:pk>/acf/revisar/", acf.revisar, name="revisar-acf"),
     path("bloqueos/<int:pk>/borrar/", acf.borrar, name="borrar-bloqueo"),
+    path("bloqueos/<int:pk>/propuestas/", reprogramar.propuestas, name="propuestas"),
+    path("corridas/<int:pk>/propuestas/", reprogramar.ver_propuestas, name="ver-propuestas"),
+    path(
+        "corridas/<int:pk>/aplicar/<int:indice>/",
+        reprogramar.aplicar_propuesta,
+        name="aplicar-propuesta",
+    ),
     path("t/<int:pk>/", vistas_publicas.publico, name="publico"),
     path(
         "t/<int:pk>/<int:categoria>/<str:pestana>/",
