@@ -122,10 +122,11 @@ T3.6 (independiente: recibe cualquier calendario)
 
 **Checkpoint de la fase 3:**
 
-- [ ] Cada formato da de 8 a 27 partidos según corresponda, sin cruces repetidos ni equipos dos veces en una fecha.
-- [ ] El verificador pasa la prueba 2023 por tipo: 2 de personas, 3 de cancha y 0 de compatibilidad.
-- [ ] La capacidad de la demo se ve en pantalla.
-- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+- [x] Cada formato da de 8 a 27 partidos según corresponda, sin cruces repetidos ni equipos dos veces en una fecha.
+- [x] El verificador pasa la prueba 2023 por tipo: 2 de personas, 3 de cancha y 0 de compatibilidad.
+- [x] La capacidad de la demo se ve en pantalla.
+- [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
+- [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
 ### Fases 4 a 6: se detallan al llegar
 

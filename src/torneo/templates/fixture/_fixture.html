@@ -27,7 +27,7 @@ página pública. Con editable, la organización ve los botones y el editor de s
   <form method="post" action="{% url 'guardar-series' categoria.pk %}" class="flex flex-col gap-2">
     {% csrf_token %}
     <ul class="lista">
-      {% for serie in fixture.series %}{% for equipo in serie.equipos %}
+      {% for serie in fixture.series %}{% for equipo in serie.modelos %}
       <li class="fila">
         <label class="crece" for="serie-{{ equipo.pk }}"><strong>{{ equipo.nombre }}</strong></label>
         <select id="serie-{{ equipo.pk }}" name="serie_{{ equipo.pk }}" class="selector">

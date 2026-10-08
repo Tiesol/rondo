@@ -4,8 +4,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 3, fixture y verificador. Las fases 1b y 2 están cerradas y revisadas.
-- **Siguiente paso:** revisión de cierre de la fase 3.
+- **Fase:** 4, programador. Las fases 1b, 2 y 3 están cerradas y revisadas.
+- **Siguiente paso:** detallar las tareas de la fase 4 (`planning-and-task-breakdown`) y empezar por la primera.
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -66,6 +66,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T3.5 lista: Torneo → Fixture muestra las series, los partidos por fecha (con escudos) y la eliminación por copa con sus participantes por definir. La organización lo genera, lo rehace con un sorteo nuevo o cambia equipos de serie (editor plegado; rehace el fixture). La mesa lo ve sin botones. Inicio suma el pendiente "N categorías sin fixture" y "Generar los fixtures que faltan". La página pública muestra el fixture en Partidos. Los errores quedan en pantalla hasta cerrarlos.
 - 2026-10-07: T3.6 lista: `dominio/verificador.py` recibe cualquier calendario y devuelve choques por par (o por partido) con sus motivos y su tipo: cancha, compatibilidad, franja, equipo, persona y bloqueo. **Pasa la prueba 2023** (`datos/pruebas/calendario_2023.csv` con los grupos de 6.4 y las canchas de 6.1): 2 choques de personas (los de River Plate), 3 de cancha y 0 de compatibilidad. Con las canchas de 2026 aparecen los 2 de compatibilidad de H3. Un caso mínimo por tipo.
 - 2026-10-07: T3.7 lista: `dominio/capacidad.py` con un flujo máximo de OR-Tools (cancha entera como recurso; una mitad ocupa media cancha) por grupo de canchas conectadas. `servicios/capacidad.py` cuenta los partidos del fixture (o los estima con el formato) para todo el torneo y para la eliminación desde P33. Pantalla `/torneos/<id>/programar/` con "¿Entra todo?". Con la demo de 93 equipos: C1 y C2, 118 de 200 h en todo el torneo y 37 de 40 h en la eliminación; C3, 68 de 100 h y 18 de 20 h.
+- 2026-10-07: revisión de cierre de la fase 3; se corrigió 1 hallazgo y se cerró un hueco de los tests (ver "Revisión de la fase 3").
 
 ## Pendiente
 
@@ -269,6 +270,29 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 - Quien carga listas puede saber si un CI ya está cargado y a nombre de quién (el aviso lo dice). Son 2 o 3 personas de confianza, y es justo lo que pide INS-05.
 - `generar_demo` vuelve a cargar la configuración 2026 en cada corrida: pisa lo que se haya editado en el torneo de demo.
 - La imagen de producción no tiene `faker` (`uv sync --no-dev`): `generar_demo` se corre desde la máquina de Sebastian (DESPLIEGUE.md, 3c).
+
+## Revisión de la fase 3 (2026-10-07, `code-review-and-quality`)
+
+**Veredicto: aprobada.** El visto bueno de Sebastian queda para su vuelta (REVISAR.md).
+
+**Mutaciones:**
+
+| Mutación | Resultado |
+|---|---|
+| Sin la fecha 1 para el mismo club (P24) | Detectada |
+| La franja mira el turno (con el cambio) en lugar del partido (P48) | Detectada |
+| Una mitad cuenta como cancha entera en la capacidad | Detectada |
+| Se rehace un fixture con partidos jugados (FIX-09) | Detectada |
+| El sorteo deja de separar clubes (P45) | Detectada |
+| Dos equipos que comparten profe y juegan entre sí cuentan como choque | **No detectada:** el código estaba bien, pero ningún test lo cubría. Se agregó |
+
+**Corregido:** el fixture hacía dos consultas por serie (un `order_by` dentro del bucle que ignoraba el `prefetch_related`). Test en `tests/torneo/test_revision_3.py`.
+
+**FYI:**
+
+- Con la demo (93 equipos), la eliminación entra justo en el último fin de semana: 37 de 40 h en C1 y C2 y 18 de 20 h en C3. Con los 117 equipos de H4 no entraría: P33 sigue siendo importante.
+- La capacidad es una cota optimista (R39). El programador de la fase 4 es el que dice qué entra de verdad.
+- Si mypy no ve una relación inversa nueva (`categoria.partidos`), es su caché incremental: `rm -rf .mypy_cache`.
 
 ## Supuestos
 
