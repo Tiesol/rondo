@@ -771,3 +771,84 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Depende de:** T5.3, T5.6.
 **Archivos:** manifest, service worker, íconos, `docs/DEMO.md`, `tests/torneo/test_demo_de_punta_a_punta.py`.
 **Tamaño:** M.
+
+## Fase 6: producción 2026
+
+> Planificada el 2026-10-08. La fase tiene dos partes:
+>
+> - **A, se puede avanzar sin Sebastian** (con la autorización general del 2026-10-07): T6.1 a T6.4.
+> - **B, necesita a Sebastian**, porque toca producción, la nube, costos o respuestas del organizador (SPEC, "Límites"): T6.5 a T6.7. Quedan escritas para su vuelta.
+
+### T6.1 Asignar a mano los participantes de la eliminación (P50)
+
+**Descripción:** en Torneo → Fixture, cada partido de eliminación "por definir" tiene un selector de local y de visitante, con los equipos de la categoría. El organizador los asigna cuando conoce las posiciones (la app no calcula la tabla: puntos y desempate quedan fuera hasta que se especifiquen). Desde ahí, el programador y el verificador cuentan con esos equipos.
+
+**Aceptación:**
+
+- [ ] La organización asigna local y visitante a una semifinal; la referencia ("1.º A") queda a la vista.
+- [ ] No se puede asignar el mismo equipo a los dos lados ni un equipo de otra categoría.
+- [ ] Un partido asignado ya no está "por definir" en el fixture, el calendario ni el PNG.
+
+**Verificación:** verde.
+**Archivos:** vista, formulario y plantilla del fixture, `tests/torneo/test_asignar_eliminacion.py`.
+**Tamaño:** S.
+
+### T6.2 Personas: invitar, cambiar el rol y la contraseña
+
+**Descripción:** en "Más", la organización crea un usuario con su rol (la app genera una contraseña temporal que se muestra una sola vez para entregarla en persona) y cambia el rol de los demás. Cada persona cambia su contraseña desde "Más" (R6).
+
+**Aceptación:**
+
+- [ ] La organización crea un usuario de mesa; la contraseña temporal se ve una vez y nunca se guarda en claro ni va al log.
+- [ ] La organización cambia el rol de alguien; la mesa no puede.
+- [ ] Cualquiera cambia su propia contraseña.
+
+**Verificación:** verde.
+**Archivos:** vistas y plantillas de personas, `tests/torneo/test_personas.py`.
+**Tamaño:** M.
+
+### T6.3 Revisión de seguridad
+
+**Descripción:** revisión con `security-and-hardening` sobre toda la app: encabezados (CSP, Referrer-Policy, Permissions-Policy), sesiones, límite de intentos de login sin dependencias nuevas, permisos de cada vista, datos personales en logs y respuestas, y `manage.py check --deploy`. Se corrige lo que se encuentre, con su test.
+
+**Aceptación:**
+
+- [ ] Un test recorre todas las URLs y confirma que piden login (salvo las públicas y la PWA) y que las de la organización dan 403 a la mesa.
+- [ ] Hay CSP y los demás encabezados, y la app sigue funcionando (HTMX, PNG).
+- [ ] Muchos intentos fallidos de login desde la misma IP se frenan por un rato.
+
+**Verificación:** verde, más `check --deploy` sin advertencias.
+**Archivos:** `src/rondo/settings.py`, middleware o vistas del login, `tests/torneo/test_seguridad.py`, PROGRESO.md.
+**Tamaño:** M.
+
+### T6.4 Retención de datos (P49)
+
+**Descripción:** `manage.py anonimizar_torneo <id> --confirmo` borra los datos personales de un torneo terminado: nombres, documentos y fechas de nacimiento de las personas que no estén en otro torneo. Quedan los planteles como "Jugador 1, 2…" con su dorsal. Por defecto de P49, se corre a fin de año.
+
+**Aceptación:**
+
+- [ ] Después de correrlo no queda ningún nombre, documento ni fecha de nacimiento del torneo.
+- [ ] Sin `--confirmo` no hace nada; con un torneo en curso se niega.
+- [ ] Los equipos, partidos y el calendario quedan intactos.
+
+**Verificación:** verde.
+**Archivos:** `src/torneo/management/commands/anonimizar_torneo.py`, `src/torneo/servicios/retencion.py`, `tests/torneo/test_anonimizar.py`.
+**Tamaño:** S.
+
+### T6.5 Producción separada de la demo (necesita a Sebastian)
+
+**Descripción:** rama `production` de Neon y un servicio aparte (Render Starter o Cloud Run, según H6 y la cuenta de Google Cloud), con su `SECRET_KEY`, backups y el límite del programador acorde a su CPU. Usuarios reales creados por Sebastian. Todo queda en `docs/DESPLIEGUE.md`.
+
+**Por qué espera:** desplegar a producción, crear servicios y tocar la nube con costo piden a Sebastian (SPEC, "Límites").
+
+### T6.6 Configuración con las respuestas del organizador (necesita a Sebastian)
+
+**Descripción:** con las respuestas de la demo (P13, P33, P35, P44, P46, P50 y las demás), ajustar `jmp_cup_2026.json`, `formatos.json` (P54) y las reglas, y anotarlo en PROGRESO.md.
+
+**Por qué espera:** no se inventan reglas (CLAUDE.md); hacen falta las respuestas.
+
+### T6.7 Carga de las listas reales y publicación (necesita a Sebastian)
+
+**Descripción:** la organización carga las listas 2026 en producción (nunca en el repo ni en la demo), genera los fixtures, programa y publica la página pública. Si cargar a mano no alcanza (P51), se suma pegar filas copiadas de Excel.
+
+**Por qué espera:** son datos reales de menores, y solo van a producción.
