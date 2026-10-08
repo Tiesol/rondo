@@ -22,6 +22,12 @@ from torneo.servicios.fixture import (
     generar_fixtures_faltantes,
     series_elegidas,
 )
+from torneo.servicios.programador import (
+    calendario_actual,
+    choques_del_calendario,
+    partidos_del_torneo,
+    problema_del_torneo,
+)
 
 COPAS = {"oro": "Copa de Oro", "plata": "Copa de Plata", "bronce": "Bronce"}
 
@@ -45,7 +51,18 @@ def _cuando(partido: Partido) -> dict[str, str]:
 
 
 def _fila(partido: Partido) -> dict[str, Any]:
+    asignado = partido.local is not None or partido.visitante is not None
     return {
+        "pk": partido.pk,
+        "eliminacion": partido.fase == Partido.Fase.ELIMINACION,
+        "local_id": partido.local_id,
+        "visitante_id": partido.visitante_id,
+        # P50: con los equipos asignados, la referencia ("1.º A vs 2.º B") sigue a la vista.
+        "referencia": (
+            f"{partido.texto_local} vs {partido.texto_visitante}"
+            if asignado and partido.texto_local
+            else ""
+        ),
         "cuando": _cuando(partido),
         "local": lado(partido.local, partido.texto_local),
         "visitante": lado(partido.visitante, partido.texto_visitante),
@@ -94,6 +111,7 @@ def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
         ],
         "fechas": [{"numero": n, "partidos": filas} for n, filas in sorted(fechas.items())],
         "eliminacion": [{"copa": copa, "partidos": filas} for copa, filas in copas.items()],
+        "equipos": list(categoria.equipos.order_by("nombre")),
     }
 
 
@@ -146,3 +164,41 @@ def generar_todos(request: HttpRequest, pk: int) -> HttpResponse:
     for _, problema in resultado.problemas:
         messages.warning(request, problema)
     return redirect("inicio")
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "asignar los cruces")
+def asignar(request: HttpRequest, pk: int) -> HttpResponse:
+    """P50: el organizador asigna los participantes de un partido de eliminación."""
+    partido = get_object_or_404(
+        Partido.objects.select_related("categoria__torneo"), pk=pk, fase=Partido.Fase.ELIMINACION
+    )
+    categoria = partido.categoria
+    elegidos = []
+    for lado_ in ("local", "visitante"):
+        valor = request.POST.get(lado_, "")
+        equipo = (
+            Equipo.objects.filter(pk=int(valor), categoria=categoria).first()
+            if valor.isdigit()
+            else None
+        )
+        if valor and equipo is None:
+            messages.error(request, "Ese equipo no es de esta categoría.")
+            return _volver(categoria)
+        elegidos.append(equipo)
+    local, visitante = elegidos
+    if local is not None and local == visitante:
+        messages.error(request, "Elige dos equipos distintos.")
+        return _volver(categoria)
+    partido.local, partido.visitante = local, visitante
+    partido.save(update_fields=["local", "visitante"])
+    messages.success(request, f"{partido.nombre}: equipos asignados")
+    # Si ya estaba programado, con estos equipos puede chocar: se avisa (y se guarda igual).
+    partidos = partidos_del_torneo(categoria.torneo)
+    calendario = choques_del_calendario(
+        problema_del_torneo(categoria.torneo, partidos), calendario_actual(partidos)
+    )
+    choques = [m for c in calendario if partido.pk in c.partidos for m in c.motivos]
+    if choques:
+        messages.warning(request, "Con estos equipos, el partido choca: " + "; ".join(choques))
+    return _volver(categoria)

@@ -49,7 +49,30 @@ página pública. Con editable, la organización ve los botones y el editor de s
 
 {% for copa in fixture.eliminacion %}
 <div class="subtitulo">{{ copa.copa }}</div>
-<ul class="lista">{% for partido in copa.partidos %}{% include "fixture/_partido.html" %}{% endfor %}</ul>
+<ul class="lista">
+  {% for partido in copa.partidos %}
+  {% include "fixture/_partido.html" %}
+  {% if editable %}
+  <li>
+    <details class="desplegable">
+      <summary>Asignar equipos · {{ partido.nombre }}</summary>
+      <form method="post" action="{% url 'asignar-eliminacion' partido.pk %}" class="flex flex-col gap-2 pb-3">
+        {% csrf_token %}
+        <div class="dos">
+          <div class="campo"><label for="local-{{ partido.pk }}">Local</label>
+            <select id="local-{{ partido.pk }}" name="local"><option value="">Por definir</option>{% for equipo in fixture.equipos %}<option value="{{ equipo.pk }}"{% if equipo.pk == partido.local_id %} selected{% endif %}>{{ equipo.nombre }}</option>{% endfor %}</select>
+          </div>
+          <div class="campo"><label for="visitante-{{ partido.pk }}">Visitante</label>
+            <select id="visitante-{{ partido.pk }}" name="visitante"><option value="">Por definir</option>{% for equipo in fixture.equipos %}<option value="{{ equipo.pk }}"{% if equipo.pk == partido.visitante_id %} selected{% endif %}>{{ equipo.nombre }}</option>{% endfor %}</select>
+          </div>
+        </div>
+        <button type="submit" class="btn chico">Guardar</button>
+      </form>
+    </details>
+  </li>
+  {% endif %}
+  {% endfor %}
+</ul>
 {% endfor %}
 
 {% if editable %}

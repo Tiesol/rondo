@@ -785,9 +785,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] La organización asigna local y visitante a una semifinal; la referencia ("1.º A") queda a la vista.
-- [ ] No se puede asignar el mismo equipo a los dos lados ni un equipo de otra categoría.
-- [ ] Un partido asignado ya no está "por definir" en el fixture, el calendario ni el PNG.
+- [x] La organización asigna local y visitante a una semifinal; la referencia ("1.º A") queda a la vista.
+- [x] No se puede asignar el mismo equipo a los dos lados ni un equipo de otra categoría.
+- [x] Un partido asignado ya no está "por definir" en el fixture, el calendario ni el PNG.
 
 **Verificación:** verde.
 **Archivos:** vista, formulario y plantilla del fixture, `tests/torneo/test_asignar_eliminacion.py`.
