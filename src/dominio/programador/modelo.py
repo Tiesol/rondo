@@ -97,7 +97,9 @@ def _pasos(minutos: int) -> int:
     return -(-minutos // PASO_MIN)  # hacia arriba
 
 
-class _Modelo:
+class Modelo:
+    """El modelo CP-SAT armado por partes; programar() y reprogramar.proponer() lo usan."""
+
     def __init__(self, problema: Problema) -> None:
         self.problema = problema
         self.modelo = cp_model.CpModel()
@@ -323,7 +325,7 @@ def programar(
     """El mejor calendario que encuentra el solver en el tiempo dado."""
     if not problema.partidos:
         return Resultado(estado="OPTIMAL")
-    modelo = _Modelo(problema)
+    modelo = Modelo(problema)
     modelo.variables()
     modelo.canchas()
     modelo.equipos()

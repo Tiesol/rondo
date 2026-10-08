@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 5, reprogramación y calendario. Las fases 1b a 4 están cerradas y revisadas.
-- **Siguiente paso:** T5.2 (propuestas de reprogramación).
+- **Siguiente paso:** T5.3 (pantalla de propuestas, aplicar e historial).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -78,6 +78,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: revisión de cierre de la fase 4; se corrigió 1 hallazgo (ver "Revisión de la fase 4").
 - 2026-10-07: fase 5 planificada (T5.1 a T5.8 en `tasks/todo.md`).
 - 2026-10-07: T5.1 lista: modelo Bloqueo (migración 0013; uno o varios equipos, P38) que el programador y el verificador respetan. Pantalla `/torneos/<id>/acf/` (solo la organización): equipos, día, horario y motivo; HTMX muestra al instante qué partidos programados chocan; lista de bloqueos con sus choques y botón para borrar. Inicio suma "Cargar un partido de la ACF".
+- 2026-10-07: T5.2 lista: `dominio/programador/reprogramar.proponer` reusa el modelo CP-SAT (`Modelo`, ahora público): fija lo que queda fuera de la ventana y lo jugado o fijado, obliga a lo movible a seguir ubicado dentro de la ventana, intenta ubicar lo pendiente y minimiza movidos, equipos afectados y cambios de fin de semana. Prohíbe repetir el conjunto de movidos para dar hasta 3 propuestas distintas, ordenadas por cantidad. Cada una, verificada sin choques en los tests.
 
 ## Pendiente
 
