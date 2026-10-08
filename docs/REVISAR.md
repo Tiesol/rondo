@@ -4,7 +4,15 @@ El 2026-10-07, Sebastian autorizó seguir con el desarrollo completo, fase tras 
 
 Los límites de SPEC.md siguen valiendo: sin dependencias nuevas fuera de las ya aprobadas, sin producción, sin nada que tenga costo y sin datos reales.
 
-**Cómo leerlo:** cada fila tiene un número (R1, R2…), la tarea donde surgió, qué hay que revisar y el supuesto que se tomó mientras tanto. Si el supuesto está bien, alcanza con borrar la fila. Si no, se cambia y se anota en PROGRESO.md.
+## Lo primero, a tu vuelta
+
+1. **Mirar la demo** en https://rondo-demo.onrender.com (se desplegó sola con cada merge). Para tener datos, corre en tu máquina `cargar_clubes` y `generar_demo --soy-la-demo` contra la rama `demo` de Neon (DESPLIEGUE.md, 3c), y después, en la app, "Generar los fixtures que faltan" y "Programar los partidos" (DEMO.md, "Antes de la demo").
+2. **Probar el PNG en tu Android** (R45): Calendario → un día → "Compartir el día".
+3. **Leer esta tabla** y marcar los supuestos que no van.
+4. **Dar el visto bueno** de las fases 1b a 6A (cada una tiene su revisión de cierre en PROGRESO.md) y **mostrarle la demo al organizador** con `docs/DEMO.md`.
+5. **Lo que espera por vos** (fase 6, parte B, en `tasks/todo.md`): producción separada de la demo (T6.5), la configuración con las respuestas del organizador (T6.6) y la carga de las listas reales (T6.7).
+
+**Cómo leer la tabla:** cada fila tiene un número (R1, R2…), la tarea donde surgió, qué hay que revisar y el supuesto que se tomó mientras tanto. Si el supuesto está bien, alcanza con borrar la fila. Si no, se cambia y se anota en PROGRESO.md.
 
 ## Pendientes de revisión
 

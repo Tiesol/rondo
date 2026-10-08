@@ -194,7 +194,8 @@ T5.3 + T5.6 → T5.8
 **Checkpoint de la fase 6:**
 
 - [ ] El fixture y el calendario 2026 están publicados (necesita T6.5 a T6.7).
-- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+- [x] Revisión con `code-review-and-quality` de la parte A (ver PROGRESO.md).
+- [ ] Tu visto bueno.
 
 ## Grafo de dependencias
 

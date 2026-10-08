@@ -4,16 +4,17 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 5 cerrada. Las fases 1b a 5 están terminadas y revisadas: la app está lista para la demo (`docs/DEMO.md`).
-- **Siguiente paso:** revisión de cierre de lo hecho de la fase 6 (T6.5 a T6.7 esperan a Sebastian).
+- **Fase:** 6, producción 2026. Las fases 1b a 5 y la parte A de la fase 6 (T6.1 a T6.4) están terminadas y revisadas. La app está lista para la demo con el organizador (`docs/DEMO.md`).
+- **Siguiente paso:** que Sebastian revise `docs/REVISAR.md` y dé el visto bueno de las fases 1b a 6A. Después, la parte B de la fase 6 (T6.5 a T6.7), que lo necesita: producción, nube y respuestas del organizador.
 
-## Para retomar (actualizado el 2026-10-07)
+## Para retomar (actualizado el 2026-10-08)
 
-- **Dónde estamos:** las fases 0 y 1 están terminadas y revisadas. Falta solo el visto bueno formal de Sebastian. Está planificada la **fase 1b, pantallas propias** (TU.1 a TU.7 en `tasks/todo.md`), que va antes de la inscripción.
-- **Próxima acción:** si Sebastian aprueba la fase 1b, empezar con **TU.1**, la base visual. Si no la aprobó, preguntarle antes de implementar.
-- **Diseño:** seguir `docs/DISENO.md`. El prototipo aprobado, sin barra de avance, está en https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a (copia en `docs/prototipo/prototipo-rondo.html`). La réplica del PNG está en https://claude.ai/artifact/H9uyeRSzhDwFj7CbfEMSKv.
+- **Dónde estamos:** entre el 2026-10-07 y el 2026-10-08 se hicieron, sin visto bueno entre fases (autorizado por Sebastian, solo esa vez), las fases 1b (pantallas propias), 2 (inscripción), 3 (fixture y verificador), 4 (programador), 5 (reprogramación y calendario) y la parte A de la 6 (P50, personas, seguridad y retención). Cada fase tiene su revisión de cierre en este archivo.
+- **Lo que hay que revisar:** `docs/REVISAR.md`, con cada supuesto (R1 a R52) y lo que hay que hacer.
+- **Próxima acción:** con el visto bueno, preparar la demo (`docs/DEMO.md`, "Antes de la demo") y mostrársela al organizador. Con sus respuestas, la parte B de la fase 6.
+- **Diseño:** `docs/DISENO.md`. El prototipo aprobado está en https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a (copia en `docs/prototipo/prototipo-rondo.html`); el diseño del PNG, en `docs/prototipo/fixture-png.html`.
 - **Demo:** https://rondo-demo.onrender.com. Se despliega sola con cada merge a `main`. El repo es https://github.com/Tiesol/rondo.
-- **Esperando a Sebastian (no bloquea la fase 1b):** respuesta a P54 (grupos con muchos equipos); correr `cargar_config` en la demo (DESPLIEGUE.md, 3b); capturas de la página de Copa Fácil. Las imágenes (logo, patrocinadores y escudos) quedan para después, junto con el PNG.
+- **Verde:** `uv run pytest -m "not lento"` (600 tests, unos 3,5 min), `uv run pytest -m lento` (la demo programada y el recorrido de punta a punta, unos 2 min), `uv run mypy` y ruff. Si mypy no ve una relación inversa nueva, `rm -rf .mypy_cache`.
 
 ## Hecho
 
@@ -91,6 +92,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T6.2 lista: en Más, la organización agrega personas (usuario, nombre y rol; sin staff) con una contraseña temporal generada con `secrets`, que se muestra una sola vez y no va a la sesión, los mensajes ni el log; cambia el rol de los demás (no el propio ni el del superusuario). Todos cambian su contraseña. `servicios/usuarios` también lo usa el comando `crear_usuario`.
 - 2026-10-07: T6.3 lista: revisión de seguridad con modelo de amenazas. Corregido: rutas de recuperación por correo abiertas (se sacaron), sin CSP ni Permissions-Policy (agregadas), login sin límite de intentos (10 por IP y por usuario cada 15 min) y sin 500 propia. Un test recorre todas las URLs (login obligatorio salvo las públicas). `check --deploy` y `pip-audit` sin hallazgos.
 - 2026-10-07: T6.4 lista: `manage.py anonimizar_torneo <id> --confirmo` (`servicios/retencion`) deja un torneo terminado sin nombres, documentos ni fechas de nacimiento (P49): "Jugador N" y "Profe N" según el plantel, con dorsales, equipos y calendario intactos; no toca a quien está en otro torneo; se niega con un torneo en curso o sin la bandera. Paso 3d de DESPLIEGUE.md.
+- 2026-10-08: revisión de cierre de la parte A de la fase 6: 5 mutaciones, las 5 detectadas (ver "Revisión de la fase 6, parte A").
 
 ## Pendiente
 
@@ -381,6 +383,18 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 | Sin página 500 propia | `500.html` que no depende de la base ni de la sesión |
 
 **Comprobado sin cambios:** toda URL pide login salvo las públicas y la PWA (un test las recorre todas); las de la organización dan 403 a la mesa; `check --deploy` sin advertencias; `pip-audit` sobre el lockfile, sin vulnerabilidades conocidas; HSTS, cookies seguras, `X-Frame-Options: DENY`, `nosniff` y `Referrer-Policy: same-origin`.
+
+## Revisión de la fase 6, parte A (2026-10-08, `code-review-and-quality`)
+
+**Veredicto: aprobada.** La revisión de seguridad está arriba ("Revisión de seguridad").
+
+| Mutación | Resultado |
+|---|---|
+| Se puede asignar el mismo equipo a los dos lados de un cruce | Detectada |
+| Alguien puede cambiarse el rol propio | Detectada |
+| El login sin límite de intentos | Detectada |
+| Anonimizar toca a quien está en otro torneo | Detectada |
+| Sin CSP | Detectada |
 
 ## Supuestos
 
