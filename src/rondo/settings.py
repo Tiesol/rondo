@@ -100,6 +100,11 @@ TIME_ZONE = "America/La_Paz"
 PLANTILLA_TORNEO = RAIZ / "datos" / "config" / "jmp_cup_2026.json"
 CATALOGO_CLUBES = RAIZ / "datos" / "config" / "clubes.json"
 FORMATOS = RAIZ / "datos" / "config" / "formatos.json"
+
+# Programador (ARQUITECTURA 8): corre dentro del request, con este límite (gunicorn corta a
+# los 300 s). En Render gratis hay 0,1 CPU: con más trabajadores encuentra antes (H6).
+PROGRAMADOR_SEGUNDOS = int(os.environ.get("RONDO_PROGRAMADOR_SEGUNDOS", "60"))
+PROGRAMADOR_TRABAJADORES = int(os.environ.get("RONDO_PROGRAMADOR_TRABAJADORES", "8"))
 USE_I18N = True
 USE_TZ = True
 
