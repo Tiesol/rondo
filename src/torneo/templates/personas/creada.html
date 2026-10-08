@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Persona agregada{% endblock %}
+{% block encabezado %}Persona agregada{% endblock %}
+{% block contenido %}
+<div class="seccion gap-3">
+  {% include "parciales/alerta.html" with estado="bien" titulo="Listo." texto="Ya puede entrar a Rondo." %}
+  <ul class="lista">
+    <li class="fila"><strong class="crece">Usuario</strong><span class="num">{{ nuevo.username }}</span></li>
+    <li class="fila"><strong class="crece">Contraseña temporal</strong><span class="num clave" data-clave="{{ clave }}">{{ clave }}</span></li>
+  </ul>
+  {% include "parciales/alerta.html" with estado="aviso" titulo="Anótala ahora:" texto="no se vuelve a mostrar. Entrégala en persona (nunca por un chat grupal) y pide que la cambie en Más → Cambiar mi contraseña." %}
+  <a class="btn principal bloque" href="{% url 'mas' %}">Volver a Más</a>
+</div>
+{% endblock %}

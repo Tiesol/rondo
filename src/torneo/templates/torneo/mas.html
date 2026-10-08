@@ -7,15 +7,39 @@
   <ul class="lista">
     <li>{% include "parciales/fila.html" with titulo=user.get_full_name|default:user.username sub=user.username chip=rol|default:"Sin rol" chip_estado="info" %}</li>
   </ul>
+  {% url "password_change" as url_clave %}
+  {% include "parciales/boton.html" with texto="Cambiar mi contraseña" url=url_clave chico=True %}
   {% if rol == "Mesa de control" %}
   <p class="peq tenue">La mesa de control carga equipos y listas, verifica jugadores y ve el calendario. No configura el torneo ni programa partidos.</p>
   {% endif %}
 </div>
 
 <div class="seccion">
+  {% if perms.torneo.configurar_torneo %}
+  {% url "nueva-persona" as url_nueva %}
+  {% include "parciales/seccion_cab.html" with titulo="Personas" accion="Agregar" accion_url=url_nueva %}
+  {% else %}
   {% include "parciales/seccion_cab.html" with titulo="Personas" %}
-  {% include "parciales/lista.html" with filas=personas %}
-  <p class="peq tenue">Para sumar a alguien o cambiarle el rol, hay que pedírselo a Sebastian.</p>
+  {% endif %}
+  <ul class="lista">
+    {% for persona in personas %}
+    <li class="fila ajuste">
+      <span class="crece"><strong>{{ persona.titulo }}</strong>{% if persona.sub %}<span class="sub">{{ persona.sub }}</span>{% endif %}</span>
+      {% if persona.editable and perms.torneo.configurar_torneo %}
+      <form method="post" action="{% url 'rol-persona' persona.pk %}" class="control">
+        {% csrf_token %}
+        <select name="rol" class="selector" aria-label="Rol de {{ persona.titulo }}">
+          <option value="organizacion"{% if persona.rol == "organizacion" %} selected{% endif %}>Organización</option>
+          <option value="mesa"{% if persona.rol == "mesa" %} selected{% endif %}>Mesa de control</option>
+        </select>
+        <button type="submit" class="btn chico">Guardar</button>
+      </form>
+      {% else %}
+      {% include "parciales/chip.html" with texto=persona.chip estado=persona.chip_estado %}
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
 </div>
 
 <div class="seccion">

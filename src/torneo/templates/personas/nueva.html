@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Agregar persona{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'mas' %}" aria-label="Volver">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Agregar persona{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% include "parciales/campo.html" with campo=form.usuario %}
+  {% include "parciales/campo.html" with campo=form.nombre %}
+  {% include "parciales/campo.html" with campo=form.rol %}
+  <p class="peq tenue">La app crea una contraseña temporal y la muestra una sola vez, para que se la entregues en persona.</p>
+  {% include "parciales/boton.html" with texto="Agregar" principal=True bloque=True %}
+</form>
+{% endblock %}
