@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Compartir · {{ titulo_dia }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'calendario-dia' dia.isoformat %}" aria-label="Volver al calendario">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Compartir el día{% endblock %}
+{% block contenido %}
+<div class="seccion gap-3">
+  {% if piezas %}
+  <p class="peq tenue">Una imagen por cancha (de a {{ piezas.0.filas|length|default:5 }} partidos como máximo). Desde el celular se comparten por WhatsApp; en la PC se descargan.</p>
+  <button type="button" class="btn principal bloque" data-exportar-todas=".pieza" data-estado="estado-png">Compartir todas</button>
+  <p id="estado-png" class="peq tenue" role="status" aria-live="polite"></p>
+  {% for pieza in piezas %}
+  <div class="marco-png"><div class="escala-png">{% include "calendario/_pieza.html" %}</div></div>
+  <button type="button" class="btn bloque" data-exportar="{{ pieza.id }}" data-estado="estado-png">Compartir {{ pieza.cancha|title }}{% if pieza.pagina %} ({{ pieza.pagina }}){% endif %}</button>
+  {% endfor %}
+  {% else %}
+  {% include "parciales/vacio.html" with icono="calendario" titulo="No hay partidos programados este día" %}
+  {% endif %}
+</div>
+<script src="{% static 'vendor/modern-screenshot.js' %}" defer></script>
+<script src="{% static 'js/exportar.js' %}" defer></script>
+{% endblock %}

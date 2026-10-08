@@ -119,7 +119,7 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Aceptación:**
 
 - [ ] Desde tu celular Android, el PNG llega a un chat de WhatsApp y se ve nítido.
-- [ ] Desde la PC, se descarga. (Pendiente de prueba manual: la página ya está en la demo.)
+- [ ] Desde la PC, se descarga. (Pendiente de prueba manual. Desde T5.6, la prueba se hace con la página real: Calendario → un día → "Compartir el día".)
 - [ ] iPhone: no se prueba, porque no hay uno a mano. Queda como riesgo.
 
 **Verificación:** manual, con capturas anotadas en `PROGRESO.md`.
@@ -734,9 +734,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Desde el calendario de un día, "Compartir" genera una imagen por cancha.
-- [ ] Un test comprueba que la plantilla del PNG no usa datos personales.
-- [ ] La página de prueba del PNG ya no está.
+- [x] Desde el calendario de un día, "Compartir" genera una imagen por cancha.
+- [x] Un test comprueba que la plantilla del PNG no usa datos personales.
+- [x] La página de prueba del PNG ya no está.
 
 **Verificación:** verde, más una captura del PNG.
 **Depende de:** fase 4.

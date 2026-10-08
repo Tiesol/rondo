@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 5, reprogramación y calendario. Las fases 1b a 4 están cerradas y revisadas.
-- **Siguiente paso:** T5.6 (PNG del día por cancha).
+- **Siguiente paso:** T5.7 (vistas por categoría y por club).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -82,6 +82,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T5.3 lista: modelo Cambio (migración 0014) y `servicios/reprogramar`: `calcular_propuestas(bloqueo)` guarda las propuestas en una Corrida de tipo reprogramar con una firma del calendario; `aplicar` rechaza si la firma cambió o si aparecen choques nuevos, y registra un Cambio por movimiento. Pantalla de propuestas como el prototipo (la primera, recomendada; antes tachado → después) y "Cambios recientes" en Más. Con la demo: 3 propuestas (2, 2 y 3 movimientos) en 6 s.
 - 2026-10-07: T5.4 lista: "Mover" en cada turno del calendario (solo la organización): día, hora y cancha. `servicios/reprogramar.mover_a_mano` simula el cambio y lo pasa por el verificador; si hay choques con ese partido, los muestra y no guarda; si no, guarda el partido fijado (PRO-10) con su Cambio "a mano".
 - 2026-10-07: T5.5 lista: `Franja.suspendida` (migración 0015), que el programador, las propuestas y la capacidad ya no usan. "Suspender este día" deja sus partidos sin programar (con su Cambio) y calcula propuestas para ubicarlos ese fin de semana o el siguiente, en la misma pantalla de propuestas ("Ubicar N partidos"). "Agregar un día entre semana" crea una franja de ese tipo. `calcular_propuestas_en` es el cálculo genérico (bloqueo o suspensión).
+- 2026-10-07: T5.6 lista: `/calendario/<fecha>/png/` arma una pieza de 1220 × 690 por cancha (de a 5 partidos; si hay más, "1/2"), con el diseño de 2025: FIXTURE, el día, filas doradas con categoría, escudos, equipos y hora, el panel con la cancha, la marca y la edición, y la franja de patrocinadores. Colores de `--marca` y `--acento` (no cambian con el modo oscuro); fuente Arvo (OFL). Compartir una o todas (Web Share API con varios archivos, o descarga). Tests de que no usa datos personales. Se borró la página de prueba de T0.7.
 
 ## Pendiente
 

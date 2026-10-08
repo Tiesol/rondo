@@ -15,8 +15,7 @@ PLANTILLAS = RAIZ / "src" / "torneo" / "templates"
 CSS = RAIZ / "frontend" / "tailwind.css"
 FUENTES = RAIZ / "src" / "torneo" / "static" / "fuentes"
 
-# El PNG de prueba de la fase 0 tiene sus propios colores y se borra al cerrar la fase 4.
-FUERA_DE_LOS_TOKENS = {PLANTILLAS / "diagnostico" / "png.html"}
+FUERA_DE_LOS_TOKENS: set[Path] = set()
 
 PALETA_DE_TAILWIND = re.compile(
     r"\b(?:bg|text|border|outline|ring|fill|stroke|from|via|to|decoration|divide|accent|caret"

@@ -11,6 +11,7 @@
   <div class="seccion">{% include "parciales/alerta.html" with estado="aviso" titulo="Día suspendido." texto="No se programa nada en este día." %}</div>
   {% endif %}
   {% if hay_partidos %}
+  <div class="seccion">{% url "png-dia" dia.isoformat as url_png %}{% include "parciales/boton.html" with texto="Compartir el día" url=url_png principal=True bloque=True %}</div>
   {% for cancha in canchas %}{% if cancha.partidos %}
   <div class="seccion">
     {% include "parciales/seccion_cab.html" with titulo=cancha.nombre nota=cancha.partidos|length|stringformat:"s"|add:" partidos" %}
