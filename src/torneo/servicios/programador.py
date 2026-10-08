@@ -13,6 +13,7 @@ from typing import Any
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.db import transaction
+from django.db.models import Count
 from django.utils import timezone
 
 from dominio.config import Reglas
@@ -77,12 +78,20 @@ def _problema(torneo: Torneo, partidos: list[Partido]) -> Problema:
         (desde for desde, _ in franjas if desde.isocalendar()[:2] in desde_semana), None
     )
 
-    referidos: dict[int, dict[str, frozenset[str]]] = {}
+    # Una sola consulta por todas las categorías: sus canchas y cuántos equipos tienen.
+    categorias = {
+        c.pk: c
+        for c in CategoriaNivel.objects.filter(torneo=torneo)
+        .prefetch_related("canchas")
+        .annotate(cantidad=Count("equipos", distinct=True))
+    }
+    compatibles = {
+        pk: frozenset(c.codigo for c in cat.canchas.all()) for pk, cat in categorias.items()
+    }
+    referidos = {pk: _referidos(cat, cat.cantidad) for pk, cat in categorias.items()}
     a_programar = []
     for partido in partidos:
         categoria = partido.categoria
-        if categoria.pk not in referidos:
-            referidos[categoria.pk] = _referidos(categoria, categoria.equipos.count())
         fijo = None
         quieto = partido.estado == Partido.Estado.JUGADO or partido.fijado
         if quieto and partido.cancha and partido.inicio:
@@ -94,7 +103,7 @@ def _problema(torneo: Torneo, partidos: list[Partido]) -> Problema:
                 equipos=(partido.local_id, partido.visitante_id),
                 minutos_partido=categoria.minutos_partido,
                 minutos_turno=categoria.minutos_turno,
-                canchas=frozenset(c.codigo for c in categoria.canchas.all()),
+                canchas=compatibles[categoria.pk],
                 fijo=fijo,
                 fase=partido.fase,
                 fecha=partido.fecha,
