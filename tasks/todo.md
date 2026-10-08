@@ -720,8 +720,8 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Suspender un día deja sus partidos pendientes y las propuestas los ubican en otros días, sin choques.
-- [ ] Una franja entre semana nueva aparece en el calendario y se usa al reprogramar.
+- [x] Suspender un día deja sus partidos pendientes y las propuestas los ubican en otros días, sin choques.
+- [x] Una franja entre semana nueva aparece en el calendario y se usa al reprogramar.
 
 **Verificación:** verde.
 **Depende de:** T5.3.

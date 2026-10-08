@@ -71,7 +71,9 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
         c.codigo: frozenset(m.codigo for m in c.mitades.all()) or frozenset({c.codigo})
         for c in canchas
     }
-    franjas = sorted((hora_local(f.inicio), hora_local(f.fin)) for f in torneo.franjas.all())
+    franjas = sorted(
+        (hora_local(f.inicio), hora_local(f.fin)) for f in torneo.franjas.filter(suspendida=False)
+    )
     reglas = Reglas.model_validate(torneo.reglas)
     semanas = sorted({desde.isocalendar()[:2] for desde, _ in franjas})
     desde_semana = semanas[reglas.eliminacion_desde_fin_de_semana - 1 :][:1]

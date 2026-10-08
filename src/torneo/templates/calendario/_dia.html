@@ -7,6 +7,9 @@
       {% endfor %}
     </nav>
   </div>
+  {% if suspendido %}
+  <div class="seccion">{% include "parciales/alerta.html" with estado="aviso" titulo="Día suspendido." texto="No se programa nada en este día." %}</div>
+  {% endif %}
   {% if hay_partidos %}
   {% for cancha in canchas %}{% if cancha.partidos %}
   <div class="seccion">
@@ -31,5 +34,28 @@
   {% endif %}{% endfor %}
   {% else %}
   <div class="seccion">{% include "parciales/vacio.html" with icono="calendario" titulo="No hay partidos programados este día" texto="Programa los partidos desde Inicio → Programar partidos." %}</div>
+  {% endif %}
+  {% if perms.torneo.configurar_torneo %}
+  <div class="seccion">
+    {% if es_dia_de_juego and not suspendido %}
+    <form method="post" action="{% url 'suspender-dia' dia.isoformat %}">
+      {% csrf_token %}
+      <button type="submit" class="btn bloque">Suspender este día (por ejemplo, por lluvia)</button>
+    </form>
+    <p class="peq tenue">Sus partidos quedan sin programar, y la app propone dónde ubicarlos.</p>
+    {% endif %}
+    <details class="desplegable">
+      <summary>Agregar un día entre semana</summary>
+      <form method="post" action="{% url 'agregar-dia' %}" class="flex flex-col gap-3">
+        {% csrf_token %}
+        {% include "parciales/campo.html" with campo=form_dia.dia %}
+        <div class="dos">
+          {% include "parciales/campo.html" with campo=form_dia.desde %}
+          {% include "parciales/campo.html" with campo=form_dia.hasta %}
+        </div>
+        <button type="submit" class="btn bloque">Agregar el día</button>
+      </form>
+    </details>
+  </div>
   {% endif %}
 </div>
