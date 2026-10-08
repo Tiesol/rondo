@@ -20,8 +20,9 @@ from dominio.config import Reglas
 from dominio.formatos import FormatoFaltante
 from dominio.programador.modelo import PartidoAProgramar, Problema, programar
 from dominio.programador.motivos import motivos_sin_ubicar
+from dominio.verificador import Bloqueo as BloqueoDelDominio
 from dominio.verificador import Escenario, PartidoAgendado, verificar
-from torneo.models import Cancha, CategoriaNivel, Corrida, Partido, Torneo
+from torneo.models import Bloqueo, Cancha, CategoriaNivel, Corrida, Partido, Torneo
 from torneo.servicios.fixture import formatos
 from torneo.servicios.personas import pares_de_equipos
 
@@ -118,7 +119,17 @@ def _problema(torneo: Torneo, partidos: list[Partido]) -> Problema:
         franjas=tuple(franjas),
         reglas=reglas,
         pares=tuple(pares_de_equipos(torneo)),
+        bloqueos=bloqueos_del_torneo(torneo),
         eliminacion_desde=eliminacion_desde,
+    )
+
+
+def bloqueos_del_torneo(torneo: Torneo) -> tuple[BloqueoDelDominio, ...]:
+    """Un bloqueo del dominio por equipo bloqueado (P38: uno puede abarcar varios)."""
+    return tuple(
+        BloqueoDelDominio(equipo.pk, _local(bloqueo.inicio), _local(bloqueo.fin), bloqueo.motivo)
+        for bloqueo in Bloqueo.objects.filter(torneo=torneo).prefetch_related("equipos")
+        for equipo in bloqueo.equipos.all()
     )
 
 
