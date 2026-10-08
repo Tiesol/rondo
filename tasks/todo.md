@@ -532,9 +532,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con la demo, se ve la capacidad de C1 y C2 y la de C3, en grupos y en eliminación, y avisa cuando la eliminación no entra (H4).
-- [ ] Un caso chico calculado a mano da el mismo resultado que el flujo.
-- [ ] La mesa ve el aviso del rol.
+- [x] Con la demo, se ve la capacidad de C1 y C2 y la de C3, en grupos y en eliminación, y avisa cuando la eliminación no entra (H4).
+- [x] Un caso chico calculado a mano da el mismo resultado que el flujo.
+- [x] La mesa ve el aviso del rol.
 
 **Verificación:** verde, más una captura.
 **Depende de:** T3.4.

@@ -12,6 +12,7 @@ from torneo.views import (
     inicio,
     jugadores,
     mas,
+    programar,
     reglas,
     torneo,
 )
@@ -38,6 +39,7 @@ urlpatterns = [
     path("torneos/<int:pk>/reglas/", reglas, name="reglas"),
     path("torneos/<int:pk>/publico/", publicar, name="publicar"),
     path("torneos/<int:pk>/fixtures/", fixture.generar_todos, name="generar-fixtures"),
+    path("torneos/<int:pk>/programar/", programar.programar, name="programar"),
     path("t/<int:pk>/", vistas_publicas.publico, name="publico"),
     path(
         "t/<int:pk>/<int:categoria>/<str:pestana>/",

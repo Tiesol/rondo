@@ -24,6 +24,8 @@
     {% url "torneo" as url_torneo %}
     <li>{% include "parciales/fila.html" with titulo="Categorías, equipos y fixture" url=url_torneo icono="torneo" %}</li>
     {% if perms.torneo.configurar_torneo %}
+    {% url "programar" torneo.pk as url_programar %}
+    <li>{% include "parciales/fila.html" with titulo="Programar partidos" sub="Antes, mira si entra todo" url=url_programar icono="calendario" %}</li>
     {% url "reglas" torneo.pk as url_reglas %}
     <li>{% include "parciales/fila.html" with titulo="Reglas del torneo" sub="Interruptores y números, con su pregunta al organizador" url=url_reglas icono="documento" %}</li>
     {% endif %}

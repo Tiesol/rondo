@@ -112,7 +112,7 @@ Si alguno falla, se cambia el plan el día 1 y no el día 4.
 - [x] T3.4 Modelos Serie y Partido, y servicio de fixture (FIX-09)
 - [x] T3.5 Pantallas: series y fixture
 - [x] T3.6 Dominio: verificador de choques y prueba 2023
-- [ ] T3.7 Capacidad con flujo máximo y pantalla "Programar"
+- [x] T3.7 Capacidad con flujo máximo y pantalla "Programar"
 
 ```
 T3.1 → T3.2 → T3.3 → T3.4 → T3.5
