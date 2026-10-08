@@ -54,6 +54,24 @@ def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]
             }
         )
 
+    sin_fixture = list(
+        torneo.categorias.annotate(cantidad=Count("equipos", distinct=True))
+        .filter(cantidad__gte=2, partidos__isnull=True)
+        .distinct()
+    )
+    if sin_fixture:
+        lista.append(
+            {
+                "titulo": _contar(
+                    len(sin_fixture), "categoría sin fixture", "categorías sin fixture"
+                ),
+                "sub": _primeros(str(c) for c in sin_fixture),
+                "url": reverse("categoria", args=[sin_fixture[0].pk, "fixture"]),
+                "icono": "calendario",
+                "estado": "info",
+            }
+        )
+
     if puede_configurar:
         con_pregunta = [d for d in describir_reglas() if d.pregunta]
         lista.append(

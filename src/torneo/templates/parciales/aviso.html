@@ -1,9 +1,9 @@
 {% comment %}
 Aviso flotante, dentro de <div class="flotantes"> (base.html apila los mensajes de Django).
-Los de éxito se van solos; los de estado "warning" quedan hasta que se cierran (js/ui.js).
+Los de éxito se van solos; los de estado "warning" o "error" quedan hasta cerrarlos (js/ui.js).
 Parámetros: texto y estado.
 {% endcomment %}
-<div class="flotante{% if estado == 'warning' %} aviso{% endif %}" data-aviso{% if estado == "warning" %} data-queda{% endif %}>
+<div class="flotante{% if estado == 'warning' %} aviso{% elif estado == 'error' %} error{% endif %}" data-aviso{% if estado == "warning" or estado == "error" %} data-queda role="alert"{% endif %}>
   <span>{{ texto }}</span>
-  {% if estado == "warning" %}<button type="button" class="icono-btn" data-cerrar-aviso aria-label="Cerrar el aviso">{% include "parciales/icono.html" with nombre="error" %}</button>{% endif %}
+  {% if estado == "warning" or estado == "error" %}<button type="button" class="icono-btn" data-cerrar-aviso aria-label="Cerrar el aviso">{% include "parciales/icono.html" with nombre="error" %}</button>{% endif %}
 </div>

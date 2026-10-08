@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 3, fixture y verificador. Las fases 1b y 2 están cerradas y revisadas.
-- **Siguiente paso:** T3.5 (pantallas de series y fixture).
+- **Siguiente paso:** T3.6 (verificador de choques y prueba 2023).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -63,6 +63,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T3.2 lista: `dominio/cruces.py` arma la fase de grupos por rondas: todos contra todos por el método del círculo, series cruzadas (con 4 y 3 descansa uno de A por fecha) y todos contra todos dentro de cada serie con las fechas alineadas. La ronda con más cruces del mismo club pasa a ser la fecha 1 (P24), y la ida y vuelta invierte la localía. Tests de propiedad (hypothesis) para 2 a 10 equipos.
 - 2026-10-07: T3.3 lista: `dominio/fixture.py` con `sortear_series` (semilla; reparte primero a los clubes con más equipos, cada uno donde tenga menos de su club, P45) y `armar_fixture`, que usa las series dadas o las sortea, valida sus tamaños contra el formato y devuelve los partidos de grupos con fecha y los de eliminación con participantes por definir (FIX-08).
 - 2026-10-07: T3.4 lista: modelos Serie y Partido (migración 0011), con local distinto de visitante y clave única por categoría en la base. `servicios/fixture.py`: `generar_fixture` respeta las series guardadas si siguen valiendo, rehace solo si la regla lo permite y no hay partidos jugados (FIX-09), y avisa P27 con más de 10 equipos; `generar_fixtures_faltantes` no pisa ninguno. `generar_demo` borra antes el fixture de demo. Nota: si mypy no ve una relación inversa nueva (`categoria.partidos`), es su caché incremental: `rm -rf .mypy_cache`.
+- 2026-10-07: T3.5 lista: Torneo → Fixture muestra las series, los partidos por fecha (con escudos) y la eliminación por copa con sus participantes por definir. La organización lo genera, lo rehace con un sorteo nuevo o cambia equipos de serie (editor plegado; rehace el fixture). La mesa lo ve sin botones. Inicio suma el pendiente "N categorías sin fixture" y "Generar los fixtures que faltan". La página pública muestra el fixture en Partidos. Los errores quedan en pantalla hasta cerrarlos.
 
 ## Pendiente
 

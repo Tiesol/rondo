@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from torneo.models import CategoriaNivel, Torneo
 from torneo.presentacion import fechas_del_torneo, resumen_de_categoria
+from torneo.views.fixture import datos_del_fixture
 from torneo.views.fragmentos import pide_fragmento
 
 PESTANAS = {"partidos": "Partidos", "posiciones": "Posiciones", "equipos": "Equipos"}
@@ -41,6 +42,7 @@ def categoria(request: HttpRequest, pk: int, categoria: int, pestana: str) -> Ht
         "nombre": str(actual),
         "resumen": resumen_de_categoria(actual),
         "pestana": pestana,
+        "fixture": datos_del_fixture(actual) if pestana == "partidos" else {},
         "categorias": [
             {
                 "texto": str(c),

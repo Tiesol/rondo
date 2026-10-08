@@ -10,6 +10,12 @@
   {% include "parciales/seccion_cab.html" with titulo="Pendientes" chip=cantidad chip_estado="aviso" %}
   {% endwith %}
   {% include "parciales/lista.html" with filas=pendientes %}
+  {% if faltan_fixtures and perms.torneo.configurar_torneo %}
+  <form method="post" action="{% url 'generar-fixtures' torneo.pk %}" class="pt-2">
+    {% csrf_token %}
+    {% include "parciales/boton.html" with texto="Generar los fixtures que faltan" bloque=True icono="calendario" %}
+  </form>
+  {% endif %}
 </div>
 
 <div class="seccion">

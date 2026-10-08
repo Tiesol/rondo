@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
@@ -17,5 +18,9 @@ def inicio(request: HttpRequest) -> HttpResponse:
         else [],
         "antes": f"Torneo activo · {edicion(torneo)}" if torneo else "",
         "fechas": fechas_del_torneo(torneo) if torneo else "",
+        "faltan_fixtures": torneo is not None
+        and torneo.categorias.annotate(cantidad=Count("equipos", distinct=True))
+        .filter(cantidad__gte=2, partidos__isnull=True)
+        .exists(),
     }
     return render(request, "torneo/inicio.html", contexto)
