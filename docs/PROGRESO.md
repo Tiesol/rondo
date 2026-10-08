@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 4, programador. Las fases 1b, 2 y 3 están cerradas y revisadas.
-- **Siguiente paso:** T4.4 (por qué no entra un partido).
+- **Siguiente paso:** T4.5 (corrida y servicio de programación).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -71,6 +71,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T4.1 lista: `servicios/personas.pares_de_equipos` calcula, desde Persona, los pares de equipos que comparten a alguien, con identificadores y motivo (jugador, o profe si dirige en alguno). Con la demo: 7 pares de jugadores y 29 de profes.
 - 2026-10-07: T4.2 lista: `dominio/programador/modelo.py`, un modelo CP-SAT en pasos de 5 minutos. Cada partido elige inicio (el dominio ya trae solo las franjas, P48) y cancha compatible, o queda sin ubicar. NoOverlap por cancha física (C1 ocupa C1A y C1B), por equipo con los turnos libres del día (P17) y máximo por día (P47); partidos fijos (PRO-10). Objetivo: ubicar la mayor cantidad. Cada test se comprueba con el verificador.
 - 2026-10-07: T4.3 lista: el modelo suma personas (NoOverlap por par de equipos; con profe, más el margen de P35, también en la misma cancha), bloqueos (fuera del dominio), orden de fechas por equipo (P19 dura), eliminación después de los grupos de su categoría y de sus partidos referidos (sin ellos no se ubica) y desde P33, y un objetivo secundario que lleva cada fecha a su fin de semana (PRO-12).
+- 2026-10-07: T4.4 lista: `dominio/programador/motivos.py` prueba, para cada partido sin ubicar, sus inicios y canchas contra el calendario resultante, y da el motivo que bloquea más candidatos (cancha, equipo, persona, bloqueo u orden). Casos especiales: sin canchas compatibles, ninguna franja, espera a un partido que tampoco entra, o hay lugar pero el solver no llegó en el tiempo.
 
 ## Pendiente
 

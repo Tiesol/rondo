@@ -51,6 +51,7 @@ class PartidoAProgramar:
     fase: str = "grupos"  # o "eliminacion"
     fecha: int | None = None  # en la fase de grupos
     clave: str = ""  # en la eliminación: "oro_semi_1"
+    nombre: str = ""  # en la eliminación: "Semi 1 de Oro"
     despues_de: frozenset[str] = frozenset()  # claves de los partidos a los que se refiere
 
     @property
