@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}{{ club.nombre }} · Calendario{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'calendario' %}" aria-label="Volver al calendario">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}{{ club.nombre }}{% endblock %}
+{% block contenido %}
+{% for dia in dias %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo=dia.titulo nota=dia.partidos|length|stringformat:"s"|add:" partidos" %}
+  <ul class="lista">
+    {% for partido in dia.partidos %}
+    <li class="turno">
+      <span class="hora num">{{ partido.hora }}</span>
+      <span class="crece">
+        <span class="vs">
+          {% if partido.local.escudo %}{% include "parciales/escudo.html" with escudo=partido.local.escudo tamano="ch" %}{{ partido.local.nombre }}{% else %}<span class="por-definir">{{ partido.local.nombre }}</span>{% endif %}
+          <span class="tenue">vs</span>
+          {% if partido.visitante.escudo %}{% include "parciales/escudo.html" with escudo=partido.visitante.escudo tamano="ch" %}{{ partido.visitante.nombre }}{% else %}<span class="por-definir">{{ partido.visitante.nombre }}</span>{% endif %}
+        </span>
+        <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %} · {{ partido.cancha }}</span>
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% empty %}
+<div class="seccion">{% include "parciales/vacio.html" with icono="calendario" titulo="Este club todavía no tiene partidos programados" %}</div>
+{% endfor %}
+{% endblock %}
