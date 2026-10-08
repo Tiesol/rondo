@@ -540,3 +540,112 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Depende de:** T3.4.
 **Archivos:** `src/dominio/capacidad.py`, `src/torneo/servicios/capacidad.py`, la vista y plantilla de programar, `tests/dominio/test_capacidad.py`, `tests/torneo/test_programar.py`.
 **Tamaño:** M.
+
+## Fase 4: programador
+
+> Planificada el 2026-10-07 con `planning-and-task-breakdown`. Se avanza con la autorización general del mismo día. Sin dependencias nuevas (OR-Tools CP-SAT ya está). Reglas del catálogo: PRO-01 a PRO-10, PRO-12 (en parte) y PRO-14. El objetivo de agrupar por club (PRO-11, P20) es lo primero que se recorta si no alcanza el tiempo (ARQUITECTURA 12).
+
+### T4.1 Pares de equipos que comparten personas
+
+**Descripción:** `servicios/personas.py` calcula, desde Persona, los pares de equipos que no pueden jugar a la vez y por qué ("profe" o "jugador"; jugador en uno y profe en otro cuenta como profe). Al dominio le llegan solo identificadores de equipo y el motivo, nunca nombres ni CI (ARQUITECTURA 6).
+
+**Aceptación:**
+
+- [ ] Con la demo salen los pares de 6.4: 7 jugadores compartidos y los profes compartidos (River Plate, Crack FC, etc.).
+- [ ] Un profe en tres equipos da los tres pares.
+- [ ] La salida no tiene nombres ni documentos.
+
+**Verificación:** verde.
+**Depende de:** nada.
+**Archivos:** `src/torneo/servicios/personas.py`, `tests/torneo/test_pares_de_personas.py`.
+**Tamaño:** S.
+
+### T4.2 Dominio: modelo CP-SAT, restricciones de cancha, franja y equipo
+
+**Descripción:** `dominio/programador/modelo.py` en pasos de 5 minutos. Cada partido elige un inicio dentro de las franjas (el partido termina adentro, P48) y una cancha compatible, o queda sin ubicar. Las canchas físicas no se pisan (C1 ocupa C1A y C1B). Cada equipo no se pisa y deja los turnos libres del día (P17), y no pasa del máximo por día (P47). Los partidos fijados o jugados no se mueven (PRO-10). Objetivo: ubicar la mayor cantidad posible.
+
+**Aceptación:**
+
+- [ ] Un caso chico se programa entero y el verificador no encuentra choques.
+- [ ] Con más partidos que lugares, los que sobran quedan sin ubicar y el resto sigue sin choques.
+- [ ] Un partido fijado queda donde estaba.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** nada (usa el verificador de T3.6 en los tests).
+**Archivos:** `src/dominio/programador/modelo.py`, `tests/dominio/test_programador.py`.
+**Tamaño:** M.
+
+### T4.3 Dominio: personas, bloqueos, orden y eliminación
+
+**Descripción:** sumar al modelo los pares de personas (jugador: no se pisan; profe: además, el margen para cambiar de cancha, P35, aplicado siempre, que es más estricto que la regla), los bloqueos de la ACF, el orden de las fechas de cada equipo (P19, dura) y la eliminación: después de toda la fase de grupos de su categoría, después de los partidos a los que se refiere, y desde el fin de semana de P33. Objetivo secundario: cada fecha cerca de su fin de semana, para repartir la carga (PRO-12).
+
+**Aceptación:**
+
+- [ ] Dos equipos con un profe en común no quedan a la vez ni en canchas distintas sin margen.
+- [ ] La final queda después de sus semis, y las semis después de los grupos de su categoría.
+- [ ] La fecha 2 de un equipo queda después de su fecha 1.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** T4.2.
+**Archivos:** `src/dominio/programador/modelo.py`, `tests/dominio/test_programador.py`.
+**Tamaño:** M.
+
+### T4.4 Dominio: por qué no entra un partido (PRO-14)
+
+**Descripción:** `dominio/programador/motivos.py`: para cada partido sin ubicar, prueba sus inicios y canchas posibles contra el calendario resultante y resume por qué no sirve ninguno: no hay cancha libre, choque de equipo, de profe o jugador, bloqueo u orden (por ejemplo, la eliminación no tiene lugar después de los grupos).
+
+**Aceptación:**
+
+- [ ] Un partido sin lugar por falta de cancha dice "No queda ningún turno libre en C3…".
+- [ ] Uno que solo choca con un profe dice eso.
+- [ ] Cada partido sin ubicar tiene un motivo.
+
+**Verificación:** verde, con mypy estricto.
+**Depende de:** T4.3.
+**Archivos:** `src/dominio/programador/motivos.py`, `tests/dominio/test_motivos.py`.
+**Tamaño:** S.
+
+### T4.5 Corrida y servicio de programación
+
+**Descripción:** modelo Corrida (tipo, parámetros, estado, resultado, duración y usuario) y `servicios/programador.py`: arma la entrada desde la base, corre el solver con un límite de tiempo configurable (`PROGRAMADOR_SEGUNDOS`, 60 por defecto), guarda inicio, cancha y estado de cada partido, verifica el resultado con el verificador y guarda la Corrida antes de responder. Un bloqueo en la base impide dos programaciones a la vez.
+
+**Aceptación:**
+
+- [ ] Programar el torneo guarda los partidos programados y una Corrida con cuántos se ubicaron, los que no (con su motivo) y los choques que encontró el verificador (0).
+- [ ] Mientras corre una programación, otra se rechaza con un mensaje.
+- [ ] Los partidos jugados o fijados no cambian.
+
+**Verificación:** verde, más `makemigrations --check`.
+**Depende de:** T4.1, T4.4.
+**Archivos:** `src/torneo/models/corrida.py`, migración, `src/torneo/servicios/programador.py`, `tests/torneo/test_servicio_programador.py`.
+**Tamaño:** M.
+
+### T4.6 Pantallas: programar y calendario por día y cancha
+
+**Descripción:** el botón de la pantalla Programar se activa: corre la programación (con la pantalla en espera, HTMX) y muestra el resultado ("187 de 191 programados, sin choques" y la lista "Sin lugar" con sus motivos). La pestaña Calendario muestra un día por cancha (C1 con sus mitades), con hora, categoría y cruce, y un selector de días. La página pública suma el día y la hora a los partidos.
+
+**Aceptación:**
+
+- [ ] La organización programa y ve el resultado; la mesa ve el calendario pero no programa.
+- [ ] El calendario de un día muestra cada cancha con sus partidos en orden.
+- [ ] Se ve bien a 360 px.
+
+**Verificación:** verde, más capturas.
+**Depende de:** T4.5.
+**Archivos:** `src/torneo/views/programar.py`, `src/torneo/views/calendario.py`, plantillas, `tests/torneo/test_vistas_calendario.py`.
+**Tamaño:** M.
+
+### T4.7 El torneo de demo programado, y limpieza de la espiga
+
+**Descripción:** un test (marcado `lento`) programa la demo completa y comprueba con el verificador que quedan 0 choques duros, y que todo lo que no entró tiene motivo. Se mide el tiempo en local. Se borran la espiga de T0.6 (`dominio/programador/espiga.py`, `probar_solver` y su test), como estaba previsto al cerrar la fase 4. La página de prueba del PNG queda hasta que la fase 5 la reemplace.
+
+**Aceptación:**
+
+- [ ] La demo queda programada con 0 choques duros según el verificador.
+- [ ] Lo que no entra se lista con su motivo.
+- [ ] La espiga ya no está en el repo.
+
+**Verificación:** `uv run pytest -m lento`, más verde.
+**Depende de:** T4.6.
+**Archivos:** `tests/torneo/test_programar_demo.py`, borrado de la espiga.
+**Tamaño:** S.
