@@ -138,7 +138,7 @@ T3.6 (independiente: recibe cualquier calendario)
 - [x] T4.4 Dominio: por qué no entra un partido
 - [x] T4.5 Corrida y servicio de programación
 - [x] T4.6 Pantallas: programar y calendario por día y cancha
-- [ ] T4.7 El torneo de demo programado, y limpieza de la espiga
+- [x] T4.7 El torneo de demo programado, y limpieza de la espiga
 
 ```
 T4.2 → T4.3 → T4.4 ─┐

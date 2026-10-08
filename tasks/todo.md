@@ -641,9 +641,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] La demo queda programada con 0 choques duros según el verificador.
-- [ ] Lo que no entra se lista con su motivo.
-- [ ] La espiga ya no está en el repo.
+- [x] La demo queda programada con 0 choques duros según el verificador.
+- [x] Lo que no entra se lista con su motivo.
+- [x] La espiga ya no está en el repo.
 
 **Verificación:** `uv run pytest -m lento`, más verde.
 **Depende de:** T4.6.
