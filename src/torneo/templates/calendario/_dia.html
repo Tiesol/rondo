@@ -1,0 +1,34 @@
+{# Un día del calendario, por cancha. Con HTMX se reemplaza solo esto al cambiar de día. #}
+<div id="dia" class="envoltura">
+  <div class="seccion">
+    <nav class="dias" aria-label="Día">
+      {% for d in dias %}
+      <a class="dia" href="{{ d.url }}"{% if d.actual %} aria-current="page"{% endif %} hx-get="{{ d.url }}" hx-target="#dia" hx-swap="outerHTML" hx-push-url="true"><span>{{ d.corto }}</span><b>{{ d.numero }}</b></a>
+      {% endfor %}
+    </nav>
+  </div>
+  {% if hay_partidos %}
+  {% for cancha in canchas %}{% if cancha.partidos %}
+  <div class="seccion">
+    {% include "parciales/seccion_cab.html" with titulo=cancha.nombre nota=cancha.partidos|length|stringformat:"s"|add:" partidos" %}
+    <ul class="lista">
+      {% for partido in cancha.partidos %}
+      <li class="turno">
+        <span class="hora num">{{ partido.hora }}</span>
+        <span class="crece">
+          <span class="vs">
+            {% if partido.local.escudo %}{% include "parciales/escudo.html" with escudo=partido.local.escudo tamano="ch" %}{{ partido.local.nombre }}{% else %}<span class="por-definir">{{ partido.local.nombre }}</span>{% endif %}
+            <span class="tenue">vs</span>
+            {% if partido.visitante.escudo %}{% include "parciales/escudo.html" with escudo=partido.visitante.escudo tamano="ch" %}{{ partido.visitante.nombre }}{% else %}<span class="por-definir">{{ partido.visitante.nombre }}</span>{% endif %}
+          </span>
+          <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if partido.mitad %} · {{ partido.mitad }}{% endif %}</span>
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}{% endfor %}
+  {% else %}
+  <div class="seccion">{% include "parciales/vacio.html" with icono="calendario" titulo="No hay partidos programados este día" texto="Programa los partidos desde Inicio → Programar partidos." %}</div>
+  {% endif %}
+</div>

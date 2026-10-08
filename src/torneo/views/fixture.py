@@ -8,6 +8,7 @@ from typing import Any
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from dominio.formatos import FormatoFaltante
@@ -25,16 +26,29 @@ from torneo.servicios.fixture import (
 COPAS = {"oro": "Copa de Oro", "plata": "Copa de Plata", "bronce": "Bronce"}
 
 
-def _lado(equipo: Equipo | None, texto: str) -> dict[str, Any]:
+def lado(equipo: Equipo | None, texto: str) -> dict[str, Any]:
     if equipo is None:
         return {"nombre": texto, "escudo": None}
     return {"nombre": equipo.nombre, "escudo": escudo(equipo)}
 
 
+def _cuando(partido: Partido) -> dict[str, str]:
+    if partido.inicio is None:
+        return {}
+    local = timezone.localtime(partido.inicio)
+    dias = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+    return {
+        "hora": local.strftime("%H:%M"),
+        "dia": f"{dias[local.weekday()]} {local.day}",
+        "cancha": partido.cancha.codigo if partido.cancha else "",
+    }
+
+
 def _fila(partido: Partido) -> dict[str, Any]:
     return {
-        "local": _lado(partido.local, partido.texto_local),
-        "visitante": _lado(partido.visitante, partido.texto_visitante),
+        "cuando": _cuando(partido),
+        "local": lado(partido.local, partido.texto_local),
+        "visitante": lado(partido.visitante, partido.texto_visitante),
         "nombre": partido.nombre,
         "serie": partido.serie.nombre if partido.serie else "",
     }
@@ -52,7 +66,9 @@ def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
             problema = str(error)
 
     partidos = list(
-        categoria.partidos.select_related("local", "visitante", "serie").order_by("fecha", "pk")
+        categoria.partidos.select_related("local", "visitante", "serie", "cancha").order_by(
+            "fecha", "inicio", "pk"
+        )
     )
     fechas: dict[int, list[dict[str, Any]]] = {}
     copas: dict[str, list[dict[str, Any]]] = {}

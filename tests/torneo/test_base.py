@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from django.contrib.auth.models import User
+from django.template.loader import render_to_string
 from django.test import Client
 
 from torneo.models import Organizador
@@ -86,9 +87,18 @@ def test_el_inicio_tiene_barra_superior_y_navegacion_principal(con_sesion: Clien
 
 
 @pytest.mark.django_db
-def test_lo_que_todavia_no_existe_se_ve_desactivado_en_el_menu(con_sesion: Client) -> None:
+def test_las_cuatro_secciones_del_menu_ya_son_enlaces(con_sesion: Client) -> None:
     html = con_sesion.get("/").content.decode()
-    assert re.search(r'aria-disabled="true"[^>]*>.*?Calendario', html, re.DOTALL)
+    for destino in ('href="/"', 'href="/torneo/"', 'href="/calendario/"', 'href="/mas/"'):
+        assert destino in html
+    assert 'aria-disabled="true"' not in html
+
+
+def test_lo_que_todavia_no_existe_se_ve_desactivado_en_el_menu() -> None:
+    html = render_to_string(
+        "parciales/nav_item.html", {"destino": "no-existe", "texto": "Pronto", "icono": "mas"}
+    )
+    assert re.search(r'aria-disabled="true"[^>]*>.*?Pronto', html, re.DOTALL)
 
 
 @pytest.mark.django_db
