@@ -174,9 +174,10 @@ T5.3 + T5.6 → T5.8
 
 **Checkpoint de la fase 5:**
 
-- [ ] Un bloqueo ACF da 2 o 3 propuestas ordenadas, y aplicar una deja el calendario sin choques.
-- [ ] El PNG de un día se comparte sin datos personales.
-- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+- [x] Un bloqueo ACF da 2 o 3 propuestas ordenadas, y aplicar una deja el calendario sin choques.
+- [x] El PNG de un día se comparte sin datos personales. *(Falta la prueba en tu Android: R45.)*
+- [x] Revisión con `code-review-and-quality` (ver PROGRESO.md).
+- [ ] Tu visto bueno (pendiente a tu vuelta: REVISAR.md).
 
 ### Fase 6: se detalla al llegar
 

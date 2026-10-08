@@ -133,3 +133,25 @@ def test_si_no_hay_forma_no_inventa() -> None:
         segundos=5,
     )
     assert all(sin_choques(problema, p.calendario(actual)) for p in propuestas)
+
+
+def test_pro_13_no_mueve_nada_antes_de_la_ventana() -> None:
+    """Revisión de la fase 5: el límite inferior de la ventana también se respeta.
+
+    Un solo partido, en el segundo fin de semana, con un bloqueo que ocupa todo ese fin de
+    semana. El primero está libre, pero queda fuera de la ventana: no hay propuesta posible.
+    """
+    segunda = SAB + timedelta(days=7)
+    solo = partidos("AB")[0]
+    problema = Problema(
+        partidos=(solo,),
+        fisicas=FISICAS,
+        franjas=franjas(),
+        reglas=Reglas(),
+        bloqueos=(Bloqueo("A", segunda, segunda + timedelta(days=2)),),
+    )
+    actual = {solo.id: ("C1", segunda + timedelta(hours=9))}
+    propuestas = proponer(
+        problema, actual, desde=segunda, hasta=segunda + timedelta(days=7), segundos=5
+    )
+    assert propuestas == []
