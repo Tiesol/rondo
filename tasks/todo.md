@@ -487,9 +487,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Generar el fixture de una categoría de 6 equipos guarda 2 series de 3 y 14 partidos, 5 de ellos "por definir".
-- [ ] Rehacerlo no duplica; con un partido jugado, o con la regla apagada, se niega con un mensaje.
-- [ ] Con más de 10 equipos devuelve el aviso de P27 y no guarda nada.
+- [x] Generar el fixture de una categoría de 6 equipos guarda 2 series de 3 y 14 partidos, 5 de ellos "por definir".
+- [x] Rehacerlo no duplica; con un partido jugado, o con la regla apagada, se niega con un mensaje.
+- [x] Con más de 10 equipos devuelve el aviso de P27 y no guarda nada.
 
 **Verificación:** verde, más `makemigrations --check`.
 **Depende de:** T3.3.

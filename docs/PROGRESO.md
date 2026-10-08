@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 3, fixture y verificador. Las fases 1b y 2 están cerradas y revisadas.
-- **Siguiente paso:** T3.4 (modelos Serie y Partido, y servicio de fixture).
+- **Siguiente paso:** T3.5 (pantallas de series y fixture).
 
 ## Para retomar (actualizado el 2026-10-07)
 
@@ -62,6 +62,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T3.1 lista: `datos/config/formatos.json` con los formatos de 2 a 10 equipos (4.5, P25, P26 y P27) y `dominio/formatos.py`, que los valida (series que suman, referencias a partidos anteriores y a series y puestos que existen) y da los textos de cada participante ("1.º A", "Ganador de la semi 1 de Oro", "Mejor 3.º"). De 3 a 10 equipos dan 8, 10, 12, 14, 17, 18, 22 y 27 partidos; con más de 10, `FormatoFaltante` cita P27. `Estricto` pasa a ser público en `dominio.config`.
 - 2026-10-07: T3.2 lista: `dominio/cruces.py` arma la fase de grupos por rondas: todos contra todos por el método del círculo, series cruzadas (con 4 y 3 descansa uno de A por fecha) y todos contra todos dentro de cada serie con las fechas alineadas. La ronda con más cruces del mismo club pasa a ser la fecha 1 (P24), y la ida y vuelta invierte la localía. Tests de propiedad (hypothesis) para 2 a 10 equipos.
 - 2026-10-07: T3.3 lista: `dominio/fixture.py` con `sortear_series` (semilla; reparte primero a los clubes con más equipos, cada uno donde tenga menos de su club, P45) y `armar_fixture`, que usa las series dadas o las sortea, valida sus tamaños contra el formato y devuelve los partidos de grupos con fecha y los de eliminación con participantes por definir (FIX-08).
+- 2026-10-07: T3.4 lista: modelos Serie y Partido (migración 0011), con local distinto de visitante y clave única por categoría en la base. `servicios/fixture.py`: `generar_fixture` respeta las series guardadas si siguen valiendo, rehace solo si la regla lo permite y no hay partidos jugados (FIX-09), y avisa P27 con más de 10 equipos; `generar_fixtures_faltantes` no pisa ninguno. `generar_demo` borra antes el fixture de demo. Nota: si mypy no ve una relación inversa nueva (`categoria.partidos`), es su caché incremental: `rm -rf .mypy_cache`.
 
 ## Pendiente
 

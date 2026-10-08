@@ -20,7 +20,17 @@ from faker import Faker
 
 from dominio.config import CuerpoTecnico, cargar_config
 from dominio.documentos import normalizar_documento
-from torneo.models import CategoriaNivel, Club, Equipo, Jugador, Persona, Profe, Torneo
+from torneo.models import (
+    CategoriaNivel,
+    Club,
+    Equipo,
+    Jugador,
+    Partido,
+    Persona,
+    Profe,
+    Serie,
+    Torneo,
+)
 from torneo.servicios.clubes import cargar_clubes
 from torneo.servicios.configuracion import cargar_configuracion
 
@@ -116,7 +126,9 @@ def _equipos(torneo: Torneo, datos: dict[str, Any], azar: random.Random) -> dict
 
 
 def _rehacer_borrando(torneo: Torneo) -> None:
-    """Saca los equipos de demo, y las personas que solo estaban en ellos."""
+    """Saca el fixture y los equipos de demo, y las personas que solo estaban en ellos."""
+    Partido.objects.filter(categoria__torneo=torneo).delete()
+    Serie.objects.filter(categoria__torneo=torneo).delete()
     equipos = Equipo.objects.filter(categoria__torneo=torneo)
     personas = set(
         Persona.objects.filter(
