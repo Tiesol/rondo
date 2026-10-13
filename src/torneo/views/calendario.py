@@ -149,7 +149,7 @@ class FormularioDia(forms.Form):
 @require_POST
 @requiere("torneo.configurar_torneo", "agregar días")
 def agregar_dia(request: HttpRequest) -> HttpResponse:
-    """Un día entre semana para reprogramar (por ejemplo, después de una lluvia)."""
+    """Cualquier día y horario para reprogramar (1.1), por ejemplo después de una lluvia."""
     torneo = Torneo.activo()
     formulario = FormularioDia(request.POST)
     if torneo is None or not formulario.is_valid():

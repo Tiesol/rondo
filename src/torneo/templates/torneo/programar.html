@@ -4,7 +4,7 @@
 {% block contenido %}
 <div class="seccion">
   {% include "parciales/seccion_cab.html" with titulo="¿Entra todo?" %}
-  <p class="peq tenue">Horas de partido contra horas de cancha, por grupo de canchas.</p>
+  <p class="peq tenue">Horas de partido contra horas de cancha.</p>
   {% if filas %}
   <ul class="lista">
     {% for fila in filas %}
@@ -14,7 +14,7 @@
           {% if fila.entra %}<span class="num peq whitespace-nowrap">{{ fila.pedido }} de {{ fila.disponible }} h</span>{% else %}<span class="chip error num whitespace-nowrap">{{ fila.pedido }} de {{ fila.disponible }} h</span>{% endif %}
         </span>
         <span class="barra-cap" role="img" aria-label="{{ fila.uso }} % de las horas"><span class="{% if not fila.entra %}error{% endif %}" style="width: {{ fila.uso }}%"></span></span>
-        <span class="sub">{% if not fila.entra %}No entra: faltan {{ fila.faltan }} h. {% endif %}{{ fila.categorias }}</span>
+        <span class="sub">{% if not fila.entra %}<strong>Faltan {{ fila.faltan }} h.</strong> {% endif %}{{ fila.categorias }}</span>
       </span>
     </li>
     {% endfor %}
@@ -24,7 +24,7 @@
   {% endif %}
   {% if estimadas %}{% include "parciales/alerta.html" with estado="info" titulo="Sin fixture todavía:" texto=estimadas|add:". Se estimaron con su formato." %}{% endif %}
   {% if sin_formato %}{% include "parciales/alerta.html" with estado="aviso" titulo="Sin formato (P27):" texto=sin_formato|add:". No se cuentan." %}{% endif %}
-  <p class="peq tenue">El torneo tiene {{ capacidad.fines_de_semana }} fines de semana. Si algo no entra, puedes empezar la eliminación antes (en Reglas) o agregar franjas.</p>
+  {% if no_entra %}{% include "parciales/alerta.html" with estado="aviso" titulo="No entra todo." texto="Agrega un día en el calendario, o programa y ubica a mano lo que quede sin lugar." %}{% endif %}
   <form method="post" hx-post="{% url 'programar' torneo.pk %}" hx-target="#resultado-programacion" hx-swap="outerHTML" hx-indicator="#programando" hx-disabled-elt="find button">
     {% csrf_token %}
     <button type="submit" class="btn principal bloque">{% if resultado %}Volver a programar{% else %}Programar los partidos{% endif %}</button>

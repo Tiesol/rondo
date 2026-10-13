@@ -46,9 +46,17 @@ def test_sin_fixture_se_estima_con_el_formato(demo: Torneo) -> None:
 def test_la_pantalla_muestra_si_entra(client: Client, demo: Torneo) -> None:
     html = entrar(client, ORGANIZACION).get(f"/torneos/{demo.pk}/programar/").content.decode()
     assert "¿Entra todo?" in html
-    assert "C1 y C2 · todo el torneo" in html
-    assert "C3 · eliminación, desde el fin de semana 4" in html
+    assert "C1 y C2" in html
+    assert "eliminación, desde" not in html  # T11.4: el fin de semana es solo sugerido
     assert 'class="barra-cap"' in html
+
+
+def test_t11_4_si_no_entra_dice_cuanto_falta_y_que_hacer(client: Client, demo: Torneo) -> None:
+    generar_fixtures_faltantes(demo)
+    assert not all(g.entra for g in capacidad_del_torneo(demo).total)  # F11 en C3 (H8)
+    html = entrar(client, ORGANIZACION).get(f"/torneos/{demo.pk}/programar/").content.decode()
+    assert "Faltan" in html
+    assert "Agrega un día" in html
 
 
 def test_la_mesa_no_programa(client: Client, demo: Torneo) -> None:
