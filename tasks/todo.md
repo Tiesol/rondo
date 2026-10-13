@@ -1429,28 +1429,53 @@ T10.9, T10.10, T10.11 (durante el torneo)
 
 **Para preguntarle a Sebastian (no frenan):** P44 (inscribir un equipo durante las primeras fechas choca con FIX-09, que no deja rehacer un fixture con partidos jugados); P75 (la fila del archivo ahora dice "las dos: foto de cada jugador y galería", y el pedido decía sin galería); "no existen partidos fijados a mano" (hoy la organización puede fijar uno al moverlo: ¿se saca?).
 
-## Fase 11: antes de que la organización la use (anotado el 2026-10-13, sin empezar)
+## Fase 11: respuestas y cambios (`docs/RESPUESTAS_Y_CAMBIOS.md`)
 
-> Sebastian manda un .md con los cambios. **No se escribe código hasta tenerlo.** La organización empieza a usar la app desde el 2026-10-14, en la demo.
+> Planificada el 2026-10-13 con el .md de Sebastian y sus respuestas del mismo día (P78, P80 y P82, en la sección 7 del .md). La auditoría contra el código está en PROGRESO ("Auditoría de RESPUESTAS_Y_CAMBIOS"). Principio: **Rondo propone y avisa; el administrador decide.** Se bloquea solo lo físicamente imposible. Al final, una pasada de UI para que todo sea simple y con poco texto.
 
-### Antes de que la organización la use
+### Calendario flexible (P78, lo más urgente)
 
-- [x] **Datos reales (decidido el 2026-10-13):** la demo, hoy, para que el hermano de Sebastian pruebe todo; producción, también hoy, para que la organización la use desde el 14/10. Datos reales solo en producción.
-- [ ] Leer el .md de Sebastian y planificar los cambios (tareas T11.x).
+- [ ] **T11.2 Avisos en lugar de bloqueos.** El verificador separa **bloqueo** (dos partidos a la vez en la misma cancha física; un equipo en dos partidos a la vez) de **aviso** (todo lo demás). Mover a mano: con avisos, la pantalla los muestra y pide "Mover igual"; con un bloqueo, no se guarda. Cualquier día, hora y cancha o mitad, antes del primer horario o después del último. Mover ya no fija el partido (1.4). Lo mismo al aplicar propuestas y al asignar llaves. *Aceptación:* un partido se mueve a un sábado a las 17:00 o a las 7:00 confirmando el aviso; dos partidos en la misma cancha a la vez no se guardan nunca.
+- [ ] **T11.3 Todas las canchas partibles.** Plantilla 2026 con C2A, C2B, C3A y C3B además de C1A y C1B. El programador automático usa la configuración base (C1 partida para F6); las demás mitades quedan para lo manual, con el aviso de P79 si la categoría no suele jugar ahí. Los partidos sin ubicar se ubican a mano desde el calendario. *Aceptación:* un partido de F11 sin lugar se ubica a mano en C2 un jueves, con aviso.
+- [ ] **T11.4 Reglas del calendario.** Sin la restricción dura del fin de semana de la eliminación (P33): la plantilla usa 1. Blando nuevo: los equipos de un club, el mismo día (P20). La pantalla "¿Entra todo?" muestra claro el faltante de F11.
+
+### Inscripción
+
+- [ ] **T11.5 Altas tardías y plantel máximo con aviso.** El cierre de inscripción no bloquea a nadie: avisa "fuera de plazo". Regla `altas_tardias_hasta` (fin del 2.º fin de semana): después, agregar pide confirmación. Pasar el plantel máximo: aviso con confirmación (P84).
+- [ ] **T11.6 Pantalla de clubes (P10).** Crear, editar, alias, escudo y unir dos clubes duplicados.
+- [ ] **T11.1 Agregar una categoría o un nivel a un torneo ya creado** (pedido de Sebastian).
+
+### Día de partido (sección 3, antes del 24/10)
+
+- [ ] **T11.7 Historial del partido.** Cada evento, dorsal, hora real, W.O., corrección y cambio de horario guarda usuario, fecha y valor anterior. Se ve en la ficha.
+- [ ] **T11.8 Planilla: convocados y dorsal del partido (P9).** Se tocan los jugadores que juegan; el dorsal es de ese partido (propone el habitual o el del partido anterior) y no se repite en la base. Suspendido marcado: convocarlo pide confirmar. Entrenador presente. Los eventos eligen entre los convocados.
+- [ ] **T11.9 Alta rápida en la cancha (P39).** Desde la planilla: nombre, apellidos, CI, año o fecha, y foto con la cámara. Mismas validaciones, con avisos.
+- [ ] **T11.10 Eventos completos.** Minuto (sale del reloj, se corrige), gol en contra con jugador (P72), lesión (interna, nunca pública), amonestación interna (sin fair play). Con 2 amarillas en Sub 5 a Sub 9: "afuera 5 min, vuelve 10:42". Un partido terminado sigue editable, con historial.
+- [ ] **T11.11 Partidos de hoy.** Por cancha y hora, con el estado (por jugar, 1T, descanso, 2T, penales, terminado, W.O., sin iniciar) y el atraso estimado de los siguientes de la cancha.
+- [ ] **T11.12 Cierre automático (P82, respondida).** Regla `cierre_automatico_min` (15). Si el 2.º tiempo empezó, el final esperado es su inicio + los minutos del tiempo; si no, el inicio real + 2 tiempos + descanso. Pasado eso + 15 min, se cierra con el marcador que tenía y la marca "cerrado automáticamente". Perezoso al cargar páginas, más un comando para un cron.
+- [ ] **T11.13 Penales tiro por tiro (P83).** "Convirtió" o "Falló" por equipo; 3 por equipo (`penales_por_equipo`) y después uno más hasta definir. Atajo: el resultado final.
+
+### Durante el torneo
+
+- [ ] **T11.14 Página pública.** Se recarga cada 30 s (P73). Interruptor de goleadores (P71). Nunca lesiones ni amonestaciones. Estado "2T 12'".
+- [ ] **T11.15 Rehacer el fixture con partidos jugados (P44, P80 respondida: los resultados cuentan).** Al agregar o sacar un equipo, la app arma las series nuevas **buscando que los partidos jugados sigan existiendo** (por ejemplo, de 7 a 8 equipos se arman las series con los cruces de la fecha 1 adentro). Muestra antes qué se conserva, qué se descarta (si no hay forma) y qué hay que programar.
+- [ ] **T11.16 Pasada de UI/UX.** Menos texto en todas las pantallas, botones claros, una acción principal por pantalla. Capturas a 360 px.
+
+```
+T11.2 → T11.3 → T11.4
+T11.5, T11.6, T11.1
+T11.7 → T11.8 → T11.9 → T11.10 → T11.11 → T11.12 → T11.13
+T11.14, T11.15
+T11.16 (al final)
+```
+
+### Sigue pendiente (de antes)
+
 - [ ] Leer el enlace de Copa Fácil con las categorías que ya crearon y compararlas con la convocatoria y la plantilla 2026.
-- [ ] **T11.1 (pedido de Sebastian):** agregar a un torneo ya creado una categoría o un nivel nuevo (por ejemplo, el Avanzado de una categoría que solo tenía Inicial), desde la app.
-- [ ] **Verificación automática, primero:** el test de punta a punta del pedido 2026 (con los cambios del .md), la suite completa, los lentos, mypy y ruff. Después, la imagen Docker con `DEBUG=false` recorrida por HTTP con login.
-- [x] **Fusionar** la cadena a `main`, en orden y con merge commit: PR #75 a #117 (2026-10-13), después de verificar con Docker y `DEBUG=false`.
-- [ ] **El torneo de la demo:** el que existe se creó con la plantilla vieja. Sebastian lo regenera a mano (`generar_demo`, DESPLIEGUE 3c) o crea otro torneo: los dos le sirven. Antes de programar, agregar los jueves 29/10, 5/11 y 12/11 (H8).
-- [ ] **R2 en la demo:** Sebastian carga las cuatro variables en el servicio `rondo-demo` de Render (se puede antes de fusionar; guardar variables reinicia el servicio pero no regenera ni borra datos).
-- [ ] Repetir la prueba de R2 en local (falló: la app no ve las variables del `.env`; falta guardar o sacar el `export`).
-- [ ] Prueba manual de Sebastian de todo el flujo en la demo (lista de pasos en el mensaje del 2026-10-13).
-
-### Hoy también
-
-- [ ] Producción: Neon, Render y el bucket `rondo-produccion` con su token (`docs/DESPLIEGUE.md`), para que la organización empiece el 14/10.
-
-### Después
-
-- [ ] Las respuestas que faltan: P78, P79, P44, P75 y "fijar a mano" (Sebastian dice que son 7: confirmar cuáles faltan).
+- [ ] **El torneo de la demo:** Sebastian lo regenera a mano (`generar_demo`, DESPLIEGUE 3c) o crea otro torneo.
+- [ ] **R2 en la demo:** Sebastian carga las cuatro variables en `rondo-demo` de Render.
+- [ ] Repetir la prueba de R2 en local.
+- [ ] Prueba manual de Sebastian de todo el flujo en la demo.
+- [ ] Producción: Neon, Render y el bucket `rondo-produccion` (`docs/DESPLIEGUE.md`).
+- [ ] Preguntas sin responder: P79, P81, P83, P84, P85 y P86 (quedan con su valor por defecto).
 - [ ] Cada fusión a `main` reinicia la demo: con la organización usándola, fusionar fuera de su horario y avisar antes.

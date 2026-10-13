@@ -6,7 +6,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 - **Fases 7 a 10 terminadas, revisadas y fusionadas a `main` (2026-10-13, PR #75 a #117).** Antes de fusionar: tests rápidos y lentos, mypy, ruff, `docker build`, la imagen con `DEBUG=false` (migraciones hasta la 0025 al arrancar) y un recorrido HTTP con login (223 de 223 sin choques, página pública sin cookies, CSP). La demo se redespliega sola desde `main`.
 - **Siguiente paso (decidido por Sebastian el 2026-10-13):** hoy, la demo para que el hermano de Sebastian pruebe todo; hoy también, producción, para que la organización la use desde el 14/10. Datos reales solo en producción.
-- **Cambios por venir:** Sebastian manda un .md con cambios; no se escribe código hasta tenerlo (`tasks/todo.md`, fase 11).
+- **Fase 11 en curso (2026-10-13):** los cambios de `docs/RESPUESTAS_Y_CAMBIOS.md` y las respuestas P78, P80 y P82 (su sección 7). Tareas T11.1 a T11.16 en `tasks/todo.md`; primero el calendario flexible (T11.2). Auditoría abajo.
 
 ## Para retomar (actualizado el 2026-10-13, al cerrar el chat largo)
 
@@ -28,6 +28,21 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - **Diseño:** `docs/DISENO.md`. El prototipo aprobado está en https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a; el diseño del PNG 2026, en `docs/disenio_fixture/` (sin entrar al repo todavía).
 - **Demo:** https://rondo-demo.onrender.com. Repo: https://github.com/Tiesol/rondo.
 - **Verde:** `uv run pytest -m "not lento"` (905 tests, unos 5 min), `uv run pytest -m lento` (unos 3,5 min), `uv run mypy` y ruff. El chequeo del commit corre los tests rápidos (unos 5 min).
+
+## Auditoría de RESPUESTAS_Y_CAMBIOS (2026-10-13)
+
+Lo que el .md pide contra lo que hay en `main` después de la fase 10:
+
+- **Ya está:** franja por inicio (P48), días por categoría y temprano (P56), F11 en la plantilla (P60), sin Sub 15 Femenino (P61), sin Bronce (P62), margen 0 y solo el entrenador (P35, P57), orden de fechas blando (P19), finales en los 2 últimos días (P55), evitar 2 partidos por día (P17), formato de más de 10 (P27), un solo rol (P64), tiempos a mano (P16), amonestación verbal, mejor jugador con interruptor (P70), W.O. y contador al reprogramar, multa de Bs 30 (P74), suspendidos del día, partir y agregar canchas desde la app (P13), PNG con plantilla aparte (P69), sin borrado automático (P76).
+- **Falta o está distinto:**
+  - Mover a mano **bloquea** cualquier choque (franja, compatibilidad, descanso): tiene que ser aviso con confirmación; bloqueo solo cancha física doble y equipo doble. Mover todavía **fija** el partido.
+  - La plantilla solo parte C1; el .md pide mitades en las tres canchas para lo manual.
+  - `eliminacion_desde_fin_de_semana` sigue en 4 (P33 pide sacarla). Falta el blando "club el mismo día" (P20).
+  - El cierre de inscripción y el plantel máximo bloquean; falta `altas_tardias_hasta` (P2, P22, P84).
+  - Sin pantalla de clubes (P10).
+  - Día de partido (sección 3): falta el dorsal **por partido** y los convocados, el alta rápida con cámara, el minuto de cada evento, gol en contra con jugador (P72), lesión, "afuera 5 min" con hora de vuelta, Partidos de hoy por cancha con atraso, cierre automático, penales tiro por tiro y el historial de los cambios del partido.
+  - Página pública: recarga cada 60 s (pide 30) y sin interruptor de goleadores (P71).
+  - Rehacer el fixture con partidos jugados (P44, P80): hoy FIX-09 lo impide.
 
 ## Hecho
 
