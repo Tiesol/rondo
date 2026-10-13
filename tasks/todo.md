@@ -1428,3 +1428,26 @@ T10.9, T10.10, T10.11 (durante el torneo)
 - [x] Revisión con `code-review-and-quality` y PROGRESO.md al día.
 
 **Para preguntarle a Sebastian (no frenan):** P44 (inscribir un equipo durante las primeras fechas choca con FIX-09, que no deja rehacer un fixture con partidos jugados); P75 (la fila del archivo ahora dice "las dos: foto de cada jugador y galería", y el pedido decía sin galería); "no existen partidos fijados a mano" (hoy la organización puede fijar uno al moverlo: ¿se saca?).
+
+## Fase 11: antes de que la organización la use (anotado el 2026-10-13, sin empezar)
+
+> Sebastian manda un .md con los cambios. **No se escribe código hasta tenerlo.** La organización empieza a usar la app desde el 2026-10-14, en la demo.
+
+### Antes de que la organización la use
+
+- [ ] **Datos reales:** SPEC prohíbe datos reales de menores en la demo. Si la organización va a cargar listas reales, tiene que ser en producción. Decidir con Sebastian: o producción se crea antes, o en la demo se usan solo datos inventados.
+- [ ] Leer el .md de Sebastian y planificar los cambios (tareas T11.x).
+- [ ] Leer el enlace de Copa Fácil con las categorías que ya crearon y compararlas con la convocatoria y la plantilla 2026.
+- [ ] **T11.1 (pedido de Sebastian):** agregar a un torneo ya creado una categoría o un nivel nuevo (por ejemplo, el Avanzado de una categoría que solo tenía Inicial), desde la app.
+- [ ] **Verificación automática, primero:** el test de punta a punta del pedido 2026 (con los cambios del .md), la suite completa, los lentos, mypy y ruff. Después, la imagen Docker con `DEBUG=false` recorrida por HTTP con login.
+- [ ] **Fusionar** la cadena a `main`, en orden y con merge commit (de `docs/plan-pedido-2026` a la última rama). Despliega la demo y corre las migraciones 0016 a 0025.
+- [ ] **El torneo de la demo:** el que existe se creó con la plantilla vieja (del 23/10 al 22/11, F5…). Decidir con Sebastian: regenerar la demo (borra lo que se cargó) o crear un torneo nuevo con otro nombre desde el asistente.
+- [ ] **R2 en la demo:** Sebastian carga las cuatro variables en el servicio `rondo-demo` de Render.
+- [ ] Repetir la prueba de R2 en local (falló: la app no ve las variables del `.env`; falta guardar o sacar el `export`).
+- [ ] Prueba manual de Sebastian de todo el flujo en la demo (lista de pasos en el mensaje del 2026-10-13).
+
+### Después
+
+- [ ] Producción: Neon, Render y el bucket `rondo-produccion` con su token (`docs/DESPLIEGUE.md`).
+- [ ] Las respuestas que faltan: P78, P79, P44, P75 y "fijar a mano" (Sebastian dice que son 7: confirmar cuáles faltan).
+- [ ] Cada fusión a `main` reinicia la demo: con la organización usándola, fusionar fuera de su horario y avisar antes.
