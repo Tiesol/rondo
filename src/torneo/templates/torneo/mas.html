@@ -52,6 +52,7 @@
         <span class="sub">{{ torneo.fechas }}{% if torneo.publico %} · <a href="{% url 'publico' torneo.pk %}">ver la página pública</a>{% endif %}</span>
       </span>
       {% if perms.torneo.configurar_torneo %}
+      <a class="btn chico" href="{% url 'patrocinadores' torneo.pk %}">Patrocinadores</a>
       <form method="post" action="{% url 'publicar' torneo.pk %}">
         {% csrf_token %}
         <button type="submit" class="btn chico">{% if torneo.publico %}Dejar de publicar{% else %}Publicar{% endif %}</button>

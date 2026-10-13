@@ -12,6 +12,7 @@ from typing import IO, Literal
 
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.db.models.fields.files import FieldFile
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 Tipo = Literal["foto", "escudo", "logo", "patrocinador"]
@@ -69,3 +70,24 @@ def _abrir(contenido: bytes) -> Image.Image:
         raise ImagenInvalida("La imagen es demasiado grande: achícala antes de subirla.") from None
     except UnidentifiedImageError, OSError, SyntaxError:
         raise ImagenInvalida(_PERMITIDOS) from None
+
+
+class SinAlmacenamiento(ImagenInvalida):
+    """No hay dónde guardar imágenes: falta conectar R2 (T8.1)."""
+
+
+def reemplazar_imagen(campo: FieldFile, archivo: IO[bytes], *, tipo: Tipo) -> None:
+    """Procesa la imagen, la guarda en el campo y borra la anterior (no quedan huérfanas)."""
+    if not settings.IMAGENES_DISPONIBLES:
+        raise SinAlmacenamiento("Falta conectar el almacenamiento de imágenes.")
+    nueva = procesar_imagen(archivo, tipo=tipo)
+    anterior = campo.name
+    assert nueva.name is not None
+    campo.save(nueva.name, nueva, save=True)
+    if anterior:
+        campo.storage.delete(anterior)
+
+
+def quitar_imagen(campo: FieldFile) -> None:
+    if campo.name:
+        campo.delete(save=True)

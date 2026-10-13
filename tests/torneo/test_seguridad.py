@@ -11,7 +11,7 @@ from django.urls import URLPattern, URLResolver, get_resolver
 from torneo.permisos import MESA
 
 # Las únicas que se abren sin sesión: el login, la página pública y lo que pide la PWA.
-PUBLICAS = {"login", "publico", "publico-categoria", "manifest", "service-worker"}
+PUBLICAS = {"login", "publico", "publico-categoria", "manifest", "service-worker", "imagen"}
 # Las de la organización: la mesa recibe un 403 (con el aviso del rol).
 DE_LA_ORGANIZACION = [
     "/torneos/nuevo/1/",
@@ -19,6 +19,7 @@ DE_LA_ORGANIZACION = [
     "/torneos/1/programar/",
     "/torneos/1/acf/",
     "/escuela/",
+    "/torneos/1/patrocinadores/",
     "/personas/nueva/",
     "/partidos/1/mover/",
     "/corridas/1/propuestas/",

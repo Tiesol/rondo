@@ -1107,9 +1107,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] La organización sube el escudo de un club y aparece en todos sus equipos.
-- [ ] Se agregan, ordenan y sacan patrocinadores de un torneo; la mesa no puede.
-- [ ] Sin escudo, se sigue viendo la sigla con el color.
+- [x] La organización sube el escudo de un club y aparece en todos sus equipos.
+- [x] Se agregan, ordenan y sacan patrocinadores de un torneo; la mesa no puede.
+- [x] Sin escudo, se sigue viendo la sigla con el color.
 
 **Verificación:** verde, más una prueba a mano a 360 px.
 **Depende de:** T8.2.

@@ -11,6 +11,22 @@
       <p class="peq tenue">{{ categoria }} · {{ equipo.club }}</p>
     </div>
   </div>
+  {% if perms.torneo.configurar_torneo %}
+  <details class="desplegable">
+    <summary>Escudo del club</summary>
+    <form method="post" action="{% url 'escudo-club' equipo.club_id %}" enctype="multipart/form-data" class="flex flex-col gap-2">
+      {% csrf_token %}
+      <input type="hidden" name="equipo" value="{{ equipo.pk }}">
+      {% include "parciales/campo_imagen.html" with nombre="escudo" etiqueta="Escudo de "|add:equipo.club.nombre ayuda="Uno por club: aparece en todos sus equipos. JPG, PNG o WebP." %}
+      {% if imagenes_disponibles %}
+      <div class="botones">
+        <button type="submit" class="btn principal">Guardar el escudo</button>
+        {% if escudo.url %}<button type="submit" name="quitar" value="1" class="btn">Quitar</button>{% endif %}
+      </div>
+      {% endif %}
+    </form>
+  </details>
+  {% endif %}
   <div class="marcas">
     <span class="chip {% if completo %}bien{% else %}aviso{% endif %} num">{{ resumen.total }} de {{ categoria.max_jugadores }} jugadores</span>
     {% if resumen.sin_verificar %}<span class="chip aviso num">{{ resumen.sin_verificar }} sin verificar</span>{% endif %}

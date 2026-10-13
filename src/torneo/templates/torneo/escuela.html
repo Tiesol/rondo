@@ -3,7 +3,7 @@
 {% block encabezado %}Escuela{% endblock %}
 {% block contenido %}
 {% include "parciales/banda.html" with antes="Datos de la escuela" titulo=organizador.nombre despues="Aparecen en todas las pantallas y en la página pública." %}
-<form method="post" class="seccion gap-3.5" novalidate>
+<form method="post" enctype="multipart/form-data" class="seccion gap-3.5" novalidate>
   {% csrf_token %}
   {% include "parciales/campo.html" with campo=form.nombre %}
   <div class="dos">
@@ -11,7 +11,10 @@
     {% include "parciales/campo.html" with campo=form.color_acento %}
   </div>
   <p class="peq tenue">Al elegir un color, la pantalla lo muestra al instante. Se guarda con el botón.</p>
-  {% include "parciales/alerta.html" with estado="info" texto="El logo y los patrocinadores se agregan más adelante, cuando haya un lugar donde guardar las imágenes." %}
+  {% include "parciales/campo_imagen.html" with nombre="logo" etiqueta="Logo" ayuda="Aparece en la barra de arriba y en la página pública. JPG, PNG o WebP." actual=logo %}
+  {% if error_logo %}{% include "parciales/alerta.html" with estado="error" texto=error_logo %}{% endif %}
+  {% if logo %}<label class="flex items-center gap-2"><input type="checkbox" name="quitar_logo" value="1"> Quitar el logo</label>{% endif %}
+  <p class="peq tenue">Los patrocinadores son de cada torneo: se cargan desde Más.</p>
   {% include "parciales/boton.html" with texto="Guardar" principal=True bloque=True %}
 </form>
 {% endblock %}

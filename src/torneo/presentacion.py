@@ -2,11 +2,13 @@
 
 from datetime import datetime
 
+from django.core.cache import cache
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
 
 from torneo.colores import texto_sobre
-from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
+from torneo.models import CategoriaNivel, Club, Equipo, Partido, Torneo
 
 
 def fechas_del_torneo(torneo: Torneo) -> str:
@@ -46,12 +48,41 @@ def sigla_de_equipo(nombre: str) -> str:
     return "".join(p[0] for p in palabras[:3]).upper()
 
 
+_ESCUDOS = "rondo:escudos"
+
+
+def _escudos() -> dict[int, str]:
+    """Club → archivo de su escudo, en la caché: una consulta para toda la pantalla."""
+    escudos: dict[int, str] | None = cache.get(_ESCUDOS)
+    if escudos is None:
+        escudos = dict(Club.objects.exclude(escudo="").values_list("pk", "escudo"))
+        cache.set(_ESCUDOS, escudos, 5 * 60)
+    return escudos
+
+
+def olvidar_escudos() -> None:
+    """Después de subir o quitar un escudo."""
+    cache.delete(_ESCUDOS)
+
+
+def url_de_imagen(tipo: str, pk: int, archivo: str | None) -> str:
+    """La URL desde la app, con la versión: si la imagen cambia, cambia la URL (T8.3). Sin
+    imagen, vacía."""
+    if not archivo:
+        return ""
+    version = archivo.rsplit("/", 1)[-1].split(".")[0][:8]
+    return f"{reverse('imagen', args=[tipo, pk])}?v={version}"
+
+
 def escudo(equipo: Equipo) -> dict[str, str]:
-    """Lo que necesita parciales/escudo.html: sigla y colores (o los del tema)."""
+    """Lo que necesita parciales/escudo.html: el escudo del club si lo tiene (P68); si no, la
+    sigla y los colores del equipo."""
+    archivo = _escudos().get(equipo.club_id, "")
     return {
         "sigla": sigla_de_equipo(equipo.nombre),
         "color": equipo.color_1,
         "texto": texto_sobre(equipo.color_1) if equipo.color_1 else "",
+        "url": url_de_imagen("escudo", equipo.club_id, archivo),
     }
 
 
