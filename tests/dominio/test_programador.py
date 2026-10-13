@@ -182,6 +182,30 @@ def test_t7_2_un_jugador_compartido_no_necesita_margen() -> None:
     assert resultado.sin_ubicar == []
 
 
+def test_t7_3_pro_11_con_lugar_libre_los_partidos_del_profe_van_seguidos() -> None:
+    sub9 = todos_contra_todos(list("AB"), "Sub 9", ("C1",))
+    fijo = (("C2", SABADO.replace(hour=14)),)
+    sub11 = [
+        PartidoAProgramar(**{**p.__dict__, "fijo": fijo[0]})
+        for p in todos_contra_todos(list("CD"), "Sub 11", ("C2",))
+    ]
+    pares = (ParDeEquipos("Sub 9:A", "Sub 11:C", "profe"),)
+    prob = con(problema(sub9 + sub11, [franja(0, 8, 16)]), pares=pares)
+    sub9_inicio = programar(prob, segundos=10).ubicados[sub9[0].id][1]
+    # Pegado al de las 14:00: 10 minutos de margen antes (13:05) o después (14:55).
+    assert sub9_inicio in (SABADO.replace(hour=13, minute=5), SABADO.replace(hour=14, minute=55))
+
+
+def test_t7_3_ubicar_un_partido_mas_pesa_mas_que_cualquier_espera() -> None:
+    sub9 = todos_contra_todos(list("AB"), "Sub 9", ("C1",))
+    sub11 = todos_contra_todos(list("CD"), "Sub 11", ("C1",))
+    pares = (ParDeEquipos("Sub 9:A", "Sub 11:C", "profe"),)
+    manana = SABADO.replace(hour=8), SABADO.replace(hour=9)
+    tarde = SABADO.replace(hour=15), SABADO.replace(hour=16)
+    resultado = programar(con(problema(sub9 + sub11, [manana, tarde]), pares=pares), segundos=10)
+    assert resultado.sin_ubicar == []  # 6 horas de espera, pero los dos juegan
+
+
 def test_pro_06_jugador_compartido() -> None:
     sub9 = todos_contra_todos(list("AB"), "Sub 9", ("C1",))
     sub11 = todos_contra_todos(list("CD"), "Sub 11", ("C2",))
