@@ -267,7 +267,7 @@ T8.5 → T8.6         │
 
 #### Fase 9: bloque C, durante el torneo
 
-- [ ] T9.1 Retención: anonimizar también borra las fotos (P49, P76)
+- [x] T9.1 Retención: anonimizar también borra las fotos (P49, P76)
 - [ ] T9.2 Pantalla de suspendidos para la mesa
 
 **Checkpoint de la fase 9:**
