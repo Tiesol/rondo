@@ -90,6 +90,7 @@ class _Generador:
         return Persona(
             nombres=self.faker.first_name(),
             apellidos=f"{self.faker.last_name()} {self.faker.last_name()}",
+            anio_nacimiento=nacimiento.year if nacimiento else None,  # bulk_create: sin save()
             nacimiento=nacimiento,
             **self.documento(adulto),
         )

@@ -949,9 +949,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Un jugador con solo "2014" se guarda en Sub 12 y muestra "fecha incompleta".
-- [ ] Un año fuera de la categoría sigue dando el mismo error que una fecha completa.
-- [ ] La anonimización (T6.4) también borra el año.
+- [x] Un jugador con solo "2014" se guarda en Sub 12 y muestra "fecha incompleta".
+- [x] Un año fuera de la categoría sigue dando el mismo error que una fecha completa.
+- [x] La anonimización (T6.4) también borra el año.
 
 **Verificación:** verde.
 **Depende de:** nada.

@@ -155,3 +155,15 @@ def test_el_admin_de_club_carga_alias_uno_por_linea(client: Client) -> None:
     )
     assert respuesta.status_code == 302
     assert Club.objects.get(nombre="Club Inventado").alias == ["Inventado FC", "Los Inventados"]
+
+
+@pytest.mark.django_db
+def test_t7_6_al_guardar_la_fecha_completa_queda_el_anio() -> None:
+    assert persona().anio_nacimiento == 2017
+
+
+@pytest.mark.django_db
+def test_t7_6_la_base_no_deja_una_fecha_de_otro_anio() -> None:
+    p = persona()
+    with pytest.raises(IntegrityError), transaction.atomic():
+        Persona.objects.filter(pk=p.pk).update(anio_nacimiento=2016)

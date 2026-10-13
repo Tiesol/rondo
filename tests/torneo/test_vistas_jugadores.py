@@ -13,6 +13,7 @@ from django.contrib.auth.models import Group, User
 from django.test import Client
 
 from dominio.config import cargar_config
+from dominio.nacimiento import Nacimiento
 from torneo.models import CategoriaNivel, Club, Equipo, Jugador, Persona, Profe, Torneo
 from torneo.permisos import MESA
 from torneo.servicios.configuracion import cargar_configuracion
@@ -72,6 +73,30 @@ def test_rechaza_a_un_jugador_mas_grande_que_su_categoria(mesa: Client, river9: 
 
 
 @pytest.mark.django_db
+def test_t7_6_con_solo_el_anio_se_guarda_y_dice_fecha_incompleta(
+    mesa: Client, river9: Equipo
+) -> None:
+    respuesta = mesa.post(url(river9), jugador(nacimiento="2017"), follow=True)
+    persona = Jugador.objects.get().persona
+    assert (persona.anio_nacimiento, persona.nacimiento) == (2017, None)
+    assert "fecha incompleta" in respuesta.content.decode()
+
+
+@pytest.mark.django_db
+def test_t7_6_acepta_dd_mm_aaaa(mesa: Client, river9: Equipo) -> None:
+    mesa.post(url(river9), jugador(nacimiento="14/03/2017"))
+    persona = Jugador.objects.get().persona
+    assert (persona.anio_nacimiento, persona.nacimiento) == (2017, date(2017, 3, 14))
+
+
+@pytest.mark.django_db
+def test_t7_6_un_anio_fuera_de_la_categoria_se_rechaza_igual(mesa: Client, river9: Equipo) -> None:
+    respuesta = mesa.post(url(river9), jugador(nacimiento="2015"))
+    assert "es mayor para Sub 9" in respuesta.content.decode()
+    assert not Jugador.objects.exists()
+
+
+@pytest.mark.django_db
 def test_acepta_a_uno_mas_chico(mesa: Client, river9: Equipo) -> None:
     respuesta = mesa.post(url(river9), jugador(nacimiento="2018-05-05"))
     assert respuesta["Location"] == url(river9, "plantel")
@@ -83,7 +108,7 @@ def test_no_deja_pasar_del_maximo(mesa: Client, river9: Equipo) -> None:
     for i in range(14):
         agregar_jugador(
             river9,
-            DatosPersona(f"{3000000 + i}", "N", f"I{i}", date(2017, 1, 1)),
+            DatosPersona(f"{3000000 + i}", "N", f"I{i}", Nacimiento.de(date(2017, 1, 1))),
             i + 1,
             ahora=AHORA,
             es_organizacion=True,
@@ -110,7 +135,7 @@ def test_avisa_cuando_un_ci_ya_esta_en_otro_equipo(
     river11 = nuevo_equipo(torneo, "River Plate", "Sub 11", "avanzado")
     agregar_jugador(
         river11,
-        DatosPersona("1234567", "Nombre", "Inventado", date(2017, 3, 14)),
+        DatosPersona("1234567", "Nombre", "Inventado", Nacimiento.de(date(2017, 3, 14))),
         7,
         ahora=AHORA,
         es_organizacion=True,
@@ -192,7 +217,7 @@ def test_los_formularios_con_datos_personales_son_sensibles(
 def test_ins_12_la_mesa_marca_al_jugador_como_verificado(mesa: Client, river9: Equipo) -> None:
     resultado = agregar_jugador(
         river9,
-        DatosPersona("1234567", "N", "I", date(2017, 1, 1)),
+        DatosPersona("1234567", "N", "I", Nacimiento.de(date(2017, 1, 1))),
         1,
         ahora=AHORA,
         es_organizacion=True,
@@ -211,7 +236,7 @@ def test_ins_12_la_mesa_marca_al_jugador_como_verificado(mesa: Client, river9: E
 def test_ins_12_sin_rol_no_se_verifica(client: Client, river9: Equipo) -> None:
     resultado = agregar_jugador(
         river9,
-        DatosPersona("1234567", "N", "I", date(2017, 1, 1)),
+        DatosPersona("1234567", "N", "I", Nacimiento.de(date(2017, 1, 1))),
         1,
         ahora=AHORA,
         es_organizacion=True,

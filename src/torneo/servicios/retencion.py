@@ -45,9 +45,17 @@ def anonimizar(torneo: Torneo) -> int:
     for persona in personas:
         persona.nombres, persona.apellidos = nuevos[persona.pk]
         persona.tipo_documento = persona.documento = persona.clave_documento = ""
-        persona.nacimiento = None
+        persona.nacido = None
     Persona.objects.bulk_update(
         personas,
-        ["nombres", "apellidos", "tipo_documento", "documento", "clave_documento", "nacimiento"],
+        [
+            "nombres",
+            "apellidos",
+            "tipo_documento",
+            "documento",
+            "clave_documento",
+            "anio_nacimiento",
+            "nacimiento",
+        ],
     )
     return len(personas)

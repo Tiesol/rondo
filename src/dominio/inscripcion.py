@@ -6,11 +6,12 @@ con lo que hay en la base y decide.
 """
 
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import datetime
 from typing import Literal
 
 from dominio.config import CuerpoTecnico, Reglas
 from dominio.documentos import Documento
+from dominio.nacimiento import Nacimiento
 
 NivelHallazgo = Literal["error", "aviso"]
 Rol = Literal["jugador", "profe"]
@@ -60,7 +61,7 @@ class AltaDeJugador:
     equipo: EquipoRef
     categoria: CategoriaDelEquipo
     anio_torneo: int
-    nacimiento: date | None
+    nacimiento: Nacimiento | None
     documento: Documento | None
     dorsal: int | None
     jugadores_en_el_equipo: int  # sin contar al que se agrega
@@ -98,12 +99,23 @@ def validar_alta_de_profe(
 
 
 def validar_edad(alta: AltaDeJugador, reglas: Reglas) -> list[Hallazgo]:
-    """INS-02: mayor que la categoría, nunca; menor, según la regla y con aviso."""
+    """INS-02: mayor que la categoría, nunca; menor, según la regla y con aviso. Mira solo el
+    año: con solo el año alcanza, con el aviso de fecha incompleta."""
     if alta.nacimiento is None:
         return [Hallazgo("error", "INS-02", "Falta la fecha de nacimiento.")]
+    hallazgos = _edad(alta, reglas)
+    if not alta.nacimiento.completa and not any(h.nivel == "error" for h in hallazgos):
+        hallazgos.append(
+            Hallazgo("aviso", "INS-02", f"Fecha incompleta: solo el año ({alta.nacimiento.anio}).")
+        )
+    return hallazgos
+
+
+def _edad(alta: AltaDeJugador, reglas: Reglas) -> list[Hallazgo]:
+    assert alta.nacimiento is not None
     primero = alta.anio_torneo - alta.categoria.edad
     ultimo = primero + alta.categoria.anios_nacimiento - 1
-    anio = alta.nacimiento.year
+    anio = alta.nacimiento.anio
     categoria = alta.equipo.categoria
     if anio < primero:
         return [
