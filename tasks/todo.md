@@ -1391,8 +1391,8 @@ T8.5 → T8.6         │
 **Descripción:** la mesa marca el inicio real, el fin del primer tiempo, el fin del descanso y el final. Amonestación verbal como evento (Sub 5 a Sub 7). En Sub 5 a Sub 9, dos amarillas muestran "sale 5 minutos". El mejor jugador se puede apagar por torneo.
 
 **Aceptación:**
-- [ ] La ficha muestra el tiempo del partido y la mesa avanza los tiempos.
-- [ ] La amonestación verbal se carga y se ve en la ficha.
+- [x] La ficha muestra el tiempo del partido y la mesa avanza los tiempos.
+- [x] La amonestación verbal se carga y se ve en la ficha.
 
 **Archivos:** modelo del partido y migración, `servicios/partido.py`, ficha, tests. **Tamaño:** M.
 

@@ -7,6 +7,7 @@ mueve (PRO-10) ni deja rehacer su fixture (FIX-09).
 
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser, User
 from django.db import transaction
+from django.utils import timezone
 
 from dominio.config import Reglas
 from dominio.partido import Evento as EventoDelDominio
@@ -55,7 +56,22 @@ def empezar(partido: Partido, usuario: Usuario | None) -> None:
     if partido.estado == Partido.Estado.JUGADO:
         raise NoSePuede("El partido ya terminó.")
     partido.estado = Partido.Estado.EN_JUEGO
-    partido.save(update_fields=["estado"])
+    if not partido.tiempo:  # T10.9: el inicio real lo marca la mesa
+        partido.tiempo = Partido.Tiempo.PRIMER_TIEMPO
+        partido.inicio_real = timezone.now()
+    partido.save(update_fields=["estado", "tiempo", "inicio_real"])
+
+
+def avanzar_tiempo(partido: Partido) -> None:
+    """T10.9: fin del primer tiempo, y después fin del descanso."""
+    ahora = timezone.now()
+    if partido.tiempo == Partido.Tiempo.PRIMER_TIEMPO:
+        partido.tiempo, partido.fin_primer_tiempo = Partido.Tiempo.DESCANSO, ahora
+    elif partido.tiempo == Partido.Tiempo.DESCANSO:
+        partido.tiempo, partido.fin_descanso = Partido.Tiempo.SEGUNDO_TIEMPO, ahora
+    else:
+        raise NoSePuede("No hay otro tiempo: el partido se termina con «Terminar».")
+    partido.save(update_fields=["tiempo", "fin_primer_tiempo", "fin_descanso"])
 
 
 def anotar(
@@ -91,7 +107,8 @@ def wo(partido: Partido, no_se_presento: Lado, usuario: Usuario | None) -> None:
         raise NoSePuede("Faltan los equipos de este partido.")
     partido.no_se_presento = no_se_presento
     partido.estado = Partido.Estado.JUGADO
-    partido.save(update_fields=["no_se_presento", "estado"])
+    partido.tiempo = Partido.Tiempo.TERMINADO
+    partido.save(update_fields=["no_se_presento", "estado", "tiempo"])
 
 
 def penales(partido: Partido, local: int, visitante: int) -> None:
@@ -118,4 +135,5 @@ def terminar(partido: Partido, usuario: Usuario | None) -> None:
     except ResultadoInvalido as error:
         raise NoSePuede(str(error)) from None
     partido.estado = Partido.Estado.JUGADO
-    partido.save(update_fields=["estado"])
+    partido.tiempo, partido.fin_real = Partido.Tiempo.TERMINADO, timezone.now()
+    partido.save(update_fields=["estado", "tiempo", "fin_real"])

@@ -14,6 +14,7 @@ class Evento(models.Model):
         GOL_EN_CONTRA = "gol_en_contra", "Gol en contra"
         AMARILLA = "amarilla", "Amarilla"
         ROJA = "roja", "Roja"
+        AMONESTACION = "amonestacion", "Amonestación"  # verbal, Sub 5 a Sub 7 (T10.9)
 
     partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name="eventos")
     tipo = models.CharField(max_length=13, choices=Tipo.choices)

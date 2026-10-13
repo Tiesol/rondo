@@ -14,6 +14,7 @@
   {% if resultado.penales %}<p class="peq tenue centrado">Penales {{ resultado.penales.0 }} a {{ resultado.penales.1 }}</p>{% endif %}
   {% if resultado.wo %}<p class="peq tenue centrado">W.O.</p>{% endif %}
   <div class="marcas">
+    {% if tiempo %}<span class="chip info num">{{ tiempo }}</span>{% endif %}
     {% if partido.estado == "en_juego" %}{% include "parciales/chip.html" with texto="En juego" estado="aviso" %}{% elif partido.estado == "jugado" %}{% include "parciales/chip.html" with texto="Terminado" estado="bien" %}{% else %}{% include "parciales/chip.html" with texto="Por jugar" estado="neutro" %}{% endif %}
   </div>
 </div>
@@ -45,9 +46,18 @@
   <button type="button" class="btn grande amarilla" data-abrir-hoja="hoja-amarilla">Amarilla</button>
   <button type="button" class="btn grande roja" data-abrir-hoja="hoja-roja">Roja</button>
 </div>
+<div class="seccion">
+  <div class="botones">
+    <button type="button" class="btn" data-abrir-hoja="hoja-amonestacion">Amonestación</button>
+    {% if partido.tiempo == "primer_tiempo" or partido.tiempo == "descanso" %}
+    <form method="post" action="{% url 'accion-partido' partido.pk %}">{% csrf_token %}<button type="submit" name="accion" value="avanzar_tiempo" class="btn">{% if partido.tiempo == "primer_tiempo" %}Fin del 1.er tiempo{% else %}Empieza el 2.º tiempo{% endif %}</button></form>
+    {% endif %}
+  </div>
+</div>
 {% include "parciales/hoja.html" with id="hoja-gol" titulo="¿Quién hizo el gol?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="gol" %}
 {% include "parciales/hoja.html" with id="hoja-amarilla" titulo="Amarilla, ¿a quién?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="amarilla" %}
 {% include "parciales/hoja.html" with id="hoja-roja" titulo="Roja, ¿a quién?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="roja" %}
+{% include "parciales/hoja.html" with id="hoja-amonestacion" titulo="Amonestación, ¿a quién?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="amonestacion" %}
 
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
   {% csrf_token %}
@@ -66,6 +76,7 @@
 </form>
 {% endif %}
 
+{% if con_mejor_jugador %}
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
   {% csrf_token %}
   <input type="hidden" name="accion" value="mejor">
@@ -78,6 +89,7 @@
   </div>
   <noscript><button type="submit" class="btn bloque">Guardar el mejor jugador</button></noscript>
 </form>
+{% endif %}
 
 {% if multas %}
 <div class="seccion gap-2">
@@ -128,7 +140,7 @@
     {% for evento in eventos %}
     <li class="fila">
       <span class="evento {{ evento.clase }}" aria-hidden="true"></span>
-      <span class="crece"><strong>{{ evento.tipo }} · {{ evento.equipo }}</strong><span class="sub">{% if evento.jugador %}{{ evento.jugador.dorsal|default_if_none:"s/n" }} · {{ evento.jugador.persona }} · {% endif %}{{ evento.hora }}{% if evento.quien %} · {{ evento.quien }}{% endif %}</span></span>
+      <span class="crece"><strong>{{ evento.tipo }} · {{ evento.equipo }}</strong><span class="sub">{% if evento.jugador %}{{ evento.jugador.dorsal|default_if_none:"s/n" }} · {{ evento.jugador.persona }} · {% endif %}{{ evento.hora }}{% if evento.quien %} · {{ evento.quien }}{% endif %}</span>{% if evento.nota %}<span class="sub"><strong>{{ evento.nota }}</strong></span>{% endif %}</span>
     </li>
     {% endfor %}
   </ul>

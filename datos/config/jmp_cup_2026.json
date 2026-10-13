@@ -332,6 +332,7 @@
     "orden_de_fechas": "blanda",
     "eliminacion_desde_fin_de_semana": 4,
     "dia_para_reprogramar": "jueves",
+    "mejor_jugador": true,
     "puntos_por_partido": [
       3,
       1

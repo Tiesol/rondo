@@ -344,6 +344,14 @@ class Reglas(Estricto):
             "domingo": "Domingo",
         },
     )
+    mejor_jugador: bool = _regla(
+        True,
+        "Mejor jugador de cada partido",
+        "Lo eligen el árbitro y la mesa, y sale en la ficha del partido.",
+        grupo="Resultados",
+        pregunta="P70",
+        regla="RES-03",
+    )
     puntos_por_partido: tuple[int, int] = _regla(
         (3, 1),
         "Puntos por ganar y por empatar",
