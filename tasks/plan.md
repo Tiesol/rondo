@@ -187,15 +187,92 @@ T5.3 + T5.6 → T5.8
 - [x] T6.2 Personas: invitar, cambiar el rol y la contraseña
 - [x] T6.3 Revisión de seguridad
 - [x] T6.4 Retención de datos (P49)
-- [ ] T6.5 Producción separada de la demo *(necesita a Sebastian)*
-- [ ] T6.6 Configuración con las respuestas del organizador *(necesita a Sebastian)*
-- [ ] T6.7 Carga de las listas reales y publicación *(necesita a Sebastian)*
+- [ ] ~~T6.5 Producción separada de la demo~~ *(reemplazada por T7.10)*
+- [ ] ~~T6.6 Configuración con las respuestas del organizador~~ *(reemplazada por T7.4 y T7.5)*
+- [ ] T6.7 Carga de las listas reales y publicación *(necesita a Sebastian; después de T7.8 y T7.10)*
 
 **Checkpoint de la fase 6:**
 
-- [ ] El fixture y el calendario 2026 están publicados (necesita T6.5 a T6.7).
+- [ ] El fixture y el calendario 2026 están publicados (necesita T6.7, T7.10 y la fase 7).
 - [x] Revisión con `code-review-and-quality` de la parte A (ver PROGRESO.md).
 - [ ] Tu visto bueno.
+
+### Pedido 2026 (fases 7 a 9)
+
+> Planificadas el 2026-10-12 desde `docs/PEDIDO_CLAUDE_CODE.md`, con `docs/REVISION_RONDO_FASE4.md`, `docs/CONVOCATORIA_2026_PARA_RONDO.md` y `docs/PREGUNTAS_JMP_CUP_2026.md` (desde ahora, la fuente de las P). Pendientes del visto bueno de Sebastian. El detalle está en [todo.md](todo.md).
+>
+> **Cómo se trabaja (autorizado en el pedido):** las preguntas sin respuesta no frenan: quedan configurables con el valor por defecto de PREGUNTAS y un `TODO(P#)`. Dependencias aprobadas: `django-storages[s3]` y `Pillow`. Durante la prueba del martes 13/10 no se fusiona nada a `main` hasta que Sebastian avise, y nunca se corre `generar_demo` en la demo.
+
+#### Fase 7: bloque A, calendario y carga de listas (para el miércoles 14/10)
+
+- [ ] T7.1 La eliminación respeta el turno libre (P17), en el modelo y en el verificador
+- [ ] T7.2 Profes: seguidos en la misma cancha, y el choque solo para el entrenador (P18, P35, P57)
+- [ ] T7.3 Objetivo blando: menos espera de los profes (PRO-11)
+- [ ] T7.4 Fútbol 6 y plantilla 2026 (convocatoria)
+- [ ] T7.5 Copa de Bronce con interruptor (P62)
+- [ ] T7.6 Fecha de nacimiento: alcanza con el año
+- [ ] T7.7 Dominio: leer filas pegadas
+- [ ] T7.8 Pantalla: pegar la lista de jugadores
+- [ ] T7.9 Pantalla: pegar el cuerpo técnico
+- [ ] T7.10 Producción preparada (T6.5) *(el despliegue lo hace Sebastian)*
+- [ ] T7.11 Borrador del calendario y fixture desactualizado
+- [ ] T7.12 Medir la programación 2026 con 1 CPU
+
+```
+T7.1 → T7.2 → T7.3 ─┐
+T7.4, T7.5 ─────────┴→ T7.12
+T7.6 → T7.7 → T7.8 → T7.9
+T7.10 y T7.11 (independientes)
+T7.8 + T7.10 → T6.7 (carga real, en producción)
+```
+
+**Checkpoint de la fase 7:**
+
+- [ ] Verde, más `pytest -m lento`.
+- [ ] La demo programada con la plantilla 2026, sin choques ni llaves encadenadas sin descanso, y la medición en PROGRESO.md (H7).
+- [ ] Una lista recreada con datos inventados se pega en menos de un minuto.
+- [ ] `docs/DESPLIEGUE.md` listo para crear producción.
+- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+
+#### Fase 8: bloque B, reemplazar a Copa Fácil (antes del viernes 23/10)
+
+- [ ] T8.1 Almacenamiento de imágenes conectable (B1)
+- [ ] T8.2 Procesar la imagen al subirla
+- [ ] T8.3 Escudo del club, logo del organizador y patrocinadores (B2, P68, P69)
+- [ ] T8.4 Foto de la persona y autorización (B2, P66, P67, P75)
+- [ ] T8.5 Resultado y eventos del partido (dominio y modelo, B3)
+- [ ] T8.6 Ficha del partido en el celular (B3)
+- [ ] T8.7 Tabla de posiciones (B4, P26, P28, P34)
+- [ ] T8.8 Cruces de la eliminación desde la tabla (B6, P50)
+- [ ] T8.9 Suspensiones (B5, P29, P74)
+- [ ] T8.10 Página pública en vivo: partidos, posiciones, goleadores y ficha (B7, P65, P71)
+- [ ] T8.11 Página pública: equipo, patrocinadores y caché (B7)
+- [ ] T8.12 PNG del fixture con el diseño 2026 (B8) *(necesita las imágenes del PSD)*
+
+```
+T8.1 → T8.2 → T8.3 ─┬──────────→ T8.12
+          └──→ T8.4 ┤
+T8.5 → T8.6         │
+  ├──→ T8.7 → T8.8  │
+  │      └──→ T8.10 ┴→ T8.11
+  └──→ T8.9
+```
+
+**Checkpoint de la fase 8:**
+
+- [ ] Verde, más `pytest -m lento`.
+- [ ] Un partido cargado desde el celular aparece en la página pública, con la tabla y los goleadores al día.
+- [ ] Ninguna página pública muestra CI, fecha de nacimiento, apellido completo ni fotos sin autorización.
+- [ ] Revisión con `code-review-and-quality` y `security-and-hardening` (subida de imágenes), y tu visto bueno.
+
+#### Fase 9: bloque C, durante el torneo
+
+- [ ] T9.1 Retención: anonimizar también borra las fotos (P49, P76)
+- [ ] T9.2 Pantalla de suspendidos para la mesa
+
+**Checkpoint de la fase 9:**
+
+- [ ] Verde, revisión con `code-review-and-quality` y tu visto bueno.
 
 ## Grafo de dependencias
 
@@ -216,8 +293,14 @@ T0.4 y T1.1 no dependen del deploy. Si el deploy se traba esperando tus cuentas,
 | OR-Tools anda lento con 1 vCPU | Medio | Se mide en T0.6. Si hace falta, se usan 2 vCPU, y el peor caso de costo sigue siendo bajo |
 | La Web Share API no comparte archivos en algún celular | Medio | T0.7 lo prueba en Android y, si es posible, en un iPhone. El respaldo es la descarga |
 | No se cumple el día por tarea | Medio | Se aplica el orden de recorte de ARQUITECTURA.md |
+| Bloque A son 12 tareas para el 14/10 | Alto | Primero lo que destraba el 21/10: T7.10 (producción, para cargar listas reales) y T7.6 a T7.8 (pegar listas); T7.1 a T7.3 y T7.11 antes del 21/10. Lo que no llegue se avisa con fecha |
+| La fase 8 no llega al 23/10 | Alto | Orden del pedido (B1 → B8). Lo mínimo para la 1.ª fecha: T8.5, T8.6, T8.7 y T8.10. Si no está, la 1.ª fecha va en Copa Fácil (P77) |
+| `modern-screenshot` no puede leer imágenes de R2 desde otro origen (canvas contaminado) | Medio | Servir las imágenes por la app (mismo origen) o configurar CORS en el bucket. Se decide en T8.12 |
+| La caché pública entrega URL firmadas vencidas | Bajo | Las URL firmadas duran más que la caché (por ejemplo, 1 hora contra 60 segundos) |
+| Sumar la espera de los profes vuelve lento al solver con 4 fines de semana | Medio | Se mide en T7.12 con 1 CPU antes de recortar, como pide la revisión |
 
 ## Preguntas abiertas
 
 - El PNG se prueba solo en Android: no hay un iPhone a mano.
 - Las preguntas al organizador (P1 a P51) siguen abiertas. Ninguna bloquea las fases 0 y 1.
+- Desde el 2026-10-12, las preguntas abiertas (P1 a P77) están en `docs/PREGUNTAS_JMP_CUP_2026.md`, cada una con su valor por defecto. Ninguna frena las fases 7 a 9.

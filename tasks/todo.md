@@ -837,11 +837,15 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 ### T6.5 Producción separada de la demo (necesita a Sebastian)
 
+> **Reemplazada por T7.10** (pedido del 2026-10-12: Render Standard y Neon Launch).
+
 **Descripción:** rama `production` de Neon y un servicio aparte (Render Starter o Cloud Run, según H6 y la cuenta de Google Cloud), con su `SECRET_KEY`, backups y el límite del programador acorde a su CPU. Usuarios reales creados por Sebastian. Todo queda en `docs/DESPLIEGUE.md`.
 
 **Por qué espera:** desplegar a producción, crear servicios y tocar la nube con costo piden a Sebastian (SPEC, "Límites").
 
 ### T6.6 Configuración con las respuestas del organizador (necesita a Sebastian)
+
+> **Reemplazada por T7.4 y T7.5** (convocatoria 2026). Las respuestas que lleguen después se cargan como configuración, sin tocar el código.
 
 **Descripción:** con las respuestas de la demo (P13, P33, P35, P44, P46, P50 y las demás), ajustar `jmp_cup_2026.json`, `formatos.json` (P54) y las reglas, y anotarlo en PROGRESO.md.
 
@@ -852,3 +856,450 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Descripción:** la organización carga las listas 2026 en producción (nunca en el repo ni en la demo), genera los fixtures, programa y publica la página pública. Si cargar a mano no alcanza (P51), se suma pegar filas copiadas de Excel.
 
 **Por qué espera:** son datos reales de menores, y solo van a producción.
+
+> **Desde el 2026-10-12:** va después de T7.8 (pegar listas) y de T7.10 (producción). El pegado desde Excel ya está en T7.7 a T7.9.
+
+## Fase 7: pedido 2026, bloque A (calendario y carga de listas)
+
+> Planificada el 2026-10-12 desde `docs/PEDIDO_CLAUDE_CODE.md`, bloque A (fecha pedida: miércoles 14/10). Fuentes: `docs/REVISION_RONDO_FASE4.md` (puntos 1 y 2), `docs/CONVOCATORIA_2026_PARA_RONDO.md` y `docs/PREGUNTAS_JMP_CUP_2026.md` (fuente de las P a partir de ahora). Los ajustes del pedido mandan sobre la convocatoria.
+>
+> - **Preguntas sin respuesta:** no frenan. Cada una queda configurable, con el valor por defecto de PREGUNTAS y un `TODO(P#)` en el código.
+> - **Dependencias:** ninguna nueva en esta fase.
+> - **Fusiones:** durante la prueba del martes 13/10, ninguna fusión a `main` hasta que Sebastian avise. Nunca `generar_demo` en la demo.
+> - **Ya resueltos de la revisión externa:** punto 3 (T6.1), punto 7 (T6.3). El punto 6 entra en T7.10; el 8, en T7.10 (límite de workers) y T8.11 (caché). El punto 4 (huecos en la cancha) queda fuera de este pedido: se anota como pendiente.
+> - **"Posiciones" no se oculta:** la pestaña queda, y en la fase 8 se llena con la tabla.
+
+### T7.1 La eliminación respeta el turno libre (P17), en el modelo y en el verificador
+
+**Descripción:** cada participante referido de una llave (ganador, perdedor, mejor perdedor o una posición de grupo) se trata como un equipo virtual. Si la llave que lo define y la que lo usa caen el mismo día, la segunda empieza a partir de `inicio + turno × (1 + turnos_libres_mismo_dia)`. Lo mismo entre el último partido de grupos de la categoría y las llaves que toman posiciones. El verificador detecta los mismos casos y cuenta los partidos del día del equipo virtual para el máximo de P47.
+
+**Aceptación:**
+
+- [ ] Con 4 equipos y una sola franja, la final no queda a menos de semi + 2 turnos.
+- [ ] El verificador marca el caso de Sub 15 Avanzado de la revisión (semi a las 17:10 y final a las 18:20 en C3).
+- [ ] Con la demo programada, ninguna llave encadenada queda sin descanso (test lento).
+
+**Verificación:** verde, más `pytest -m lento`.
+**Depende de:** nada.
+**Archivos:** `src/dominio/programador/modelo.py`, `src/dominio/verificador.py`, `tests/dominio/test_programador.py`, `tests/dominio/test_verificador.py`.
+**Tamaño:** M.
+
+### T7.2 Profes: seguidos en la misma cancha, y el choque solo para el entrenador (P18, P35, P57)
+
+**Descripción:** en `personas()`, el margen de P35 se pide solo si los dos partidos son en canchas distintas: `NoOverlap` sin margen y, para cada par de partidos del profe, una separación condicionada a que las canchas difieran. Regla nueva `roles_con_choque` (P57), por defecto solo `entrenador`, con interruptores en la pantalla de reglas; el modelo, el verificador y los pares de T4.1 la usan.
+
+**Aceptación:**
+
+- [ ] Un profe compartido puede tener dos partidos seguidos en la misma cancha (5 minutos entre uno y otro); en canchas distintas, con 5 minutos, se rechaza.
+- [ ] Con el valor por defecto, un asistente o un delegado compartido no genera choque; al prender su rol en las reglas, sí.
+- [ ] El verificador y el modelo dan lo mismo en esos casos.
+
+**Verificación:** verde.
+**Depende de:** T7.1 (mismo archivo; evita conflictos).
+**Archivos:** `src/dominio/config.py`, `src/dominio/programador/modelo.py`, `src/dominio/verificador.py`, `src/torneo/servicios/programador.py`, tests de dominio.
+**Tamaño:** M.
+
+### T7.3 Objetivo blando: menos espera de los profes (PRO-11)
+
+**Descripción:** penalizar los minutos de espera de un profe entre sus partidos del mismo día, con menos peso que ubicar partidos (peso en `pesos`). Si el modelo se vuelve lento con el tamaño de 2026, se mide y se avisa antes de recortar.
+
+**Aceptación:**
+
+- [ ] Con dos partidos de un profe en un día con lugar libre, el solver los pone seguidos.
+- [ ] Ubicar un partido más pesa siempre más que cualquier espera.
+- [ ] En la demo, se informa la espera mediana de los profes (objetivo: menos de 30 minutos).
+
+**Verificación:** verde, más `pytest -m lento`.
+**Depende de:** T7.2.
+**Archivos:** `src/dominio/programador/modelo.py`, `src/dominio/config.py` (peso), `tests/dominio/test_programador.py`.
+**Tamaño:** S.
+
+### T7.4 Fútbol 6 y plantilla 2026 (convocatoria)
+
+**Descripción:** agregar `F6` a `Modalidad` y a las opciones del modelo, con su migración. En `jmp_cup_2026.json`: torneo del 24/10 al 15/11 (11 días, sin el viernes 23), eliminación desde el 4.º fin de semana, `cierre_inscripcion` el 21/10 a las 12:00 (hora de Bolivia), Sub 5 y Sub 6 en F6 y en C1A y C1B (P63), Sub 10 y Sub 11 Avanzado en F8 (P60). En el asistente, Sub 15 Femenino queda destildada pero disponible (P61). "Agregar un día entre semana" propone el jueves.
+
+**Aceptación:**
+
+- [ ] El asistente sin cambios crea el torneo 2026 con 11 días de juego y la eliminación en el 4.º fin de semana.
+- [ ] Sub 5 y Sub 6 son F6 y solo tienen C1A y C1B; Sub 15 Femenino no se crea salvo que se tilde.
+- [ ] Al agregar un día entre semana, la fecha propuesta es el jueves de esa semana.
+
+**Verificación:** verde, más `cargar_config` en una base vacía.
+**Depende de:** nada.
+**Archivos:** `src/dominio/config.py`, `src/torneo/models/configuracion.py` y su migración, `datos/config/jmp_cup_2026.json`, `src/torneo/servicios/asistente.py`, la vista de suspender o agregar día, tests.
+**Tamaño:** M.
+
+### T7.5 Copa de Bronce con interruptor (P62)
+
+**Descripción:** regla `copa_bronce_con_10` en la pantalla de reglas, apagada por defecto. Con la regla apagada, el formato de 10 equipos no genera la final de Bronce. Actualizar el criterio de la sección 10 de 27 a 26 partidos, con la regla anotada.
+
+**Aceptación:**
+
+- [ ] Con 10 equipos y la regla apagada salen 26 partidos; prendida, 27.
+- [ ] Cambiar la regla con fixtures de 10 equipos ya generados los deja marcados como desactualizados (el aviso es de T7.11).
+
+**Verificación:** verde.
+**Depende de:** nada.
+**Archivos:** `src/dominio/config.py`, `src/dominio/fixture.py` o `formatos.py`, `datos/config/formatos.json`, tests de fixture.
+**Tamaño:** S.
+
+### T7.6 Fecha de nacimiento: alcanza con el año
+
+**Descripción:** la persona guarda el año de nacimiento siempre, y el día y el mes si se conocen. La regla de edad (INS-02) usa solo el año. Con solo el año se muestra "fecha incompleta", como aviso y no como error. Migración que copia el año de las fechas que ya existen.
+
+**Aceptación:**
+
+- [ ] Un jugador con solo "2014" se guarda en Sub 12 y muestra "fecha incompleta".
+- [ ] Un año fuera de la categoría sigue dando el mismo error que una fecha completa.
+- [ ] La anonimización (T6.4) también borra el año.
+
+**Verificación:** verde.
+**Depende de:** nada.
+**Archivos:** `src/torneo/models/inscripcion.py` y su migración, `src/dominio/inscripcion.py`, formularios y plantillas de jugador, `src/torneo/servicios/retencion.py`, tests.
+**Tamaño:** M.
+
+### T7.7 Dominio: leer filas pegadas
+
+**Descripción:** funciones puras que reciben el texto pegado (separado por tabuladores, como lo copian Excel, Word y las hojas de cálculo) y devuelven filas y columnas. Proponen qué es cada columna (nombres, apellidos, nombre completo, fecha o año, documento, dorsal, rol o ignorar), separan el nombre completo (las dos últimas palabras como apellidos), leen fechas (dd/mm/aaaa, número de fecha de Excel, "12 de marzo 2014" y solo el año) y detectan una lista entera en mm/dd/aaaa cuando el segundo número pasa de 12. Reconocen el rol del cuerpo técnico escrito de distintas formas ("D.T", "DT", "Director técnico").
+
+**Aceptación:**
+
+- [ ] Las cinco formas de lista de 2023 (CONTEXTO 6.5), recreadas con datos inventados, se leen bien.
+- [ ] Una lista en mm/dd/aaaa se detecta y se corrige entera; una con fechas ambiguas no se toca.
+- [ ] Tests de propiedad (hypothesis) sobre fechas y nombres.
+
+**Verificación:** verde.
+**Depende de:** T7.6 (fecha con solo el año).
+**Archivos:** `src/dominio/pegado.py`, `tests/dominio/test_pegado.py`.
+**Tamaño:** M.
+
+### T7.8 Pantalla: pegar la lista de jugadores
+
+**Descripción:** en la ficha del equipo, "Pegar lista": un área para pegar, después las primeras filas con un selector por columna (con la propuesta de T7.7) y la vista previa con los errores y avisos de cada fila, los mismos que la carga a mano (`revisar_*` de T2.4). Se guardan las filas sin errores en una sola transacción; las que tienen error quedan marcadas para corregirlas, sin perderlas.
+
+**Aceptación:**
+
+- [ ] Pegar 20 filas con 2 errores guarda 18 y deja las 2 a la vista para corregir.
+- [ ] Un jugador repetido o que pasa el máximo del plantel se marca como en la carga a mano.
+- [ ] Ningún dato pegado va al log ni queda en la sesión después de guardar (formulario sensible).
+
+**Verificación:** verde, más una prueba a mano a 360 px.
+**Depende de:** T7.7.
+**Archivos:** vista, formulario y plantillas de pegado, `src/torneo/servicios/inscripcion.py`, `tests/torneo/test_pegar_lista.py`.
+**Tamaño:** M.
+
+### T7.9 Pantalla: pegar el cuerpo técnico
+
+**Descripción:** lo mismo que T7.8 en la pestaña Cuerpo técnico, con la columna de rol.
+
+**Aceptación:**
+
+- [ ] Pegar "D.T", "Asistente" y "Delegado" carga los tres roles.
+- [ ] Un segundo entrenador o un cuarto profe se marca como error (INS-08).
+
+**Verificación:** verde.
+**Depende de:** T7.8.
+**Archivos:** las mismas de T7.8, `tests/torneo/test_pegar_profes.py`.
+**Tamaño:** S.
+
+### T7.10 Producción preparada (T6.5, necesita a Sebastian para desplegar)
+
+**Descripción:** todo listo para que Sebastian cree producción: servicio aparte en Render Standard (1 CPU) **sin despliegue automático**, Neon de producción en N. Virginia (plan Launch, historia de 7 días), `RONDO_PROGRAMADOR_SEGUNDOS=120`, los workers de CP-SAT acordes a la CPU (revisión, punto 8), `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS` por variable (dominio propio opcional) y usuarios reales con `crear_usuario`. Corregir el test que falla en un clon nuevo por `assets/` (revisión, punto 6). Los pasos de Sebastian quedan en `docs/DESPLIEGUE.md`.
+
+**Aceptación:**
+
+- [ ] Con las variables de producción, `check --deploy` pasa sin advertencias y el test de `assets/` pasa en un clon nuevo.
+- [ ] La cantidad de workers del solver sale de una variable, con un valor por defecto para 1 CPU.
+- [ ] `docs/DESPLIEGUE.md` tiene los pasos de Render, Neon, variables, primer usuario y cómo desplegar a mano.
+
+**Verificación:** verde, más un clon limpio.
+**Depende de:** nada. El despliegue lo hace Sebastian.
+**Archivos:** `src/rondo/settings.py`, `src/torneo/servicios/programador.py`, `docs/DESPLIEGUE.md`, `tests/rondo/test_settings.py`.
+**Tamaño:** S.
+
+### T7.11 Borrador del calendario y fixture desactualizado
+
+**Descripción:** mientras la página pública esté apagada, el calendario interno y el PNG dicen "Borrador". Si se agrega o se saca un equipo de una categoría que ya tiene fixture, la categoría muestra "El fixture de esta categoría está desactualizado" y ofrece rehacerlo. Rehacer y volver a programar se puede todas las veces que haga falta mientras no haya partidos jugados (P44).
+
+**Aceptación:**
+
+- [ ] Con la página pública apagada, el calendario y el PNG dicen "Borrador"; prendida, no.
+- [ ] Agregar o sacar un equipo después del fixture muestra el aviso en la categoría y en Inicio.
+- [ ] Rehacer el fixture borra los partidos viejos y su programación; con un partido jugado, no se puede.
+
+**Verificación:** verde.
+**Depende de:** nada.
+**Archivos:** `src/torneo/servicios/fixture.py`, `src/torneo/servicios/pendientes.py`, plantillas del calendario y del PNG, tests.
+**Tamaño:** M.
+
+### T7.12 Medir la programación 2026 con 1 CPU
+
+**Descripción:** con la plantilla 2026 y la demo, programar en un contenedor limitado a 1 CPU (como Render Standard) y anotar en PROGRESO.md (H7): partidos ubicados, tiempo, estado del solver, espera de los profes (mediana, media, máxima, esperas de más de 2 h, seguidos en la misma cancha) y llaves encadenadas sin descanso.
+
+**Aceptación:**
+
+- [ ] H7 en PROGRESO.md con los cinco datos y la comparación con la revisión externa.
+- [ ] Si no entra todo o no baja de 30 minutos la espera, se explica por qué y qué pregunta lo destraba (P13, P33).
+
+**Verificación:** la medición, repetible con un comando o un script fuera del repo, anotado en H7.
+**Depende de:** T7.1 a T7.5.
+**Archivos:** `docs/PROGRESO.md`.
+**Tamaño:** S.
+
+```
+T7.1 → T7.2 → T7.3 ─┐
+T7.4, T7.5 ─────────┴→ T7.12
+T7.6 → T7.7 → T7.8 → T7.9
+T7.10 y T7.11 (independientes)
+T7.8 + T7.10 → T6.7 (carga real, en producción)
+```
+
+**Checkpoint de la fase 7:**
+
+- [ ] Verde, más `pytest -m lento`.
+- [ ] La demo programada con la plantilla 2026: sin choques, sin llaves encadenadas sin descanso, y la medición en H7.
+- [ ] Una lista de 2023 recreada con datos inventados se pega en menos de un minuto.
+- [ ] `docs/DESPLIEGUE.md` listo para que Sebastian cree producción.
+- [ ] Revisión con `code-review-and-quality`, PROGRESO.md al día y las P que quedaron como TODO.
+- [ ] Visto bueno de Sebastian y aviso de qué probar.
+
+## Fase 8: pedido 2026, bloque B (reemplazar a Copa Fácil)
+
+> Planificada el 2026-10-12 desde `docs/PEDIDO_CLAUDE_CODE.md`, bloque B (fecha pedida: antes del viernes 23/10). Si algo no llega, la 1.ª fecha va en Copa Fácil (P77). Orden del pedido: B1 → B2 → B3 → B4 → B6 → B5 → B7 → B8.
+>
+> - **Dependencias aprobadas:** `django-storages[s3]` (con `boto3`) y `Pillow`. Cualquier otra se pregunta.
+> - **Reglas nuevas** (resultados, tabla, tarjetas y suspensiones): van al catálogo de SPEC.md con su ID y a la configuración, con su P#.
+> - **Imágenes:** las fijas del diseño del PNG van en el repo (`src/torneo/static/png/`); escudos, fotos, logo del organizador y patrocinadores van al almacenamiento (Cloudflare R2), subidos desde la app.
+
+### T8.1 Almacenamiento de imágenes conectable (B1)
+
+**Descripción:** `django-storages` con S3 apuntando a Cloudflare R2, con bucket privado y URL firmadas que vencen. Se activa con `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` y `R2_BUCKET`. Sin ellas: disco local en desarrollo y tests; en producción o en la demo, los botones de subir se ven desactivados con "Falta conectar el almacenamiento de imágenes". La CSP permite las imágenes del host de R2.
+
+**Aceptación:**
+
+- [ ] Con las cuatro variables, los archivos van a R2 (probado con un almacenamiento falso en los tests) y las URL vencen.
+- [ ] Sin ellas y con `DEBUG=False`, ningún formulario acepta imágenes y se ve el aviso.
+- [ ] `check --deploy` sigue sin advertencias.
+
+**Verificación:** verde.
+**Depende de:** nada.
+**Archivos:** `pyproject.toml`, `uv.lock`, `src/rondo/settings.py`, `src/rondo/encabezados.py`, un contexto o etiqueta para el aviso, tests.
+**Tamaño:** M.
+
+### T8.2 Procesar la imagen al subirla
+
+**Descripción:** con Pillow, al subir: solo imágenes (se abre y se verifica, no se confía en la extensión), tamaño máximo configurable, se achica a unos 800 px (fotos) o 400 px (escudos y logos), se guarda en WebP y **se borran los metadatos (EXIF, incluida la ubicación GPS)**. Nombre de archivo al azar, sin el nombre de la persona.
+
+**Aceptación:**
+
+- [ ] Una foto con GPS en el EXIF sale sin ningún metadato.
+- [ ] Un archivo que no es imagen, o que pasa el máximo, se rechaza con un mensaje junto al campo.
+- [ ] La imagen guardada no pasa del tamaño pedido y su nombre no tiene datos personales.
+
+**Verificación:** verde.
+**Depende de:** T8.1.
+**Archivos:** `src/torneo/servicios/imagenes.py`, `tests/torneo/test_imagenes.py`.
+**Tamaño:** S.
+
+### T8.3 Escudo del club, logo del organizador y patrocinadores (B2, P68, P69)
+
+**Descripción:** escudo en el Club (uno por club), logo en Datos de la escuela y patrocinadores por torneo (imagen, nombre y orden) en una pantalla de la organización. Donde hoy se dibuja la sigla con el color, se muestra el escudo si existe.
+
+**Aceptación:**
+
+- [ ] La organización sube el escudo de un club y aparece en todos sus equipos.
+- [ ] Se agregan, ordenan y sacan patrocinadores de un torneo; la mesa no puede.
+- [ ] Sin escudo, se sigue viendo la sigla con el color.
+
+**Verificación:** verde, más una prueba a mano a 360 px.
+**Depende de:** T8.2.
+**Archivos:** `src/torneo/models/inscripcion.py`, `src/torneo/models/sitio.py`, modelo Patrocinador y migración, vistas y plantillas, tests.
+**Tamaño:** M.
+
+### T8.4 Foto de la persona y autorización (B2, P66, P67, P75)
+
+**Descripción:** la organización o la mesa sube la foto de una persona (sirve para jugador y profe). Casilla por jugador "autoriza foto y nombre", apagada por defecto; al subir la foto, el formulario pregunta si la familia la mandó para publicarla. Sin autorización, la foto no sale en ningún lado público. Borrar la foto la borra del almacenamiento.
+
+**Aceptación:**
+
+- [ ] Una foto sin autorización se ve en la ficha interna y en ninguna página pública (test).
+- [ ] Al subir, la pregunta de autorización está y queda registrada con quién y cuándo.
+- [ ] Borrar la foto la saca del almacenamiento.
+
+**Verificación:** verde.
+**Depende de:** T8.2.
+**Archivos:** `src/torneo/models/inscripcion.py` y migración, vistas y plantillas del jugador y del profe, tests.
+**Tamaño:** M.
+
+### T8.5 Resultado y eventos del partido (dominio y modelo, B3)
+
+**Descripción:** estado del partido (por jugar, en juego, terminado), eventos (gol, gol en contra sin jugador (P72), amarilla, roja), mejor jugador (P70), W.O. con el marcador de P23 y penales en la eliminación. Cada evento guarda quién y cuándo. El marcador sale de los eventos. Deshacer el último evento. Permisos: organización y mesa (P64).
+
+**Aceptación:**
+
+- [ ] Dos goles y un gol en contra dan el marcador correcto; deshacer quita solo el último.
+- [ ] Un W.O. da el marcador de P23; un empate en la eliminación pide penales.
+- [ ] Un jugador de otro equipo no puede figurar en un evento.
+
+**Verificación:** verde.
+**Depende de:** nada (se puede empezar en paralelo a T8.1).
+**Archivos:** `src/torneo/models/fixture.py`, modelo Evento y migración, `src/torneo/servicios/partido.py`, `src/dominio/config.py` (reglas nuevas), tests.
+**Tamaño:** M.
+
+### T8.6 Ficha del partido en el celular (B3)
+
+**Descripción:** pantalla para cargar el partido en vivo: botones grandes "Gol", "Amarilla" y "Roja", que abren la lista del equipo con dorsal y nombre; gol en contra, deshacer, mejor jugador, W.O., penales y cambio de estado. Si un jugador suspendido figura en el partido, se ve el aviso (cuando exista T8.9).
+
+**Aceptación:**
+
+- [ ] Se carga un partido completo desde un celular a 360 px, con un toque por evento más la elección del jugador.
+- [ ] La mesa puede cargar; un usuario sin rol no.
+- [ ] El partido terminado ya no se mueve en la reprogramación (PRO-10).
+
+**Verificación:** verde, más una prueba a mano a 360 px.
+**Depende de:** T8.5.
+**Archivos:** vista, plantillas y JS mínimo de la ficha, `tests/torneo/test_ficha_partido.py`.
+**Tamaño:** M.
+
+### T8.7 Tabla de posiciones (B4, P26, P28, P34)
+
+**Descripción:** en el dominio, tabla por categoría y serie: 3, 1 y 0 puntos; desempate en el orden de CONTEXTO 4.6, configurable; entre equipos que no jugaron entre sí, P34; mejor perdedor y mejor 3.º, P26; fair play desde las tarjetas; sorteo registrado por la organización (P28). Se muestra en la pestaña "Posiciones" interna.
+
+**Aceptación:**
+
+- [ ] Un test por criterio de desempate, en orden, incluido el caso de series cruzadas (H5).
+- [ ] Un empate total muestra "Falta sorteo" hasta que la organización lo registra.
+- [ ] La tabla de 6 y 7 equipos elige al mejor perdedor y al mejor 3.º según P26.
+
+**Verificación:** verde.
+**Depende de:** T8.5.
+**Archivos:** `src/dominio/tabla.py`, `src/torneo/servicios/tabla.py`, plantilla de Posiciones, tests.
+**Tamaño:** M.
+
+### T8.8 Cruces de la eliminación desde la tabla (B6, P50)
+
+**Descripción:** al terminar la fase de grupos de una categoría, la app propone los equipos de cada llave desde la tabla. Se pueden corregir a mano (T6.1) y se verifican antes de guardar, mostrando los choques si los hay.
+
+**Aceptación:**
+
+- [ ] Con la fase de grupos terminada, las llaves se proponen según la tabla 4.5.
+- [ ] Con un sorteo pendiente o un partido sin jugar, no se propone nada y se dice por qué.
+- [ ] Una propuesta que choca muestra el choque antes de guardar.
+
+**Verificación:** verde.
+**Depende de:** T8.7.
+**Archivos:** `src/torneo/servicios/fixture.py`, vista del fixture, tests.
+**Tamaño:** S.
+
+### T8.9 Suspensiones (B5, P29, P74)
+
+**Descripción:** en Sub 10 a Sub 17, la doble amarilla es roja, con la casilla "pagó Bs 30"; si no pagó, el jugador queda suspendido para el próximo partido. Roja directa y acumuladas: configurables, por defecto sin suspensión automática (P29). La organización puede marcar una suspensión a mano. Las categorías y el monto salen de la configuración.
+
+**Aceptación:**
+
+- [ ] Doble amarilla en Sub 12 sin pago: suspendido en el próximo partido; con pago, no.
+- [ ] Doble amarilla en Sub 8 no suspende.
+- [ ] Una suspensión a mano aparece en la ficha del partido siguiente.
+
+**Verificación:** verde.
+**Depende de:** T8.5.
+**Archivos:** `src/dominio/suspensiones.py`, modelo y servicio, `src/dominio/config.py`, tests.
+**Tamaño:** M.
+
+### T8.10 Página pública en vivo: partidos, posiciones, goleadores y ficha (B7, P65, P71)
+
+**Descripción:** como Copa Fácil: resultados del día en vivo, tabla de cada categoría y serie, goleadores por categoría y ficha del partido con goles, tarjetas y mejor jugador. Se actualiza sola cada minuto (HTMX). Jugadores como "Nombre I." con dorsal; nunca CI ni fecha de nacimiento.
+
+**Aceptación:**
+
+- [ ] Un gol cargado aparece en la página pública en el siguiente refresco.
+- [ ] El test de privacidad recorre las páginas nuevas y no encuentra apellidos completos, CI ni fechas.
+- [ ] Las vistas siguen importando solo modelos de la lista permitida.
+
+**Verificación:** verde.
+**Depende de:** T8.7.
+**Archivos:** vistas y plantillas públicas, `tests/torneo/test_publico*.py`.
+**Tamaño:** M.
+
+### T8.11 Página pública: equipo, patrocinadores y caché (B7)
+
+**Descripción:** página del equipo con escudo y plantel ("Nombre I." y dorsal), con foto solo si hay autorización; patrocinadores al pie. Cachear las páginas públicas unos 30 a 60 segundos (caché en memoria del proceso), con URL firmadas que duran más que la caché.
+
+**Aceptación:**
+
+- [ ] La foto de un jugador sin autorización no aparece; con autorización, sí.
+- [ ] La segunda visita dentro del minuto no consulta la base (test con `django_assert_num_queries`).
+- [ ] Las páginas internas no se cachean.
+
+**Verificación:** verde, más una prueba de carga simple con 100 pedidos concurrentes contra un contenedor de 1 CPU, anotada en PROGRESO.md.
+**Depende de:** T8.3, T8.4, T8.10.
+**Archivos:** vistas y plantillas públicas, `src/rondo/settings.py` (caché), tests.
+**Tamaño:** M.
+
+### T8.12 PNG del fixture con el diseño 2026 (B8)
+
+**Descripción:** el PNG del día por cancha con el diseño 2026: fondo, copa y adornos desde `src/torneo/static/png/`; escudos desde el club; patrocinadores desde el torneo; día, cancha, categorías, equipos y horas los pone la app. Para que `modern-screenshot` pueda leer las imágenes de R2, se sirven desde el mismo origen o con CORS en el bucket (paso en DESPLIEGUE.md).
+
+**Aceptación:**
+
+- [ ] El PNG se genera con las imágenes del diseño, los escudos y los patrocinadores, sin datos personales.
+- [ ] Con un club sin escudo o un torneo sin patrocinadores, el PNG sale igual, sin huecos rotos.
+- [ ] Sebastian lo comparte desde su Android (R45).
+
+**Verificación:** verde, más la prueba en el celular.
+**Depende de:** T8.3 y las imágenes del PSD (Sebastian).
+**Archivos:** `src/torneo/static/png/`, `src/torneo/templates/calendario/png.html`, `src/torneo/views/png.py`, `tests/torneo/test_png.py`.
+**Tamaño:** M.
+
+```
+T8.1 → T8.2 → T8.3 ─┬──────────→ T8.12
+          └──→ T8.4 ┤
+T8.5 → T8.6         │
+  ├──→ T8.7 → T8.8  │
+  │      └──→ T8.10 ┴→ T8.11
+  └──→ T8.9
+```
+
+**Checkpoint de la fase 8:**
+
+- [ ] Verde, más `pytest -m lento`.
+- [ ] Un partido se carga desde el celular y aparece en la página pública, con la tabla y los goleadores al día.
+- [ ] Ninguna página pública muestra CI, fecha de nacimiento, apellido completo ni fotos sin autorización.
+- [ ] Revisión con `code-review-and-quality` y con `security-and-hardening` (subida de imágenes).
+- [ ] PROGRESO.md al día, visto bueno de Sebastian y aviso de qué probar.
+
+## Fase 9: pedido 2026, bloque C (durante el torneo)
+
+> Planificada el 2026-10-12 desde `docs/PEDIDO_CLAUDE_CODE.md`, bloque C.
+
+### T9.1 Retención: anonimizar también borra las fotos (P49, P76)
+
+**Descripción:** `anonimizar_torneo` borra del almacenamiento las fotos de las personas que anonimiza (las que no están en otro torneo), y deja la autorización en falso.
+
+**Aceptación:**
+
+- [ ] Después de anonimizar, el almacenamiento no tiene ninguna foto de esas personas.
+- [ ] Las fotos de quien sigue en otro torneo quedan.
+
+**Verificación:** verde.
+**Depende de:** T8.4.
+**Archivos:** `src/torneo/servicios/retencion.py`, `tests/torneo/test_anonimizar.py`.
+**Tamaño:** S.
+
+### T9.2 Pantalla de suspendidos para la mesa
+
+**Descripción:** lista de suspendidos de cada fecha (día de juego): jugador ("Nombre I." y dorsal), equipo, motivo y el partido que no puede jugar. Visible para la organización y la mesa.
+
+**Aceptación:**
+
+- [ ] Un jugador suspendido aparece en la lista del día de su próximo partido y desaparece después.
+- [ ] La lista sale de las mismas reglas que T8.9.
+
+**Verificación:** verde.
+**Depende de:** T8.9.
+**Archivos:** vista y plantilla, tests.
+**Tamaño:** S.
+
+**Checkpoint de la fase 9:**
+
+- [ ] Verde, revisión con `code-review-and-quality`, PROGRESO.md al día y visto bueno de Sebastian.

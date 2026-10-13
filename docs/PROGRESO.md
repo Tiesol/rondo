@@ -4,8 +4,9 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 6, producción 2026. Las fases 1b a 5 y la parte A de la fase 6 (T6.1 a T6.4) están terminadas y revisadas. La app está lista para la demo con el organizador (`docs/DEMO.md`).
-- **Siguiente paso:** que Sebastian revise `docs/REVISAR.md` y dé el visto bueno de las fases 1b a 6A. Después, la parte B de la fase 6 (T6.5 a T6.7), que lo necesita: producción, nube y respuestas del organizador.
+- **Fase:** 7, pedido 2026 (`docs/PEDIDO_CLAUDE_CODE.md`). La organización aprobó la app para el torneo 2026 y Rondo reemplaza a Copa Fácil. Las fases 1b a 5 y la parte A de la fase 6 están terminadas y revisadas.
+- **Siguiente paso:** que Sebastian apruebe las fases 7, 8 y 9 (`tasks/plan.md` y `tasks/todo.md`, planificadas el 2026-10-12). Con el visto bueno, empezar por T7.1. Durante la prueba del martes 13/10 no se fusiona nada a `main` hasta que Sebastian avise.
+- **Preguntas:** desde el 2026-10-12, la fuente de las P (P1 a P77, con su valor por defecto) es `docs/PREGUNTAS_JMP_CUP_2026.md`.
 
 ## Para retomar (actualizado el 2026-10-08)
 
@@ -104,6 +105,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 | Fecha | Decisión | Motivo |
 |---|---|---|
+| 2026-10-12 | El pedido 2026 se arma en tres fases: 7 (bloque A, calendario y listas), 8 (bloque B, reemplazar a Copa Fácil) y 9 (bloque C, durante el torneo). T6.5 y T6.6 pasan a T7.10, T7.4 y T7.5 | `docs/PEDIDO_CLAUDE_CODE.md`. Pendiente del visto bueno de Sebastian |
+| 2026-10-12 | Las imágenes fijas del diseño del PNG (fondo, copa y adornos) van en el repo, en `src/torneo/static/png/`. Escudos, fotos, logo del organizador y patrocinadores van a Cloudflare R2, subidos desde la app | Las primeras son parte del diseño y cambian solo con el código; las otras cambian cada año y las carga la organización |
 | 2026-10-06 | Django 6.1 + HTMX, un solo servicio. El núcleo de dominio va en Python puro y tipado | El solver (OR-Tools CP-SAT) es nativo de Python: un backend en Python evita un segundo servicio solo para el solver. Las pantallas son formularios, tablas y un calendario para pocos usuarios, y eso no necesita una SPA; el contexto lo dice. Django trae login, admin, formularios y migraciones. Que Sebastian quiera practicar Python no fue un criterio |
 | 2026-10-06 | Cloud Run y Neon, los dos en São Paulo | CPU real para el solver (2 vCPU) y requests de hasta 60 minutos, dentro de la capa gratuita. Pide tarjeta |
 | 2026-10-06 | La prueba de 6.4 se separa por tipo de choque: personas 2, canchas 3 y compatibilidad 0 (con las canchas de 2023) | Ver H1, H2 y H3 |
