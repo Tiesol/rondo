@@ -1002,8 +1002,66 @@
   }
 
   /* ---------- Página pública en vivo (T8.10) ---------- */
-  .partido-publico .vs {
+  .linea-partido {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+  .linea-partido .lado {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    font-weight: 600;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .linea-partido .lado.local {
+    justify-content: flex-end;
+    text-align: right;
+  }
+  .pie-patrocinadores {
+    display: flex;
     flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px 28px;
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: var(--radius-control);
+    background: var(--color-azul);
+  }
+  .pie-patrocinadores img {
+    max-width: 120px;
+    height: 48px;
+    object-fit: contain;
+  }
+  .plantel-publico {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 14px;
+  }
+  .plantel-publico li {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13.5px;
+    text-align: center;
+  }
+  .foto-plantel {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: var(--radius-control);
+    object-fit: cover;
+  }
+  .foto-plantel.sin-foto {
+    border: 1px solid var(--color-linea);
+    display: grid;
+    place-items: center;
+    background: var(--color-superficie);
+    color: var(--color-tenue);
+    font: 32px/1 var(--font-titulo);
   }
   .marcador-chico {
     font: 20px/1 var(--font-titulo);

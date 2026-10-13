@@ -12,8 +12,8 @@ from typing import Any
 
 from django.utils import timezone
 
-from torneo.models import CategoriaNivel, Evento, Jugador, Partido, Persona, Torneo
-from torneo.presentacion import escudo
+from torneo.models import CategoriaNivel, Equipo, Evento, Jugador, Partido, Persona, Torneo
+from torneo.presentacion import escudo, url_de_imagen
 from torneo.servicios.partido import resultado_de
 
 TIPOS = {"gol": "Gol", "gol_en_contra": "Gol en contra", "amarilla": "Amarilla", "roja": "Roja"}
@@ -144,3 +144,27 @@ def goleadores(categoria: CategoriaNivel) -> list[dict[str, Any]]:
         if pk in jugadores
     ]
     return sorted(lista, key=lambda g: (-g["goles"], g["nombre"]))
+
+
+def plantel_publico(equipo: Equipo) -> list[dict[str, Any]]:
+    """El plantel con "Nombre I." y dorsal. La foto, solo si la familia la autorizó (P66)."""
+    return [
+        {
+            "nombre": nombre_publico(j.persona),
+            "dorsal": j.dorsal,
+            "foto": (
+                url_de_imagen("foto", j.persona.pk, j.persona.foto.name)
+                if j.persona.foto_autorizada
+                else ""
+            ),
+        }
+        for j in equipo.jugadores.select_related("persona").order_by("dorsal", "persona__nombres")
+    ]
+
+
+def patrocinadores_de(torneo: Torneo) -> list[dict[str, str]]:
+    """P69: al pie de la página pública, en el orden del torneo."""
+    return [
+        {"nombre": p.nombre, "url": url_de_imagen("patrocinador", p.pk, p.imagen.name)}
+        for p in torneo.patrocinadores.all()
+    ]

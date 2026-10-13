@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titulo %}{{ equipo.nombre }} · {{ torneo.nombre }}{% endblock %}
+{% block cuerpo %}
+<div class="app publica">
+  <div class="cuerpo">
+    <header class="pub-cab">
+      <div class="flex items-center gap-3">
+        <a class="icono-btn" href="{{ volver }}" aria-label="Volver a los equipos">{% include "parciales/icono.html" with nombre="volver" %}</a>
+        <div class="min-w-0"><h1>{{ torneo.nombre }}</h1><p class="meta">{{ categoria }}</p></div>
+      </div>
+    </header>
+    <main id="contenido">
+      <div class="envoltura">
+        <div class="seccion">
+          <div class="cab-equipo">
+            {% include "parciales/escudo.html" with escudo=equipo.escudo tamano="gr" %}
+            <div class="min-w-0"><h2>{{ equipo.nombre }}</h2><p class="peq tenue">{{ categoria }} · {{ equipo.club }}</p></div>
+          </div>
+        </div>
+        <div class="seccion">
+          {% include "parciales/seccion_cab.html" with titulo="Plantel" %}
+          {% if plantel %}
+          <ul class="plantel-publico">
+            {% for p in plantel %}
+            <li>
+              {% if p.foto %}<img class="foto-plantel" src="{{ p.foto }}" alt="{{ p.nombre }}" width="96" height="128" loading="lazy">{% else %}<span class="foto-plantel sin-foto" aria-hidden="true">{{ p.dorsal|default_if_none:"" }}</span>{% endif %}
+              <span><strong class="num">{{ p.dorsal|default_if_none:"s/n" }}</strong> · {{ p.nombre }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          {% include "parciales/vacio.html" with icono="torneo" titulo="Todavía no hay plantel" texto="" %}
+          {% endif %}
+        </div>
+        {% include "publico/_patrocinadores.html" %}
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

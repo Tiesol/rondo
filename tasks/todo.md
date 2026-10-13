@@ -1227,9 +1227,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] La foto de un jugador sin autorización no aparece; con autorización, sí.
-- [ ] La segunda visita dentro del minuto no consulta la base (test con `django_assert_num_queries`).
-- [ ] Las páginas internas no se cachean.
+- [x] La foto de un jugador sin autorización no aparece; con autorización, sí.
+- [x] La segunda visita dentro del minuto no consulta la base (test con `django_assert_num_queries`).
+- [x] Las páginas internas no se cachean.
 
 **Verificación:** verde, más una prueba de carga simple con 100 pedidos concurrentes contra un contenedor de 1 CPU, anotada en PROGRESO.md.
 **Depende de:** T8.3, T8.4, T8.10.

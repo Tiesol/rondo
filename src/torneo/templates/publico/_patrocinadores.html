@@ -1,0 +1,6 @@
+{# Patrocinadores del torneo al pie de la página pública (P69, T8.11). #}
+{% if patrocinadores %}
+<footer class="pie-patrocinadores" aria-label="Patrocinadores">
+  {% for p in patrocinadores %}<img src="{{ p.url }}" alt="{{ p.nombre }}" height="48" loading="lazy">{% endfor %}
+</footer>
+{% endif %}
