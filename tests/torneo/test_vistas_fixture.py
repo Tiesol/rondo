@@ -93,8 +93,8 @@ def test_series_de_otro_tamanio_no_se_guardan(client: Client, torneo: Torneo) ->
 
 
 @pytest.mark.django_db
-def test_con_mas_de_diez_equipos_el_fixture_avisa_p27(client: Client, torneo: Torneo) -> None:
-    cn = categoria_con(torneo, 11)
+def test_con_mas_de_veinte_equipos_el_fixture_avisa_p27(client: Client, torneo: Torneo) -> None:
+    cn = categoria_con(torneo, 21)
     html = entrar(client, ORGANIZACION).get(f"/torneo/{cn.pk}/fixture/").content.decode()
     assert "P27" in html
 
