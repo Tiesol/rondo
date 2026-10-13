@@ -296,6 +296,27 @@ T8.5 → T8.6         │
 - [ ] El calendario 2026 con F11 medido (H8).
 - [x] Revisión con `code-review-and-quality` y PROGRESO.md al día.
 
+#### Fase 11: respuestas y cambios
+
+> Planificada el 2026-10-13 con `docs/RESPUESTAS_Y_CAMBIOS.md`. Detalle en `tasks/todo.md`.
+
+- [ ] T11.2 Avisos en lugar de bloqueos al mover
+- [ ] T11.3 Todas las canchas partibles y ubicar a mano
+- [ ] T11.4 Reglas del calendario (P33, P20) y faltante de F11
+- [ ] T11.5 Altas tardías y plantel máximo con aviso
+- [ ] T11.6 Pantalla de clubes
+- [ ] T11.1 Agregar una categoría o un nivel a un torneo creado
+- [ ] T11.7 Historial del partido
+- [ ] T11.8 Planilla: convocados y dorsal del partido
+- [ ] T11.9 Alta rápida en la cancha
+- [ ] T11.10 Eventos completos y partido terminado editable
+- [ ] T11.11 Partidos de hoy
+- [ ] T11.12 Cierre automático
+- [ ] T11.13 Penales tiro por tiro
+- [ ] T11.14 Página pública
+- [ ] T11.15 Rehacer el fixture con partidos jugados
+- [ ] T11.16 Pasada de UI/UX
+
 ## Grafo de dependencias
 
 ```
