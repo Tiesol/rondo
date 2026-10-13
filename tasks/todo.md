@@ -1458,7 +1458,7 @@ T10.9, T10.10, T10.11 (durante el torneo)
 ### Durante el torneo
 
 - [x] **T11.14 Página pública.** Se recarga cada 30 s (P73). Interruptor de goleadores (P71). Nunca lesiones ni amonestaciones. Estado "2T 12'".
-- [ ] **T11.15 Rehacer el fixture con partidos jugados (P44, P80 respondida: los resultados cuentan).** Al agregar o sacar un equipo, la app arma las series nuevas **buscando que los partidos jugados sigan existiendo** (por ejemplo, de 7 a 8 equipos se arman las series con los cruces de la fecha 1 adentro). Muestra antes qué se conserva, qué se descarta (si no hay forma) y qué hay que programar.
+- [x] **T11.15 Rehacer el fixture con partidos jugados (P44, P80 respondida: los resultados cuentan).** Al agregar o sacar un equipo, la app arma las series nuevas **buscando que los partidos jugados sigan existiendo** (por ejemplo, de 7 a 8 equipos se arman las series con los cruces de la fecha 1 adentro). Muestra antes qué se conserva, qué se descarta (si no hay forma) y qué hay que programar.
 - [ ] **T11.16 Pasada de UI/UX.** Menos texto en todas las pantallas, botones claros, una acción principal por pantalla. Capturas a 360 px.
 
 ```

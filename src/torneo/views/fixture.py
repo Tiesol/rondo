@@ -3,18 +3,19 @@
 Lo que se muestra no tiene datos de personas: sirve igual para la página pública.
 """
 
+from datetime import datetime, time
 from typing import Any
 
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from dominio.formatos import FormatoFaltante
 from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 from torneo.permisos import requiere
-from torneo.presentacion import escudo
+from torneo.presentacion import cruce, escudo
 from torneo.servicios.cruces import aplicar, proponer
 from torneo.servicios.fixture import (
     FixtureNoSePuede,
@@ -22,14 +23,17 @@ from torneo.servicios.fixture import (
     generar_fixture,
     generar_fixtures_faltantes,
     motivo_desactualizado,
+    rehacer_conservando,
     series_elegidas,
 )
+from torneo.servicios.partido import resultado_de
 from torneo.servicios.programador import (
     calendario_actual,
     choques_del_calendario,
     partidos_del_torneo,
     problema_del_torneo,
 )
+from torneo.servicios.reprogramar import calcular_propuestas_en
 
 COPAS = {"oro": "Copa de Oro", "plata": "Copa de Plata", "bronce": "Bronce"}
 
@@ -100,6 +104,7 @@ def datos_del_fixture(categoria: CategoriaNivel, *, con_propuesta: bool = False)
     return {
         "problema": problema,
         "desactualizado": motivo_desactualizado(categoria, partidos, {e.pk for e in equipos}),
+        "hay_jugados": any(p.empezado for p in partidos),
         "propuesta": _propuesta(categoria, partidos) if con_propuesta else None,
         "faltan_equipos": cantidad < 2,
         "hay_fixture": bool(partidos),
@@ -241,3 +246,46 @@ def cruces(request: HttpRequest, pk: int) -> HttpResponse:
     if propuesta.choques:
         messages.warning(request, "Con estos equipos, hay choques: " + "; ".join(propuesta.choques))
     return _volver(categoria)
+
+
+@requiere("torneo.configurar_torneo", "rehacer el fixture")
+def rehacer(request: HttpRequest, pk: int) -> HttpResponse:
+    """T11.15 (P44, P80): rehacer con partidos jugados. Primero muestra qué se conserva, qué
+    se borra y cuántos hay que programar; al confirmar, propone dónde ubicar los nuevos."""
+    categoria = get_object_or_404(CategoriaNivel.objects.select_related("torneo"), pk=pk)
+    try:
+        vista = rehacer_conservando(categoria, aplicar=request.method == "POST")
+    except FixtureNoSePuede as error:
+        messages.error(request, str(error))
+        return _volver(categoria)
+    if request.method != "POST":
+        return render(
+            request,
+            "fixture/rehacer.html",
+            {
+                "categoria": categoria,
+                "conservados": [_resumen(p) for p in vista.conservados],
+                "descartados": [_resumen(p) for p in vista.descartados],
+                "nuevos": vista.nuevos,
+            },
+        )
+    messages.success(request, f"Fixture de {categoria} rehecho")
+    if not vista.nuevos:
+        return _volver(categoria)
+    torneo = categoria.torneo
+    desde = timezone.localtime().replace(tzinfo=None)
+    hasta = datetime.combine(torneo.fin, time.max)
+    corrida = calcular_propuestas_en(
+        torneo,
+        desde,
+        hasta,
+        motivo=f"Fixture rehecho de {categoria}",
+        origen={"categoria": categoria.pk},
+        usuario=request.user,
+    )
+    return redirect("ver-propuestas", pk=corrida.pk)
+
+
+def _resumen(partido: Partido) -> dict[str, str]:
+    marcador = resultado_de(partido).marcador
+    return {"cruce": cruce(partido), "marcador": f"{marcador[0]} a {marcador[1]}"}

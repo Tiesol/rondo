@@ -195,7 +195,7 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 | FIX-06 | Series por sorteo, separando a los equipos del mismo club cuando se puede; editables antes de generar | P45 | R `sorteo_separa_clubes` | Sí |
 | FIX-07 | Bronce con 10 equipos: 5.º A contra 5.º B, si la regla `copa_de_bronce` está prendida | P25, P62 | F, R `copa_de_bronce` | Apagada |
 | FIX-08 | La eliminación tiene participantes "por definir", que el organizador asigna a mano | 4.5, P50 | — | — |
-| FIX-09 | Se puede rehacer el fixture de una categoría sin partidos jugados, y se reprograma solo esa | P22, P44 | R `rehacer_fixture` | Sí |
+| FIX-09 | Rehacer un fixture con partidos jugados conserva los resultados: las series nuevas se eligen para que sigan existiendo la mayor cantidad de jugados; lo que no entra se muestra antes de borrarse (T11.15, P80) | P22, P44 | R `rehacer_fixture` | Sí |
 
 ### Programación
 

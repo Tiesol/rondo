@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Rehacer el fixture · {{ categoria }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'categoria' categoria.pk 'fixture' %}" aria-label="Volver al fixture">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Rehacer el fixture{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  <p><strong>{{ categoria }}</strong> · {{ categoria.equipos.count }} equipos</p>
+</div>
+{% if conservados %}
+<div class="seccion">
+  {% with cantidad=conservados|length|stringformat:"s" %}{% include "parciales/seccion_cab.html" with titulo="Se conservan "|add:cantidad chip="Cuentan" chip_estado="bien" %}{% endwith %}
+  <ul class="lista">{% for p in conservados %}<li class="fila"><span class="crece"><strong>{{ p.cruce }}</strong></span><span class="num">{{ p.marcador }}</span></li>{% endfor %}</ul>
+</div>
+{% endif %}
+{% if descartados %}
+<div class="seccion">
+  {% with cantidad=descartados|length|stringformat:"s" %}{% include "parciales/seccion_cab.html" with titulo="Se borran "|add:cantidad chip="No entran en el formato nuevo" chip_estado="error" %}{% endwith %}
+  <ul class="lista">{% for p in descartados %}<li class="fila"><span class="crece"><strong>{{ p.cruce }}</strong></span><span class="num">{{ p.marcador }}</span></li>{% endfor %}</ul>
+</div>
+{% endif %}
+<div class="seccion">
+  <p>{% if nuevos %}<strong>{{ nuevos }} partido{{ nuevos|pluralize }} para programar.</strong> Al confirmar, la app propone dónde ubicarlos sin mover lo jugado.{% else %}No hay partidos nuevos para programar.{% endif %}</p>
+  <form method="post" class="botones">
+    {% csrf_token %}
+    <a class="btn" href="{% url 'categoria' categoria.pk 'fixture' %}">Cancelar</a>
+    <button type="submit" class="btn principal">Rehacer</button>
+  </form>
+</div>
+{% endblock %}

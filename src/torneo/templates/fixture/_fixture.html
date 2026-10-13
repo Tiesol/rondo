@@ -18,9 +18,12 @@ página pública. Con editable, la organización ve los botones y el editor de s
 {% if fixture.desactualizado %}
 <div class="flex flex-col gap-2">
   {% include "parciales/alerta.html" with estado="aviso" titulo="El fixture de esta categoría está desactualizado." texto=fixture.desactualizado %}
-  {% if editable %}
+  {% if editable and fixture.hay_jugados %}
+  {% url "rehacer-fixture" categoria.pk as url_rehacer %}
+  {% include "parciales/boton.html" with texto="Rehacer conservando lo jugado" url=url_rehacer principal=True bloque=True %}
+  {% elif editable %}
   <form method="post" action="{% url 'generar-fixture' categoria.pk %}">{% csrf_token %}{% include "parciales/boton.html" with texto="Rehacer el fixture" principal=True bloque=True %}</form>
-  <p class="peq tenue">Se vuelven a sortear las series y se borra la programación de esta categoría. No se puede si ya hay partidos jugados.</p>
+  <p class="peq tenue">Se vuelven a sortear las series y se borra la programación de esta categoría.</p>
   {% endif %}
 </div>
 {% endif %}

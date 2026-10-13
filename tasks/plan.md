@@ -314,7 +314,7 @@ T8.5 → T8.6         │
 - [x] T11.12 Cierre automático
 - [x] T11.13 Penales tiro por tiro
 - [x] T11.14 Página pública
-- [ ] T11.15 Rehacer el fixture con partidos jugados
+- [x] T11.15 Rehacer el fixture con partidos jugados
 - [ ] T11.16 Pasada de UI/UX
 
 ## Grafo de dependencias
