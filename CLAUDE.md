@@ -8,7 +8,9 @@ Leer antes de decidir nada:
 
 | Archivo | Qué tiene |
 |---|---|
-| `docs/PROGRESO.md` | **Estado actual y siguiente paso**, decisiones, supuestos y preguntas abiertas (P1 a P51) |
+| `docs/PROGRESO.md` | **Estado actual y siguiente paso**, decisiones, supuestos y hallazgos |
+| `docs/PREGUNTAS_JMP_CUP_2026.md` | Preguntas al organizador (P1 a P77) y su valor por defecto. Fuente de las P desde el 2026-10-12 |
+| `docs/PEDIDO_CLAUDE_CODE.md` | Pedido 2026 de Sebastian: bloques A, B y C (fases 7 a 9), fechas y cómo trabajarlo |
 | `tasks/todo.md` | La tarea en curso, con su aceptación, su verificación y los archivos que toca |
 | `tasks/plan.md` | Índice de tareas por fase y checkpoints |
 | `SPEC.md` | Aprobada: stack, comandos, estilo, tests, flujo de git, **límites** y catálogo de reglas |
