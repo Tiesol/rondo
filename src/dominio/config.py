@@ -207,9 +207,19 @@ class Reglas(Estricto):
     cierre_inscripcion: datetime | None = _regla(
         None,
         "Cierre de la inscripción",
-        "Desde este día y hora, solo la organización cambia las listas. Vacío: sin cierre.",
+        "Desde este día y hora, las altas se marcan «fuera de plazo». No bloquea. Vacío: sin "
+        "cierre.",
         grupo="Inscripción",
         pregunta="P4",
+        regla="INS-11",
+    )
+    altas_tardias_hasta: datetime | None = _regla(
+        None,
+        "Altas tardías hasta",
+        "Después de este día y hora, agregar un jugador o un profe pide confirmación. Vacío: "
+        "nunca la pide.",
+        grupo="Inscripción",
+        pregunta="P22",
         regla="INS-11",
     )
     mismo_club_fecha_1: bool = _regla(
@@ -421,7 +431,7 @@ class Reglas(Estricto):
         pregunta="P23",
     )
 
-    @field_validator("cierre_inscripcion", mode="before")
+    @field_validator("cierre_inscripcion", "altas_tardias_hasta", mode="before")
     @classmethod
     def _cierre_solo_con_fecha(cls, valor: Any) -> Any:
         """La hora local del torneo, sin zona. Un cierre guardado solo con la fecha (como antes)

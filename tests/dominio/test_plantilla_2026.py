@@ -66,20 +66,25 @@ def test_para_reprogramar_se_propone_el_jueves(config: ConfigTorneo) -> None:
 # ---------- INS-11 con hora ----------
 
 
-def test_el_cierre_es_a_las_12_la_mesa_carga_hasta_ese_minuto() -> None:
+def test_el_cierre_es_a_las_12_y_despues_avisa_fuera_de_plazo() -> None:
     reglas = Reglas(cierre_inscripcion=datetime(2026, 10, 21, 12, 0))
-    assert validar_cierre(datetime(2026, 10, 21, 11, 59), reglas, es_organizacion=False) == []
-    tarde = validar_cierre(datetime(2026, 10, 21, 12, 1), reglas, es_organizacion=False)
-    assert [h.regla for h in tarde] == ["INS-11"]
+    assert validar_cierre(datetime(2026, 10, 21, 11, 59), reglas) == []
+    tarde = validar_cierre(datetime(2026, 10, 21, 12, 1), reglas)
+    assert [(h.regla, h.nivel) for h in tarde] == [("INS-11", "aviso")]
     assert "12:00" in tarde[0].mensaje
-    assert validar_cierre(datetime(2026, 10, 21, 12, 1), reglas, es_organizacion=True) == []
 
 
 def test_un_cierre_guardado_solo_con_fecha_cierra_al_final_del_dia() -> None:
-    # Los torneos de antes guardaban solo la fecha: ese día todavía se podía cargar.
+    # Los torneos de antes guardaban solo la fecha: ese día todavía no era fuera de plazo.
     reglas = Reglas.model_validate({"cierre_inscripcion": "2026-10-20"})
-    assert validar_cierre(datetime(2026, 10, 20, 23, 0), reglas, es_organizacion=False) == []
-    assert validar_cierre(datetime(2026, 10, 21, 0, 1), reglas, es_organizacion=False) != []
+    assert validar_cierre(datetime(2026, 10, 20, 23, 0), reglas) == []
+    assert validar_cierre(datetime(2026, 10, 21, 0, 1), reglas) != []
+
+
+def test_t11_5_altas_tardias_hasta_el_fin_del_segundo_fin_de_semana(
+    config: ConfigTorneo,
+) -> None:
+    assert config.reglas.altas_tardias_hasta == datetime(2026, 11, 1, 23, 59, 59)
 
 
 def test_respuestas_del_organizador_en_el_calendario(config: ConfigTorneo) -> None:

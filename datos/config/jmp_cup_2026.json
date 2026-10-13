@@ -320,6 +320,7 @@
     "dorsal_obligatorio": "nunca",
     "ci_obligatorio": "antes_del_primer_partido",
     "cierre_inscripcion": "2026-10-21T12:00:00",
+    "altas_tardias_hasta": "2026-11-01T23:59:59",
     "mismo_club_fecha_1": true,
     "sorteo_separa_clubes": true,
     "rehacer_fixture": true,

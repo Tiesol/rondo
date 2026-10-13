@@ -104,19 +104,23 @@ def test_acepta_a_uno_mas_chico(mesa: Client, river9: Equipo) -> None:
 
 
 @pytest.mark.django_db
-def test_no_deja_pasar_del_maximo(mesa: Client, river9: Equipo) -> None:
+def test_t11_5_pasar_del_maximo_pide_guardar_igual(mesa: Client, river9: Equipo) -> None:
     for i in range(14):
         agregar_jugador(
             river9,
             DatosPersona(f"{3000000 + i}", "N", f"I{i}", Nacimiento.de(date(2017, 1, 1))),
             i + 1,
             ahora=AHORA,
-            es_organizacion=True,
         )
     respuesta = mesa.post(url(river9), jugador(dorsal="50"))
     assert respuesta.status_code == 200
-    assert "el máximo" in respuesta.content.decode()
+    html = respuesta.content.decode()
+    assert "el máximo" in html
+    assert "Guardar igual" in html
     assert river9.jugadores.count() == 14
+    respuesta = mesa.post(url(river9), jugador(dorsal="50") | {"confirmar": "1"})
+    assert respuesta.status_code == 302
+    assert river9.jugadores.count() == 15
 
 
 @pytest.mark.django_db
@@ -138,7 +142,6 @@ def test_avisa_cuando_un_ci_ya_esta_en_otro_equipo(
         DatosPersona("1234567", "Nombre", "Inventado", Nacimiento.de(date(2017, 3, 14))),
         7,
         ahora=AHORA,
-        es_organizacion=True,
     )
     vivo = mesa.post(url(river9, "jugadores/revisar"), {"documento": "1.234.567 sc"})
     assert "Ya juega en Sub 11 Avanzado de River Plate" in vivo.content.decode()
@@ -155,7 +158,6 @@ def test_limita_el_cuerpo_tecnico_a_tres_con_rol(mesa: Client, river9: Equipo) -
             DatosPersona(f"{4000000 + i}", "P", f"I{i}", None),
             rol,
             ahora=AHORA,
-            es_organizacion=True,
         )
     respuesta = mesa.post(
         url(river9, "profes/nuevo"),
@@ -220,7 +222,6 @@ def test_ins_12_la_mesa_marca_al_jugador_como_verificado(mesa: Client, river9: E
         DatosPersona("1234567", "N", "I", Nacimiento.de(date(2017, 1, 1))),
         1,
         ahora=AHORA,
-        es_organizacion=True,
     )
     assert resultado.registro is not None
     pk = resultado.registro.pk
@@ -239,7 +240,6 @@ def test_ins_12_sin_rol_no_se_verifica(client: Client, river9: Equipo) -> None:
         DatosPersona("1234567", "N", "I", Nacimiento.de(date(2017, 1, 1))),
         1,
         ahora=AHORA,
-        es_organizacion=True,
     )
     assert resultado.registro is not None
     client.force_login(User.objects.create_user("nadie", password="x"))

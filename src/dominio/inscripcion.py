@@ -1,8 +1,9 @@
 """Validaciones de inscripción (SPEC, INS-02 a INS-11), sin base de datos.
 
 Cada función recibe datos simples y la configuración, y devuelve hallazgos: un error impide
-guardar; un aviso se muestra, pero se guarda igual. El servicio de inscripción arma la entrada
-con lo que hay en la base y decide.
+guardar; un aviso se muestra, pero se guarda igual; "confirmar" es un aviso que se guarda solo
+si la organización lo confirma (T11.5: plantel lleno, P84, y altas tardías). El servicio de
+inscripción arma la entrada con lo que hay en la base y decide.
 """
 
 from dataclasses import dataclass
@@ -13,7 +14,7 @@ from dominio.config import CuerpoTecnico, Reglas
 from dominio.documentos import Documento
 from dominio.nacimiento import Nacimiento
 
-NivelHallazgo = Literal["error", "aviso"]
+NivelHallazgo = Literal["error", "aviso", "confirmar"]
 Rol = Literal["jugador", "profe"]
 
 DORSAL_MINIMO, DORSAL_MAXIMO = 1, 99  # supuesto: los dorsales de una camiseta de fútbol
@@ -149,12 +150,13 @@ def _edad(alta: AltaDeJugador, reglas: Reglas) -> list[Hallazgo]:
 
 
 def validar_cantidad(alta: AltaDeJugador) -> list[Hallazgo]:
-    """INS-03: el máximo no se pasa; por debajo del mínimo, aviso."""
+    """INS-03: pasar del máximo se confirma (P84: se agregan jugadores en la cancha); por
+    debajo del mínimo, aviso."""
     con_el_nuevo = alta.jugadores_en_el_equipo + 1
     if con_el_nuevo > alta.categoria.max_jugadores:
         return [
             Hallazgo(
-                "error",
+                "confirmar",
                 "INS-03",
                 f"El equipo ya tiene {alta.jugadores_en_el_equipo} jugadores, el máximo.",
             )
@@ -284,19 +286,28 @@ def validar_documento(documento: Documento | None, reglas: Reglas) -> list[Halla
     ]
 
 
-def validar_cierre(ahora: datetime, reglas: Reglas, *, es_organizacion: bool) -> list[Hallazgo]:
-    """INS-11: desde el cierre de inscripción, solo la organización cambia las listas.
+def validar_cierre(ahora: datetime, reglas: Reglas) -> list[Hallazgo]:
+    """INS-11 y altas tardías (P2, P22): el cierre de inscripción es solo informativo ("fuera
+    de plazo"); después de `altas_tardias_hasta`, agregar pide confirmación. Nunca bloquea.
 
-    `ahora` y el cierre son la hora local del torneo, sin zona.
+    `ahora`, el cierre y las altas tardías son la hora local del torneo, sin zona.
     """
+    tardias = reglas.altas_tardias_hasta
+    if tardias is not None and ahora >= tardias:
+        return [
+            Hallazgo(
+                "confirmar",
+                "INS-11",
+                f"Alta tardía: las altas eran hasta el {tardias:%d/%m}.",
+            )
+        ]
     cierre = reglas.cierre_inscripcion
-    if cierre is None or ahora < cierre or es_organizacion:
-        return []
-    return [
-        Hallazgo(
-            "error",
-            "INS-11",
-            f"La inscripción cerró el {cierre:%d/%m/%Y a las %H:%M}. "
-            "Solo la organización cambia las listas.",
-        )
-    ]
+    if cierre is not None and ahora >= cierre:
+        return [
+            Hallazgo(
+                "aviso",
+                "INS-11",
+                f"Fuera de plazo: la inscripción cerró el {cierre:%d/%m a las %H:%M}.",
+            )
+        ]
+    return []
