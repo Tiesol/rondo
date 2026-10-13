@@ -1001,6 +1001,16 @@
     gap: 10px;
   }
 
+  /* ---------- Imágenes subidas (T8.1) ---------- */
+  .imagen-actual {
+    width: 96px;
+    height: 96px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    object-fit: contain;
+  }
+
   /* ---------- Pegar una lista (T7.8) ---------- */
   .columna-pegada {
     padding: 12px 0;

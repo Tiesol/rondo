@@ -13,3 +13,9 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }
+
+# Las imágenes de los tests van a una carpeta temporal, nunca a media/ del repo.
+import tempfile  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+MEDIA_ROOT = Path(tempfile.mkdtemp(prefix="rondo-media-"))

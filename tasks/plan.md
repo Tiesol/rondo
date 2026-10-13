@@ -236,7 +236,7 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 #### Fase 8: bloque B, reemplazar a Copa Fácil (antes del viernes 23/10)
 
-- [ ] T8.1 Almacenamiento de imágenes conectable (B1)
+- [x] T8.1 Almacenamiento de imágenes conectable (B1)
 - [ ] T8.2 Procesar la imagen al subirla
 - [ ] T8.3 Escudo del club, logo del organizador y patrocinadores (B2, P68, P69)
 - [ ] T8.4 Foto de la persona y autorización (B2, P66, P67, P75)
