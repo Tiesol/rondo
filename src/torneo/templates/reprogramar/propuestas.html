@@ -16,7 +16,7 @@
   </div>
   {% endfor %}
   {% include "parciales/seccion_cab.html" with titulo="Propuestas" nota="De menos a más cambios" %}
-  <p class="peq tenue">{{ motivo }}. Se mueve solo lo de ese fin de semana y el siguiente; lo jugado y lo fijado a mano no se toca. Cada propuesta pasó por el verificador.</p>
+  <p class="peq tenue">{{ motivo }}. Se mueve solo lo de ese fin de semana y el siguiente; lo jugado y lo puesto a mano fuera de horario no se toca.</p>
   {% for propuesta in propuestas %}
   <div class="propuesta{% if forloop.first %} recomendada{% endif %}">
     <div class="seccion-cab"><h3>{{ propuesta.titulo }}</h3>{% if forloop.first %}{% include "parciales/chip.html" with texto="Recomendada" estado="bien" %}{% endif %}</div>

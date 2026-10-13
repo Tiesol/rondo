@@ -155,3 +155,16 @@ def test_pro_13_no_mueve_nada_antes_de_la_ventana() -> None:
         problema, actual, desde=segunda, hasta=segunda + timedelta(days=7), segundos=5
     )
     assert propuestas == []
+
+
+def test_t11_2_un_partido_puesto_a_mano_fuera_de_horario_no_se_mueve() -> None:
+    problema, actual = base()
+    a_mano = next(iter(actual))
+    actual[a_mano] = ("C2", SAB.replace(hour=17))  # después del último horario
+    otro = next(k for k in actual if k != a_mano)
+    sin_lugar = {k: v for k, v in actual.items() if k != otro}
+    propuestas = proponer(
+        problema, sin_lugar, desde=SAB, hasta=SAB + timedelta(days=2), cuantas=1, segundos=10
+    )
+    assert propuestas
+    assert all(m.partido != a_mano for m in propuestas[0].movimientos)

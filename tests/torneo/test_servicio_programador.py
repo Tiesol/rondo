@@ -65,14 +65,14 @@ def test_una_corrida_colgada_no_bloquea_para_siempre(torneo: Torneo) -> None:
 
 
 @pytest.mark.django_db
-def test_los_jugados_y_fijados_no_cambian(torneo: Torneo) -> None:
+def test_los_jugados_y_en_juego_no_cambian(torneo: Torneo) -> None:
     programar_torneo(torneo)
-    jugado, fijado = Partido.objects.filter(categoria__categoria="Sub 9", fase="grupos")[:2]
+    jugado, en_juego = Partido.objects.filter(categoria__categoria="Sub 9", fase="grupos")[:2]
     jugado.estado = Partido.Estado.JUGADO
     jugado.save()
-    fijado.fijado = True
-    fijado.save()
-    antes = {p.pk: (p.cancha_id, p.inicio) for p in (jugado, fijado)}
+    en_juego.estado = Partido.Estado.EN_JUEGO
+    en_juego.save()
+    antes = {p.pk: (p.cancha_id, p.inicio) for p in (jugado, en_juego)}
     programar_torneo(torneo)
     for partido in Partido.objects.filter(pk__in=antes):
         assert (partido.cancha_id, partido.inicio) == antes[partido.pk]

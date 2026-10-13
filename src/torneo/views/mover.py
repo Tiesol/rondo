@@ -19,15 +19,20 @@ def mover(request: HttpRequest, pk: int) -> HttpResponse:
     )
     formulario = FormularioMover(request.POST or None, partido=partido)
     motivos: list[str] = []
+    bloquea = False
     if request.method == "POST" and formulario.is_valid():
         try:
             mover_a_mano(
-                partido, formulario.cleaned_data["cancha"], formulario.inicio(), request.user
+                partido,
+                formulario.cleaned_data["cancha"],
+                formulario.inicio(),
+                request.user,
+                confirmar=request.POST.get("confirmar") == "1",
             )
         except ChoqueAlMover as error:
-            motivos = error.motivos
+            motivos, bloquea = error.motivos, error.bloquea
         else:
-            messages.success(request, "Partido movido y fijado")
+            messages.success(request, "Partido movido")
             dia = timezone.localtime(formulario.inicio()).date().isoformat()
             return redirect("calendario-dia", fecha=dia)
     return render(
@@ -39,5 +44,6 @@ def mover(request: HttpRequest, pk: int) -> HttpResponse:
             "ahora": lugar(partido.inicio, partido.cancha.codigo if partido.cancha else ""),
             "form": formulario,
             "motivos": motivos,
+            "bloquea": bloquea,
         },
     )

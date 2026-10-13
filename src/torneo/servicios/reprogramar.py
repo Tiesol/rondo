@@ -152,11 +152,13 @@ def aplicar(
 
 
 class ChoqueAlMover(Exception):
-    """El cambio a mano crearía choques duros; no se guarda."""
+    """El cambio a mano no se guardó. Si `bloquea`, es imposible (T11.2: la cancha o un equipo
+    ocupados a la vez, o el partido ya empezó); si no, son avisos que se pueden confirmar."""
 
-    def __init__(self, motivos: list[str]) -> None:
+    def __init__(self, motivos: list[str], *, bloquea: bool) -> None:
         super().__init__("; ".join(motivos))
         self.motivos = motivos
+        self.bloquea = bloquea
 
 
 @transaction.atomic
@@ -165,9 +167,14 @@ def mover_a_mano(
     cancha: Cancha,
     inicio: datetime,
     usuario: AbstractBaseUser | AnonymousUser | None = None,
+    *,
+    confirmar: bool = False,
 ) -> Cambio:
-    """T5.4: el verificador revisa el cambio antes de guardar. Si pasa, el partido queda
-    fijado (PRO-10): el programador ya no lo mueve."""
+    """T5.4 y T11.2: cualquier día, hora y cancha o mitad. El verificador revisa el cambio:
+    lo imposible no se guarda; los avisos se guardan si la organización los confirma. Mover
+    no fija el partido (1.4): volver a programar todo lo puede mover."""
+    if partido.empezado:
+        raise ChoqueAlMover(["El partido ya empezó: no se mueve."], bloquea=True)
     torneo = Torneo.objects.select_for_update().get(pk=partido.categoria.torneo_id)
     partidos = partidos_del_torneo(torneo)
     calendario = calendario_actual(partidos)
@@ -177,8 +184,11 @@ def mover_a_mano(
         for c in choques_del_calendario(problema_del_torneo(torneo, partidos), calendario)
         if partido.pk in c.partidos
     ]
-    if choques:
-        raise ChoqueAlMover([m for c in choques for m in c.motivos])
+    bloquean = [m for c in choques if c.bloquea for m in c.motivos]
+    if bloquean:
+        raise ChoqueAlMover(bloquean, bloquea=True)
+    if choques and not confirmar:
+        raise ChoqueAlMover([m for c in choques for m in c.motivos], bloquea=False)
     cambio = Cambio.objects.create(
         partido=partido,
         cancha_antes=partido.cancha,
@@ -189,8 +199,8 @@ def mover_a_mano(
         motivo="Cambio a mano",
     )
     partido.cancha, partido.inicio = cancha, inicio
-    partido.estado, partido.fijado = Partido.Estado.PROGRAMADO, True
-    partido.save(update_fields=["cancha", "inicio", "estado", "fijado"])
+    partido.estado = Partido.Estado.PROGRAMADO
+    partido.save(update_fields=["cancha", "inicio", "estado"])
     return cambio
 
 
@@ -222,8 +232,8 @@ def suspender_dia(
         )
         for partido in partidos:
             partido.cancha, partido.inicio = None, None
-            partido.estado, partido.fijado = Partido.Estado.PENDIENTE, False
-        Partido.objects.bulk_update(partidos, ["cancha", "inicio", "estado", "fijado"])
+            partido.estado = Partido.Estado.PENDIENTE
+        Partido.objects.bulk_update(partidos, ["cancha", "inicio", "estado"])
     inicio_ventana, fin_ventana = ventana_de(desde)
     return calcular_propuestas_en(
         torneo,

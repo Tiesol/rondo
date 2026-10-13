@@ -63,7 +63,6 @@ def _del_dia(torneo: Torneo, dia: date) -> list[dict[str, Any]]:
         secciones[entera.codigo]["partidos"].append(
             {
                 "pk": partido.pk,
-                "fijado": partido.fijado,
                 "hora": timezone.localtime(partido.inicio).strftime("%H:%M"),
                 "categoria": str(partido.categoria),
                 "mitad": partido.cancha.codigo if partido.cancha.padre else "",

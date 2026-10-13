@@ -67,7 +67,6 @@ class Partido(models.Model):
         Cancha, on_delete=models.SET_NULL, null=True, blank=True, related_name="partidos"
     )
     inicio = models.DateTimeField(null=True, blank=True)
-    fijado = models.BooleanField(default=False, help_text="Fijado a mano: no se mueve (PRO-10)")
     # Resultado (T8.5): el marcador sale de los eventos; esto es lo que no sale de ahí.
     no_se_presento = models.CharField(max_length=9, choices=Lado.choices, blank=True)  # W.O.
     penales_local = models.PositiveSmallIntegerField(null=True, blank=True)

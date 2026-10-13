@@ -345,3 +345,37 @@ def test_t10_3_el_verificador_marca_un_dia_sin_jugar() -> None:
     )
     choques = verificar([partido], escenario)
     assert [c.tipo for c in choques] == ["franja"] and "no juega" in choques[0].motivos[0]
+
+
+# ---------- T11.2: bloqueo o aviso ----------
+
+
+def gravedad(partidos: list[PartidoAgendado], esc: Escenario) -> list[tuple[str, bool]]:
+    return sorted((c.tipo, c.bloquea) for c in verificar(partidos, esc))
+
+
+def test_t11_2_dos_partidos_a_la_vez_en_la_cancha_bloquea() -> None:
+    partidos = [partido(1, "09:00"), partido(2, "09:30", equipos=("C", "D"))]
+    assert gravedad(partidos, escenario()) == [("cancha", True)]
+
+
+def test_t11_2_pisar_solo_el_cambio_entre_partidos_avisa() -> None:
+    # El primero termina 09:45 y su turno, con el cambio, 09:50.
+    partidos = [partido(1, "09:00"), partido(2, "09:47", equipos=("C", "D"))]
+    assert gravedad(partidos, escenario()) == [("cancha", False)]
+
+
+def test_t11_2_un_equipo_en_dos_partidos_a_la_vez_bloquea() -> None:
+    partidos = [partido(1, "09:00"), partido(2, "09:30", cancha="C3", equipos=("A", "E"))]
+    assert gravedad(partidos, escenario()) == [("equipo", True)]
+
+
+def test_t11_2_sin_turno_libre_horario_y_cancha_solo_avisan() -> None:
+    partidos = [
+        partido(1, "09:00"),
+        partido(2, "09:50", cancha="C3", equipos=("A", "E")),  # sin turno libre
+        partido(3, "17:00", equipos=("F", "G")),  # después del último inicio
+        partido(4, "10:00", cancha="C1A", equipos=("H", "I")),  # mitad de otra cancha
+    ]
+    assert all(not bloquea for _, bloquea in gravedad(partidos, escenario()))
+    assert {t for t, _ in gravedad(partidos, escenario())} == {"equipo", "franja", "compatibilidad"}
