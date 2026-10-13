@@ -119,6 +119,34 @@ def generar_fixture(
     )
 
 
+def motivo_desactualizado(
+    categoria: CategoriaNivel,
+    partidos: list[Partido] | None = None,
+    equipos: set[int] | None = None,
+) -> str:
+    """Por qué el fixture de la categoría ya no corresponde (T7.11), o "" si está al día:
+    cambiaron sus equipos o las copas que se juegan (P62). Recibe los partidos y los equipos
+    si ya están cargados, para no repetir consultas."""
+    if partidos is None:
+        partidos = list(categoria.partidos.all())
+    if not partidos:
+        return ""
+    if equipos is None:
+        equipos = set(categoria.equipos.values_list("pk", flat=True))
+    grupos = [p for p in partidos if p.fase == Partido.Fase.GRUPOS]
+    en_el_fixture = {p.local_id for p in grupos} | {p.visitante_id for p in grupos}
+    if en_el_fixture - {None} != equipos:
+        return "Cambiaron los equipos de la categoría después de armar el fixture."
+    reglas = Reglas.model_validate(categoria.torneo.reglas)
+    try:
+        formato = formato_para(reglas, len(equipos))
+    except FormatoFaltante:
+        return ""
+    if len(partidos) - len(grupos) != len(formato.eliminacion):
+        return "Cambiaron las copas que se juegan (Copa de Bronce, P62)."
+    return ""
+
+
 def series_elegidas(
     categoria: CategoriaNivel, asignacion: dict[int, str]
 ) -> dict[str, list[Equipo]]:

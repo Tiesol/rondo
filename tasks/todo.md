@@ -936,7 +936,7 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 **Aceptación:**
 
 - [x] Con 10 equipos y la regla apagada salen 26 partidos; prendida, 27.
-- [ ] Cambiar la regla con fixtures de 10 equipos ya generados los deja marcados como desactualizados (el aviso es de T7.11). *(Pasa a T7.11.)*
+- [x] Cambiar la regla con fixtures de 10 equipos ya generados los deja marcados como desactualizados (el aviso es de T7.11).
 
 **Verificación:** verde.
 **Depende de:** nada.
@@ -1023,9 +1023,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con la página pública apagada, el calendario y el PNG dicen "Borrador"; prendida, no.
-- [ ] Agregar o sacar un equipo después del fixture muestra el aviso en la categoría y en Inicio.
-- [ ] Rehacer el fixture borra los partidos viejos y su programación; con un partido jugado, no se puede.
+- [x] Con la página pública apagada, el calendario y el PNG dicen "Borrador"; prendida, no.
+- [x] Agregar o sacar un equipo después del fixture muestra el aviso en la categoría y en Inicio.
+- [x] Rehacer el fixture borra los partidos viejos y su programación; con un partido jugado, no se puede.
 
 **Verificación:** verde.
 **Depende de:** nada.

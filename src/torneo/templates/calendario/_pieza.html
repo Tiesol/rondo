@@ -2,6 +2,7 @@
 <div class="pieza" id="{{ pieza.id }}" data-nombre="{{ pieza.archivo }}">
   <div class="pieza-fantasma" aria-hidden="true">PROGRAMACIÓN</div>
   <div class="pieza-titular">FIXTURE</div>
+  {% if borrador %}<div class="pieza-borrador" aria-label="Borrador">BORRADOR</div>{% endif %}
   <div class="pieza-dia">{{ titulo_dia }}</div>
   <div class="pieza-filas">
     {% for fila in pieza.filas %}

@@ -3,6 +3,7 @@
 {% block volver %}<a class="icono-btn" href="{% url 'calendario' %}" aria-label="Volver al calendario">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
 {% block encabezado %}{{ club.nombre }}{% endblock %}
 {% block contenido %}
+{% if borrador %}<div class="seccion">{% include "parciales/alerta.html" with estado="info" titulo="Borrador." texto="La página pública está apagada: este calendario todavía puede cambiar. Se publica desde Más." %}</div>{% endif %}
 {% for dia in dias %}
 <div class="seccion">
   {% include "parciales/seccion_cab.html" with titulo=dia.titulo nota=dia.partidos|length|stringformat:"s"|add:" partidos" %}
