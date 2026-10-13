@@ -15,7 +15,7 @@ from django.utils import timezone
 from dominio.config import Reglas
 from dominio.partido import Evento as EventoDelDominio
 from dominio.partido import Lado, Resultado, ResultadoInvalido, TipoDeEvento, resultado
-from torneo.models import Equipo, Evento, Jugador, Partido
+from torneo.models import Equipo, Evento, Jugador, Partido, Torneo
 from torneo.servicios.historial import registrar
 from torneo.servicios.planilla import asegurar_convocado
 
@@ -81,6 +81,33 @@ def fin_esperado(partido: Partido) -> datetime | None:
     if partido.inicio_real:
         return partido.inicio_real + timedelta(minutes=partido.categoria.minutos_partido)
     return None
+
+
+def cerrar_olvidados(torneo: Torneo, ahora: datetime | None = None) -> int:
+    """T11.12 (P82): los partidos en juego pasado su final esperado más `cierre_automatico_min`
+    se cierran con el marcador que tenían y la marca "cerrado automáticamente". Corre perezoso
+    (al abrir Hoy, la ficha o la página pública) y con un comando para un cron."""
+    ahora = ahora or timezone.now()
+    margen = timedelta(minutes=Reglas.model_validate(torneo.reglas).cierre_automatico_min)
+    cerrados = 0
+    for partido in Partido.objects.filter(
+        categoria__torneo=torneo, estado=Partido.Estado.EN_JUEGO
+    ).select_related("categoria__torneo"):
+        fin = fin_esperado(partido)
+        if fin is None or ahora < fin + margen:
+            continue
+        partido.estado, partido.tiempo = Partido.Estado.JUGADO, Partido.Tiempo.TERMINADO
+        partido.fin_real, partido.cerrado_automaticamente = fin, True
+        partido.save(update_fields=["estado", "tiempo", "fin_real", "cerrado_automaticamente"])
+        registrar(partido, None, "Cerrado automáticamente")
+        cerrados += 1
+    return cerrados
+
+
+def marcar_revisado(partido: Partido, usuario: Usuario | None) -> None:
+    partido.cerrado_automaticamente = False
+    partido.save(update_fields=["cerrado_automaticamente"])
+    registrar(partido, usuario, "Revisado")
 
 
 def corregir_minuto(evento: Evento, minuto: int | None, usuario: Usuario | None) -> None:

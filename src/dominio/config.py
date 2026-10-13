@@ -356,6 +356,17 @@ class Reglas(Estricto):
             "domingo": "Domingo",
         },
     )
+    cierre_automatico_min: int = _regla(
+        15,
+        "Cierre automático de un partido olvidado",
+        "Minutos después del final esperado (el inicio real del 2.º tiempo más sus minutos) en "
+        "que un partido que sigue en juego se cierra solo, con el marcador que tenía.",
+        grupo="Resultados",
+        pregunta="P82",
+        regla="RES-04",
+        ge=1,
+        le=240,
+    )
     mejor_jugador: bool = _regla(
         True,
         "Mejor jugador de cada partido",

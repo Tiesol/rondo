@@ -19,6 +19,14 @@
   </div>
 </div>
 
+{% if partido.cerrado_automaticamente %}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
+  {% csrf_token %}
+  {% include "parciales/alerta.html" with estado="aviso" titulo="Cerrado automáticamente." texto="Nadie lo terminó: quedó con el marcador que tenía. Revísalo." %}
+  <button type="submit" name="accion" value="revisado" class="btn bloque">Ya lo revisé</button>
+</form>
+{% endif %}
+
 {% if confirmar %}
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
   {% csrf_token %}

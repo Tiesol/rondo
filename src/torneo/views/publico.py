@@ -15,6 +15,7 @@ from django.views.decorators.vary import vary_on_headers
 
 from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 from torneo.presentacion import escudo, fechas_del_torneo, resumen_de_categoria
+from torneo.servicios.partido import cerrar_olvidados
 from torneo.servicios.publico import (
     ficha_publica,
     goleadores,
@@ -48,7 +49,9 @@ def _publica(vista: Any) -> Any:
 
 
 def _torneo_publico(pk: int) -> Torneo:
-    return get_object_or_404(Torneo, pk=pk, publico=True)
+    torneo = get_object_or_404(Torneo, pk=pk, publico=True)
+    cerrar_olvidados(torneo)  # T11.12: perezoso, también con el pedido periódico de HTMX
+    return torneo
 
 
 @login_not_required

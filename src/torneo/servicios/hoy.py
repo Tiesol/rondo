@@ -23,6 +23,8 @@ def estado(partido: Partido, ahora: datetime) -> tuple[str, str]:
     if partido.no_se_presento:
         return "W.O.", "neutro"
     if partido.estado == Partido.Estado.JUGADO:
+        if partido.cerrado_automaticamente:
+            return "Cerrado solo", "aviso"
         return "Terminado", "bien"
     if partido.estado == Partido.Estado.EN_JUEGO:
         minuto = minuto_actual(partido)

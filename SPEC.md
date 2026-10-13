@@ -223,7 +223,8 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 |---|---|---|---|---|
 | RES-01 | Puntos por ganar y por empatar; perder da 0 | 4.6 | R `puntos_por_partido` | 3 y 1 |
 | RES-02 | Desempate entre los empatados, solo con sus partidos: puntos, goles a favor, menos goles en contra y fair play; si no jugaron todos entre sí, con todos los del grupo (P34); después, sorteo registrado (P28). Mejor 3.º y mejor perdedor: puntos por partido y diferencia de gol (P26) | 4.6, P26, P28, P34 | R `criterio_de_desempate` | Reglamento 2025 |
-| RES-03 | El marcador sale de los eventos; el gol en contra va sin jugador y suma para el rival; el W.O. da el marcador de la regla; en la eliminación, un empate se define por penales | P23, P72 | R `marcador_wo` | 3 a 0 |
+| RES-03 | El marcador sale de los eventos; el gol en contra va con el jugador que lo hizo y suma para el rival (T11.10); el W.O. da el marcador de la regla; en la eliminación, un empate se define por penales | P23, P72 | R `marcador_wo` | 3 a 0 |
+| RES-04 | Un partido que sigue en juego pasado su final esperado (inicio real del 2.º tiempo + sus minutos) más `cierre_automatico_min` se cierra solo y queda marcado | P82 | R `cierre_automatico_min` | 15 |
 | SUS-01 | Doble amarilla desde la categoría de la regla: roja y multa; sin pagar, no juega el partido siguiente de su equipo | 4.7, P74 | R `doble_amarilla_desde`, `multa_doble_amarilla` | Sub 10, Bs 30 |
 | SUS-02 | Roja directa y amarillas acumuladas suspenden solo si la regla lo dice; la organización puede suspender a mano | P29 | R `partidos_por_roja_directa`, `amarillas_acumuladas` | 0 y 0 |
 
