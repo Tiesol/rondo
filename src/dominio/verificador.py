@@ -45,6 +45,7 @@ class PartidoAgendado:
     fase: str = "grupos"  # o "eliminacion"
     virtuales: frozenset[str] = frozenset()  # en la eliminación: "ganador de la semi 1" (T7.1)
     toma_posiciones: bool = False  # en la eliminación: juega con equipos de la tabla de grupos
+    dias_sin_jugar: frozenset[int] = frozenset()  # días de la semana (0 es lunes), P56
 
     @property
     def fin_partido(self) -> datetime:
@@ -145,6 +146,8 @@ def _uno_solo(partido: PartidoAgendado, escenario: Escenario, anotar: _Anotar) -
         for desde, hasta in escenario.franjas
     ):
         anotar("franja", (partido.id,), "Fuera de las franjas de juego")
+    if partido.inicio.weekday() in partido.dias_sin_jugar:
+        anotar("franja", (partido.id,), f"{partido.categoria} no juega ese día de la semana (P56)")
     for bloqueo in escenario.bloqueos:
         if bloqueo.equipo in partido.equipos_definidos and _se_pisan(
             partido.inicio, partido.fin_partido, bloqueo.inicio, bloqueo.fin

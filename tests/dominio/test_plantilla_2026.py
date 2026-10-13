@@ -84,3 +84,10 @@ def test_respuestas_del_organizador_en_el_calendario(config: ConfigTorneo) -> No
     # P35: todas las canchas están en el mismo predio; P19: el orden de las fechas es flexible.
     assert config.reglas.profe_minutos_cambio_de_cancha == 0
     assert config.reglas.orden_de_fechas == "blanda"
+
+
+def test_p56_sub_5_y_sub_6_no_juegan_los_viernes_y_prefieren_temprano(config: ConfigTorneo) -> None:
+    for categoria in config.categorias:
+        chicos = categoria.nombre in ("Sub 5", "Sub 6")
+        assert (categoria.dias_sin_jugar == ("viernes",)) is chicos
+        assert categoria.prefiere_temprano is chicos

@@ -318,3 +318,25 @@ def test_t10_2_con_ultimo_inicio_el_partido_puede_empezar_a_la_hora_final() -> N
     assert len(resultado.ubicados) == 2  # 8:00 y 8:50
     assert max(i for _, i in resultado.ubicados.values()) <= SABADO.replace(hour=9)
     assert choques(ultimo_inicio, resultado) == []
+
+
+def test_t10_3_una_categoria_que_no_juega_los_viernes() -> None:
+    # P56: Sub 5 y Sub 6 no juegan los viernes.
+    partidos = [
+        PartidoAProgramar(**{**p.__dict__, "dias_sin_jugar": frozenset({4})})
+        for p in todos_contra_todos(list("AB"))
+    ]
+    viernes = SABADO - timedelta(days=1)
+    franjas = [(viernes.replace(hour=16), viernes.replace(hour=20)), franja(0, 8, 16)]
+    resultado = programar(problema(partidos, franjas), segundos=5)
+    assert all(i.weekday() == 5 for _, i in resultado.ubicados.values())
+
+
+def test_t10_3_los_chicos_van_en_los_primeros_horarios() -> None:
+    chicos = [
+        PartidoAProgramar(**{**p.__dict__, "temprano": True})
+        for p in todos_contra_todos(list("AB"), "Sub 5", ("C1",))
+    ]
+    grandes = todos_contra_todos(list("CD"), "Sub 9", ("C1",))
+    resultado = programar(problema(chicos + grandes, [franja(0, 8, 16)]), segundos=5)
+    assert resultado.ubicados[chicos[0].id][1] == SABADO.replace(hour=8)

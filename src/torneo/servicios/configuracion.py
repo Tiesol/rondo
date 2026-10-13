@@ -61,6 +61,8 @@ def cargar_configuracion(config: ConfigTorneo) -> Torneo:
                     "max_jugadores": nivel.max,
                     "min_por_tiempo": nivel.min_por_tiempo,
                     "convocados_por_partido": nivel.convocados_por_partido,
+                    "dias_sin_jugar": list(categoria.dias_sin_jugar),
+                    "prefiere_temprano": categoria.prefiere_temprano,
                 },
             )
             compatibles = canchas_compatibles(config, categoria.nombre, nombre_nivel)

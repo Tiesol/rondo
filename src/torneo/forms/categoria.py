@@ -12,7 +12,26 @@ else:
     _Base = forms.ModelForm
 
 
+DIAS = [
+    ("lunes", "Lunes"),
+    ("martes", "Martes"),
+    ("miercoles", "Miércoles"),
+    ("jueves", "Jueves"),
+    ("viernes", "Viernes"),
+    ("sabado", "Sábado"),
+    ("domingo", "Domingo"),
+]
+
+
 class FormularioAjustes(_Base):
+    dias_sin_jugar = forms.MultipleChoiceField(
+        label="Días en que no juega",
+        choices=DIAS,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Por ejemplo, Sub 5 y Sub 6 no juegan los viernes (P56).",
+    )
+
     class Meta:
         model = CategoriaNivel
         fields = [
@@ -21,6 +40,8 @@ class FormularioAjustes(_Base):
             "min_por_tiempo",
             "convocados_por_partido",
             "canchas",
+            "dias_sin_jugar",
+            "prefiere_temprano",
         ]
         labels = {
             "min_jugadores": "Mínimo de jugadores",

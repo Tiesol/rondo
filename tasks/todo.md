@@ -1333,8 +1333,8 @@ T8.5 → T8.6         │
 **Descripción:** Sub 5 y Sub 6 no juegan los viernes (duro) y, de preferencia, van en los primeros horarios del sábado y el domingo (blando). En la configuración: `dias_sin_jugar` por categoría y `prefiere_temprano`.
 
 **Aceptación:**
-- [ ] Ningún partido de Sub 5 o Sub 6 cae un viernes; el verificador lo marca si pasa a mano.
-- [ ] Con lugar libre, sus partidos van en los primeros turnos del día.
+- [x] Ningún partido de Sub 5 o Sub 6 cae un viernes; el verificador lo marca si pasa a mano.
+- [x] Con lugar libre, sus partidos van en los primeros turnos del día.
 
 **Archivos:** `src/dominio/config.py`, modelo de categoría y migración, programador, verificador, plantilla 2026, tests. **Tamaño:** M.
 

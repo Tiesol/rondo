@@ -22,7 +22,11 @@
           "max": 10,
           "min_por_tiempo": 15
         }
-      }
+      },
+      "dias_sin_jugar": [
+        "viernes"
+      ],
+      "prefiere_temprano": true
     },
     {
       "nombre": "Sub 6",
@@ -34,7 +38,11 @@
           "max": 12,
           "min_por_tiempo": 15
         }
-      }
+      },
+      "dias_sin_jugar": [
+        "viernes"
+      ],
+      "prefiere_temprano": true
     },
     {
       "nombre": "Sub 7",
