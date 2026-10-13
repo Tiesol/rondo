@@ -356,6 +356,17 @@ class Reglas(Estricto):
             "domingo": "Domingo",
         },
     )
+    penales_por_equipo: int = _regla(
+        3,
+        "Penales por equipo",
+        "En la eliminación, si hay empate. Si siguen empatados, uno más por equipo hasta que se "
+        "defina.",
+        grupo="Resultados",
+        pregunta="P83",
+        regla="RES-05",
+        ge=1,
+        le=10,
+    )
     cierre_automatico_min: int = _regla(
         15,
         "Cierre automático de un partido olvidado",

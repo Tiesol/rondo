@@ -37,3 +37,24 @@ class Evento(models.Model):
 
     def __str__(self) -> str:
         return f"{self.get_tipo_display()} · {self.partido}"
+
+
+class Penal(models.Model):
+    """Un tiro de la tanda de penales (T11.13, P83), en orden."""
+
+    partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name="tiros")
+    equipo = models.ForeignKey(Equipo, on_delete=models.PROTECT, related_name="+")
+    jugador = models.ForeignKey(
+        Jugador, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
+    convirtio = models.BooleanField()
+    creado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+    creado_en = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["creado_en", "pk"]
+
+    def __str__(self) -> str:
+        return f"Penal {'convertido' if self.convirtio else 'errado'} · {self.partido}"

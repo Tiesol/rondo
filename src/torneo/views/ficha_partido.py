@@ -103,6 +103,30 @@ def _lado(partido: Partido, equipo: Equipo, dorsales: dict[int, int | None]) -> 
     }
 
 
+def _tanda(partido: Partido, resultado: Any, equipos: list[dict[str, Any]]) -> dict[str, Any]:
+    """T11.13: los penales, si es una llave empatada (o ya se empezaron a patear)."""
+    tiros = list(partido.tiros.all())
+    empatado = resultado.marcador[0] == resultado.marcador[1]
+    if partido.fase != Partido.Fase.ELIMINACION or resultado.wo or not partido.empezado:
+        return {}
+    if not (empatado or tiros):
+        return {}
+    estado = servicio.estado_penales(partido)
+    lados = []
+    for lado in equipos:
+        suyos = [t.convirtio for t in tiros if t.equipo_id == lado["equipo"].pk]
+        lados.append({"equipo": lado["equipo"], "tiros": suyos, "goles": sum(suyos)})
+    nombres = {"local": partido.local, "visitante": partido.visitante}
+    return {
+        "lados": lados,
+        "hay_tiros": bool(tiros),
+        "ganador": nombres[estado.ganador] if estado.ganador else None,
+        "patea": nombres[estado.patea] if estado.patea else None,
+        "muerte_subita": estado.muerte_subita,
+        "por_equipo": Reglas.model_validate(partido.categoria.torneo.reglas).penales_por_equipo,
+    }
+
+
 def _contexto(partido: Partido) -> dict[str, Any]:
     resultado = servicio.resultado_de(partido)
     dorsales = planilla.dorsales_del_partido(partido)
@@ -138,6 +162,7 @@ def _contexto(partido: Partido) -> dict[str, Any]:
             for e in eventos
         ],
         "eliminacion": partido.fase == Partido.Fase.ELIMINACION,
+        "tanda": _tanda(partido, resultado, equipos),
         "suspendidos": suspendidos_en(partido),
         "multas": multas_de(partido),
         "monto_multa": Reglas.model_validate(partido.categoria.torneo.reglas).multa_doble_amarilla,
@@ -291,6 +316,11 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
                     servicio.wo(partido, "visitante", request.user)
                 case _:
                     raise NoSePuede("Elige quién no se presentó.")
+        case "penal":
+            equipo = _equipo(partido, datos.get("equipo", ""))
+            servicio.patear(partido, equipo, bool(datos.get("convirtio")), request.user)
+        case "deshacer_penal":
+            servicio.deshacer_penal(partido, request.user)
         case "penales":
             local, visitante = _numero(datos.get("local", "")), _numero(datos.get("visitante", ""))
             servicio.penales(partido, local, visitante, request.user)

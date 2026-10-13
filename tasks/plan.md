@@ -312,7 +312,7 @@ T8.5 → T8.6         │
 - [x] T11.10 Eventos completos y partido terminado editable
 - [x] T11.11 Partidos de hoy
 - [x] T11.12 Cierre automático
-- [ ] T11.13 Penales tiro por tiro
+- [x] T11.13 Penales tiro por tiro
 - [ ] T11.14 Página pública
 - [ ] T11.15 Rehacer el fixture con partidos jugados
 - [ ] T11.16 Pasada de UI/UX
