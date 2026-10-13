@@ -316,6 +316,9 @@
     background: var(--color-oro);
     color: var(--color-sobre-oro);
   }
+  .categorias a.agregar {
+    border-style: dashed;
+  }
   /* Opciones con casilla, como las canchas de una categoría */
   .opcion {
     display: inline-flex;

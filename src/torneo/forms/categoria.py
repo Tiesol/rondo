@@ -73,3 +73,21 @@ class FormularioAjustes(_Base):
         if convocados is not None and maximo is not None and convocados > maximo:
             self.add_error("convocados_por_partido", "No puede superar el máximo de jugadores.")
         return datos
+
+
+class FormularioNuevaCategoria(forms.Form):
+    """T11.1: con el nombre y el nivel alcanza si la categoría es de la plantilla o ya tiene
+    otro nivel; lo demás se completa solo y se corrige después en Ajustes."""
+
+    nombre = forms.CharField(
+        label="Categoría", max_length=50, widget=forms.TextInput(attrs={"list": "categorias"})
+    )
+    nivel = forms.ChoiceField(choices=CategoriaNivel.Nivel.choices, initial="avanzado")
+    modalidad = forms.ChoiceField(
+        choices=[("", "Como la plantilla"), *CategoriaNivel.Modalidad.choices], required=False
+    )
+    min_por_tiempo = forms.IntegerField(
+        label="Minutos por tiempo", min_value=1, max_value=60, required=False
+    )
+    minimo = forms.IntegerField(label="Mínimo de jugadores", min_value=1, required=False)
+    maximo = forms.IntegerField(label="Máximo de jugadores", min_value=1, required=False)

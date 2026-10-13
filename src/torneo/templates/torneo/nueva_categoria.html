@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}Agregar categoría{% endblock %}
+{% block volver %}{% if volver %}<a class="icono-btn" href="{% url 'categoria' volver.pk 'equipos' %}" aria-label="Volver al torneo">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endif %}{% endblock %}
+{% block encabezado %}Agregar categoría{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% for error in form.non_field_errors %}{% include "parciales/alerta.html" with estado="error" texto=error %}{% endfor %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.nombre %}
+    {% include "parciales/campo.html" with campo=form.nivel %}
+  </div>
+  <datalist id="categorias">{% for nombre in sugeridas %}<option value="{{ nombre }}">{% endfor %}</datalist>
+  <details class="desplegable">
+    <summary>Si es una categoría nueva</summary>
+    {% include "parciales/campo.html" with campo=form.modalidad %}
+    {% include "parciales/campo.html" with campo=form.min_por_tiempo %}
+    <div class="dos">
+      {% include "parciales/campo.html" with campo=form.minimo %}
+      {% include "parciales/campo.html" with campo=form.maximo %}
+    </div>
+  </details>
+  {% include "parciales/boton.html" with texto="Agregar" principal=True bloque=True %}
+</form>
+{% endblock %}

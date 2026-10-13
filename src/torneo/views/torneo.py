@@ -10,10 +10,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from torneo.forms.categoria import FormularioAjustes
+from torneo.forms.categoria import FormularioAjustes, FormularioNuevaCategoria
 from torneo.models import CategoriaNivel, Torneo
 from torneo.permisos import requiere, sin_permiso
 from torneo.presentacion import nacidos_en, resumen_de_categoria
+from torneo.servicios.categorias import NoSePuede, agregar_categoria, nombres_de_la_plantilla
 from torneo.servicios.tabla import registrar_sorteo, tablas_de
 from torneo.views.equipos import filas_de_equipos
 from torneo.views.fixture import datos_del_fixture
@@ -105,3 +106,38 @@ def sorteo(request: HttpRequest, pk: int) -> HttpResponse:
     registrar_sorteo(categoria, [equipo for _, _, equipo in sorted(lugares)])
     messages.success(request, "Sorteo guardado")
     return redirect("categoria", pk=categoria.pk, pestana="posiciones")
+
+
+@requiere("torneo.configurar_torneo", "agregar categorías")
+def nueva_categoria(request: HttpRequest, pk: int) -> HttpResponse:
+    """T11.1: una categoría o un nivel más en un torneo ya creado."""
+    torneo_ = get_object_or_404(Torneo, pk=pk)
+    formulario = FormularioNuevaCategoria(request.POST or None)
+    if request.method == "POST" and formulario.is_valid():
+        datos = formulario.cleaned_data
+        try:
+            nueva = agregar_categoria(
+                torneo_,
+                datos["nombre"],
+                datos["nivel"],
+                modalidad=datos["modalidad"],
+                min_por_tiempo=datos["min_por_tiempo"],
+                minimo=datos["minimo"],
+                maximo=datos["maximo"],
+            )
+        except NoSePuede as error:
+            formulario.add_error(None, str(error))
+        else:
+            messages.success(request, f"{nueva} agregada: revisa sus ajustes")
+            return redirect("categoria", pk=nueva.pk, pestana="ajustes")
+    volver = torneo_.categorias.first()
+    return render(
+        request,
+        "torneo/nueva_categoria.html",
+        {
+            "torneo": torneo_,
+            "form": formulario,
+            "sugeridas": nombres_de_la_plantilla(),
+            "volver": volver,
+        },
+    )
