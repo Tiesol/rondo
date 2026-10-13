@@ -106,6 +106,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-13: T7.2 lista (revisión externa, punto 2; responde R41): el modelo ya no suma el margen de P35 en la misma cancha. Las personas compartidas tienen un `NoOverlap` sin margen y, para cada par de partidos de un profe compartido, una separación de 10 minutos condicionada a que vayan en canchas distintas (lo mismo que mira el verificador). Regla nueva `choque_de_profes` (P57): por defecto "Solo el entrenador"; con "Todo el cuerpo técnico" cuentan también asistente y delegado. En la demo, los pares de profes bajan de 29 a 12. La demo programada sigue entrando entera y sin choques.
 - 2026-10-13: T7.3 lista (PRO-11): el objetivo penaliza la espera de cada profe compartido entre sus partidos del mismo día (del final de un turno al inicio del siguiente). Una semana de desvío en el reparto (PRO-12) pesa como una hora de espera, y ubicar un partido más pesa siempre más que todo lo blando junto. Los pesos están en el modelo (son del algoritmo, no del reglamento). Con un partido fijo a las 14:00, el del otro equipo del profe va a las 13:05 o a las 14:55. La reprogramación tiene su propio objetivo y no cambia.
 - 2026-10-13: T7.11 lista: con la página pública apagada, el calendario por día y por club muestran "Borrador" y el PNG lleva un sello BORRADOR. `motivo_desactualizado()` compara los equipos del fixture con los de la categoría y la cantidad de llaves con la regla de Bronce (P62): si no coinciden, la pestaña Fixture avisa "El fixture de esta categoría está desactualizado" con el botón "Rehacer el fixture", y en Inicio aparece como pendiente. Rehacer ya borraba los partidos y su programación, y se niega con partidos jugados (FIX-09).
+- 2026-10-13: T7.12 lista: medición de la programación 2026 con 1 CPU (H7). Entran los 223 partidos sin choques; espera mediana de los profes de 5 a 10 min; 0 llaves encadenadas sin descanso. Para producción, 4 trabajadores.
 
 ## Pendiente
 
@@ -212,6 +213,27 @@ Se usó un modelo CP-SAT sintético con la forma del real (T0.6): canchas con mi
 - **El problema justo (2026 en 4 fines de semana) depende más de la estrategia que de la CPU:** con un solo worker no encuentra solución ni con CPU completa, y con 8 sí. El programador real va a usar varios workers, y además una solución inicial armada a mano como pista (*hint*) o una resolución por fin de semana.
 - **Para el torneo real de 2026, 0,1 CPU queda corto** si hay que reprogramar rápido con el calendario lleno. Antes de la fase 6 hay que decidir entre Render Starter (0,5 CPU, de pago) y Cloud Run, si la cuenta queda en regla.
 - La imagen pesa 1 GB, por OR-Tools, pandas y numpy. El build de Render tarda más, pero no hay límite que lo impida.
+
+### H7. La programación 2026 entra entera con 1 CPU (T7.12, 2026-10-13)
+
+Plantilla 2026 (del 24/10 al 15/11, eliminación en el 4.º fin de semana, Sub 5 y Sub 6 en F6, sin Bronce) y la demo de 93 equipos: 223 partidos. Contenedor limitado a 1 CPU (`taskset -c 0`, como Render Standard), límite de 120 s. Script descartable fuera del repo: genera la demo, los fixtures, programa y mide.
+
+| | 8 trabajadores | 4 trabajadores |
+|---|---|---|
+| Partidos ubicados | 223 de 223 | 223 de 223 |
+| Estado del solver | FEASIBLE (usa los 120 s) | FEASIBLE (usa los 120 s) |
+| Choques duros (verificador) | 0 | 0 |
+| Pares de un entrenador compartido el mismo día | 10 | 8 |
+| Espera de esos entrenadores: mediana / media / máxima | 10 / 26 / 100 min | 5 / 5 / 5 min |
+| Esperas de más de 2 h | 0 | 0 |
+| Seguidos en la misma cancha | 4 | 8 |
+| Llaves encadenadas el mismo día / sin descanso | 21 / 0 | 22 / 0 |
+
+Contra la revisión externa (demo con 5 fines de semana, 2 CPU): la espera mediana de los profes pasa de 65 min (98 en el escenario 2026 de la convocatoria) a 5 o 10 min, sin esperas de más de 2 h, y las llaves encadenadas sin descanso pasan de 2 a 0.
+
+- **Asistentes y delegados** (con P57 por defecto no cuentan): con 4 trabajadores, 6 pares quedan con más de 2 h de espera (máxima 305 min). Si la respuesta a P57 es "todo el cuerpo técnico", se cambia la regla y se vuelve a programar.
+- **Producción:** `RONDO_PROGRAMADOR_TRABAJADORES=4`. Da el mismo resultado, o mejor, y le deja más aire a la página mientras programa. Durante los 120 s la página responde más lenta: programar fuera del horario de visitas.
+- **Margen:** con más equipos que la demo (H4 estimaba 117), puede no entrar todo; entonces vale P33 (semis en el 3.er fin de semana) o P13 (más canchas).
 
 ## Comentarios de Sebastian sobre la demo (2026-10-07)
 
