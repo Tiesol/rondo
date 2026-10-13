@@ -8,11 +8,13 @@ from django.contrib import messages
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from torneo.forms.categoria import FormularioAjustes
 from torneo.models import CategoriaNivel, Torneo
-from torneo.permisos import sin_permiso
+from torneo.permisos import requiere, sin_permiso
 from torneo.presentacion import nacidos_en, resumen_de_categoria
+from torneo.servicios.tabla import registrar_sorteo, tablas_de
 from torneo.views.equipos import filas_de_equipos
 from torneo.views.fixture import datos_del_fixture
 from torneo.views.fragmentos import pide_fragmento
@@ -78,6 +80,22 @@ def categoria(request: HttpRequest, pk: int, pestana: str) -> HttpResponse:
         "puede_cambiar": puede_cambiar,
         "equipos": filas_de_equipos(actual) if pestana == "equipos" else [],
         "fixture": datos_del_fixture(actual) if pestana == "fixture" else {},
+        "tablas": tablas_de(actual) if pestana == "posiciones" else [],
     }
     plantilla = "torneo/_categoria.html" if pide_fragmento(request) else "torneo/categoria.html"
     return render(request, plantilla, contexto)
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "registrar el sorteo")
+def sorteo(request: HttpRequest, pk: int) -> HttpResponse:
+    """P28: el lugar que salió para cada equipo empatado."""
+    categoria = get_object_or_404(CategoriaNivel.objects.select_related("torneo"), pk=pk)
+    lugares = []
+    for equipo in categoria.equipos.all():
+        valor = request.POST.get(f"lugar_{equipo.pk}", "")
+        if valor.isdigit():
+            lugares.append((int(valor), equipo.nombre, equipo))
+    registrar_sorteo(categoria, [equipo for _, _, equipo in sorted(lugares)])
+    messages.success(request, "Sorteo guardado")
+    return redirect("categoria", pk=categoria.pk, pestana="posiciones")

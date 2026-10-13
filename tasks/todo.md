@@ -1167,9 +1167,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Un test por criterio de desempate, en orden, incluido el caso de series cruzadas (H5).
-- [ ] Un empate total muestra "Falta sorteo" hasta que la organización lo registra.
-- [ ] La tabla de 6 y 7 equipos elige al mejor perdedor y al mejor 3.º según P26.
+- [x] Un test por criterio de desempate, en orden, incluido el caso de series cruzadas (H5).
+- [x] Un empate total muestra "Falta sorteo" hasta que la organización lo registra.
+- [x] La tabla de 6 y 7 equipos elige al mejor perdedor y al mejor 3.º según P26.
 
 **Verificación:** verde.
 **Depende de:** T8.5.
