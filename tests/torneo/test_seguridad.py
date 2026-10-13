@@ -30,6 +30,7 @@ DE_LA_ORGANIZACION = [
     "/torneos/1/acf/",
     "/escuela/",
     "/torneos/1/patrocinadores/",
+    "/torneos/1/canchas/",
     "/personas/nueva/",
     "/partidos/1/mover/",
     "/corridas/1/propuestas/",

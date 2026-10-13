@@ -1353,8 +1353,8 @@ T8.5 → T8.6         │
 **Descripción:** se pueden partir las tres canchas y agregar canchas. Pantalla de canchas del torneo: agregar una cancha, partirla en mitades y elegir qué categorías juegan en cada una. Sub 5 y Sub 6 prefieren media cancha 1.
 
 **Aceptación:**
-- [ ] La organización agrega una cancha y parte la cancha 2 en dos mitades desde la app.
-- [ ] El programador usa las canchas nuevas y respeta que una cancha entera ocupa sus mitades.
+- [x] La organización agrega una cancha y parte la cancha 2 en dos mitades desde la app.
+- [x] El programador usa las canchas nuevas y respeta que una cancha entera ocupa sus mitades.
 
 **Archivos:** vistas, formularios y plantillas de canchas, `servicios/configuracion.py`, tests. **Tamaño:** M.
 
