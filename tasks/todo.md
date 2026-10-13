@@ -1092,9 +1092,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Una foto con GPS en el EXIF sale sin ningún metadato.
-- [ ] Un archivo que no es imagen, o que pasa el máximo, se rechaza con un mensaje junto al campo.
-- [ ] La imagen guardada no pasa del tamaño pedido y su nombre no tiene datos personales.
+- [x] Una foto con GPS en el EXIF sale sin ningún metadato.
+- [x] Un archivo que no es imagen, o que pasa el máximo, se rechaza con un mensaje junto al campo.
+- [x] La imagen guardada no pasa del tamaño pedido y su nombre no tiene datos personales.
 
 **Verificación:** verde.
 **Depende de:** T8.1.
