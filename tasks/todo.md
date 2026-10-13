@@ -1323,8 +1323,8 @@ T8.5 → T8.6         │
 **Descripción:** respuesta a 1.1 (P48): "la hora final significa el inicio del último partido". Regla nueva `fin_de_franja`: "último inicio" (por defecto, según la respuesta) o "fin del partido" (como hasta ahora). El programador, el verificador, los motivos y la capacidad la usan.
 
 **Aceptación:**
-- [ ] Con "último inicio", un partido puede empezar a las 16:00 un sábado; con "fin del partido", no.
-- [ ] El verificador da lo mismo que el modelo en los dos casos.
+- [x] Con "último inicio", un partido puede empezar a las 16:00 un sábado; con "fin del partido", no.
+- [x] El verificador da lo mismo que el modelo en los dos casos.
 
 **Archivos:** `src/dominio/config.py`, `src/dominio/programador/modelo.py`, `src/dominio/verificador.py`, `src/dominio/capacidad.py`, tests. **Tamaño:** M.
 

@@ -320,6 +320,7 @@
     "max_partidos_por_dia": 2,
     "profe_minutos_cambio_de_cancha": 0,
     "choque_de_profes": "entrenador",
+    "fin_de_franja": "ultimo_inicio",
     "orden_de_fechas": "blanda",
     "eliminacion_desde_fin_de_semana": 4,
     "dia_para_reprogramar": "jueves",

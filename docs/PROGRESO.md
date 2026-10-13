@@ -123,6 +123,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-13: T9.1 lista: `anonimizar_torneo` también borra la foto y la autorización de cada persona anonimizada; los archivos salen del almacenamiento recién cuando la base confirma (`on_commit`). La foto de quien sigue en otro torneo queda.
 - 2026-10-13: T9.2 lista: "Suspendidos del día" (`/calendario/<fecha>/suspendidos/`, desde el calendario del día) para la organización y la mesa: jugador con nombre completo (es interna y la mesa identifica con el documento) y dorsal, equipo, partido, hora, cancha y motivo, con enlace a la ficha. Sale de las mismas reglas que T8.9.
 - 2026-10-13: T10.1 lista: plantilla 2026 con `profe_minutos_cambio_de_cancha` 0 (P35: todas las canchas están en el mismo predio) y `orden_de_fechas` "blanda" (P19: si se reprograma la fecha 2 después de la 3, no frena a la 3; el reparto por fin de semana igual tiende a respetar el orden). La demo programada sigue sin choques. Dos tests que suponían en qué cancha ponía el solver el primer partido ahora no dependen de eso.
+- 2026-10-13: T10.2 lista: regla `fin_de_franja` (P48, PRO-03): "cuando termina el último partido" (como antes, el valor del modelo) o "cuando empieza el último partido" (la respuesta del organizador; en la plantilla 2026). El programador, el verificador y los motivos la usan. La capacidad que se muestra antes de programar sigue contando hasta el fin de la franja: queda conservadora (con último inicio entra un turno más por franja y cancha).
 
 ## Pendiente
 

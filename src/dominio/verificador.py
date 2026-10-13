@@ -138,8 +138,10 @@ def _uno_solo(partido: PartidoAgendado, escenario: Escenario, anotar: _Anotar) -
             (partido.id,),
             f"{partido.categoria} no juega en {partido.cancha}",
         )
+    ultimo_inicio = escenario.reglas.fin_de_franja == "ultimo_inicio"  # P48
     if not any(
-        desde <= partido.inicio and partido.fin_partido <= hasta
+        desde <= partido.inicio
+        and (partido.inicio if ultimo_inicio else partido.fin_partido) <= hasta
         for desde, hasta in escenario.franjas
     ):
         anotar("franja", (partido.id,), "Fuera de las franjas de juego")

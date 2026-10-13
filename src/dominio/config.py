@@ -287,6 +287,18 @@ class Reglas(Estricto):
             "todo_el_cuerpo_tecnico": "Todo el cuerpo técnico",
         },
     )
+    fin_de_franja: Literal["fin_del_partido", "ultimo_inicio"] = _regla(
+        "fin_del_partido",
+        "La hora final del horario es",
+        "El fin del último partido, o la hora en que puede empezar el último partido.",
+        grupo="Programación",
+        pregunta="P48",
+        regla="PRO-03",
+        opciones={
+            "fin_del_partido": "Cuando termina el último partido",
+            "ultimo_inicio": "Cuando empieza el último partido",
+        },
+    )
     orden_de_fechas: Literal["dura", "blanda"] = _regla(
         "dura",
         "Orden de las fechas",

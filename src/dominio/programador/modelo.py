@@ -132,7 +132,9 @@ class Modelo:
         ] = []
 
     def _inicios_posibles(self, partido: PartidoAProgramar) -> list[tuple[int, int]]:
-        largo = _pasos(partido.minutos_partido)
+        # P48: el partido termina dentro de la franja, o solo empieza dentro (último inicio).
+        ultimo_inicio = self.problema.reglas.fin_de_franja == "ultimo_inicio"
+        largo = 0 if ultimo_inicio else _pasos(partido.minutos_partido)
         ventanas = []
         for desde, hasta in self.problema.franjas:
             primero = self.reloj.paso(desde, hacia_arriba=True)
