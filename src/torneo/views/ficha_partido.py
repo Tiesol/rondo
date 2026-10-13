@@ -5,6 +5,7 @@ nombre. Cada acción es un POST que vuelve a la ficha (funciona sin JavaScript).
 nombres de jugadores: solo para quien carga resultados (organización y mesa, P64).
 """
 
+from datetime import datetime, time, timedelta
 from typing import Any
 
 from django.contrib import messages
@@ -14,7 +15,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from dominio.config import Reglas
-from torneo.models import Equipo, Jugador, Partido
+from torneo.models import Equipo, Evento, Jugador, Partido
 from torneo.permisos import requiere
 from torneo.presentacion import escudo, url_de_imagen
 from torneo.servicios import partido as servicio
@@ -37,21 +38,17 @@ TIPOS = {
     "amarilla": "Amarilla",
     "roja": "Roja",
     "amonestacion": "Amonestación",
+    "lesion": "Lesión",
 }
 
 
 def _tiempo(partido: Partido) -> str:
-    """T10.9: "1.er tiempo · 12'": el tiempo que marcó la mesa y los minutos desde que empezó."""
-    desde = {
-        Partido.Tiempo.PRIMER_TIEMPO: partido.inicio_real,
-        Partido.Tiempo.DESCANSO: partido.fin_primer_tiempo,
-        Partido.Tiempo.SEGUNDO_TIEMPO: partido.fin_descanso,
-    }.get(partido.tiempo)  # type: ignore[call-overload]
+    """T10.9 y T11.10: "2.º tiempo · 27'": el tiempo que marcó la mesa y el minuto en curso."""
     if not partido.tiempo:
         return ""
     texto = partido.get_tiempo_display()
-    if desde is not None:
-        texto += f" · {int((timezone.now() - desde).total_seconds() // 60)}'"
+    if partido.tiempo != Partido.Tiempo.DESCANSO and (minuto := servicio.minuto_actual(partido)):
+        texto += f" · {minuto}'"
     return texto
 
 
@@ -65,7 +62,8 @@ def _notas(partido: Partido, eventos: list[Any], reglas: Reglas) -> dict[int, st
         if e.tipo == "amarilla" and e.jugador_id:
             cuenta[e.jugador_id] = cuenta.get(e.jugador_id, 0) + 1
             if cuenta[e.jugador_id] == 2:
-                notas[e.pk] = "Segunda amarilla: sale 5 minutos."
+                vuelve = timezone.localtime(e.creado_en + timedelta(minutes=5))
+                notas[e.pk] = f"Afuera 5 min · vuelve {vuelve:%H:%M}"
     return notas
 
 
@@ -126,6 +124,8 @@ def _contexto(partido: Partido) -> dict[str, Any]:
         "equipos": equipos,
         "eventos": [
             {
+                "pk": e.pk,
+                "minuto": e.minuto,
                 "tipo": TIPOS[e.tipo],
                 "clase": e.tipo,
                 "equipo": e.equipo.nombre,
@@ -143,6 +143,18 @@ def _contexto(partido: Partido) -> dict[str, Any]:
         "monto_multa": Reglas.model_validate(partido.categoria.torneo.reglas).multa_doble_amarilla,
         "hora": timezone.localtime(partido.inicio).strftime("%H:%M") if partido.inicio else "",
         "historial": historial(partido=partido),
+        "horas": [
+            {
+                "campo": campo,
+                "texto": texto,
+                "valor": (
+                    timezone.localtime(getattr(partido, campo)).strftime("%H:%M")
+                    if getattr(partido, campo)
+                    else ""
+                ),
+            }
+            for campo, texto in servicio.HORAS.items()
+        ],
     }
 
 
@@ -205,6 +217,33 @@ def _numero(texto: str) -> int:
         raise NoSePuede("Los penales son números.") from None
 
 
+def _evento(partido: Partido, datos: dict[str, str]) -> Evento:
+    evento = partido.eventos.filter(pk=datos.get("evento_id", "0") or 0).first()
+    if evento is None:
+        raise NoSePuede("Ese evento ya no está.")
+    return evento
+
+
+def _horas(partido: Partido, datos: dict[str, str]) -> dict[str, Any]:
+    """Las horas que se mandan (HH:MM), el mismo día del partido."""
+    base = partido.inicio_real or partido.inicio or timezone.now()
+    dia = timezone.localtime(base).date()
+    horas: dict[str, Any] = {}
+    for campo in servicio.HORAS:
+        if campo not in datos:
+            continue
+        texto = datos[campo].strip()
+        if not texto:
+            horas[campo] = None
+            continue
+        try:
+            hora = time.fromisoformat(texto)
+        except ValueError:
+            raise NoSePuede("Las horas van como 18:05.") from None
+        horas[campo] = timezone.make_aware(datetime.combine(dia, hora))
+    return horas
+
+
 def _dorsal(texto: str) -> int | None:
     texto = texto.strip()
     if not texto:
@@ -221,9 +260,21 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
             servicio.empezar(partido, request.user)
         case "avanzar_tiempo":
             servicio.avanzar_tiempo(partido, request.user)
-        case "gol" | "gol_en_contra" | "amarilla" | "roja" | "amonestacion":
+        case "gol" | "gol_en_contra" | "amarilla" | "roja" | "amonestacion" | "lesion":
             equipo = _equipo(partido, datos.get("equipo", ""))
             servicio.anotar(partido, que, equipo, _jugador(datos.get("jugador", "")), request.user)
+        case "minuto":
+            texto = datos.get("minuto", "").strip()
+            minuto = _numero(texto) if texto else None
+            servicio.corregir_minuto(_evento(partido, datos), minuto, request.user)
+        case "borrar":
+            servicio.borrar_evento(_evento(partido, datos), request.user)
+            messages.success(request, "Borrado")
+        case "horas":
+            servicio.corregir_horas(partido, _horas(partido, datos), request.user)
+            messages.success(request, "Horas guardadas")
+        case "quitar_wo":
+            servicio.quitar_wo(partido, request.user)
         case "deshacer":
             if servicio.deshacer(partido, request.user) is None:
                 raise NoSePuede("No hay nada para deshacer.")

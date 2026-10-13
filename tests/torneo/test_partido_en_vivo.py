@@ -80,7 +80,7 @@ def test_doble_amarilla_hasta_sub_9_sale_cinco_minutos(org: Client) -> None:
     for _ in range(2):
         hacer(org, partido, evento=f"amarilla|{partido.local_id}|{jugador.pk}")  # type: ignore[union-attr]
     html = org.get(f"/partidos/{partido.pk}/ficha/").content.decode()
-    assert "sale 5 minutos" in html
+    assert "Afuera 5 min" in html
 
 
 @pytest.mark.django_db

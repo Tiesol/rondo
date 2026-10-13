@@ -1165,6 +1165,30 @@
   .evento.gol_en_contra {
     background: var(--color-tenue);
   }
+  .evento.lesion {
+    background: #6b4fa0;
+  }
+  .evento.amonestacion {
+    background: #f2cf3a;
+    opacity: 0.5;
+  }
+  .evento-fila .minuto {
+    flex: none;
+    width: 34px;
+    font-weight: 700;
+    text-align: right;
+  }
+  .editar-evento > summary {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    list-style: none;
+    cursor: pointer;
+  }
+  .editar-evento[open] {
+    flex-basis: 100%;
+  }
 
   /* ---------- Imágenes subidas (T8.1) ---------- */
   .escudo.con-imagen,

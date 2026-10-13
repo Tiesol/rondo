@@ -1,14 +1,14 @@
 """El resultado de un partido, a partir de lo que carga la mesa (T8.5, B3).
 
 El marcador no se escribe: sale de los goles. Un gol en contra (P72) se anota a nombre del
-equipo que lo hizo, sin jugador, y suma para el rival. Un W.O. da el marcador de la regla
+jugador que lo hizo, con su equipo, y suma para el rival. Un W.O. da el marcador de la regla
 (P23) al que se presentó. En la eliminación, un empate se define por penales.
 """
 
 from dataclasses import dataclass
 from typing import Literal
 
-TipoDeEvento = Literal["gol", "gol_en_contra", "amarilla", "roja", "amonestacion"]
+TipoDeEvento = Literal["gol", "gol_en_contra", "amarilla", "roja", "amonestacion", "lesion"]
 Lado = Literal["local", "visitante"]
 
 
