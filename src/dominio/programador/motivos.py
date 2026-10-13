@@ -137,7 +137,8 @@ class _Calendario:
 
 
 def _inicios(problema: Problema, partido: PartidoAProgramar) -> list[datetime]:
-    largo = timedelta(minutes=partido.minutos_partido)
+    ultimo_inicio = problema.reglas.fin_de_franja == "ultimo_inicio"  # P48
+    largo = timedelta(minutes=0 if ultimo_inicio else partido.minutos_partido)
     inicios = []
     for desde, hasta in problema.franjas:
         momento = desde

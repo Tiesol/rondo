@@ -297,3 +297,29 @@ def test_dos_equipos_que_comparten_profe_y_juegan_entre_si_no_chocan() -> None:
     """Revisión de la fase 3: es un solo partido, no dos que se pisan."""
     pares = (ParDeEquipos("A", "B", "profe"),)
     assert tipos([partido(1, "09:00", equipos=("A", "B"))], escenario(pares=pares)) == []
+
+
+def test_t10_2_el_verificador_acepta_empezar_a_la_hora_final_con_ultimo_inicio() -> None:
+    from datetime import datetime
+
+    from dominio.config import Reglas
+    from dominio.verificador import Escenario, PartidoAgendado, verificar
+
+    sabado = datetime(2026, 10, 24)
+    escenario = Escenario(
+        fisicas={"C1": frozenset({"C1"})},
+        compatibilidad={"Sub 9": frozenset({"C1"})},
+        franjas=((sabado.replace(hour=8), sabado.replace(hour=16)),),
+        pares=(),
+        bloqueos=(),
+        reglas=Reglas(fin_de_franja="ultimo_inicio"),
+    )
+
+    def a_las(hora: int, minuto: int) -> PartidoAgendado:
+        inicio = sabado.replace(hour=hora, minute=minuto)
+        return PartidoAgendado("p", "Sub 9", ("A", "B"), "C1", inicio, 45, 50)
+
+    assert verificar([a_las(16, 0)], escenario) == []
+    assert [c.tipo for c in verificar([a_las(16, 5)], escenario)] == ["franja"]
+    hasta_el_final = Escenario(**{**escenario.__dict__, "reglas": Reglas()})
+    assert [c.tipo for c in verificar([a_las(16, 0)], hasta_el_final)] == ["franja"]

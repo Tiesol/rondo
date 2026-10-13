@@ -302,3 +302,19 @@ def test_pro_12_las_fechas_se_reparten_entre_fines_de_semana() -> None:
     assert {semana["g1"], semana["g2"]} == {0}
     assert {semana["g3"], semana["g4"]} == {1}
     assert {semana["g5"], semana["g6"]} == {2}
+
+
+def test_t10_2_con_ultimo_inicio_el_partido_puede_empezar_a_la_hora_final() -> None:
+    # Respuesta a 1.1: "la hora final significa el inicio del último partido".
+    # Dos partidos sin equipos en común, en una sola cancha.
+    partidos = todos_contra_todos(list("AB"), "Sub 9", ("C1",)) + todos_contra_todos(
+        list("CD"), "Sub 9", ("C1",)
+    )
+    franjas = [franja(0, 8, 9)]
+    hasta_el_final = programar(problema(partidos, franjas), segundos=5)
+    assert len(hasta_el_final.ubicados) == 1  # 8:00; el siguiente no termina antes de las 9
+    ultimo_inicio = con(problema(partidos, franjas), reglas=Reglas(fin_de_franja="ultimo_inicio"))
+    resultado = programar(ultimo_inicio, segundos=5)
+    assert len(resultado.ubicados) == 2  # 8:00 y 8:50
+    assert max(i for _, i in resultado.ubicados.values()) <= SABADO.replace(hour=9)
+    assert choques(ultimo_inicio, resultado) == []
