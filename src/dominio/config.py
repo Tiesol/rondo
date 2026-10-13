@@ -349,6 +349,46 @@ class Reglas(Estricto):
             "diferencia_de_gol": "Diferencia de gol (Excel de 2023)",
         },
     )
+    doble_amarilla_desde: int = _regla(
+        10,
+        "Doble amarilla es roja desde Sub",
+        "Desde esta categoría, dos amarillas en un partido son roja y multa; si no se paga, "
+        "el jugador no juega el partido siguiente. Más abajo, sale unos minutos.",
+        grupo="Resultados",
+        pregunta="P74",
+        regla="SUS-01",
+        ge=1,
+    )
+    multa_doble_amarilla: int = _regla(
+        30,
+        "Multa por doble amarilla",
+        "En bolivianos. La mesa marca en la ficha del partido si se pagó.",
+        grupo="Resultados",
+        pregunta="P74",
+        regla="SUS-01",
+        unidad="Bs",
+        ge=0,
+    )
+    partidos_por_roja_directa: int = _regla(
+        0,
+        "Partidos de suspensión por roja directa",
+        "0: no se suspende solo; la organización lo decide en cada caso con una suspensión a mano.",
+        grupo="Resultados",
+        pregunta="P29",
+        regla="SUS-02",
+        ge=0,
+        le=5,
+    )
+    amarillas_acumuladas: int = _regla(
+        0,
+        "Amarillas acumuladas que suspenden",
+        "Cada cuántas amarillas en distintos partidos el jugador no juega el siguiente. 0: nunca.",
+        grupo="Resultados",
+        pregunta="P29",
+        regla="SUS-02",
+        ge=0,
+        le=10,
+    )
     marcador_wo: tuple[int, int] = _regla(
         (3, 0),
         "Marcador del W.O.",

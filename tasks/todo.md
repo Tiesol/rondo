@@ -1197,9 +1197,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Doble amarilla en Sub 12 sin pago: suspendido en el próximo partido; con pago, no.
-- [ ] Doble amarilla en Sub 8 no suspende.
-- [ ] Una suspensión a mano aparece en la ficha del partido siguiente.
+- [x] Doble amarilla en Sub 12 sin pago: suspendido en el próximo partido; con pago, no.
+- [x] Doble amarilla en Sub 8 no suspende.
+- [x] Una suspensión a mano aparece en la ficha del partido siguiente.
 
 **Verificación:** verde.
 **Depende de:** T8.5.

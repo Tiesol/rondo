@@ -328,6 +328,10 @@
       1
     ],
     "criterio_de_desempate": "reglamento_2025",
+    "doble_amarilla_desde": 10,
+    "multa_doble_amarilla": 30,
+    "partidos_por_roja_directa": 0,
+    "amarillas_acumuladas": 0,
     "marcador_wo": [
       3,
       0
