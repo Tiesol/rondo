@@ -17,7 +17,8 @@
   }
 
   async function aArchivo(elemento) {
-    const blob = await window.modernScreenshot.domToBlob(elemento, { scale: 2, type: "image/png" });
+    // 1920 × 1080, como pide el diseño 2026.
+    const blob = await window.modernScreenshot.domToBlob(elemento, { scale: 1, type: "image/png" });
     return new File([blob], elemento.dataset.nombre || "calendario.png", { type: "image/png" });
   }
 
@@ -54,13 +55,27 @@
       .finally(() => { boton.disabled = false; });
   });
 
-  // Las piezas miden 1220 × 690: en pantalla se achican para entrar en el ancho.
+  // Las piezas miden 1920 × 1080: en pantalla se achican para entrar en el ancho.
+  const ANCHO = 1920;
+  const ALTO = 1080;
   function ajustar(marco) {
     const escala = marco.firstElementChild;
-    const k = Math.min(1, marco.clientWidth / 1220);
+    const k = Math.min(1, marco.clientWidth / ANCHO);
     escala.style.transform = `scale(${k})`;
-    marco.style.height = `${690 * k}px`;
+    marco.style.height = `${ALTO * k}px`;
   }
   const observador = new ResizeObserver((entradas) => entradas.forEach((e) => ajustar(e.target)));
   document.querySelectorAll(".marco-png").forEach((marco) => observador.observe(marco));
+
+  // Nombres largos (diseño 2026): se achica la letra hasta data-min; si igual no entra, el CSS
+  // lo corta con "…". Se hace con la fuente ya cargada, antes de exportar.
+  function achicar(texto) {
+    const minimo = parseFloat(texto.dataset.min || "0");
+    let tamano = parseFloat(getComputedStyle(texto).fontSize);
+    while (texto.scrollWidth > texto.clientWidth && tamano > minimo) {
+      tamano -= 1;
+      texto.style.fontSize = `${tamano}px`;
+    }
+  }
+  document.fonts.ready.then(() => document.querySelectorAll(".pieza .ajustar").forEach(achicar));
 })();

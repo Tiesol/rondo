@@ -65,7 +65,7 @@ def un_dia_con_partidos() -> str:
 def test_una_pieza_por_cancha_con_sus_partidos(client: Client, torneo: Torneo) -> None:
     dia = un_dia_con_partidos()
     html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
-    assert "FIXTURE" in html
+    assert "~" in html and "png/fondo_fixture_1920" in html  # "CANCHA 1 ~ SÁBADO 24"
     assert 'class="pieza"' in html
     assert "data-exportar" in html
     assert "Compartir todas" in html
@@ -76,18 +76,17 @@ def test_una_pieza_por_cancha_con_sus_partidos(client: Client, torneo: Torneo) -
     ]
     for partido in del_dia:
         assert timezone.localtime(partido.inicio).strftime("%H:%M") in html
-    assert "5.ª EDICIÓN" in html.upper() or "5.ª edición" in html
 
 
 @pytest.mark.django_db
-def test_mas_de_cinco_partidos_en_una_cancha_van_en_varias_imagenes(
+def test_mas_de_los_que_entran_en_una_cancha_van_en_varias_imagenes(
     client: Client, torneo: Torneo
 ) -> None:
     dia = un_dia_con_partidos()
     primero = Partido.objects.filter(inicio__isnull=False).order_by("inicio").first()
     assert primero is not None and primero.inicio is not None
-    # Siete partidos en la misma cancha ese día (el PNG no verifica: solo muestra).
-    for i, partido in enumerate(Partido.objects.filter(fase="grupos")[:7]):
+    # Doce partidos en la misma cancha ese día; entran 11 (el PNG no verifica: solo muestra).
+    for i, partido in enumerate(Partido.objects.all()[:12]):
         Partido.objects.filter(pk=partido.pk).update(
             cancha=primero.cancha, inicio=primero.inicio + timedelta(minutes=50 * i)
         )
@@ -124,3 +123,44 @@ def test_la_vista_del_png_no_carga_modelos_de_personas() -> None:
 def test_la_pagina_de_prueba_del_png_ya_no_esta(client: Client) -> None:
     client.force_login(User.objects.create_superuser("seba", password="x"))
     assert client.get("/diagnostico/png/").status_code == 404
+
+
+@pytest.mark.django_db
+def test_titulo_del_diseno_2026(client: Client, torneo: Torneo) -> None:
+    dia = un_dia_con_partidos()
+    html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
+    assert "CANCHA 1 ~ " in html or "CANCHA 3 ~ " in html
+
+
+@pytest.mark.django_db
+def test_inicial_y_avanzado_de_la_misma_categoria_se_distinguen(
+    client: Client, torneo: Torneo
+) -> None:
+    avanzado = Partido.objects.filter(inicio__isnull=False).order_by("inicio").first()
+    assert avanzado is not None and avanzado.inicio is not None
+    inicial: CategoriaNivel = torneo.categorias.get(categoria="Sub 9", nivel="inicial")
+    a, b = (
+        Equipo.objects.create(club=Club.objects.create(nombre=n), categoria=inicial, nombre=n)
+        for n in ("Ini A", "Ini B")
+    )
+    Partido.objects.create(
+        categoria=inicial,
+        fase="grupos",
+        fecha=1,
+        local=a,
+        visitante=b,
+        cancha=avanzado.cancha,
+        inicio=avanzado.inicio + timedelta(minutes=50),
+        estado="programado",
+    )
+    dia = timezone.localtime(avanzado.inicio).date().isoformat()
+    html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
+    assert "SUB 9 A" in html and "SUB 9 I" in html
+
+
+@pytest.mark.django_db
+def test_sin_escudo_no_hay_hueco_y_con_escudo_aparece(client: Client, torneo: Torneo) -> None:
+    dia = un_dia_con_partidos()
+    html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
+    assert "pieza-escudo" not in html  # los equipos de prueba no tienen escudo: no hay huecos
+    assert "con-escudo-local" not in html

@@ -1,35 +1,20 @@
-{# Una imagen de 1220 × 690: el diseño de 2025. Solo equipos, canchas y horarios. #}
+{% load static %}
+{# Una imagen de 1920 × 1080 con el diseño 2026 (T8.12). Solo equipos, canchas y horarios. #}
 <div class="pieza" id="{{ pieza.id }}" data-nombre="{{ pieza.archivo }}">
-  <div class="pieza-fantasma" aria-hidden="true">PROGRAMACIÓN</div>
-  <div class="pieza-titular">FIXTURE</div>
+  <img class="pieza-fondo" src="{% static 'png/fondo_fixture_1920.webp' %}" alt="" width="1920" height="1080">
+  <div class="pieza-titulo ajustar" data-min="56">{{ pieza.titulo }}</div>
   {% if borrador %}<div class="pieza-borrador" aria-label="Borrador">BORRADOR</div>{% endif %}
-  <div class="pieza-dia">{{ titulo_dia }}</div>
-  <div class="pieza-filas">
-    {% for fila in pieza.filas %}
-    <div class="pieza-fila">
-      <span class="cat">{{ fila.categoria }}{% if fila.mitad %} · {{ fila.mitad }}{% endif %}</span>
-      {% if fila.local.escudo %}{% include "parciales/escudo.html" with escudo=fila.local.escudo %}{% else %}<span></span>{% endif %}
-      <span class="eq">{{ fila.local.nombre }}</span>
-      <span class="eq">{{ fila.visitante.nombre }}</span>
-      {% if fila.visitante.escudo %}{% include "parciales/escudo.html" with escudo=fila.visitante.escudo %}{% else %}<span></span>{% endif %}
-      <span class="hora">{{ fila.hora }}</span>
-    </div>
-    {% endfor %}
-    {% for _ in pieza.vacias %}<div class="pieza-fila"></div>{% endfor %}
+  {% for fila in pieza.filas %}
+  <div class="pieza-fila {{ fila.color }}{% if fila.escudo_local %} con-escudo-local{% endif %}{% if fila.escudo_visitante %} con-escudo-visitante{% endif %}" style="top: {{ fila.y|stringformat:'s' }}px">
+    {% if fila.escudo_local %}<img class="pieza-escudo izquierda" src="{{ fila.escudo_local }}" alt="">{% endif %}
+    <span class="pieza-equipo local ajustar" data-min="23" style="font-size: {{ fila.tam_local|stringformat:'s' }}px">{{ fila.local }}</span>
+    <span class="pieza-categoria ajustar" data-min="16" style="font-size: {{ fila.tam_categoria|stringformat:'s' }}px">{{ fila.categoria }}</span>
+    <span class="pieza-hora">{{ fila.hora }}</span>
+    <span class="pieza-equipo visitante ajustar" data-min="23" style="font-size: {{ fila.tam_visitante|stringformat:'s' }}px">{{ fila.visitante }}</span>
+    {% if fila.escudo_visitante %}<img class="pieza-escudo derecha" src="{{ fila.escudo_visitante }}" alt="">{% endif %}
   </div>
-  <div class="pieza-panel" aria-hidden="true"></div>
-  <div class="pieza-cancha"><span>{{ pieza.cancha }}{% if pieza.pagina %} <small>{{ pieza.pagina }}</small>{% endif %}</span></div>
-  <svg class="pieza-copa" viewBox="0 0 180 260" aria-hidden="true">
-    <ellipse cx="90" cy="232" rx="78" ry="16" fill="currentColor" opacity=".35"/>
-    <path d="M60 168h60l10 52H50z" fill="currentColor"/>
-    <rect x="44" y="214" width="92" height="18" rx="4" fill="currentColor"/>
-    <path d="M82 120h16l-4 52H86z" fill="currentColor"/>
-    <circle cx="90" cy="70" r="62" fill="currentColor"/>
-    <text x="90" y="82" text-anchor="middle" class="pieza-copa-sigla">{{ organizador.sigla }}</text>
-  </svg>
-  <div class="pieza-marca">{{ marca }}</div>
-  <div class="pieza-edicion"><span>{{ edicion }}</span></div>
+  {% endfor %}
   <div class="pieza-patrocinadores" aria-label="Patrocinadores">
-    {% for n in "123456" %}<span>Patrocinador</span>{% endfor %}
+    {% for p in patrocinadores %}<img src="{{ p.url }}" alt="{{ p.nombre }}">{% endfor %}
   </div>
 </div>
