@@ -127,7 +127,8 @@ def test_si_el_documento_ya_existe_valen_los_datos_guardados(torneo: Torneo) -> 
 def test_revisar_no_guarda(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
     hallazgos = revisar_jugador(river9, nino(), dorsal=None, ahora=AHORA, es_organizacion=True)
-    assert [(h.nivel, h.regla) for h in hallazgos] == [("aviso", "INS-03"), ("aviso", "INS-09")]
+    # Sin dorsal no hay aviso: en 2026 el dorsal no es obligatorio (T10.11).
+    assert [(h.nivel, h.regla) for h in hallazgos] == [("aviso", "INS-03")]
     assert Persona.objects.count() == 0
 
 

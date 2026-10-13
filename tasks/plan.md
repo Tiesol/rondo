@@ -288,7 +288,7 @@ T8.5 → T8.6         │
 - [x] T10.8 Formato para más de 10 equipos (P27, P54)
 - [x] T10.9 El partido en vivo, a mano
 - [x] T10.10 Reprogramar con W.O. y contador
-- [ ] T10.11 Dorsal flexible
+- [x] T10.11 Dorsal flexible
 
 **Checkpoint de la fase 10:**
 

@@ -181,6 +181,10 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
         case "penales":
             local, visitante = _numero(datos.get("local", "")), _numero(datos.get("visitante", ""))
             servicio.penales(partido, local, visitante)
+        case "dorsal":
+            jugador = _jugador_del_partido(partido, datos.get("jugador", ""))
+            texto = datos.get("dorsal", "").strip()
+            servicio.cambiar_dorsal(partido, jugador, _numero(texto) if texto else None)
         case "mejor":
             servicio.mejor_jugador(partido, _jugador(datos.get("jugador", "")))
         case "multa":

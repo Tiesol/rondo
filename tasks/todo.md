@@ -1411,7 +1411,7 @@ T8.5 → T8.6         │
 **Descripción:** el dorsal se puede cambiar de un partido a otro; no hace falta antes del primer partido. Regla `dorsal_obligatorio` con la opción "nunca" y el dorsal se edita desde la ficha del partido.
 
 **Aceptación:**
-- [ ] Se cambia el dorsal de un jugador desde la ficha del partido, sin aviso de dorsal pendiente.
+- [x] Se cambia el dorsal de un jugador desde la ficha del partido, sin aviso de dorsal pendiente.
 
 **Archivos:** `src/dominio/config.py`, ficha del partido, tests. **Tamaño:** S.
 
@@ -1423,8 +1423,8 @@ T10.9, T10.10, T10.11 (durante el torneo)
 
 **Checkpoint de la fase 10:**
 
-- [ ] Verde, más `pytest -m lento`.
-- [ ] El calendario 2026 con F11 medido (H8).
+- [x] Verde, más `pytest -m lento`.
+- [x] El calendario 2026 con F11 medido (H8).
 - [ ] Revisión con `code-review-and-quality` y PROGRESO.md al día.
 
 **Para preguntarle a Sebastian (no frenan):** P44 (inscribir un equipo durante las primeras fechas choca con FIX-09, que no deja rehacer un fixture con partidos jugados); P75 (la fila del archivo ahora dice "las dos: foto de cada jugador y galería", y el pedido decía sin galería); "no existen partidos fijados a mano" (hoy la organización puede fijar uno al moverlo: ¿se saca?).

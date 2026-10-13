@@ -287,3 +287,8 @@ def test_ins_11_despues_del_cierre_solo_la_organizacion() -> None:
     tarde = validar_cierre(datetime(2026, 10, 21, 12), con_cierre, es_organizacion=False)
     assert [h.nivel for h in tarde] == ["error"]
     assert validar_cierre(datetime(2026, 10, 21, 12), con_cierre, es_organizacion=True) == []
+
+
+def test_t10_11_dorsal_nunca_obligatorio_sin_aviso() -> None:
+    hallazgos = validar_alta_de_jugador(alta(dorsal=None), reglas(dorsal_obligatorio="nunca"))
+    assert de_la_regla(hallazgos, "INS-09") == []

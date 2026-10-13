@@ -125,6 +125,19 @@
 </details>
 {% endif %}
 
+<details class="desplegable seccion">
+  <summary>Cambiar un dorsal</summary>
+  <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-2">
+    {% csrf_token %}
+    <input type="hidden" name="accion" value="dorsal">
+    <div class="campo"><label for="dorsal-jugador">Jugador</label>
+      <select id="dorsal-jugador" name="jugador">{% for lado in equipos %}<optgroup label="{{ lado.equipo.nombre }}">{% for jugador in lado.plantel %}<option value="{{ jugador.pk }}">{{ jugador.dorsal|default_if_none:"s/n" }} · {{ jugador.persona }}</option>{% endfor %}</optgroup>{% endfor %}</select>
+    </div>
+    <div class="campo"><label for="dorsal-nuevo">Dorsal en este partido</label><input id="dorsal-nuevo" name="dorsal" type="number" min="1" max="99" inputmode="numeric" placeholder="Vacío: sin dorsal"></div>
+    <button type="submit" class="btn bloque">Guardar el dorsal</button>
+  </form>
+</details>
+
 {% if partido.estado != "jugado" %}
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
   {% csrf_token %}
