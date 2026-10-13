@@ -78,3 +78,9 @@ def test_un_cierre_guardado_solo_con_fecha_cierra_al_final_del_dia() -> None:
     reglas = Reglas.model_validate({"cierre_inscripcion": "2026-10-20"})
     assert validar_cierre(datetime(2026, 10, 20, 23, 0), reglas, es_organizacion=False) == []
     assert validar_cierre(datetime(2026, 10, 21, 0, 1), reglas, es_organizacion=False) != []
+
+
+def test_respuestas_del_organizador_en_el_calendario(config: ConfigTorneo) -> None:
+    # P35: todas las canchas están en el mismo predio; P19: el orden de las fechas es flexible.
+    assert config.reglas.profe_minutos_cambio_de_cancha == 0
+    assert config.reglas.orden_de_fechas == "blanda"

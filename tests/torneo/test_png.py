@@ -129,7 +129,7 @@ def test_la_pagina_de_prueba_del_png_ya_no_esta(client: Client) -> None:
 def test_titulo_del_diseno_2026(client: Client, torneo: Torneo) -> None:
     dia = un_dia_con_partidos()
     html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
-    assert "CANCHA 1 ~ " in html or "CANCHA 3 ~ " in html
+    assert re.search(r"CANCHA \d ~ (VIERNES|SÁBADO|DOMINGO) \d+", html)
 
 
 @pytest.mark.django_db
