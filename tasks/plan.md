@@ -278,7 +278,7 @@ T8.5 → T8.6         │
 
 > Planificada el 2026-10-13 con las respuestas en `docs/PREGUNTAS_JMP_CUP_2026.md`. Primero lo que pesa en el calendario del 21/10.
 
-- [ ] T10.1 Reglas del calendario que cambian solo de valor (P35, P19)
+- [x] T10.1 Reglas del calendario que cambian solo de valor (P35, P19)
 - [ ] T10.2 La hora final de la franja es el último inicio (P48)
 - [ ] T10.3 Días y horarios por categoría (P56)
 - [ ] T10.4 Sub 10 y Sub 11 Avanzado en F11 (P60) y capacidad

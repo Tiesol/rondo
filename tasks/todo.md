@@ -1313,8 +1313,8 @@ T8.5 → T8.6         │
 **Descripción:** P35: sin margen para cambiar de cancha (todas están en el mismo predio). Orden de las fechas (P19): blando; si un partido de la fecha 2 se reprograma después de la 3, no frena a la 3. P57 ya es "solo el entrenador". En `jmp_cup_2026.json` y en PROGRESO, con cada respuesta.
 
 **Aceptación:**
-- [ ] La plantilla 2026 trae `profe_minutos_cambio_de_cancha` 0 y `orden_de_fechas` "blanda".
-- [ ] La demo programada con esos valores sigue sin choques (test lento).
+- [x] La plantilla 2026 trae `profe_minutos_cambio_de_cancha` 0 y `orden_de_fechas` "blanda".
+- [x] La demo programada con esos valores sigue sin choques (test lento).
 
 **Archivos:** `datos/config/jmp_cup_2026.json`, tests de la plantilla, PROGRESO.md. **Tamaño:** XS.
 

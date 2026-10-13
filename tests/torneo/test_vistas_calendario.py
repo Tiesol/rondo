@@ -1,5 +1,6 @@
 """T4.6: programar desde la pantalla y ver el calendario por día y cancha."""
 
+import re
 from typing import Any
 
 import pytest
@@ -80,7 +81,7 @@ def test_la_mesa_no_programa_pero_ve_el_calendario(client: Client, torneo: Torne
     assert mesa.post(f"/torneos/{torneo.pk}/programar/").status_code == 403
     respuesta = mesa.get("/calendario/", follow=True)
     assert respuesta.status_code == 200
-    assert "Cancha 1" in respuesta.content.decode()
+    assert re.search(r"Cancha \d", respuesta.content.decode())  # la que haya elegido el solver
 
 
 @pytest.mark.django_db
