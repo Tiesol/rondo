@@ -305,7 +305,7 @@ T8.5 → T8.6         │
 - [x] T11.4 Reglas del calendario (P33, P20) y faltante de F11
 - [x] T11.5 Altas tardías y plantel máximo con aviso
 - [x] T11.6 Pantalla de clubes
-- [ ] T11.1 Agregar una categoría o un nivel a un torneo creado
+- [x] T11.1 Agregar una categoría o un nivel a un torneo creado
 - [ ] T11.7 Historial del partido
 - [ ] T11.8 Planilla: convocados y dorsal del partido
 - [ ] T11.9 Alta rápida en la cancha

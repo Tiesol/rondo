@@ -33,6 +33,7 @@ from torneo.views import (
 )
 from torneo.views import publico as vistas_publicas
 from torneo.views.publicar import publicar
+from torneo.views.torneo import nueva_categoria
 from torneo.views.torneo import sorteo as sorteo_de_tabla
 
 urlpatterns = [
@@ -58,6 +59,7 @@ urlpatterns = [
     path("clubes/<int:pk>/unir/", clubes.unir, name="unir-club"),
     path("clubes/<int:pk>/escudo/", imagenes.escudo, name="escudo-club"),
     path("torneos/<int:pk>/patrocinadores/", patrocinadores.patrocinadores, name="patrocinadores"),
+    path("torneos/<int:pk>/categorias/nueva/", nueva_categoria, name="nueva-categoria"),
     path("torneos/<int:pk>/canchas/", canchas.canchas, name="canchas"),
     path("torneos/<int:pk>/canchas/agregar/", canchas.agregar, name="agregar-cancha"),
     path(

@@ -7,6 +7,7 @@
       {% for c in categorias %}
       <a href="{{ c.url }}"{% if c.actual %} aria-current="page"{% endif %} hx-get="{{ c.url }}" hx-target="#categoria" hx-swap="outerHTML" hx-push-url="true">{{ c.texto }}</a>
       {% endfor %}
+      {% if perms.torneo.configurar_torneo %}<a href="{% url 'nueva-categoria' categoria.torneo_id %}" class="agregar">+ Categoría</a>{% endif %}
     </nav>
   </div>
   {% include "parciales/pestanas.html" with etiqueta="Secciones de la categoría" htmx_destino="categoria" %}
