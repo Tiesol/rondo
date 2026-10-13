@@ -217,9 +217,19 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 | PRO-14 | Lo que no entra se informa con su motivo, y la capacidad se muestra antes de programar | — | 5 | — | — |
 | VER-01 | Un choque es un par de partidos con la lista de sus motivos, clasificado por tipo | Supuesto, H1 | — | — | — |
 
+### Resultados y sanciones (pedido 2026, fase 8)
+
+| ID | Regla | Origen | Clave | Por defecto |
+|---|---|---|---|---|
+| RES-01 | Puntos por ganar y por empatar; perder da 0 | 4.6 | R `puntos_por_partido` | 3 y 1 |
+| RES-02 | Desempate entre los empatados, solo con sus partidos: puntos, goles a favor, menos goles en contra y fair play; si no jugaron todos entre sí, con todos los del grupo (P34); después, sorteo registrado (P28). Mejor 3.º y mejor perdedor: puntos por partido y diferencia de gol (P26) | 4.6, P26, P28, P34 | R `criterio_de_desempate` | Reglamento 2025 |
+| RES-03 | El marcador sale de los eventos; el gol en contra va sin jugador y suma para el rival; el W.O. da el marcador de la regla; en la eliminación, un empate se define por penales | P23, P72 | R `marcador_wo` | 3 a 0 |
+| SUS-01 | Doble amarilla desde la categoría de la regla: roja y multa; sin pagar, no juega el partido siguiente de su equipo | 4.7, P74 | R `doble_amarilla_desde`, `multa_doble_amarilla` | Sub 10, Bs 30 |
+| SUS-02 | Roja directa y amarillas acumuladas suspenden solo si la regla lo dice; la organización puede suspender a mano | P29 | R `partidos_por_roja_directa`, `amarillas_acumuladas` | 0 y 0 |
+
 ### Fuera de la demo
 
-Puntos y desempate (4.6, P28, P34), W.O. (P23), tarjetas y sanciones (4.7, P29), premios (4.8, P30) y retención de datos (P49). Se van a especificar cuando lleguen.
+Premios (4.8, P30). Los ajustes de puntos del comité (5.2) quedan para después.
 
 ## Preguntas abiertas
 

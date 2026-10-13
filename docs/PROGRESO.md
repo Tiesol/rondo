@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 7, pedido 2026 (`docs/PEDIDO_CLAUDE_CODE.md`). La organización aprobó la app para el torneo 2026 y Rondo reemplaza a Copa Fácil. Las fases 1b a 5 y la parte A de la fase 6 están terminadas y revisadas.
-- **Siguiente paso:** la fase 7 (bloque A) está terminada y revisada (2026-10-13). Sigue la fase 8 (bloque B, reemplazar a Copa Fácil), en el orden del pedido: T8.1 → T8.2 → T8.3 → T8.4 → T8.5 → … Después, la fase 9.
+- **Siguiente paso:** las fases 7 y 8 están terminadas y revisadas (2026-10-13). Sigue la fase 9 (T9.1 y T9.2) y después la fase 10, con las respuestas del organizador en `docs/PREGUNTAS_JMP_CUP_2026.md` (P60 F11, P56, P35, P13, P64 y las demás).
 - **Para probar (Sebastian):** pegar listas en la ficha del equipo (Plantel y Cuerpo técnico), fecha de nacimiento con solo el año, Copa de Bronce en Reglas, el aviso de fixture desactualizado, "Borrador" en el calendario y el PNG, y la programación con la plantilla 2026. Producción: `docs/DESPLIEGUE.md`, sección "Producción".
 - **Fusiones congeladas:** nada se fusiona a `main` (tampoco `docs/plan-pedido-2026`) hasta que Sebastian avise que terminó la prueba de la organización. Las ramas de tarea salen una de otra, encadenadas desde `docs/plan-pedido-2026`, y se fusionan en orden cuando avise.
 - **Preguntas:** desde el 2026-10-12, la fuente de las P (P1 a P77, con su valor por defecto) es `docs/PREGUNTAS_JMP_CUP_2026.md`.
@@ -472,6 +472,31 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 - **FYI:** dos imágenes del diseño (`copa_marca_de_agua.png` y `logo_jmp_cup.png`) entraron en el commit de T7.5 por un `git add src`. No tienen datos personales; se acomodan en T8.12. Desde ahora se agregan rutas concretas, nunca carpetas enteras.
 - **Consider (anotado, sin cambio):** P47 no suma los partidos de grupos del día a los de las llaves encadenadas. Con la eliminación en su propio fin de semana no pasa; si P33 adelanta semis, hay que revisarlo.
 - **Nit:** los nombres de los días están en `dominio/config.py` (opciones de la regla) y en `servicios/asistente.py`. Se dejan: son dos capas distintas.
+
+## Revisión de la fase 8 (2026-10-13, `code-review-and-quality` y `security-and-hardening`)
+
+**Veredicto: aprobada, con una corrección de seguridad.** Verde con los lentos (858 rápidos y los 2 lentos).
+
+**Modelo de amenazas:** fronteras en la subida de imágenes, la vista que las sirve, los POST de la ficha del partido, patrocinadores y sorteo, y la página pública con caché. Activo principal: fotos y nombres de menores.
+
+| Hallazgo | Corrección |
+|---|---|
+| **Un aviso de la sesión de alguien de la organización quedaba en la caché pública y se le mostraba a cualquier visitante** (los avisos de Django viajan en una cookie, que no hacía variar la caché) | Las páginas públicas no muestran avisos ni ponen el token CSRF (no tienen formularios), y la caché varía también por cookie. Test: el aviso no sale en lo público, queda para la próxima pantalla interna, y la página pública no pone cookies |
+
+**Comprobado con tests:** un SVG con script no pasa como imagen; un tipo de imagen inventado da 404; la foto sin autorización da 404 afuera; los eventos validan que el jugador sea de ese equipo; el escudo valida el club para la redirección.
+
+| Mutación | Resultado |
+|---|---|
+| La foto sin autorización se sirve igual | Detectada |
+| P34: siempre solo entre ellos | Detectada |
+| La multa pagada no evita la suspensión | Detectada |
+| Los cruces se proponen con grupos sin terminar | Detectada |
+| El gol en contra suma para el que lo hizo | Detectada |
+| La foto del plantel público sin mirar la autorización | Detectada |
+| Un jugador de otro equipo en un evento | Detectada |
+
+- **FYI:** Django no limita el tamaño de un archivo subido antes de procesarlo (se guarda en un temporal); `procesar_imagen` lee como mucho 8 MB. Solo pueden subir usuarios con sesión.
+- **Catálogo:** RES-01 a RES-03 y SUS-01 y SUS-02 en SPEC.md.
 
 ## Supuestos
 

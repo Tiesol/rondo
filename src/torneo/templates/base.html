@@ -13,7 +13,7 @@
   <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
   <script src="{% static 'js/ui.js' %}" defer></script>
 </head>
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body{% block atributos_body %} hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'{% endblock %}>
   <a class="saltar" href="#contenido">Ir al contenido</a>
   {% block cuerpo %}
   {% if user.is_authenticated %}
@@ -41,10 +41,12 @@
   </main>
   {% endif %}
   {% endblock %}
+  {% block avisos %}{# La página pública lo deja vacío: se guarda en una caché compartida. #}
   {% if messages %}
   <div class="flotantes" role="status">
     {% for mensaje in messages %}{% include "parciales/aviso.html" with texto=mensaje estado=mensaje.tags %}{% endfor %}
   </div>
   {% endif %}
+  {% endblock %}
 </body>
 </html>

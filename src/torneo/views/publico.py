@@ -41,7 +41,10 @@ CACHE_PUBLICA = 45
 
 
 def _publica(vista: Any) -> Any:
-    return login_not_required(cache_page(CACHE_PUBLICA)(vary_on_headers("HX-Request")(vista)))
+    # Varía también por cookie: lo que ve alguien con sesión nunca se sirve a otro.
+    return login_not_required(
+        cache_page(CACHE_PUBLICA)(vary_on_headers("HX-Request", "Cookie")(vista))
+    )
 
 
 def _torneo_publico(pk: int) -> Torneo:

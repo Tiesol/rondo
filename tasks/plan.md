@@ -260,10 +260,10 @@ T8.5 → T8.6         │
 
 **Checkpoint de la fase 8:**
 
-- [ ] Verde, más `pytest -m lento`.
-- [ ] Un partido cargado desde el celular aparece en la página pública, con la tabla y los goleadores al día.
-- [ ] Ninguna página pública muestra CI, fecha de nacimiento, apellido completo ni fotos sin autorización.
-- [ ] Revisión con `code-review-and-quality` y `security-and-hardening` (subida de imágenes), y tu visto bueno.
+- [x] Verde, más `pytest -m lento`.
+- [x] Un partido cargado desde el celular aparece en la página pública, con la tabla y los goleadores al día.
+- [x] Ninguna página pública muestra CI, fecha de nacimiento, apellido completo ni fotos sin autorización.
+- [x] Revisión con `code-review-and-quality` y `security-and-hardening` (subida de imágenes), (PROGRESO.md). Visto bueno dado por adelantado.
 
 #### Fase 9: bloque C, durante el torneo
 
