@@ -886,13 +886,13 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 ### T7.2 Profes: seguidos en la misma cancha, y el choque solo para el entrenador (P18, P35, P57)
 
-**Descripción:** en `personas()`, el margen de P35 se pide solo si los dos partidos son en canchas distintas: `NoOverlap` sin margen y, para cada par de partidos del profe, una separación condicionada a que las canchas difieran. Regla nueva `roles_con_choque` (P57), por defecto solo `entrenador`, con interruptores en la pantalla de reglas; el modelo, el verificador y los pares de T4.1 la usan.
+**Descripción:** en `personas()`, el margen de P35 se pide solo si los dos partidos son en canchas distintas: `NoOverlap` sin margen y, para cada par de partidos del profe, una separación condicionada a que las canchas difieran. Regla nueva `choque_de_profes` (P57): "Solo el entrenador" (por defecto) o "Todo el cuerpo técnico", en la pantalla de reglas; el modelo, el verificador y los pares de T4.1 la usan.
 
 **Aceptación:**
 
-- [ ] Un profe compartido puede tener dos partidos seguidos en la misma cancha (5 minutos entre uno y otro); en canchas distintas, con 5 minutos, se rechaza.
-- [ ] Con el valor por defecto, un asistente o un delegado compartido no genera choque; al prender su rol en las reglas, sí.
-- [ ] El verificador y el modelo dan lo mismo en esos casos.
+- [x] Un profe compartido puede tener dos partidos seguidos en la misma cancha (5 minutos entre uno y otro); en canchas distintas, con 5 minutos, se rechaza.
+- [x] Con el valor por defecto, un asistente o un delegado compartido no genera choque; al prender su rol en las reglas, sí.
+- [x] El verificador y el modelo dan lo mismo en esos casos.
 
 **Verificación:** verde.
 **Depende de:** T7.1 (mismo archivo; evita conflictos).

@@ -319,6 +319,7 @@
     "turnos_libres_mismo_dia": 1,
     "max_partidos_por_dia": 2,
     "profe_minutos_cambio_de_cancha": 10,
+    "choque_de_profes": "entrenador",
     "orden_de_fechas": "dura",
     "eliminacion_desde_fin_de_semana": 4,
     "dia_para_reprogramar": "jueves",

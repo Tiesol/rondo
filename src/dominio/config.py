@@ -274,6 +274,19 @@ class Reglas(Estricto):
         unidad="min",
         ge=0,
     )
+    choque_de_profes: Literal["entrenador", "todo_el_cuerpo_tecnico"] = _regla(
+        "entrenador",
+        "Choque de profes",
+        "Quién de un cuerpo técnico compartido no puede estar en dos partidos a la vez. La "
+        "convocatoria dice que solo el entrenador entra a la cancha a dirigir.",
+        grupo="Programación",
+        pregunta="P57",
+        regla="PRO-05",
+        opciones={
+            "entrenador": "Solo el entrenador",
+            "todo_el_cuerpo_tecnico": "Todo el cuerpo técnico",
+        },
+    )
     orden_de_fechas: Literal["dura", "blanda"] = _regla(
         "dura",
         "Orden de las fechas",
