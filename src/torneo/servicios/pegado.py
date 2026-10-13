@@ -34,7 +34,7 @@ class FilaCargada:
 
     @property
     def avisos(self) -> list[Hallazgo]:
-        return [h for h in self.hallazgos if h.nivel == "aviso"]
+        return [h for h in self.hallazgos if h.nivel in ("aviso", "confirmar")]
 
 
 def editables(fila: FilaLeida, campos: dict[str, str]) -> dict[str, str]:
@@ -56,12 +56,12 @@ def cargar_lista(
     que: Que,
     *,
     ahora: datetime,
-    es_organizacion: bool,
     guardar: bool,
     roles: Sequence[str],
 ) -> list[FilaCargada]:
     """Carga las filas sin errores, en orden. Cada fila va con el texto de sus campos, para
-    volver a mostrarla. Sin `guardar`, no queda nada en la base."""
+    volver a mostrarla. Sin `guardar`, no queda nada en la base. La vista previa ya muestra lo
+    que pide confirmación (T11.5): guardar la lista es confirmarlo."""
     cargadas = []
     with transaction.atomic():
         for fila, campos in filas:
@@ -73,16 +73,14 @@ def cargar_lista(
             datos = DatosPersona(fila.documento, fila.nombres, fila.apellidos, fila.nacimiento)
             if que == "jugadores":
                 resultado = agregar_jugador(
-                    equipo, datos, fila.dorsal, ahora=ahora, es_organizacion=es_organizacion
+                    equipo, datos, fila.dorsal, ahora=ahora, confirmado=True
                 )
             elif fila.rol is None:
                 faltan = ", ".join(roles)
                 cargada.hallazgos = [Hallazgo("error", "INS-08", f"Falta el rol: {faltan}.")]
                 continue
             else:
-                resultado = agregar_profe(
-                    equipo, datos, fila.rol, ahora=ahora, es_organizacion=es_organizacion
-                )
+                resultado = agregar_profe(equipo, datos, fila.rol, ahora=ahora, confirmado=True)
             # "Faltan N para el mínimo" en cada fila no ayuda: la ficha muestra cuántos faltan.
             cargada.hallazgos = [
                 h for h in resultado.hallazgos if (h.nivel, h.regla) != ("aviso", "INS-03")

@@ -1,7 +1,8 @@
 """Servicio de inscripción (T2.4): agrega jugadores y profes a un equipo.
 
 Arma la entrada del dominio con lo que hay en la base (dominio.inscripcion), y guarda solo si
-no hay errores. Los avisos se devuelven para mostrarlos. Cada alta va en una transacción que
+no hay errores, y si lo que pide confirmación (T11.5) está confirmado. Los avisos se devuelven
+para mostrarlos. Cada alta va en una transacción que
 bloquea al equipo, así dos altas a la vez no pasan del máximo.
 """
 
@@ -50,7 +51,18 @@ class Resultado:
 
     @property
     def avisos(self) -> list[Hallazgo]:
-        return [h for h in self.hallazgos if h.nivel == "aviso"]
+        return [h for h in self.hallazgos if h.nivel in ("aviso", "confirmar")]
+
+    @property
+    def por_confirmar(self) -> bool:
+        """No se guardó solo porque falta confirmar (T11.5)."""
+        return not self.guardado and not self.errores and bool(self.hallazgos)
+
+
+def _frena(hallazgos: list[Hallazgo], confirmado: bool) -> bool:
+    return any(h.nivel == "error" for h in hallazgos) or (
+        not confirmado and any(h.nivel == "confirmar" for h in hallazgos)
+    )
 
 
 def equipo_ref(equipo: Equipo) -> EquipoRef:
@@ -75,10 +87,8 @@ class _Preparado:
     hallazgos: tuple[Hallazgo, ...]
 
 
-def _preparar(
-    datos: DatosPersona, equipo: Equipo, ahora: datetime, es_organizacion: bool
-) -> _Preparado:
-    hallazgos = list(validar_cierre(ahora, _reglas(equipo), es_organizacion=es_organizacion))
+def _preparar(datos: DatosPersona, equipo: Equipo, ahora: datetime) -> _Preparado:
+    hallazgos = list(validar_cierre(ahora, _reglas(equipo)))
     try:
         documento = normalizar_documento(datos.documento)
     except DocumentoInvalido as error:
@@ -158,17 +168,16 @@ def revisar_jugador(
     dorsal: int | None,
     *,
     ahora: datetime,
-    es_organizacion: bool,
 ) -> list[Hallazgo]:
     """Los hallazgos sin guardar nada: para los avisos en vivo del formulario."""
-    preparado = _preparar(datos, equipo, ahora, es_organizacion)
+    preparado = _preparar(datos, equipo, ahora)
     return _hallazgos_de_jugador(equipo, datos, dorsal, preparado)
 
 
 def revisar_profe(
-    equipo: Equipo, datos: DatosPersona, rol: str, *, ahora: datetime, es_organizacion: bool
+    equipo: Equipo, datos: DatosPersona, rol: str, *, ahora: datetime
 ) -> list[Hallazgo]:
-    return _hallazgos_de_profe(equipo, rol, _preparar(datos, equipo, ahora, es_organizacion))
+    return _hallazgos_de_profe(equipo, rol, _preparar(datos, equipo, ahora))
 
 
 def _persona(datos: DatosPersona, preparado: _Preparado) -> Persona:
@@ -197,7 +206,7 @@ def agregar_jugador(
     dorsal: int | None,
     *,
     ahora: datetime,
-    es_organizacion: bool,
+    confirmado: bool = False,
 ) -> Resultado:
     try:
         with transaction.atomic():
@@ -206,9 +215,9 @@ def agregar_jugador(
                 .select_related("club", "categoria__torneo")
                 .get(pk=equipo.pk)
             )
-            preparado = _preparar(datos, bloqueado, ahora, es_organizacion)
+            preparado = _preparar(datos, bloqueado, ahora)
             hallazgos = _hallazgos_de_jugador(bloqueado, datos, dorsal, preparado)
-            if any(h.nivel == "error" for h in hallazgos):
+            if _frena(hallazgos, confirmado):
                 return Resultado(False, hallazgos)
             jugador = Jugador.objects.create(
                 persona=_persona(datos, preparado), equipo=bloqueado, dorsal=dorsal
@@ -219,7 +228,12 @@ def agregar_jugador(
 
 
 def agregar_profe(
-    equipo: Equipo, datos: DatosPersona, rol: str, *, ahora: datetime, es_organizacion: bool
+    equipo: Equipo,
+    datos: DatosPersona,
+    rol: str,
+    *,
+    ahora: datetime,
+    confirmado: bool = False,
 ) -> Resultado:
     try:
         with transaction.atomic():
@@ -228,9 +242,9 @@ def agregar_profe(
                 .select_related("club", "categoria__torneo")
                 .get(pk=equipo.pk)
             )
-            preparado = _preparar(datos, bloqueado, ahora, es_organizacion)
+            preparado = _preparar(datos, bloqueado, ahora)
             hallazgos = _hallazgos_de_profe(bloqueado, rol, preparado)
-            if any(h.nivel == "error" for h in hallazgos):
+            if _frena(hallazgos, confirmado):
                 return Resultado(False, hallazgos)
             profe = Profe.objects.create(
                 persona=_persona(datos, preparado), equipo=bloqueado, rol=rol

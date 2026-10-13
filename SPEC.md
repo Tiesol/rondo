@@ -172,7 +172,7 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 |---|---|---|---|---|
 | INS-01 | Un equipo es un club del catálogo más una categoría-nivel. Puede haber dos equipos del mismo club en una categoría | 4.2, P8 | — | — |
 | INS-02 | Un jugador mayor que su categoría se rechaza siempre. Uno menor se acepta, con aviso si son más de 2 años | P6, P42 | R `jugar_en_categoria_mayor`, `aviso_anios_menor` | Sí, 2 |
-| INS-03 | No se pasa del máximo de jugadores; por debajo del mínimo hay aviso | 4.1, 4.2 | CN | Tabla 4.1 |
+| INS-03 | Pasar del máximo de jugadores se confirma (P84); por debajo del mínimo hay aviso | 4.1, 4.2, P84 | CN | Tabla 4.1 |
 | INS-04 | El CI se normaliza (sigla, "E-", complemento o pasaporte) y se compara por número, complemento y "E-" | 4.2, supuesto | — | — |
 | INS-05 | Un jugador en otro equipo solo se permite en el mismo club y otra categoría, con aviso | P7 | R `jugador_en_dos_equipos` | `mismo_club_otra_categoria` |
 | INS-06 | Un profe puede estar en varios equipos, de cualquier club; se detecta por CI | 4.2, P10 | — | — |
@@ -180,7 +180,7 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 | INS-08 | Cuerpo técnico: hasta 3 personas, con roles fijos y un solo entrenador | 4.2, P11, P40 | R `cuerpo_tecnico` | 3; 1 entrenador |
 | INS-09 | El dorsal es opcional al inscribir, obligatorio antes del primer partido y único en el equipo | P9 | R `dorsal_obligatorio` | Antes del primer partido |
 | INS-10 | Se puede cargar un jugador sin CI, con aviso de documento pendiente | P39 | R `ci_obligatorio` | Antes del primer partido |
-| INS-11 | Hay un cierre de inscripción. Después, solo el organizador cambia las listas | P2, P4 | R `cierre_inscripcion` | Configurable |
+| INS-11 | El cierre de inscripción solo avisa "fuera de plazo"; después de las altas tardías, agregar se confirma | P2, P4, P22 | R `cierre_inscripcion`, `altas_tardias_hasta` | Configurable |
 | INS-12 | La mesa marca a cada jugador como verificado al ver el documento | 4.2 | — | — |
 
 ### Fixture

@@ -24,8 +24,7 @@
   {% include "equipos/_hallazgos.html" %}
   <div class="botones">
     <a class="btn" href="{% if que == 'jugador' %}{% url 'equipo' equipo.pk 'plantel' %}{% else %}{% url 'equipo' equipo.pk 'cuerpo-tecnico' %}{% endif %}">Cancelar</a>
-    <button type="submit" class="btn principal">Guardar</button>
+    {% if por_confirmar %}<button type="submit" name="confirmar" value="1" class="btn principal">Guardar igual</button>{% else %}<button type="submit" class="btn principal">Guardar</button>{% endif %}
   </div>
-  <p class="peq tenue">Los avisos no impiden guardar. Los errores, en rojo, sí.</p>
 </form>
 {% endblock %}

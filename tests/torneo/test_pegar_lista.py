@@ -123,12 +123,13 @@ def test_pegar_20_con_2_errores_guarda_18_y_deja_las_2_para_corregir(
 def test_lo_que_depende_de_la_lista_entera_se_ve_en_la_vista_previa(
     mesa: Client, river9: Equipo
 ) -> None:
-    # Sub 9: 14 como máximo. La fila 2 repite el dorsal 1 y no entra; la 16.ª sería la 15.ª.
+    # Sub 9: 14 como máximo. La fila 2 repite el dorsal 1 y no entra; la 16.ª sería la 15.ª:
+    # se avisa en la vista previa y guardar la lista lo confirma (T11.5, P84).
     texto = lista(16).replace("\t2\n", "\t1\n")
     filas = pegar_y_revisar(mesa, river9, texto).context["filas"]
     assert any(h.regla == "INS-09" for h in filas[1].errores)
     assert not filas[14].errores
-    assert any(h.regla == "INS-03" for h in filas[15].errores)
+    assert any(h.regla == "INS-03" and h.nivel == "confirmar" for h in filas[15].avisos)
     # "Faltan N para el mínimo" no se repite en cada fila: lo muestra la ficha.
     assert not any(h.regla == "INS-03" for h in filas[0].avisos)
 

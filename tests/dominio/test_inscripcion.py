@@ -123,9 +123,10 @@ def test_ins_02_sin_fecha_de_nacimiento_es_un_error() -> None:
 # ---------- INS-03: cantidad ----------
 
 
-def test_ins_03_no_se_pasa_del_maximo() -> None:
+def test_ins_03_pasar_del_maximo_se_confirma() -> None:
+    # P84: en la cancha se agregan jugadores aunque el plantel esté lleno, confirmando.
     hallazgos = validar_alta_de_jugador(alta(jugadores_en_el_equipo=14), Reglas())
-    assert niveles(hallazgos, "INS-03") == ["error"]
+    assert niveles(hallazgos, "INS-03") == ["confirmar"]
 
 
 def test_ins_03_el_ultimo_lugar_entra() -> None:
@@ -278,15 +279,26 @@ def test_ins_10_un_profe_sin_documento_tambien_queda_pendiente() -> None:
 
 
 def test_ins_11_sin_cierre_siempre_se_puede() -> None:
-    assert validar_cierre(datetime(2026, 12, 1, 9), Reglas(), es_organizacion=False) == []
+    assert validar_cierre(datetime(2026, 12, 1, 9), Reglas()) == []
 
 
-def test_ins_11_despues_del_cierre_solo_la_organizacion() -> None:
+def test_ins_11_el_cierre_solo_avisa_fuera_de_plazo() -> None:
     con_cierre = reglas(cierre_inscripcion=datetime(2026, 10, 21, 12, 0))
-    assert validar_cierre(datetime(2026, 10, 21, 9), con_cierre, es_organizacion=False) == []
-    tarde = validar_cierre(datetime(2026, 10, 21, 12), con_cierre, es_organizacion=False)
-    assert [h.nivel for h in tarde] == ["error"]
-    assert validar_cierre(datetime(2026, 10, 21, 12), con_cierre, es_organizacion=True) == []
+    assert validar_cierre(datetime(2026, 10, 21, 9), con_cierre) == []
+    tarde = validar_cierre(datetime(2026, 10, 21, 12), con_cierre)
+    assert [h.nivel for h in tarde] == ["aviso"]
+    assert "Fuera de plazo" in tarde[0].mensaje
+
+
+def test_t11_5_despues_de_las_altas_tardias_se_confirma() -> None:
+    con_las_dos = reglas(
+        cierre_inscripcion=datetime(2026, 10, 21, 12, 0),
+        altas_tardias_hasta=datetime(2026, 11, 1, 23, 59),
+    )
+    assert [h.nivel for h in validar_cierre(datetime(2026, 10, 30, 9), con_las_dos)] == ["aviso"]
+    tarde = validar_cierre(datetime(2026, 11, 2, 9), con_las_dos)
+    assert [h.nivel for h in tarde] == ["confirmar"]
+    assert "01/11" in tarde[0].mensaje
 
 
 def test_t10_11_dorsal_nunca_obligatorio_sin_aviso() -> None:

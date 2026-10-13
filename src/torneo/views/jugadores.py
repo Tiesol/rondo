@@ -25,10 +25,6 @@ _EQUIPO = Equipo.objects.select_related("club", "categoria__torneo")
 _VISIBLES_EN_LA_FICHA = {"INS-03", "INS-09", "INS-10"}
 
 
-def _es_organizacion(request: HttpRequest) -> bool:
-    return request.user.has_perm("torneo.configurar_torneo")
-
-
 def _roles(equipo: Equipo) -> tuple[str, ...]:
     return CuerpoTecnico.model_validate(equipo.categoria.torneo.cuerpo_tecnico).roles
 
@@ -54,21 +50,28 @@ def agregar_jugador(request: HttpRequest, pk: int) -> HttpResponse:
     equipo = get_object_or_404(_EQUIPO, pk=pk)
     formulario = FormularioJugador(request.POST or None)
     hallazgos: list[Hallazgo] = []
+    por_confirmar = False
     if request.method == "POST" and formulario.is_valid():
         resultado = inscripcion.agregar_jugador(
             equipo,
             formulario.datos(),
             formulario.cleaned_data["dorsal"],
             ahora=inscripcion.ahora_local(),
-            es_organizacion=_es_organizacion(request),
+            confirmado=request.POST.get("confirmar") == "1",
         )
         if resultado.guardado:
             return _avisar(request, formulario.cleaned_data["nombres"], resultado)
-        hallazgos = resultado.hallazgos
+        hallazgos, por_confirmar = resultado.hallazgos, resultado.por_confirmar
     return render(
         request,
         "equipos/agregar.html",
-        {"equipo": equipo, "form": formulario, "hallazgos": hallazgos, "que": "jugador"},
+        {
+            "equipo": equipo,
+            "form": formulario,
+            "hallazgos": hallazgos,
+            "por_confirmar": por_confirmar,
+            "que": "jugador",
+        },
     )
 
 
@@ -85,7 +88,6 @@ def revisar_jugador(request: HttpRequest, pk: int) -> HttpResponse:
         datos,
         dorsal,
         ahora=inscripcion.ahora_local(),
-        es_organizacion=_es_organizacion(request),
     )
     if datos.nacimiento is None:
         hallazgos = [h for h in hallazgos if h.regla != "INS-02"]
@@ -101,21 +103,28 @@ def agregar_profe(request: HttpRequest, pk: int) -> HttpResponse:
     equipo = get_object_or_404(_EQUIPO, pk=pk)
     formulario = FormularioProfe(request.POST or None, roles=_roles(equipo))
     hallazgos: list[Hallazgo] = []
+    por_confirmar = False
     if request.method == "POST" and formulario.is_valid():
         resultado = inscripcion.agregar_profe(
             equipo,
             formulario.datos(),
             formulario.cleaned_data["rol"],
             ahora=inscripcion.ahora_local(),
-            es_organizacion=_es_organizacion(request),
+            confirmado=request.POST.get("confirmar") == "1",
         )
         if resultado.guardado:
             return _avisar(request, formulario.cleaned_data["nombres"], resultado)
-        hallazgos = resultado.hallazgos
+        hallazgos, por_confirmar = resultado.hallazgos, resultado.por_confirmar
     return render(
         request,
         "equipos/agregar.html",
-        {"equipo": equipo, "form": formulario, "hallazgos": hallazgos, "que": "profe"},
+        {
+            "equipo": equipo,
+            "form": formulario,
+            "hallazgos": hallazgos,
+            "por_confirmar": por_confirmar,
+            "que": "profe",
+        },
     )
 
 
@@ -134,7 +143,6 @@ def revisar_profe(request: HttpRequest, pk: int) -> HttpResponse:
             datos,
             rol,
             ahora=inscripcion.ahora_local(),
-            es_organizacion=_es_organizacion(request),
         ),
     )
 

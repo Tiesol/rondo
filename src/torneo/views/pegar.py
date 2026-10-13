@@ -173,7 +173,6 @@ def _cargar(
         leidas,
         que,
         ahora=inscripcion.ahora_local(),
-        es_organizacion=request.user.has_perm("torneo.configurar_torneo"),
         guardar=guardar,
         roles=roles,
     )
