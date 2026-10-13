@@ -294,7 +294,7 @@ T8.5 → T8.6         │
 
 - [ ] Verde, más `pytest -m lento`.
 - [ ] El calendario 2026 con F11 medido (H8).
-- [ ] Revisión con `code-review-and-quality` y PROGRESO.md al día.
+- [x] Revisión con `code-review-and-quality` y PROGRESO.md al día.
 
 ## Grafo de dependencias
 

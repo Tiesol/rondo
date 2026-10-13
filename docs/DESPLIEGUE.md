@@ -142,7 +142,11 @@ Lo que Sebastian crea una sola vez. Nada de esto va al repo ni al chat: las cade
 Escudos, fotos de los chicos, logo y patrocinadores. Hasta conectarlo, la app funciona y los botones de subir imagen dicen "Falta conectar el almacenamiento de imágenes".
 
 1. En Cloudflare: **R2 → Create bucket**. Nombre: `rondo-produccion` (y otro, `rondo-demo`, si se quiere probar en la demo). Ubicación automática. **Sin acceso público**: no actives "Public access" ni un dominio. La app sirve las imágenes desde su propio dominio.
-2. **R2 → Manage API tokens → Create API token**: permiso **Object Read & Write**, solo para ese bucket. Copia el *Access Key ID* y el *Secret Access Key* (se ven una sola vez) y el **Account ID** (está en la página de R2).
+2. **R2 → Manage API tokens → Create Account API token** (no la de usuario: esa deja de funcionar si dejas la organización de Cloudflare). Nombre del bucket como nombre del token, permiso **Object Read & Write** (no Admin), "Apply to specific buckets only" con ese bucket, TTL "Forever" y sin filtro de IP.
+   - La pantalla siguiente se ve una sola vez. En "Use the following credentials for S3 clients" están el **Access Key ID** y el **Secret Access Key**. R2 habla el mismo protocolo que S3: son las claves de R2.
+   - En "Use jurisdiction-specific endpoints" está `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`: ese número es el **Account ID**. La dirección no se copia: la app la arma con el Account ID.
+   - El "Token value" no se usa.
+   - En el `.env` local, las variables van sin `export` adelante. Con las cuatro, lo que se suba en local va al bucket real.
 3. En Render, servicio `rondo-produccion`, agrega las cuatro variables: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` y `R2_BUCKET`. Con las cuatro, la subida se activa sola; si falta una, sigue desactivada.
 4. **Manual Deploy** para que tome las variables. Ninguna de estas claves va al repo ni al chat.
 
