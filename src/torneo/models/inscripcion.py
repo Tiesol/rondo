@@ -6,6 +6,7 @@ nombres, CI ni fechas de nacimiento. Las listas reales nunca entran al repo.
 
 from typing import Any
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -94,6 +95,14 @@ class Persona(models.Model):
     # El año alcanza para la regla de edad (INS-02); la fecha completa, si se conoce (T7.6).
     anio_nacimiento = models.PositiveSmallIntegerField("año de nacimiento", null=True, blank=True)
     nacimiento = models.DateField("fecha de nacimiento", null=True, blank=True)
+    # Foto (T8.4, P67 y P75): la manda el jugador con el uniforme y la sube la organización.
+    # Sin la autorización de la familia (P66), no sale en ningún lado público.
+    foto = models.FileField(max_length=200, blank=True)
+    foto_autorizada = models.BooleanField("autoriza foto y nombre", default=False)
+    foto_autorizada_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+    foto_autorizada_en = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["apellidos", "nombres"]

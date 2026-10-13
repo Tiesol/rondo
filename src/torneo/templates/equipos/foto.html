@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Foto · {{ persona }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Volver">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Foto{% endblock %}
+{% block contenido %}
+<form method="post" enctype="multipart/form-data" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  <p><strong>{{ persona }}</strong>{% if equipo %}<span class="peq tenue"> · {{ equipo.nombre }} · {{ equipo.categoria }}</span>{% endif %}</p>
+  {% if actual %}<img class="foto-persona" src="{{ actual }}" alt="Foto de {{ persona }}" width="160" height="213">{% endif %}
+  {% include "parciales/campo_imagen.html" with nombre="foto" etiqueta=actual|yesno:"Cambiar la foto,Foto" ayuda="La que mandó con el uniforme. JPG, PNG o WebP; se achica y se le borran los datos del teléfono (ubicación incluida)." %}
+  {% if error %}{% include "parciales/alerta.html" with estado="error" texto=error %}{% endif %}
+  <label class="flex items-start gap-2">
+    <input type="checkbox" name="autorizada" value="on"{% if persona.foto_autorizada %} checked{% endif %}>
+    <span><strong>La familia mandó esta foto para publicarla</strong><br><span class="peq tenue">Autoriza la foto y el nombre en la página pública. Sin esta marca, la foto se ve solo adentro de la app.</span></span>
+  </label>
+  {% if persona.foto_autorizada and persona.foto_autorizada_en %}<p class="peq tenue">Autorizada el {{ persona.foto_autorizada_en|date:"d/m/Y H:i" }}{% if persona.foto_autorizada_por %} por {{ persona.foto_autorizada_por.username }}{% endif %}.</p>{% endif %}
+  <div class="botones">
+    {% if actual %}<button type="submit" name="quitar" value="1" class="btn">Quitar la foto</button>{% else %}<a class="btn" href="{{ volver }}">Cancelar</a>{% endif %}
+    <button type="submit" class="btn principal">Guardar</button>
+  </div>
+</form>
+{% endblock %}
