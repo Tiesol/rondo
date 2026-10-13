@@ -205,3 +205,26 @@ def test_t11_2_los_sin_lugar_tienen_ubicar_hasta_que_se_ubican(
     mover_a_mano(partido, torneo.canchas.get(codigo="C3"), sabado(torneo, "17:00"), confirmar=True)
     html = org.get(f"/torneos/{torneo.pk}/programar/").content.decode()
     assert f"/partidos/{partido.pk}/mover/" not in html
+
+
+@pytest.mark.django_db
+def test_t11_3_se_mueve_a_media_cancha_2_con_aviso(client: Client, torneo: Torneo) -> None:
+    partido = programados()[0]
+    destino = sabado(torneo, "17:00")
+    org = entrar(client, ORGANIZACION)
+    html = org.post(f"/partidos/{partido.pk}/mover/", datos(destino, "C2A")).content.decode()
+    assert "no juega en C2A" in html
+    respuesta = org.post(
+        f"/partidos/{partido.pk}/mover/", datos(destino, "C2A") | {"confirmar": "1"}
+    )
+    assert respuesta.status_code == 302
+    partido.refresh_from_db()
+    assert partido.cancha is not None and partido.cancha.codigo == "C2A"
+
+
+@pytest.mark.django_db
+def test_t11_3_el_selector_nombra_las_mitades(client: Client, torneo: Torneo) -> None:
+    partido = programados()[0]
+    html = entrar(client, ORGANIZACION).get(f"/partidos/{partido.pk}/mover/").content.decode()
+    for nombre in ("Cancha 1 · mitad A", "Cancha 2 · mitad B", "Cancha 3 · mitad A"):
+        assert nombre in html

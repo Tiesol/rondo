@@ -93,3 +93,22 @@ def test_p56_sub_5_y_sub_6_no_juegan_los_viernes_y_prefieren_temprano(config: Co
         chicos = categoria.nombre in ("Sub 5", "Sub 6")
         assert (categoria.dias_sin_jugar == ("viernes",)) is chicos
         assert categoria.prefiere_temprano is chicos
+
+
+def test_t11_3_las_tres_canchas_tienen_mitades_pero_el_automatico_usa_la_base(
+    config: ConfigTorneo,
+) -> None:
+    # P13 y P63: se pueden partir las 3; el programador automático usa la configuración base
+    # (solo C1 partida, para F6). Las otras mitades son para mover a mano (P79).
+    assert {c.codigo: c.mitades for c in config.canchas} == {
+        "C1": ("C1A", "C1B"),
+        "C2": ("C2A", "C2B"),
+        "C3": ("C3A", "C3B"),
+    }
+    usadas = {
+        cancha
+        for categoria in config.categorias
+        for nivel in categoria.niveles
+        for cancha in canchas_compatibles(config, categoria.nombre, nivel)
+    }
+    assert usadas <= {"C1", "C2", "C3", "C1A", "C1B"}

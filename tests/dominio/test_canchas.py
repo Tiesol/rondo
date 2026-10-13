@@ -39,8 +39,8 @@ def test_la_cancha_entera_ocupa_sus_mitades() -> None:
     fisicas = canchas_fisicas(CONFIG)
     assert fisicas["C1"] == frozenset({"C1A", "C1B"})
     assert fisicas["C1A"] == frozenset({"C1A"})
-    assert fisicas["C2"] == frozenset({"C2"})
-    assert set(fisicas) == {"C1", "C1A", "C1B", "C2", "C3"}
+    assert fisicas["C2"] == frozenset({"C2A", "C2B"})  # T11.3: las tres se pueden partir
+    assert set(fisicas) == {"C1", "C1A", "C1B", "C2", "C2A", "C2B", "C3", "C3A", "C3B"}
 
 
 def test_un_nivel_que_la_categoria_no_tiene_es_un_error() -> None:
