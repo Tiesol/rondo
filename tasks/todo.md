@@ -1008,9 +1008,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con las variables de producción, `check --deploy` pasa sin advertencias y el test de `assets/` pasa en un clon nuevo.
-- [ ] La cantidad de workers del solver sale de una variable, con un valor por defecto para 1 CPU.
-- [ ] `docs/DESPLIEGUE.md` tiene los pasos de Render, Neon, variables, primer usuario y cómo desplegar a mano.
+- [x] Con las variables de producción, `check --deploy` pasa sin advertencias y el test de `assets/` pasa en un clon nuevo.
+- [x] La cantidad de workers del solver sale de una variable, con un valor por defecto para 1 CPU.
+- [x] `docs/DESPLIEGUE.md` tiene los pasos de Render, Neon, variables, primer usuario y cómo desplegar a mano.
 
 **Verificación:** verde, más un clon limpio.
 **Depende de:** nada. El despliegue lo hace Sebastian.

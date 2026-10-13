@@ -81,3 +81,20 @@ def test_produccion_sin_database_url_falla_con_un_mensaje_claro() -> None:
     )
     assert resultado.returncode != 0
     assert "Falta la variable de entorno DATABASE_URL" in resultado.stderr
+
+
+def test_los_directorios_de_estaticos_existen_en_un_clon_nuevo() -> None:
+    # Revisión externa, punto 6: sin assets/ en el repo, `check --deploy` da staticfiles.W004
+    # en un clon recién hecho, antes de compilar Tailwind.
+    from django.conf import settings
+
+    versionados = subprocess.run(
+        ["git", "ls-files", *(str(d.relative_to(RAIZ)) for d in settings.STATICFILES_DIRS)],
+        cwd=RAIZ,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split()
+    for directorio in settings.STATICFILES_DIRS:
+        rel = str(directorio.relative_to(RAIZ))
+        assert any(f.startswith(rel + "/") for f in versionados), f"{rel}/ no está en el repo"

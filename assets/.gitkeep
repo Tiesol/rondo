@@ -1,0 +1,1 @@
+# assets/ tiene que existir en un clon nuevo (STATICFILES_DIRS); el CSS de Tailwind se genera aquí.
