@@ -310,7 +310,7 @@ T8.5 → T8.6         │
 - [x] T11.8 Planilla: convocados y dorsal del partido
 - [x] T11.9 Alta rápida en la cancha
 - [x] T11.10 Eventos completos y partido terminado editable
-- [ ] T11.11 Partidos de hoy
+- [x] T11.11 Partidos de hoy
 - [ ] T11.12 Cierre automático
 - [ ] T11.13 Penales tiro por tiro
 - [ ] T11.14 Página pública

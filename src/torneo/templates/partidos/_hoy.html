@@ -1,0 +1,28 @@
+{# T11.11: los partidos del día por cancha. Se recarga sola cada 30 s (HTMX). #}
+<div id="hoy" hx-get="{{ request.get_full_path }}" hx-trigger="every 30s" hx-target="this" hx-swap="outerHTML">
+  {% for cancha in canchas %}
+  <div class="seccion">
+    {% include "parciales/seccion_cab.html" with titulo=cancha.nombre %}
+    <ul class="lista">
+      {% for partido in cancha.partidos %}
+      <li>
+        <a class="turno" href="{% url 'ficha-partido' partido.pk %}">
+          <span class="hora num">{{ partido.hora }}</span>
+          <span class="crece">
+            <span class="vs">
+              {% if partido.local.escudo %}{% include "parciales/escudo.html" with escudo=partido.local.escudo tamano="ch" %}{% endif %}{{ partido.local.nombre }}
+              {% if partido.marcador %}<strong class="num">{{ partido.marcador.0 }}–{{ partido.marcador.1 }}</strong>{% else %}<span class="tenue">vs</span>{% endif %}
+              {% if partido.visitante.escudo %}{% include "parciales/escudo.html" with escudo=partido.visitante.escudo tamano="ch" %}{% endif %}{{ partido.visitante.nombre }}
+            </span>
+            <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if partido.atraso %} · <strong>{{ partido.atraso }} min tarde</strong>{% endif %}</span>
+          </span>
+          {% include "parciales/chip.html" with texto=partido.estado estado=partido.color %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% empty %}
+  <div class="seccion">{% include "parciales/vacio.html" with icono="calendario" titulo="Hoy no hay partidos" texto="Los días de partido aparecen acá, por cancha y hora." %}</div>
+  {% endfor %}
+</div>

@@ -2,6 +2,7 @@
 <svg class="{{ clase|default:'ico' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
 {% if nombre == "inicio" %}<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
 {% elif nombre == "torneo" %}<path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 12v4M9 20h6M10 16h4v4h-4z"/>
+{% elif nombre == "reloj" %}<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
 {% elif nombre == "calendario" %}<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>
 {% elif nombre == "mas" %}<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
 {% elif nombre == "chevron" %}<path d="M9 6l6 6-6 6"/>

@@ -553,6 +553,10 @@
     gap: 12px;
     padding: 10px 0;
   }
+  a.turno {
+    color: inherit;
+    text-decoration: none;
+  }
   .turno .hora {
     font: 22px/1 var(--font-titulo);
     letter-spacing: 0.03em;
