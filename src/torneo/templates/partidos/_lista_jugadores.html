@@ -1,0 +1,18 @@
+{# La lista para elegir al jugador de un evento. Usa partido, equipos y accion_tipo. #}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-3">
+  {% csrf_token %}
+  {% for lado in equipos %}
+  <fieldset class="lista-jugadores">
+    <legend>{{ lado.equipo.nombre }}</legend>
+    {% for jugador in lado.plantel %}
+    <button type="submit" name="evento" value="{{ accion_tipo }}|{{ lado.equipo.pk }}|{{ jugador.pk }}" class="btn jugador"><span class="dorsal num">{{ jugador.dorsal|default_if_none:"s/n" }}</span>{{ jugador.persona }}</button>
+    {% empty %}
+    <p class="peq tenue">Sin jugadores cargados.</p>
+    {% endfor %}
+    {% if accion_tipo == "gol" %}
+    <button type="submit" name="evento" value="gol_en_contra|{{ lado.equipo.pk }}|" class="btn">Gol en contra de {{ lado.equipo.nombre }}</button>
+    {% endif %}
+  </fieldset>
+  {% endfor %}
+  <button type="button" class="btn" data-cerrar-hoja>Cancelar</button>
+</form>

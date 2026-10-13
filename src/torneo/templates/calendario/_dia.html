@@ -38,6 +38,7 @@
           </span>
           <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if partido.mitad %} · {{ partido.mitad }}{% endif %}{% if partido.fijado %} · fijado{% endif %}</span>
         </span>
+        {% if perms.torneo.cargar_resultados %}<a class="btn chico" href="{% url 'ficha-partido' partido.pk %}">Ficha</a>{% endif %}
         {% if perms.torneo.configurar_torneo %}<a class="btn chico" href="{% url 'mover' partido.pk %}">Mover</a>{% endif %}
       </li>
       {% endfor %}

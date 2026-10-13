@@ -64,3 +64,8 @@ document.addEventListener("input", (evento) => {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
+
+// Un selector que se guarda solo al cambiarlo (data-enviar-al-cambiar), como el mejor jugador.
+document.addEventListener("change", (evento) => {
+  if (evento.target.matches("[data-enviar-al-cambiar]")) evento.target.form?.requestSubmit();
+});

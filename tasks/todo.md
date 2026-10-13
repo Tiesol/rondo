@@ -1152,9 +1152,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Se carga un partido completo desde un celular a 360 px, con un toque por evento más la elección del jugador.
-- [ ] La mesa puede cargar; un usuario sin rol no.
-- [ ] El partido terminado ya no se mueve en la reprogramación (PRO-10).
+- [x] Se carga un partido completo desde un celular a 360 px, con un toque por evento más la elección del jugador.
+- [x] La mesa puede cargar; un usuario sin rol no.
+- [x] El partido terminado ya no se mueve en la reprogramación (PRO-10).
 
 **Verificación:** verde, más una prueba a mano a 360 px.
 **Depende de:** T8.5.
