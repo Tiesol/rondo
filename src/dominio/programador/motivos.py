@@ -143,12 +143,7 @@ def _inicios(problema: Problema, partido: PartidoAProgramar) -> list[datetime]:
     for desde, hasta in problema.franjas:
         momento = desde
         while momento + largo <= hasta:
-            if (
-                partido.fase != "eliminacion"
-                or not problema.eliminacion_desde
-                or (momento >= problema.eliminacion_desde)
-            ):
-                inicios.append(momento)
+            inicios.append(momento)
             momento += timedelta(minutes=PASO_MIN)
     return inicios
 
@@ -175,9 +170,7 @@ def motivos_sin_ubicar(problema: Problema, resultado: Resultado) -> dict[Hashabl
             continue
         inicios = _inicios(problema, partido)
         if not inicios:
-            motivos[id_] = "No entra en ninguna franja" + (
-                " desde el fin de semana de la eliminación" if partido.fase == "eliminacion" else ""
-            )
+            motivos[id_] = "No entra en ninguna franja"
             continue
         conteo: Counter[str] = Counter()
         hay_lugar = False

@@ -274,14 +274,16 @@ def test_pro_08_y_pro_09_orden_de_fechas_y_eliminacion() -> None:
     assert choques(prob, resultado) == []
 
 
-def test_pro_09_la_eliminacion_desde_su_fin_de_semana() -> None:
+def test_t11_4_la_eliminacion_puede_ir_antes_de_su_fin_de_semana_sugerido() -> None:
+    # P33: "a veces semis o finales van antes". El fin de semana sugerido ya no es un límite:
+    # sin lugar después, las llaves van apenas terminan los grupos.
     partidos = grupo_y_llaves()
-    franjas = [franja(d, 8, 16) for d in (0, 1, 7, 8)]
-    desde = SABADO + timedelta(days=7)
+    franjas = [franja(d, 8, 16) for d in (0, 1)]
+    desde = SABADO + timedelta(days=7)  # un fin de semana sin franjas
     prob = con(problema(partidos, franjas), eliminacion_desde=desde)
     resultado = programar(prob, segundos=15)
-    for clave in ("s1", "s2", "f"):
-        assert resultado.ubicados[clave][1] >= desde
+    assert resultado.sin_ubicar == []
+    assert choques(prob, resultado) == []
 
 
 def test_una_final_sin_lugar_para_sus_semis_no_se_ubica() -> None:
@@ -422,3 +424,32 @@ def test_t11_2_dos_fijos_que_rompen_una_regla_blanda_no_rompen_el_modelo() -> No
     )
     resultado = programar(prob, segundos=10)
     assert resultado.sin_ubicar == []
+
+
+def test_t11_4_p20_los_equipos_de_un_club_juegan_el_mismo_dia() -> None:
+    # Tres clubes con un equipo en Sub 9 y otro en Sub 7. Hay lugar para 2 partidos por día
+    # y 3 días: la única forma de que cada club juegue un solo día es juntar sus 2 partidos.
+    def p(id: str, a: str, b: str) -> PartidoAProgramar:
+        return PartidoAProgramar(
+            id=id,
+            categoria=id[0],
+            equipos=(a, b),
+            minutos_partido=45,
+            minutos_turno=50,
+            canchas=frozenset({"C2"}),
+        )
+
+    partidos = [p("x01", "x0", "x1"), p("x23", "x2", "x3"), p("x45", "x4", "x5")]
+    partidos += [p("y01", "y0", "y1"), p("y23", "y2", "y3"), p("y45", "y4", "y5")]
+    clubes = {f"{c}{i}": f"club {i // 2}" for c in "xy" for i in range(6)}
+    franjas = [franja(d, 8, 10) for d in (0, 1, 7)]  # 8:00 y 8:50: dos partidos por día
+    prob = con(problema(partidos, franjas), clubes=clubes)
+    resultado = programar(prob, segundos=15)
+    assert resultado.sin_ubicar == []
+    for club in set(clubes.values()):
+        dias = {
+            resultado.ubicados[q.id][1].date()
+            for q in partidos
+            if any(clubes[str(e)] == club for e in q.equipos_definidos)
+        }
+        assert len(dias) == 1, club

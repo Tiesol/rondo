@@ -24,7 +24,7 @@ from dominio.programador.modelo import PartidoAProgramar, Problema, programar
 from dominio.programador.motivos import motivos_sin_ubicar
 from dominio.verificador import Bloqueo as BloqueoDelDominio
 from dominio.verificador import Choque, Escenario, PartidoAgendado, verificar
-from torneo.models import Bloqueo, Cancha, CategoriaNivel, Corrida, Partido, Torneo
+from torneo.models import Bloqueo, Cancha, CategoriaNivel, Corrida, Equipo, Partido, Torneo
 from torneo.servicios.fixture import formatos
 from torneo.servicios.personas import pares_de_equipos
 
@@ -146,6 +146,9 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
         pares=tuple(pares_de_equipos(torneo)),
         bloqueos=bloqueos_del_torneo(torneo),
         eliminacion_desde=eliminacion_desde,
+        clubes=dict(
+            Equipo.objects.filter(categoria__torneo=torneo).values_list("pk", "club_id")
+        ),  # P20
     )
 
 

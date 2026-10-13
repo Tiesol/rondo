@@ -313,8 +313,9 @@ class Reglas(Estricto):
     )
     eliminacion_desde_fin_de_semana: int = _regla(
         5,
-        "La eliminación empieza el fin de semana",
-        "El número del fin de semana (1 es el primero) desde el que se juegan semis y finales.",
+        "Fin de semana sugerido para la eliminación",
+        "El número del fin de semana (1 es el primero) que se deja para semis y finales. Es una "
+        "sugerencia: si hace falta, van antes, apenas termina la fase de grupos (T11.4).",
         grupo="Programación",
         pregunta="P33",
         regla="PRO-09",

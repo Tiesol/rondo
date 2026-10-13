@@ -33,7 +33,7 @@
     </form>
   </div>
   {% empty %}
-  {% include "parciales/vacio.html" with icono="calendario" titulo="No hay propuestas" texto="O no hace falta mover nada, o no hay forma de hacerlo sin romper una regla dentro de este fin de semana y el siguiente. Prueba agregar un día entre semana." %}
+  {% include "parciales/vacio.html" with icono="calendario" titulo="No hay propuestas" texto="O no hace falta mover nada, o no hay forma de hacerlo dentro de este fin de semana y el siguiente. Agrega un día o mueve el partido a mano." %}
   {% endfor %}
 </div>
 {% endblock %}
