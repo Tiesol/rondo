@@ -31,6 +31,7 @@ from torneo.views import (
 )
 from torneo.views import publico as vistas_publicas
 from torneo.views.publicar import publicar
+from torneo.views.torneo import sorteo as sorteo_de_tabla
 
 urlpatterns = [
     path("", inicio, name="inicio"),
@@ -57,6 +58,7 @@ urlpatterns = [
     path("torneo/<int:pk>/equipos/nuevo/", equipos.nuevo_equipo, name="nuevo-equipo"),
     path("torneo/<int:pk>/fixture/generar/", fixture.generar, name="generar-fixture"),
     path("torneo/<int:pk>/series/", fixture.guardar_series, name="guardar-series"),
+    path("torneo/<int:pk>/sorteo/", sorteo_de_tabla, name="sorteo-tabla"),
     path("torneo/<int:pk>/<str:pestana>/", categoria, name="categoria"),
     path("equipos/<int:pk>/jugadores/nuevo/", jugadores.agregar_jugador, name="agregar-jugador"),
     path("equipos/<int:pk>/jugadores/revisar/", jugadores.revisar_jugador, name="revisar-jugador"),

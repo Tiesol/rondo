@@ -40,7 +40,7 @@
   {% elif pestana == "fixture" %}
     {% include "fixture/_fixture.html" with editable=perms.torneo.configurar_torneo %}
   {% elif pestana == "posiciones" %}
-    {% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay resultados" texto="La tabla aparece con el primer partido jugado." %}
+    {% if tablas %}{% url "sorteo-tabla" categoria.pk as url_sorteo_org %}{% if perms.torneo.configurar_torneo %}{% include "posiciones/_tablas.html" with url_sorteo=url_sorteo_org %}{% else %}{% include "posiciones/_tablas.html" %}{% endif %}{% else %}{% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay equipos" texto="La tabla aparece con los equipos de la categoría." %}{% endif %}
   {% else %}
     <ul class="lista">
       <li class="fila"><strong class="crece">Modalidad</strong><span>{{ categoria.get_modalidad_display }}</span></li>

@@ -330,6 +330,25 @@ class Reglas(Estricto):
             "domingo": "Domingo",
         },
     )
+    puntos_por_partido: tuple[int, int] = _regla(
+        (3, 1),
+        "Puntos por ganar y por empatar",
+        "Perder da 0.",
+        grupo="Resultados",
+        regla="RES-01",
+    )
+    criterio_de_desempate: Literal["reglamento_2025", "diferencia_de_gol"] = _regla(
+        "reglamento_2025",
+        "Desempate en la tabla",
+        "Reglamento 2025: entre los empatados, puntos, goles a favor, menos goles en contra y "
+        "fair play; después, sorteo. Excel de 2023: diferencia de gol y goles a favor.",
+        grupo="Resultados",
+        regla="RES-02",
+        opciones={
+            "reglamento_2025": "Reglamento 2025 (entre ellos)",
+            "diferencia_de_gol": "Diferencia de gol (Excel de 2023)",
+        },
+    )
     marcador_wo: tuple[int, int] = _regla(
         (3, 0),
         "Marcador del W.O.",

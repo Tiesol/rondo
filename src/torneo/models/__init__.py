@@ -7,6 +7,7 @@ from torneo.models.fixture import Partido, Serie
 from torneo.models.inscripcion import Club, Equipo, Jugador, Persona, Profe
 from torneo.models.patrocinador import Patrocinador
 from torneo.models.sitio import Organizador
+from torneo.models.sorteo import SorteoDeTabla
 
 __all__ = [
     "Bloqueo",
@@ -25,5 +26,6 @@ __all__ = [
     "Persona",
     "Profe",
     "Serie",
+    "SorteoDeTabla",
     "Torneo",
 ]

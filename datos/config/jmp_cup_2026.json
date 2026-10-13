@@ -323,6 +323,11 @@
     "orden_de_fechas": "dura",
     "eliminacion_desde_fin_de_semana": 4,
     "dia_para_reprogramar": "jueves",
+    "puntos_por_partido": [
+      3,
+      1
+    ],
+    "criterio_de_desempate": "reglamento_2025",
     "marcador_wo": [
       3,
       0

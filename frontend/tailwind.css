@@ -1001,6 +1001,34 @@
     gap: 10px;
   }
 
+  /* ---------- Tabla de posiciones (T8.7) ---------- */
+  .tabla-posiciones {
+    overflow-x: auto;
+  }
+  .tabla-posiciones table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .tabla-posiciones th,
+  .tabla-posiciones td {
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--color-linea);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .tabla-posiciones thead th {
+    color: var(--color-tenue);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .tabla-posiciones .equipo-tabla {
+    width: 100%;
+    font-weight: 600;
+    text-align: left;
+    white-space: normal;
+  }
+
   /* ---------- Ficha del partido (T8.6): botones grandes para el celular ---------- */
   .marcador {
     display: grid;

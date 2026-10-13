@@ -1,0 +1,40 @@
+{% comment %}
+Las tablas de posiciones de una categoría (T8.7). Sin datos personales: la usa también la
+página pública. Parámetros: tablas (servicios/tabla.tablas_de) y, para la organización,
+url_sorteo.
+{% endcomment %}
+{% for t in tablas %}
+<div class="seccion">
+  {% if t.nombre %}{% include "parciales/seccion_cab.html" with titulo="Serie "|add:t.nombre %}{% endif %}
+  <div class="tabla-posiciones" role="region" aria-label="Posiciones{% if t.nombre %} de la serie {{ t.nombre }}{% endif %}" tabindex="0">
+    <table>
+      <thead>
+        <tr><th scope="col" class="num">#</th><th scope="col">Equipo</th><th scope="col" class="num" title="Partidos jugados">PJ</th><th scope="col" class="num" title="Ganados">G</th><th scope="col" class="num" title="Empatados">E</th><th scope="col" class="num" title="Perdidos">P</th><th scope="col" class="num" title="Goles a favor">GF</th><th scope="col" class="num" title="Goles en contra">GC</th><th scope="col" class="num" title="Diferencia de gol">DG</th><th scope="col" class="num">Pts</th></tr>
+      </thead>
+      <tbody>
+        {% for f, equipo in t.con_equipos %}
+        <tr>
+          <td class="num">{{ f.posicion }}</td>
+          <th scope="row" class="equipo-tabla">{{ equipo.nombre }}{% if f.falta_sorteo %} <span class="chip aviso">Falta sorteo</span>{% endif %}</th>
+          <td class="num">{{ f.pj }}</td><td class="num">{{ f.pg }}</td><td class="num">{{ f.pe }}</td><td class="num">{{ f.pp }}</td>
+          <td class="num">{{ f.gf }}</td><td class="num">{{ f.gc }}</td><td class="num">{{ f.dg }}</td><td class="num"><strong>{{ f.puntos }}</strong></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if url_sorteo and t.falta_sorteo %}
+  <details class="desplegable">
+    <summary>Registrar el sorteo (P28)</summary>
+    <form method="post" action="{{ url_sorteo }}" class="flex flex-col gap-2">
+      {% csrf_token %}
+      <p class="peq tenue">Siguen empatados después del fair play. Anota el lugar que salió para cada uno (1 es el mejor).</p>
+      {% for equipo in t.falta_sorteo %}
+      <div class="fila"><label class="crece" for="lugar-{{ equipo.pk }}"><strong>{{ equipo.nombre }}</strong></label><input id="lugar-{{ equipo.pk }}" class="orden" type="number" min="1" name="lugar_{{ equipo.pk }}" value="{{ forloop.counter }}" inputmode="numeric"></div>
+      {% endfor %}
+      <button type="submit" class="btn bloque">Guardar el sorteo</button>
+    </form>
+  </details>
+  {% endif %}
+</div>
+{% endfor %}
