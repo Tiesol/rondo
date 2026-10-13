@@ -76,6 +76,7 @@
       <span class="dorsal">{{ profe.rol|first|upper }}</span>
       <span class="crece"><strong>{{ profe.persona }}</strong><span class="sub">{{ profe.rol|capfirst }}</span></span>
       {% if profe.otros_equipos %}<span class="chip info num">{{ profe.otros_equipos }} equipo{{ profe.otros_equipos|pluralize }} más</span>{% endif %}
+      {% if perms.torneo.inscribir_equipos %}<a class="btn chico" href="{% url 'foto-persona' profe.persona_id %}" aria-label="Foto de {{ profe.persona }}">{% if profe.persona.foto %}Foto{% else %}+ Foto{% endif %}</a>{% endif %}
     </li>
     {% endfor %}
   </ul>

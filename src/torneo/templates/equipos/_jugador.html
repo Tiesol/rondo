@@ -5,6 +5,7 @@
     <strong>{{ jugador.persona }}</strong>
     <span class="sub">{% if jugador.persona.documento %}{{ jugador.persona.documento }}{% else %}Documento pendiente{% endif %}{% if jugador.persona.anio_nacimiento %} · {{ jugador.persona.anio_nacimiento }}{% if not jugador.persona.nacimiento %} (fecha incompleta){% endif %}{% endif %}</span>
   </span>
+  {% if perms.torneo.inscribir_equipos %}<a class="btn chico" href="{% url 'foto-persona' jugador.persona_id %}" aria-label="Foto de {{ jugador.persona }}">{% if jugador.persona.foto %}Foto{% if jugador.persona.foto_autorizada %} ✓{% endif %}{% else %}+ Foto{% endif %}</a>{% endif %}
   {% if perms.torneo.verificar_jugadores %}
   <form method="post" action="{% url 'verificar' jugador.pk %}" hx-post="{% url 'verificar' jugador.pk %}" hx-target="#jugador-{{ jugador.pk }}" hx-swap="outerHTML">
     {% csrf_token %}

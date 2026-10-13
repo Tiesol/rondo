@@ -1122,9 +1122,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Una foto sin autorización se ve en la ficha interna y en ninguna página pública (test).
-- [ ] Al subir, la pregunta de autorización está y queda registrada con quién y cuándo.
-- [ ] Borrar la foto la saca del almacenamiento.
+- [x] Una foto sin autorización se ve en la ficha interna y en ninguna página pública (test).
+- [x] Al subir, la pregunta de autorización está y queda registrada con quién y cuándo.
+- [x] Borrar la foto la saca del almacenamiento.
 
 **Verificación:** verde.
 **Depende de:** T8.2.
