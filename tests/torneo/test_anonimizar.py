@@ -2,10 +2,13 @@
 
 import io
 from datetime import date, timedelta
+from typing import Any
 
 import pytest
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.management import CommandError, call_command
+from PIL import Image
 
 from dominio.config import cargar_config
 from torneo.models import Club, Equipo, Jugador, Persona, Profe, Torneo
@@ -100,3 +103,53 @@ def test_un_torneo_en_curso_no_se_anonimiza(terminado: Torneo) -> None:
     with pytest.raises(CommandError, match="todavía no terminó"):
         anonimizar(terminado, "--confirmo")
     assert Persona.objects.filter(apellidos__startswith="Inventado").count() == 12
+
+
+def _foto() -> ContentFile[bytes]:
+    salida = io.BytesIO()
+    Image.new("RGB", (20, 20), (1, 2, 3)).save(salida, "WEBP")
+    return ContentFile(salida.getvalue(), name="foto.webp")
+
+
+@pytest.mark.django_db
+def test_t9_1_tambien_borra_las_fotos_del_almacenamiento(
+    terminado: Torneo, django_capture_on_commit_callbacks: Any
+) -> None:
+    # P49 y P76: las fotos son datos personales de menores; no quedan en el bucket.
+    archivos = []
+    for persona in Persona.objects.all():
+        persona.foto.save("foto.webp", _foto())
+        persona.foto_autorizada = True
+        persona.save()
+        archivos.append(persona.foto.name or "")
+    with django_capture_on_commit_callbacks(execute=True):
+        anonimizar(terminado, "--confirmo")
+    for persona in Persona.objects.all():
+        assert not persona.foto and not persona.foto_autorizada
+    almacenamiento = Persona._meta.get_field("foto").storage
+    assert not any(almacenamiento.exists(nombre) for nombre in archivos)
+
+
+@pytest.mark.django_db
+def test_t9_1_la_foto_de_quien_sigue_en_otro_torneo_queda(terminado: Torneo) -> None:
+    otro = Torneo.objects.create(
+        nombre="Otro", edicion=6, anio=2027, inicio=date.today(), fin=date.today()
+    )
+    persona = Jugador.objects.filter(equipo__categoria__torneo=terminado).first().persona  # type: ignore[union-attr]
+    persona.foto.save("foto.webp", _foto())
+    cn = otro.categorias.create(
+        categoria="Sub 9",
+        nivel="avanzado",
+        edad=9,
+        modalidad="F7",
+        min_jugadores=1,
+        max_jugadores=20,
+        min_por_tiempo=20,
+    )
+    equipo = Equipo.objects.create(
+        club=Club.objects.create(nombre="Otro club"), categoria=cn, nombre="Otro"
+    )
+    Jugador.objects.create(persona=persona, equipo=equipo, dorsal=9)
+    anonimizar(terminado, "--confirmo")
+    persona.refresh_from_db()
+    assert persona.foto and persona.foto.storage.exists(persona.foto.name or "")

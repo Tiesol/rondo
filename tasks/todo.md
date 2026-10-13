@@ -1278,8 +1278,8 @@ T8.5 → T8.6         │
 
 **Aceptación:**
 
-- [ ] Después de anonimizar, el almacenamiento no tiene ninguna foto de esas personas.
-- [ ] Las fotos de quien sigue en otro torneo quedan.
+- [x] Después de anonimizar, el almacenamiento no tiene ninguna foto de esas personas.
+- [x] Las fotos de quien sigue en otro torneo quedan.
 
 **Verificación:** verde.
 **Depende de:** T8.4.
