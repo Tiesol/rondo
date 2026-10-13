@@ -95,6 +95,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-07: T6.3 lista: revisión de seguridad con modelo de amenazas. Corregido: rutas de recuperación por correo abiertas (se sacaron), sin CSP ni Permissions-Policy (agregadas), login sin límite de intentos (10 por IP y por usuario cada 15 min) y sin 500 propia. Un test recorre todas las URLs (login obligatorio salvo las públicas). `check --deploy` y `pip-audit` sin hallazgos.
 - 2026-10-07: T6.4 lista: `manage.py anonimizar_torneo <id> --confirmo` (`servicios/retencion`) deja un torneo terminado sin nombres, documentos ni fechas de nacimiento (P49): "Jugador N" y "Profe N" según el plantel, con dorsales, equipos y calendario intactos; no toca a quien está en otro torneo; se niega con un torneo en curso o sin la bandera. Paso 3d de DESPLIEGUE.md.
 - 2026-10-08: revisión de cierre de la parte A de la fase 6: 5 mutaciones, las 5 detectadas (ver "Revisión de la fase 6, parte A").
+- 2026-10-12: T7.10 lista: `docs/DESPLIEGUE.md` tiene la sección "Producción" con la lista exacta (Neon Launch, proyecto aparte `rondo-produccion` en N. Virginia con 7 días de historia; Render Standard sin Auto-Deploy) y sus variables. `assets/.gitkeep` arregla el `staticfiles.W004` de un clon nuevo (revisión externa, punto 6). Los trabajadores del solver ya salían de `RONDO_PROGRAMADOR_TRABAJADORES`; el valor para 1 CPU se confirma en T7.12.
 
 ## Pendiente
 
