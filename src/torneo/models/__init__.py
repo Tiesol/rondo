@@ -6,6 +6,7 @@ from torneo.models.evento import Evento
 from torneo.models.fixture import Partido, Serie
 from torneo.models.inscripcion import Club, Equipo, Jugador, Persona, Profe
 from torneo.models.patrocinador import Patrocinador
+from torneo.models.sancion import MultaPagada, SuspensionManual
 from torneo.models.sitio import Organizador
 from torneo.models.sorteo import SorteoDeTabla
 
@@ -20,6 +21,7 @@ __all__ = [
     "Evento",
     "Franja",
     "Jugador",
+    "MultaPagada",
     "Organizador",
     "Partido",
     "Patrocinador",
@@ -27,5 +29,6 @@ __all__ = [
     "Profe",
     "Serie",
     "SorteoDeTabla",
+    "SuspensionManual",
     "Torneo",
 ]

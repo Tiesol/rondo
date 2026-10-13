@@ -18,6 +18,12 @@
   </div>
 </div>
 
+{% if suspendidos %}
+<div class="seccion">
+  {% for jugador, motivo in suspendidos %}{% include "parciales/alerta.html" with estado="error" titulo="Suspendido:" texto=jugador.dorsal|default_if_none:"s/n"|stringformat:"s"|add:" · "|add:jugador.persona.nombres|add:" "|add:jugador.persona.apellidos|add:" ("|add:jugador.equipo.nombre|add:"). "|add:motivo %}{% endfor %}
+</div>
+{% endif %}
+
 {% if equipos|length < 2 %}
 <div class="seccion">{% include "parciales/alerta.html" with estado="aviso" texto="Faltan los equipos de este partido: se asignan en el fixture de la categoría." %}</div>
 {% elif not partido.empezado %}
@@ -72,6 +78,40 @@
   </div>
   <noscript><button type="submit" class="btn bloque">Guardar el mejor jugador</button></noscript>
 </form>
+
+{% if multas %}
+<div class="seccion gap-2">
+  {% include "parciales/seccion_cab.html" with titulo="Multas por doble amarilla" %}
+  {% for jugador, pagada in multas %}
+  <form method="post" action="{% url 'accion-partido' partido.pk %}" class="fila">
+    {% csrf_token %}
+    <input type="hidden" name="accion" value="multa"><input type="hidden" name="jugador" value="{{ jugador.pk }}">
+    <span class="crece"><strong>{{ jugador.dorsal|default_if_none:"s/n" }} · {{ jugador.persona }}</strong><span class="sub">{{ jugador.equipo.nombre }} · Bs {{ monto_multa }}</span></span>
+    {% if pagada %}<button type="submit" class="chip bien">Pagó Bs {{ monto_multa }}</button>{% else %}<button type="submit" name="pagada" value="on" class="chip aviso">Marcar que pagó Bs {{ monto_multa }}</button>{% endif %}
+  </form>
+  {% endfor %}
+  <p class="peq tenue">Sin pagar, el jugador no juega el partido siguiente de su equipo (P74).</p>
+</div>
+{% endif %}
+
+{% if perms.torneo.configurar_torneo %}
+<details class="desplegable seccion">
+  <summary>Suspender a un jugador a mano</summary>
+  <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-2">
+    {% csrf_token %}
+    <input type="hidden" name="accion" value="suspender">
+    <div class="campo"><label for="suspender-jugador">Jugador</label>
+      <select id="suspender-jugador" name="jugador">{% for lado in equipos %}<optgroup label="{{ lado.equipo.nombre }}">{% for jugador in lado.plantel %}<option value="{{ jugador.pk }}">{{ jugador.dorsal|default_if_none:"s/n" }} · {{ jugador.persona }}</option>{% endfor %}</optgroup>{% endfor %}</select>
+    </div>
+    <div class="dos">
+      <div class="campo"><label for="suspender-partidos">Partidos</label><input id="suspender-partidos" type="number" min="1" max="5" name="partidos" value="1" inputmode="numeric"></div>
+      <div class="campo"><label for="suspender-motivo">Motivo</label><input id="suspender-motivo" name="motivo" value="Roja directa" maxlength="120"></div>
+    </div>
+    <button type="submit" class="btn bloque">Suspender</button>
+    <p class="peq tenue">No juega los partidos siguientes de su equipo, después de este (P29).</p>
+  </form>
+</details>
+{% endif %}
 
 {% if partido.estado != "jugado" %}
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">

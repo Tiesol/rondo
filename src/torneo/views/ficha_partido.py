@@ -13,11 +13,18 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from dominio.config import Reglas
 from torneo.models import Equipo, Jugador, Partido
 from torneo.permisos import requiere
 from torneo.presentacion import escudo
 from torneo.servicios import partido as servicio
 from torneo.servicios.partido import NoSePuede
+from torneo.servicios.suspensiones import (
+    marcar_multa,
+    multas_de,
+    suspender_a_mano,
+    suspendidos_en,
+)
 
 _PARTIDO = Partido.objects.select_related(
     "categoria__torneo", "local__club", "visitante__club", "cancha", "mejor_jugador__persona"
@@ -61,6 +68,9 @@ def ficha(request: HttpRequest, pk: int) -> HttpResponse:
             for e in eventos
         ],
         "eliminacion": partido.fase == Partido.Fase.ELIMINACION,
+        "suspendidos": suspendidos_en(partido),
+        "multas": multas_de(partido),
+        "monto_multa": Reglas.model_validate(partido.categoria.torneo.reglas).multa_doble_amarilla,
         "hora": timezone.localtime(partido.inicio).strftime("%H:%M") if partido.inicio else "",
     }
     return render(request, "partidos/ficha.html", contexto)
@@ -90,6 +100,13 @@ def _equipo(partido: Partido, pk: str) -> Equipo:
 
 def _jugador(pk: str) -> Jugador | None:
     return Jugador.objects.filter(pk=pk).first() if pk.isdigit() else None
+
+
+def _jugador_del_partido(partido: Partido, pk: str) -> Jugador:
+    jugador = _jugador(pk)
+    if jugador is None or jugador.equipo_id not in (partido.local_id, partido.visitante_id):
+        raise NoSePuede("Elige un jugador de este partido.")
+    return jugador
 
 
 def _numero(texto: str) -> int:
@@ -124,6 +141,22 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
             servicio.penales(partido, local, visitante)
         case "mejor":
             servicio.mejor_jugador(partido, _jugador(datos.get("jugador", "")))
+        case "multa":
+            jugador = _jugador_del_partido(partido, datos.get("jugador", ""))
+            marcar_multa(partido, jugador, pagada=bool(datos.get("pagada")), usuario=request.user)
+        case "suspender":
+            if not request.user.has_perm("torneo.configurar_torneo"):
+                raise NoSePuede("Solo la organización suspende a un jugador a mano.")
+            jugador = _jugador_del_partido(partido, datos.get("jugador", ""))
+            cuantos = _numero(datos.get("partidos", "1")) or 1
+            suspender_a_mano(
+                partido,
+                jugador,
+                partidos=cuantos,
+                motivo=datos.get("motivo", ""),
+                usuario=request.user,
+            )
+            messages.success(request, f"{jugador.persona} suspendido")
         case "terminar":
             servicio.terminar(partido, request.user)
             messages.success(request, "Partido terminado")

@@ -73,7 +73,7 @@ def test_el_asistente_no_pisa_un_torneo_creado_mientras_tanto(client: Client) ->
             datos[nombre] = "on"
         elif isinstance(valor, (list, tuple)):
             datos[f"{nombre}_0"], datos[f"{nombre}_1"] = valor
-        elif valor not in (None, False):
+        elif valor is not None and valor is not False:  # un 0 también se manda
             datos[nombre] = valor
     respuesta = org.post("/torneos/nuevo/4/", datos)
     assert respuesta.status_code == 200

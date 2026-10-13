@@ -244,7 +244,7 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 - [x] T8.6 Ficha del partido en el celular (B3)
 - [x] T8.7 Tabla de posiciones (B4, P26, P28, P34)
 - [x] T8.8 Cruces de la eliminación desde la tabla (B6, P50)
-- [ ] T8.9 Suspensiones (B5, P29, P74)
+- [x] T8.9 Suspensiones (B5, P29, P74)
 - [ ] T8.10 Página pública en vivo: partidos, posiciones, goleadores y ficha (B7, P65, P71)
 - [ ] T8.11 Página pública: equipo, patrocinadores y caché (B7)
 - [ ] T8.12 PNG del fixture con el diseño 2026 (B8) *(necesita las imágenes del PSD)*
