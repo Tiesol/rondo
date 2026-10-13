@@ -228,11 +228,11 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Checkpoint de la fase 7:**
 
-- [ ] Verde, más `pytest -m lento`.
-- [ ] La demo programada con la plantilla 2026, sin choques ni llaves encadenadas sin descanso, y la medición en PROGRESO.md (H7).
-- [ ] Una lista recreada con datos inventados se pega en menos de un minuto.
-- [ ] `docs/DESPLIEGUE.md` listo para crear producción.
-- [ ] Revisión con `code-review-and-quality` y tu visto bueno.
+- [x] Verde, más `pytest -m lento`.
+- [x] La demo programada con la plantilla 2026, sin choques ni llaves encadenadas sin descanso, y la medición en PROGRESO.md (H7).
+- [x] Una lista recreada con datos inventados se pega en menos de un minuto.
+- [x] `docs/DESPLIEGUE.md` listo para crear producción.
+- [x] Revisión con `code-review-and-quality` (PROGRESO.md). Visto bueno dado por adelantado (2026-10-12).
 
 #### Fase 8: bloque B, reemplazar a Copa Fácil (antes del viernes 23/10)
 

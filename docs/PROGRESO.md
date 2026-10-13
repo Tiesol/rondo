@@ -5,7 +5,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 7, pedido 2026 (`docs/PEDIDO_CLAUDE_CODE.md`). La organización aprobó la app para el torneo 2026 y Rondo reemplaza a Copa Fácil. Las fases 1b a 5 y la parte A de la fase 6 están terminadas y revisadas.
-- **Siguiente paso:** fases 7, 8 y 9 aprobadas el 2026-10-12. Orden del bloque A: T7.10 + T7.4 + T7.5 → T7.6 a T7.9 → T7.1 a T7.3 → T7.11 → T7.12; si algo no entra para el 14/10, se corre T7.11 o T7.12. Después, la fase 8 y la 9.
+- **Siguiente paso:** la fase 7 (bloque A) está terminada y revisada (2026-10-13). Sigue la fase 8 (bloque B, reemplazar a Copa Fácil), en el orden del pedido: T8.1 → T8.2 → T8.3 → T8.4 → T8.5 → … Después, la fase 9.
+- **Para probar (Sebastian):** pegar listas en la ficha del equipo (Plantel y Cuerpo técnico), fecha de nacimiento con solo el año, Copa de Bronce en Reglas, el aviso de fixture desactualizado, "Borrador" en el calendario y el PNG, y la programación con la plantilla 2026. Producción: `docs/DESPLIEGUE.md`, sección "Producción".
 - **Fusiones congeladas:** nada se fusiona a `main` (tampoco `docs/plan-pedido-2026`) hasta que Sebastian avise que terminó la prueba de la organización. Las ramas de tarea salen una de otra, encadenadas desde `docs/plan-pedido-2026`, y se fusionan en orden cuando avise.
 - **Preguntas:** desde el 2026-10-12, la fuente de las P (P1 a P77, con su valor por defecto) es `docs/PREGUNTAS_JMP_CUP_2026.md`.
 
@@ -437,6 +438,28 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 | El login sin límite de intentos | Detectada |
 | Anonimizar toca a quien está en otro torneo | Detectada |
 | Sin CSP | Detectada |
+
+## Revisión de la fase 7 (2026-10-13, `code-review-and-quality`)
+
+**Veredicto: aprobada.** Diff de `main` a `fase-7/medicion`: 42 archivos de código, unas 1.400 líneas, con sus tests (716 rápidos y los 2 lentos en verde; mypy y ruff limpios).
+
+| Mutación (se invierte una condición nueva y se corre su test) | Resultado |
+|---|---|
+| La llave que toma posiciones no descansa después de los grupos | Detectada |
+| El margen de P35 también en la misma cancha | Detectada |
+| El verificador ignora los equipos virtuales | Detectada |
+| El modelo ignora los equipos virtuales | Detectada |
+| Sin el objetivo de la espera de los profes | Detectada |
+| La regla de Bronce no marca el fixture como desactualizado | Detectada |
+| Toda lista se lee en mm/dd | Detectada |
+| P57 cuenta a todo el cuerpo técnico | Detectada |
+| "Fecha incompleta" al revés | Detectada |
+| La vista previa de pegar guarda de verdad | Detectada |
+
+- **Seguridad:** pegar lista pide el permiso de cargar listas, usa CSRF, limita a 60 filas, el formulario es sensible y nada va a la sesión ni al log (con test). Todo lo que llega del formulario pasa por el mismo servicio que la carga a mano.
+- **FYI:** dos imágenes del diseño (`copa_marca_de_agua.png` y `logo_jmp_cup.png`) entraron en el commit de T7.5 por un `git add src`. No tienen datos personales; se acomodan en T8.12. Desde ahora se agregan rutas concretas, nunca carpetas enteras.
+- **Consider (anotado, sin cambio):** P47 no suma los partidos de grupos del día a los de las llaves encadenadas. Con la eliminación en su propio fin de semana no pasa; si P33 adelanta semis, hay que revisarlo.
+- **Nit:** los nombres de los días están en `dominio/config.py` (opciones de la regla) y en `servicios/asistente.py`. Se dejan: son dos capas distintas.
 
 ## Supuestos
 
