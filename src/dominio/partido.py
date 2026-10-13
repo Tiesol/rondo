@@ -8,7 +8,7 @@ equipo que lo hizo, sin jugador, y suma para el rival. Un W.O. da el marcador de
 from dataclasses import dataclass
 from typing import Literal
 
-TipoDeEvento = Literal["gol", "gol_en_contra", "amarilla", "roja"]
+TipoDeEvento = Literal["gol", "gol_en_contra", "amarilla", "roja", "amonestacion"]
 Lado = Literal["local", "visitante"]
 
 

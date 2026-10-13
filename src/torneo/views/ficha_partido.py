@@ -29,7 +29,42 @@ from torneo.servicios.suspensiones import (
 _PARTIDO = Partido.objects.select_related(
     "categoria__torneo", "local__club", "visitante__club", "cancha", "mejor_jugador__persona"
 )
-TIPOS = {"gol": "Gol", "gol_en_contra": "Gol en contra", "amarilla": "Amarilla", "roja": "Roja"}
+TIPOS = {
+    "gol": "Gol",
+    "gol_en_contra": "Gol en contra",
+    "amarilla": "Amarilla",
+    "roja": "Roja",
+    "amonestacion": "Amonestación",
+}
+
+
+def _tiempo(partido: Partido) -> str:
+    """T10.9: "1.er tiempo · 12'": el tiempo que marcó la mesa y los minutos desde que empezó."""
+    desde = {
+        Partido.Tiempo.PRIMER_TIEMPO: partido.inicio_real,
+        Partido.Tiempo.DESCANSO: partido.fin_primer_tiempo,
+        Partido.Tiempo.SEGUNDO_TIEMPO: partido.fin_descanso,
+    }.get(partido.tiempo)  # type: ignore[call-overload]
+    if not partido.tiempo:
+        return ""
+    texto = partido.get_tiempo_display()
+    if desde is not None:
+        texto += f" · {int((timezone.now() - desde).total_seconds() // 60)}'"
+    return texto
+
+
+def _notas(partido: Partido, eventos: list[Any], reglas: Reglas) -> dict[int, str]:
+    """Debajo de cada evento: la segunda amarilla de un jugador, hasta Sub 9, lo saca 5 min."""
+    if partido.categoria.edad >= reglas.doble_amarilla_desde:
+        return {}
+    notas: dict[int, str] = {}
+    cuenta: dict[Any, int] = {}
+    for e in sorted(eventos, key=lambda e: (e.creado_en, e.pk)):
+        if e.tipo == "amarilla" and e.jugador_id:
+            cuenta[e.jugador_id] = cuenta.get(e.jugador_id, 0) + 1
+            if cuenta[e.jugador_id] == 2:
+                notas[e.pk] = "Segunda amarilla: sale 5 minutos."
+    return notas
 
 
 def _plantel(equipo: Equipo | None) -> list[Jugador]:
@@ -52,8 +87,12 @@ def ficha(request: HttpRequest, pk: int) -> HttpResponse:
         for e in (partido.local, partido.visitante)
         if e is not None
     ]
+    reglas = Reglas.model_validate(partido.categoria.torneo.reglas)
+    notas = _notas(partido, eventos, reglas)
     contexto = {
         "partido": partido,
+        "tiempo": _tiempo(partido),
+        "con_mejor_jugador": reglas.mejor_jugador,
         "resultado": resultado,
         "equipos": equipos,
         "eventos": [
@@ -64,6 +103,7 @@ def ficha(request: HttpRequest, pk: int) -> HttpResponse:
                 "jugador": e.jugador,
                 "hora": timezone.localtime(e.creado_en).strftime("%H:%M"),
                 "quien": e.creado_por.username if e.creado_por else "",
+                "nota": notas.get(e.pk, ""),
             }
             for e in eventos
         ],
@@ -121,7 +161,9 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
     match que:
         case "empezar":
             servicio.empezar(partido, request.user)
-        case "gol" | "gol_en_contra" | "amarilla" | "roja":
+        case "avanzar_tiempo":
+            servicio.avanzar_tiempo(partido)
+        case "gol" | "gol_en_contra" | "amarilla" | "roja" | "amonestacion":
             equipo = _equipo(partido, datos.get("equipo", ""))
             servicio.anotar(partido, que, equipo, _jugador(datos.get("jugador", "")), request.user)
         case "deshacer":

@@ -33,6 +33,13 @@ class Partido(models.Model):
         EN_JUEGO = "en_juego", "En juego"  # T8.5: ya no se mueve
         JUGADO = "jugado", "Jugado"
 
+    class Tiempo(models.TextChoices):
+        SIN_EMPEZAR = "", "Sin empezar"
+        PRIMER_TIEMPO = "primer_tiempo", "1.er tiempo"
+        DESCANSO = "descanso", "Descanso"
+        SEGUNDO_TIEMPO = "segundo_tiempo", "2.º tiempo"
+        TERMINADO = "terminado", "Terminado"
+
     class Lado(models.TextChoices):
         LOCAL = "local", "Local"
         VISITANTE = "visitante", "Visitante"
@@ -65,6 +72,12 @@ class Partido(models.Model):
     no_se_presento = models.CharField(max_length=9, choices=Lado.choices, blank=True)  # W.O.
     penales_local = models.PositiveSmallIntegerField(null=True, blank=True)
     penales_visitante = models.PositiveSmallIntegerField(null=True, blank=True)
+    # T10.9: los tiempos los marca la mesa a mano (el partido puede empezar tarde).
+    tiempo = models.CharField(max_length=14, choices=Tiempo.choices, blank=True)
+    inicio_real = models.DateTimeField(null=True, blank=True)
+    fin_primer_tiempo = models.DateTimeField(null=True, blank=True)
+    fin_descanso = models.DateTimeField(null=True, blank=True)
+    fin_real = models.DateTimeField(null=True, blank=True)
     mejor_jugador = models.ForeignKey(
         "Jugador", on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
     )  # P70

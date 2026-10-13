@@ -12,11 +12,18 @@ from typing import Any
 
 from django.utils import timezone
 
+from dominio.config import Reglas
 from torneo.models import CategoriaNivel, Equipo, Evento, Jugador, Partido, Persona, Torneo
 from torneo.presentacion import escudo, url_de_imagen
 from torneo.servicios.partido import resultado_de
 
-TIPOS = {"gol": "Gol", "gol_en_contra": "Gol en contra", "amarilla": "Amarilla", "roja": "Roja"}
+TIPOS = {
+    "gol": "Gol",
+    "gol_en_contra": "Gol en contra",
+    "amarilla": "Amarilla",
+    "roja": "Roja",
+    "amonestacion": "Amonestación",
+}
 _ESTADOS = {"en_juego": "En juego", "jugado": "Terminado"}
 
 
@@ -121,7 +128,11 @@ def ficha_publica(partido: Partido) -> dict[str, Any]:
             }
             for e in eventos.order_by("creado_en", "pk")
         ],
-        "mejor": _jugador(partido.mejor_jugador),
+        "mejor": (
+            _jugador(partido.mejor_jugador)
+            if Reglas.model_validate(partido.categoria.torneo.reglas).mejor_jugador
+            else None
+        ),
     }
 
 
