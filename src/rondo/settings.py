@@ -148,6 +148,7 @@ if R2_CONECTADO:
         },
     }
 IMAGENES_DISPONIBLES = R2_CONECTADO or DEBUG
+IMAGEN_MAX_MB = int(os.environ.get("RONDO_IMAGEN_MAX_MB", "8"))  # al subir (T8.2)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
