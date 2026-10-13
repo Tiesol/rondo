@@ -79,7 +79,13 @@ def categoria(request: HttpRequest, pk: int, pestana: str) -> HttpResponse:
         "form": formulario,
         "puede_cambiar": puede_cambiar,
         "equipos": filas_de_equipos(actual) if pestana == "equipos" else [],
-        "fixture": datos_del_fixture(actual) if pestana == "fixture" else {},
+        "fixture": (
+            datos_del_fixture(
+                actual, con_propuesta=request.user.has_perm("torneo.configurar_torneo")
+            )
+            if pestana == "fixture"
+            else {}
+        ),
         "tablas": tablas_de(actual) if pestana == "posiciones" else [],
     }
     plantilla = "torneo/_categoria.html" if pide_fragmento(request) else "torneo/categoria.html"

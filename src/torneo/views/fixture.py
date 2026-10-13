@@ -15,6 +15,7 @@ from dominio.formatos import FormatoFaltante
 from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.presentacion import escudo
+from torneo.servicios.cruces import aplicar, proponer
 from torneo.servicios.fixture import (
     FixtureNoSePuede,
     formatos,
@@ -72,7 +73,7 @@ def _fila(partido: Partido) -> dict[str, Any]:
     }
 
 
-def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
+def datos_del_fixture(categoria: CategoriaNivel, *, con_propuesta: bool = False) -> dict[str, Any]:
     """Series, fechas y eliminación, listas para la plantilla torneo/_fixture.html."""
     cantidad = categoria.equipos.count()
     problema = ""
@@ -99,6 +100,7 @@ def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
     return {
         "problema": problema,
         "desactualizado": motivo_desactualizado(categoria, partidos, {e.pk for e in equipos}),
+        "propuesta": _propuesta(categoria, partidos) if con_propuesta else None,
         "faltan_equipos": cantidad < 2,
         "hay_fixture": bool(partidos),
         "letras": letras,
@@ -115,6 +117,24 @@ def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
         "fechas": [{"numero": n, "partidos": filas} for n, filas in sorted(fechas.items())],
         "eliminacion": [{"copa": copa, "partidos": filas} for copa, filas in copas.items()],
         "equipos": equipos,
+    }
+
+
+def _propuesta(categoria: CategoriaNivel, partidos: list[Partido]) -> dict[str, Any] | None:
+    """T8.8: los cruces que salen de la tabla, si hay llaves sin asignar."""
+    sin_asignar = [
+        p for p in partidos if p.fase == Partido.Fase.ELIMINACION and not (p.local or p.visitante)
+    ]
+    if not sin_asignar:
+        return None
+    propuesta = proponer(categoria)
+    return {
+        "problema": propuesta.problema,
+        "choques": propuesta.choques,
+        "cruces": [
+            {"nombre": p.nombre, "local": local.nombre, "visitante": visitante.nombre}
+            for p, (local, visitante) in propuesta.cruces
+        ],
     }
 
 
@@ -204,4 +224,20 @@ def asignar(request: HttpRequest, pk: int) -> HttpResponse:
     choques = [m for c in calendario if partido.pk in c.partidos for m in c.motivos]
     if choques:
         messages.warning(request, "Con estos equipos, el partido choca: " + "; ".join(choques))
+    return _volver(categoria)
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "asignar los cruces")
+def cruces(request: HttpRequest, pk: int) -> HttpResponse:
+    """T8.8: asigna los cruces que salen de la tabla (P50). Si chocan, se avisa."""
+    categoria = get_object_or_404(CategoriaNivel.objects.select_related("torneo"), pk=pk)
+    propuesta = proponer(categoria)
+    if propuesta.problema:
+        messages.error(request, propuesta.problema)
+        return _volver(categoria)
+    cantidad = aplicar(categoria, propuesta)
+    messages.success(request, f"Cruces asignados: {cantidad}")
+    if propuesta.choques:
+        messages.warning(request, "Con estos equipos, hay choques: " + "; ".join(propuesta.choques))
     return _volver(categoria)

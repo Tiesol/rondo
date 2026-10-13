@@ -25,6 +25,24 @@ página pública. Con editable, la organización ve los botones y el editor de s
 </div>
 {% endif %}
 
+{% if editable and fixture.propuesta %}
+<div class="seccion gap-2">
+  {% include "parciales/seccion_cab.html" with titulo="Cruces desde la tabla" %}
+  {% if fixture.propuesta.problema %}
+  {% include "parciales/alerta.html" with estado="info" texto=fixture.propuesta.problema %}
+  {% elif fixture.propuesta.cruces %}
+  <ul class="lista">
+    {% for cruce in fixture.propuesta.cruces %}
+    <li class="fila"><span class="crece"><strong>{{ cruce.nombre }}</strong><span class="sub">{{ cruce.local }} vs {{ cruce.visitante }}</span></span></li>
+    {% endfor %}
+  </ul>
+  {% for choque in fixture.propuesta.choques %}{% include "parciales/alerta.html" with estado="aviso" titulo="Choca:" texto=choque %}{% endfor %}
+  <form method="post" action="{% url 'cruces-desde-tabla' categoria.pk %}">{% csrf_token %}{% include "parciales/boton.html" with texto="Asignar estos cruces" principal=True bloque=True %}</form>
+  <p class="peq tenue">Salen de la tabla (P50). Después se pueden cambiar a mano en cada llave.</p>
+  {% endif %}
+</div>
+{% endif %}
+
 {% if fixture.series %}
 <ul class="lista">
   {% for serie in fixture.series %}
