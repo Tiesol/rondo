@@ -300,7 +300,7 @@ T8.5 → T8.6         │
 
 > Planificada el 2026-10-13 con `docs/RESPUESTAS_Y_CAMBIOS.md`. Detalle en `tasks/todo.md`.
 
-- [ ] T11.2 Avisos en lugar de bloqueos al mover
+- [x] T11.2 Avisos en lugar de bloqueos al mover
 - [ ] T11.3 Todas las canchas partibles y ubicar a mano
 - [ ] T11.4 Reglas del calendario (P33, P20) y faltante de F11
 - [ ] T11.5 Altas tardías y plantel máximo con aviso

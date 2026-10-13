@@ -14,7 +14,7 @@
   {% endwith %}
   <ul class="lista">
     {% for partido in resultado.sin_ubicar %}
-    <li class="fila"><span class="crece"><strong>{{ partido.partido }}</strong><span class="sub">{{ partido.motivo }}</span></span></li>
+    <li class="fila"><span class="crece"><strong>{{ partido.partido }}</strong><span class="sub">{{ partido.motivo }}</span></span><a class="btn chico" href="{% url 'mover' partido.id %}">Ubicar</a></li>
     {% endfor %}
   </ul>
   {% endif %}

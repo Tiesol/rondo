@@ -29,7 +29,7 @@
     {% csrf_token %}
     <button type="submit" class="btn principal bloque">{% if resultado %}Volver a programar{% else %}Programar los partidos{% endif %}</button>
   </form>
-  <p class="peq tenue">Puede tardar hasta un minuto. Los partidos jugados o fijados a mano no se mueven.</p>
+  <p class="peq tenue">Puede tardar hasta un minuto. Lo jugado no se mueve; lo movido a mano, sí.</p>
 </div>
 <div class="seccion">
   <div id="programando" class="esperando" aria-busy="true" aria-label="Programando">

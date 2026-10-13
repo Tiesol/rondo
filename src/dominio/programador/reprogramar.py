@@ -4,8 +4,9 @@ Ante un bloqueo nuevo, una suspensión o un partido sin lugar, se resuelve el mi
 partiendo del calendario actual, con otro objetivo: mover la menor cantidad de partidos,
 afectar a la menor cantidad de equipos y preferir el mismo fin de semana. Solo se mueven los
 partidos de una ventana (ese fin de semana y el siguiente), y solo dentro de ella; el resto
-queda fijo. Para dar 2 o 3 propuestas distintas, después de cada solución se prohíbe repetir
-el mismo conjunto de partidos movidos y se vuelve a resolver.
+queda fijo, igual que lo que la organización puso a mano fuera de las franjas (T11.2).
+Para dar 2 o 3 propuestas distintas, después de cada solución se prohíbe repetir el mismo
+conjunto de partidos movidos y se vuelve a resolver.
 """
 
 from collections import defaultdict
@@ -15,7 +16,7 @@ from datetime import datetime
 
 from ortools.sat.python import cp_model
 
-from dominio.programador.modelo import Equipo, Modelo, Problema
+from dominio.programador.modelo import Equipo, Modelo, Problema, lugar_habitual
 
 Lugar = tuple[str, datetime]  # cancha e inicio
 
@@ -51,7 +52,12 @@ def proponer(
     movibles = {
         p.id
         for p in problema.partidos
-        if p.fijo is None and (p.id not in actual or desde <= actual[p.id][1] < hasta)
+        if p.fijo is None
+        and (
+            p.id not in actual
+            # T11.2: lo que la organización puso a mano fuera de lo habitual, queda.
+            or (desde <= actual[p.id][1] < hasta and lugar_habitual(problema, p, actual[p.id]))
+        )
     }
     quietos = tuple(
         replace(p, fijo=actual[p.id]) if p.id not in movibles and p.id in actual else p

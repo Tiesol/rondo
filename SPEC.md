@@ -210,12 +210,12 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 | PRO-07 | Un equipo no juega durante un bloqueo de la ACF | Dura | 5.7, P21, P38 | Bloqueo | — |
 | PRO-08 | Los partidos de cada equipo van en el orden de las fechas | Dura o blanda | 5.8, P19 | R `orden_de_fechas` | Dura |
 | PRO-09 | La eliminación va después de los grupos, la final después de las semis, y desde un fin de semana dado | Dura | 5.9, P33 | R `eliminacion_desde_fin_de_semana` | 5 |
-| PRO-10 | Los partidos jugados o fijados a mano no se mueven | Dura | 5.10 | — | — |
+| PRO-10 | Los partidos en juego o jugados no se mueven. Mover a mano no fija (T11.2, 1.4) | Dura | 5.10 | — | — |
 | PRO-11 | Agrupar los partidos de un club, seguidos y en la misma cancha | Blanda | P20 | R `pesos` | — |
 | PRO-12 | Pocos huecos por cancha y la carga repartida entre fines de semana | Blanda | 5 | R `pesos` | — |
 | PRO-13 | Al reprogramar, mover la menor cantidad de partidos y equipos, preferir el mismo fin de semana y dar 2 o 3 propuestas | Blanda | 5 | R `pesos`, `propuestas` | 3 |
 | PRO-14 | Lo que no entra se informa con su motivo, y la capacidad se muestra antes de programar | — | 5 | — | — |
-| VER-01 | Un choque es un par de partidos con la lista de sus motivos, clasificado por tipo | Supuesto, H1 | — | — | — |
+| VER-01 | Un choque es un par de partidos con la lista de sus motivos, clasificado por tipo. Bloquea solo si es imposible (misma cancha o mismo equipo a la vez); lo demás es un aviso que se confirma (T11.2) | Supuesto, H1 | — | — | — |
 
 ### Resultados y sanciones (pedido 2026, fase 8)
 

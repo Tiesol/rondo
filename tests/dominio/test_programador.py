@@ -383,3 +383,42 @@ def test_t10_3_si_solo_hay_viernes_el_partido_no_se_ubica() -> None:
         problema(partidos, [(viernes.replace(hour=16), viernes.replace(hour=20))]), segundos=5
     )
     assert resultado.sin_ubicar == [partidos[0].id]
+
+
+# ---------- T11.2: partidos puestos a mano con avisos ----------
+
+
+def fijar(partido: PartidoAProgramar, cancha: str, momento: datetime) -> PartidoAProgramar:
+    return PartidoAProgramar(**{**partido.__dict__, "fijo": (cancha, momento)})
+
+
+def test_t11_2_un_partido_fijo_fuera_de_horario_no_rompe_el_modelo() -> None:
+    partidos = todos_contra_todos(list("ABCD"))
+    jueves = SABADO - timedelta(days=2)  # un día sin franjas
+    tarde = SABADO.replace(hour=17)  # después de la franja del sábado
+    partidos[0] = fijar(partidos[0], "C2", jueves.replace(hour=18))
+    partidos[1] = fijar(partidos[1], "C1", tarde)
+    prob = problema(partidos, [franja(0, 8, 14), franja(1, 8, 14)])
+    resultado = programar(prob, segundos=10)
+    assert resultado.ubicados[partidos[0].id] == ("C2", jueves.replace(hour=18))
+    assert resultado.ubicados[partidos[1].id] == ("C1", tarde)
+    assert resultado.sin_ubicar == []
+
+
+def test_t11_2_dos_fijos_que_rompen_una_regla_blanda_no_rompen_el_modelo() -> None:
+    # A juega dos partidos seguidos, sin turno libre, y un profe compartido a la vez:
+    # avisos que la organización confirmó. El resto se programa igual.
+    partidos = todos_contra_todos(list("ABCD"))
+    partidos[0] = fijar(partidos[0], "C1", SABADO.replace(hour=8))  # A-B
+    partidos[1] = fijar(partidos[1], "C2", SABADO.replace(hour=8, minute=50))  # A-C
+    otros = todos_contra_todos(list("EF"))
+    otros[0] = fijar(otros[0], "C2", SABADO.replace(hour=8))
+    prob = Problema(
+        partidos=tuple(partidos + otros),
+        fisicas=FISICAS,
+        franjas=(franja(0, 8, 14), franja(1, 8, 14)),
+        reglas=Reglas(),
+        pares=(ParDeEquipos("Sub 9:B", "Sub 9:E", "profe"),),
+    )
+    resultado = programar(prob, segundos=10)
+    assert resultado.sin_ubicar == []

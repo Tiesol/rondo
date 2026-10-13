@@ -55,7 +55,7 @@ def datos(inicio: Any, cancha: str) -> dict[str, str]:
 
 
 @pytest.mark.django_db
-def test_mover_a_un_turno_libre_lo_guarda_fijado(client: Client, torneo: Torneo) -> None:
+def test_mover_a_un_turno_libre_lo_guarda_sin_fijarlo(client: Client, torneo: Torneo) -> None:
     partido = programados()[0]
     ocupados = {timezone.localtime(p.inicio).date() for p in programados() if p.inicio}
     libre = next(
@@ -70,7 +70,6 @@ def test_mover_a_un_turno_libre_lo_guarda_fijado(client: Client, torneo: Torneo)
     assert respuesta.status_code == 302
     partido.refresh_from_db()
     assert partido.inicio == destino
-    assert partido.fijado
     cambio = Cambio.objects.get()
     assert cambio.motivo == "Cambio a mano"
     assert verificar_torneo(torneo) == {}
@@ -86,8 +85,9 @@ def test_mover_encima_de_otro_muestra_el_choque_y_no_guarda(client: Client, torn
     )
     assert respuesta.status_code == 200
     html = respuesta.content.decode()
-    assert "No se guardó" in html
+    assert "No se puede" in html
     assert "Se pisan en" in html or "a la vez" in html
+    assert "Mover igual" not in html  # T11.2: lo físicamente imposible no se confirma
     uno.refresh_from_db()
     assert (uno.cancha_id, uno.inicio) == antes
     assert not Cambio.objects.exists()
@@ -106,3 +106,102 @@ def test_el_calendario_ofrece_mover_solo_a_la_organizacion(client: Client, torne
     dia = timezone.localtime(partido.inicio).date().isoformat()
     org = entrar(client, ORGANIZACION)
     assert f"/partidos/{partido.pk}/mover/" in org.get(f"/calendario/{dia}/").content.decode()
+
+
+# ---------- T11.2: avisos que se confirman ----------
+
+
+def sabado(torneo: Torneo, hora: str) -> Any:
+    from datetime import datetime, time, timedelta
+
+    franja = torneo.franjas.order_by("inicio").first()
+    assert franja is not None
+    primero = timezone.localtime(franja.inicio).date()
+    while primero.weekday() != 5:
+        primero += timedelta(days=1)
+    return timezone.make_aware(datetime.combine(primero, time.fromisoformat(hora)))
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("hora", ["17:00", "07:00"])
+def test_t11_2_fuera_de_horario_avisa_y_se_mueve_al_confirmar(
+    client: Client, torneo: Torneo, hora: str
+) -> None:
+    partido = programados()[0]
+    destino = sabado(torneo, hora)
+    org = entrar(client, ORGANIZACION)
+    respuesta = org.post(f"/partidos/{partido.pk}/mover/", datos(destino, "C2"))
+    html = respuesta.content.decode()
+    assert respuesta.status_code == 200
+    assert "Fuera de las franjas" in html
+    assert "Mover igual" in html
+    partido.refresh_from_db()
+    assert partido.inicio != destino
+
+    respuesta = org.post(
+        f"/partidos/{partido.pk}/mover/", datos(destino, "C2") | {"confirmar": "1"}
+    )
+    assert respuesta.status_code == 302
+    partido.refresh_from_db()
+    assert partido.inicio == destino
+    assert Cambio.objects.get().motivo == "Cambio a mano"
+
+
+@pytest.mark.django_db
+def test_t11_2_un_partido_sin_lugar_se_ubica_a_mano(client: Client, torneo: Torneo) -> None:
+    from torneo.servicios.reprogramar import mover_a_mano
+
+    partido = programados()[0]
+    partido.cancha, partido.inicio = None, None
+    partido.estado = Partido.Estado.PENDIENTE
+    partido.save()
+    cancha = torneo.canchas.get(codigo="C3")
+    mover_a_mano(partido, cancha, sabado(torneo, "16:50"), confirmar=True)
+    partido.refresh_from_db()
+    assert partido.estado == Partido.Estado.PROGRAMADO
+    assert partido.cancha == cancha
+
+
+@pytest.mark.django_db
+def test_t11_2_un_partido_empezado_no_se_mueve(client: Client, torneo: Torneo) -> None:
+    partido = programados()[0]
+    partido.estado = Partido.Estado.EN_JUEGO
+    partido.save()
+    respuesta = entrar(client, ORGANIZACION).post(
+        f"/partidos/{partido.pk}/mover/",
+        datos(sabado(torneo, "17:00"), "C2") | {"confirmar": "1"},
+    )
+    assert respuesta.status_code == 200
+    assert "ya empezó" in respuesta.content.decode()
+    assert not Cambio.objects.exists()
+
+
+@pytest.mark.django_db
+def test_t11_2_volver_a_programar_mueve_tambien_lo_movido_a_mano(torneo: Torneo) -> None:
+    from torneo.servicios.reprogramar import mover_a_mano
+
+    partido = programados()[0]
+    mover_a_mano(partido, torneo.canchas.get(codigo="C2"), sabado(torneo, "17:00"), confirmar=True)
+    programar_torneo(torneo)
+    partido.refresh_from_db()
+    assert partido.inicio != sabado(torneo, "17:00")  # 1.4: no hay partidos fijados a mano
+
+
+@pytest.mark.django_db
+def test_t11_2_los_sin_lugar_tienen_ubicar_hasta_que_se_ubican(
+    client: Client, torneo: Torneo
+) -> None:
+    from torneo.servicios.reprogramar import mover_a_mano
+
+    torneo.categorias.get(categoria="Sub 9", nivel="avanzado").canchas.clear()
+    programar_torneo(torneo)
+    org = entrar(client, ORGANIZACION)
+    sin_lugar = Partido.objects.filter(estado=Partido.Estado.PENDIENTE, local__isnull=False)
+    partido = sin_lugar.first()
+    assert partido is not None
+    html = org.get(f"/torneos/{torneo.pk}/programar/").content.decode()
+    assert f"/partidos/{partido.pk}/mover/" in html
+
+    mover_a_mano(partido, torneo.canchas.get(codigo="C3"), sabado(torneo, "17:00"), confirmar=True)
+    html = org.get(f"/torneos/{torneo.pk}/programar/").content.decode()
+    assert f"/partidos/{partido.pk}/mover/" not in html

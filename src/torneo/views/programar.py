@@ -7,7 +7,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from dominio.capacidad import GrupoDeCanchas
-from torneo.models import Corrida, Torneo
+from torneo.models import Corrida, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.capacidad import capacidad_del_torneo
 from torneo.servicios.programador import ProgramacionEnCurso, programar_torneo
@@ -46,12 +46,18 @@ def _resultado(torneo: Torneo) -> dict[str, Any] | None:
     if corrida.estado == Corrida.Estado.FALLIDA:
         return {"fallida": True, "corrida": corrida}
     resultado = corrida.resultado
+    # T11.2: los que se ubicaron a mano después ya no figuran.
+    pendientes = set(
+        Partido.objects.filter(
+            categoria__torneo=torneo, estado=Partido.Estado.PENDIENTE
+        ).values_list("pk", flat=True)
+    )
     return {
         "corrida": corrida,
         "ubicados": resultado.get("ubicados", 0),
         "total": resultado.get("total", 0),
         "choques": sum(resultado.get("choques", {}).values()),
-        "sin_ubicar": resultado.get("sin_ubicar", []),
+        "sin_ubicar": [s for s in resultado.get("sin_ubicar", []) if s["id"] in pendientes],
     }
 
 

@@ -17,6 +17,10 @@ compatibilidad, de franja o de bloqueo) con la lista de sus motivos, y un tipo:
 - bloqueo: un equipo juega durante un bloqueo de la ACF.
 
 Un par de partidos con varios motivos del mismo tipo cuenta como un solo choque (H1).
+
+T11.2 (Rondo propone y avisa; la organización decide): un choque **bloquea** solo si es
+físicamente imposible, es decir dos partidos a la vez en la misma cancha física o un equipo
+en dos partidos a la vez. Todo lo demás es un aviso que se puede confirmar.
 """
 
 from collections import defaultdict
@@ -30,7 +34,7 @@ from dominio.config import Reglas
 
 TipoDeChoque = Literal["cancha", "compatibilidad", "franja", "equipo", "persona", "bloqueo"]
 Equipo = Hashable
-type _Anotar = Callable[[TipoDeChoque, Iterable[Hashable], str], None]
+type _Anotar = Callable[..., None]
 
 
 @dataclass(frozen=True)
@@ -101,6 +105,7 @@ class Choque:
     tipo: TipoDeChoque
     partidos: tuple[Hashable, ...]
     motivos: tuple[str, ...] = field(default=())
+    bloquea: bool = False  # T11.2: físicamente imposible; si no, es un aviso
 
 
 def _se_pisan(inicio_a: datetime, fin_a: datetime, inicio_b: datetime, fin_b: datetime) -> bool:
@@ -116,9 +121,15 @@ def _minutos_entre(primero: PartidoAgendado, segundo: PartidoAgendado) -> float:
 def verificar(partidos: Iterable[PartidoAgendado], escenario: Escenario) -> list[Choque]:
     lista = sorted(partidos, key=lambda p: (p.inicio, str(p.id)))
     motivos: dict[tuple[TipoDeChoque, tuple[Hashable, ...]], list[str]] = defaultdict(list)
+    bloquean: set[tuple[TipoDeChoque, tuple[Hashable, ...]]] = set()
 
-    def anotar(tipo: TipoDeChoque, ids: Iterable[Hashable], motivo: str) -> None:
-        motivos[(tipo, tuple(ids))].append(motivo)
+    def anotar(
+        tipo: TipoDeChoque, ids: Iterable[Hashable], motivo: str, *, bloquea: bool = False
+    ) -> None:
+        clave = (tipo, tuple(ids))
+        motivos[clave].append(motivo)
+        if bloquea:
+            bloquean.add(clave)
 
     for partido in lista:
         _uno_solo(partido, escenario, anotar)
@@ -128,7 +139,10 @@ def verificar(partidos: Iterable[PartidoAgendado], escenario: Escenario) -> list
     _grupos_y_llaves(lista, escenario.reglas, anotar)
     _personas(lista, escenario, anotar)
 
-    return [Choque(tipo, ids, tuple(lista_)) for (tipo, ids), lista_ in motivos.items()]
+    return [
+        Choque(tipo, ids, tuple(lista_), (tipo, ids) in bloquean)
+        for (tipo, ids), lista_ in motivos.items()
+    ]
 
 
 def _uno_solo(partido: PartidoAgendado, escenario: Escenario, anotar: _Anotar) -> None:
@@ -161,8 +175,13 @@ def _cancha(
     comunes = escenario.fisicas.get(uno.cancha, frozenset({uno.cancha})) & escenario.fisicas.get(
         otro.cancha, frozenset({otro.cancha})
     )
-    if comunes and _se_pisan(uno.inicio, uno.fin_turno, otro.inicio, otro.fin_turno):
-        anotar("cancha", (uno.id, otro.id), f"Se pisan en {', '.join(sorted(comunes))}")
+    if not comunes:
+        return
+    donde = ", ".join(sorted(comunes))
+    if _se_pisan(uno.inicio, uno.fin_partido, otro.inicio, otro.fin_partido):
+        anotar("cancha", (uno.id, otro.id), f"Se pisan en {donde}", bloquea=True)
+    elif _se_pisan(uno.inicio, uno.fin_turno, otro.inicio, otro.fin_turno):
+        anotar("cancha", (uno.id, otro.id), f"Sin el tiempo de cambio en {donde}")
 
 
 def _equipos(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> None:
@@ -183,8 +202,13 @@ def _equipos(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> N
                     f"(máximo {reglas.max_partidos_por_dia})",
                 )
             for uno, otro in combinations(del_dia, 2):
-                if _se_pisan(uno.inicio, uno.fin_turno, otro.inicio, otro.fin_turno):
-                    anotar("equipo", (uno.id, otro.id), f"{equipo}: juega dos partidos a la vez")
+                if _se_pisan(uno.inicio, uno.fin_partido, otro.inicio, otro.fin_partido):
+                    anotar(
+                        "equipo",
+                        (uno.id, otro.id),
+                        f"{equipo}: juega dos partidos a la vez",
+                        bloquea=True,
+                    )
                     continue
                 libre = (otro.inicio - uno.fin_turno).total_seconds() / 60
                 if libre < reglas.turnos_libres_mismo_dia * uno.minutos_turno:

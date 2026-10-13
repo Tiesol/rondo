@@ -19,7 +19,9 @@ Restricciones duras:
 - eliminación (PRO-09): después de la fase de grupos de su categoría y de los partidos a
   los que se refiere (sin ellos no se ubica), y desde su fin de semana (P33). Si toma
   posiciones de grupo y cae el mismo día que partidos de grupos, deja el turno libre (P17);
-- fijos (PRO-10): los partidos jugados o fijados a mano no se mueven.
+- fijos (PRO-10): los partidos empezados o jugados no se mueven. Pueden estar fuera de
+  las franjas o con avisos que la organización confirmó al ponerlos a mano (T11.2): las
+  restricciones entre dos fijos no se exigen, solo las de los que se mueven.
 
 Objetivo: primero ubicar la mayor cantidad; después, cada fecha de grupos cerca de su fin de
 semana, para repartir la carga (PRO-12), poca espera de los profes compartidos (PRO-11), los
@@ -32,7 +34,7 @@ from collections import defaultdict
 from collections.abc import Hashable
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
-from itertools import pairwise
+from itertools import combinations, pairwise
 
 from ortools.sat.python import cp_model
 
@@ -41,6 +43,8 @@ from dominio.verificador import Bloqueo, ParDeEquipos
 
 PASO_MIN = 5
 Equipo = Hashable
+# Un intervalo para no pisarse: el partido, su largo en pasos, si está activo y si es fijo.
+type _Ocupa = tuple["PartidoAProgramar", int, cp_model.IntVar | int, bool]
 
 
 @dataclass(frozen=True)
@@ -104,6 +108,19 @@ class _Reloj:
 
     def momento(self, paso: int) -> datetime:
         return self.origen + timedelta(minutes=paso * PASO_MIN)
+
+
+def lugar_habitual(
+    problema: Problema, partido: PartidoAProgramar, lugar: tuple[str, datetime]
+) -> bool:
+    """Si el programador podría haberlo puesto ahí: una cancha compatible, un día en que juega
+    y dentro de una franja. Lo que se puso a mano en otro lado (T11.2) no se mueve solo."""
+    cancha, inicio = lugar
+    if cancha not in partido.canchas or inicio.weekday() in partido.dias_sin_jugar:
+        return False
+    ultimo_inicio = problema.reglas.fin_de_franja == "ultimo_inicio"
+    fin = inicio if ultimo_inicio else inicio + timedelta(minutes=partido.minutos_partido)
+    return any(desde <= inicio and fin <= hasta for desde, hasta in problema.franjas)
 
 
 def _pasos(minutos: int) -> int:
@@ -184,13 +201,19 @@ class Modelo:
             }
             m.add(sum(self.en_cancha[partido.id].values()) == presente)
 
-            self.en_dia[partido.id] = {}
-            for dia, rangos in self.dias.items():
-                en_dia = m.new_bool_var(f"{partido.id} el {dia}")
-                m.add(inicio >= min(r[0] for r in rangos)).only_enforce_if(en_dia)
-                m.add(inicio <= max(r[1] for r in rangos)).only_enforce_if(en_dia)
-                self.en_dia[partido.id][dia] = en_dia
-            m.add(sum(self.en_dia[partido.id].values()) == presente)
+            if partido.fijo:  # T11.2: puede estar fuera de las franjas de su día
+                dia_fijo = partido.fijo[1].date()
+                self.en_dia[partido.id] = {
+                    dia: m.new_constant(int(dia == dia_fijo)) for dia in self.dias
+                }
+            else:
+                self.en_dia[partido.id] = {}
+                for dia, rangos in self.dias.items():
+                    en_dia = m.new_bool_var(f"{partido.id} el {dia}")
+                    m.add(inicio >= min(r[0] for r in rangos)).only_enforce_if(en_dia)
+                    m.add(inicio <= max(r[1] for r in rangos)).only_enforce_if(en_dia)
+                    self.en_dia[partido.id][dia] = en_dia
+                m.add(sum(self.en_dia[partido.id].values()) == presente)
 
             if partido.fijo:
                 cancha, momento = partido.fijo
@@ -198,21 +221,42 @@ class Modelo:
                 m.add(inicio == self.reloj.paso(momento, hacia_arriba=False))
                 if cancha in self.en_cancha[partido.id]:
                     m.add(self.en_cancha[partido.id][cancha] == 1)
-                else:  # fijado en una cancha que no es compatible: se respeta igual
+                else:  # en una cancha que no es compatible (T11.2): se respeta igual
                     self.en_cancha[partido.id][cancha] = m.new_constant(1)
 
+    def _paso_fijo(self, partido: PartidoAProgramar) -> int:
+        assert partido.fijo is not None
+        return self.reloj.paso(partido.fijo[1], hacia_arriba=False)
+
+    def _sin_pisarse(self, ocupan: list[_Ocupa], nombre: str) -> None:
+        """Que no se pisen. Si dos fijos ya se pisan (un aviso confirmado al moverlos a mano,
+        T11.2), se comparan solo los pares con algo que se mueve: si no, no habría solución."""
+
+        def intervalo(ocupa: _Ocupa) -> cp_model.IntervalVar:
+            partido, largo, activo, _ = ocupa
+            return self.modelo.new_optional_fixed_size_interval_var(
+                self.inicio[partido.id], largo, activo, f"{nombre} {partido.id}"
+            )
+
+        fijos = [(self._paso_fijo(p), largo) for p, largo, _, fijo in ocupan if fijo]
+        if not any(a < b + lb and b < a + la for (a, la), (b, lb) in combinations(fijos, 2)):
+            self.modelo.add_no_overlap([intervalo(o) for o in ocupan])
+            return
+        for uno, otro in combinations(ocupan, 2):
+            if not (uno[3] and otro[3]):
+                self.modelo.add_no_overlap([intervalo(uno), intervalo(otro)])
+
     def canchas(self) -> None:
-        por_unidad: dict[str, list[cp_model.IntervalVar]] = defaultdict(list)
+        por_unidad: dict[str, list[_Ocupa]] = defaultdict(list)
         for partido in self.problema.partidos:
             turno = _pasos(partido.minutos_turno)
             for cancha, elegida in self.en_cancha[partido.id].items():
-                intervalo = self.modelo.new_optional_fixed_size_interval_var(
-                    self.inicio[partido.id], turno, elegida, f"{partido.id} ocupa {cancha}"
-                )
+                if partido.fijo and partido.fijo[0] != cancha:
+                    continue  # un fijo está solo en su cancha
                 for unidad in self.problema.fisicas.get(cancha, frozenset({cancha})):
-                    por_unidad[unidad].append(intervalo)
-        for intervalos in por_unidad.values():
-            self.modelo.add_no_overlap(intervalos)
+                    por_unidad[unidad].append((partido, turno, elegida, partido.fijo is not None))
+        for unidad, ocupan in por_unidad.items():
+            self._sin_pisarse(ocupan, f"ocupa {unidad}")
 
     def equipos(self) -> None:
         reglas = self.problema.reglas
@@ -222,20 +266,24 @@ class Modelo:
                 por_equipo[equipo].append(partido)
         for suyos in por_equipo.values():
             # El turno más los turnos libres del día (P17): de un día al siguiente sobra lugar.
-            self.modelo.add_no_overlap(
+            self._sin_pisarse(
                 [
-                    self.modelo.new_optional_fixed_size_interval_var(
-                        self.inicio[p.id],
+                    (
+                        p,
                         _pasos(p.minutos_turno) * (1 + reglas.turnos_libres_mismo_dia),
                         self.presente[p.id],
-                        f"equipo en {p.id}",
+                        p.fijo is not None,
                     )
                     for p in suyos
-                ]
+                ],
+                "equipo en",
             )
             for dia in self.dias:
+                # Si los fijos ya pasan del máximo (un aviso confirmado), no se suma ninguno.
+                fijos = sum(1 for p in suyos if p.fijo and p.fijo[1].date() == dia)
                 self.modelo.add(
-                    sum(self.en_dia[p.id][dia] for p in suyos) <= reglas.max_partidos_por_dia
+                    sum(self.en_dia[p.id][dia] for p in suyos)
+                    <= max(reglas.max_partidos_por_dia, fijos)
                 )
 
     def personas(self) -> None:
@@ -250,22 +298,20 @@ class Modelo:
         separados: set[tuple[Hashable, Hashable]] = set()
         for par in self.problema.pares:
             juntos = {p.id: p for p in por_equipo.get(par.a, []) + por_equipo.get(par.b, [])}
-            self.modelo.add_no_overlap(
+            self._sin_pisarse(
                 [
-                    self.modelo.new_optional_fixed_size_interval_var(
-                        self.inicio[p.id],
-                        _pasos(p.minutos_partido),
-                        self.presente[p.id],
-                        f"{par.motivo} en {p.id}",
-                    )
+                    (p, _pasos(p.minutos_partido), self.presente[p.id], p.fijo is not None)
                     for p in juntos.values()
-                ]
+                ],
+                f"{par.motivo} en",
             )
             if par.motivo != "profe":
                 continue
             for uno in por_equipo.get(par.a, []):
                 for otro in por_equipo.get(par.b, []):
                     clave = (uno.id, otro.id) if str(uno.id) <= str(otro.id) else (otro.id, uno.id)
+                    if uno.fijo and otro.fijo:
+                        continue  # T11.2: ya están puestos; no se exige nada entre ellos
                     if uno.id != otro.id and clave not in separados:
                         separados.add(clave)
                         primero = self._margen_si_cambia_de_cancha(uno, otro, margen)
@@ -387,6 +433,8 @@ class Modelo:
     ) -> None:
         """`despues` empieza al terminar el turno de `antes`. Con descanso, si caen el mismo
         día, deja además los turnos libres de P17 (el equipo de una es el de la otra)."""
+        if antes.fijo and despues.fijo:
+            return  # T11.2: ya están puestos; si el orden quedó al revés, es un aviso
         ambos = [self.presente[antes.id], self.presente[despues.id]]
         turno = _pasos(antes.minutos_turno)
         self.modelo.add(self.inicio[despues.id] >= self.inicio[antes.id] + turno).only_enforce_if(
@@ -431,7 +479,8 @@ class Modelo:
                     continue
                 self._despues(anterior, llave)
                 # Sin los partidos a los que se refiere, la llave no se juega.
-                self.modelo.add_implication(self.presente[llave.id], self.presente[anterior.id])
+                if not llave.fijo:
+                    self.modelo.add_implication(self.presente[llave.id], self.presente[anterior.id])
 
     def objetivo(self) -> None:
         """Ubicar manda siempre. Después, que cada fecha caiga cerca de su fin de semana

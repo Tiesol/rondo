@@ -7,17 +7,22 @@
   {% csrf_token %}
   <div>
     <strong>{{ cruce }}</strong>
-    <p class="peq tenue">{{ partido.categoria }} · ahora: {{ ahora }}</p>
+    <p class="peq tenue">{{ partido.categoria }} · {% if ahora %}ahora: {{ ahora }}{% else %}sin lugar{% endif %}</p>
   </div>
-  {% if motivos %}
-  <div class="alerta error" role="alert">{% include "parciales/icono.html" with nombre="error" %}<span><strong>No se guardó: chocaría.</strong>{% for motivo in motivos %}<br>{{ motivo }}{% endfor %}</span></div>
+  {% if motivos and bloquea %}
+  <div class="alerta error" role="alert">{% include "parciales/icono.html" with nombre="error" clase="ico" %}<span><strong>No se puede.</strong>{% for motivo in motivos %}<br>{{ motivo }}{% endfor %}</span></div>
+  {% elif motivos %}
+  <div class="alerta aviso" role="alert">{% include "parciales/icono.html" with nombre="aviso" clase="ico" %}<span><strong>Revisa antes de mover:</strong>{% for motivo in motivos %}<br>{{ motivo }}{% endfor %}</span></div>
   {% endif %}
   <div class="dos">
     {% include "parciales/campo.html" with campo=form.dia %}
     {% include "parciales/campo.html" with campo=form.hora %}
   </div>
   {% include "parciales/campo.html" with campo=form.cancha %}
-  <p class="peq tenue">El verificador lo revisa antes de guardar. Si pasa, el partido queda fijado: al volver a programar no se mueve.</p>
+  {% if motivos and not bloquea %}
+  <button type="submit" name="confirmar" value="1" class="btn principal bloque">Mover igual</button>
+  {% else %}
   {% include "parciales/boton.html" with texto="Mover el partido" principal=True bloque=True %}
+  {% endif %}
 </form>
 {% endblock %}
