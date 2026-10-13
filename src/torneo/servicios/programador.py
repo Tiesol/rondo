@@ -112,7 +112,7 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
     for partido in partidos:
         categoria = partido.categoria
         fijo = None
-        quieto = partido.estado == Partido.Estado.JUGADO or partido.fijado
+        quieto = partido.empezado or partido.fijado
         if quieto and partido.cancha and partido.inicio:
             fijo = (partido.cancha.codigo, hora_local(partido.inicio))
         de_la_llave = llaves[categoria.pk].get(partido.clave) if partido.clave else None
@@ -278,7 +278,7 @@ def _guardar(
     canchas = {c.codigo: c for c in Cancha.objects.filter(torneo=torneo)}
     cambiados = []
     for partido in partidos:
-        if partido.estado == Partido.Estado.JUGADO or partido.fijado:
+        if partido.empezado or partido.fijado:
             continue
         if partido.pk in ubicados:
             codigo, inicio = ubicados[partido.pk]

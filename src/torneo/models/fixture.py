@@ -30,7 +30,12 @@ class Partido(models.Model):
     class Estado(models.TextChoices):
         PENDIENTE = "pendiente", "Sin programar"
         PROGRAMADO = "programado", "Programado"
+        EN_JUEGO = "en_juego", "En juego"  # T8.5: ya no se mueve
         JUGADO = "jugado", "Jugado"
+
+    class Lado(models.TextChoices):
+        LOCAL = "local", "Local"
+        VISITANTE = "visitante", "Visitante"
 
     categoria = models.ForeignKey(CategoriaNivel, on_delete=models.CASCADE, related_name="partidos")
     fase = models.CharField(max_length=11, choices=Fase.choices)
@@ -56,6 +61,13 @@ class Partido(models.Model):
     )
     inicio = models.DateTimeField(null=True, blank=True)
     fijado = models.BooleanField(default=False, help_text="Fijado a mano: no se mueve (PRO-10)")
+    # Resultado (T8.5): el marcador sale de los eventos; esto es lo que no sale de ahí.
+    no_se_presento = models.CharField(max_length=9, choices=Lado.choices, blank=True)  # W.O.
+    penales_local = models.PositiveSmallIntegerField(null=True, blank=True)
+    penales_visitante = models.PositiveSmallIntegerField(null=True, blank=True)
+    mejor_jugador = models.ForeignKey(
+        "Jugador", on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )  # P70
 
     class Meta:
         ordering = ["categoria", "fase", "fecha", "pk"]
@@ -77,3 +89,8 @@ class Partido(models.Model):
         local = self.local.nombre if self.local else self.texto_local
         visitante = self.visitante.nombre if self.visitante else self.texto_visitante
         return f"{local} vs {visitante} ({self.categoria})"
+
+    @property
+    def empezado(self) -> bool:
+        """En juego o jugado: ya no se mueve ni se rehace su fixture (PRO-10, FIX-09)."""
+        return self.estado in (self.Estado.EN_JUEGO, self.Estado.JUGADO)

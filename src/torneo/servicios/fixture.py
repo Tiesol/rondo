@@ -53,7 +53,7 @@ def _revisar_que_se_puede(categoria: CategoriaNivel, reglas: Reglas) -> None:
         raise FixtureNoSePuede(
             f"{categoria} ya tiene fixture, y la regla del torneo no deja rehacerlo (P44)."
         )
-    if partidos.filter(estado=Partido.Estado.JUGADO).exists():
+    if partidos.filter(estado__in=[Partido.Estado.EN_JUEGO, Partido.Estado.JUGADO]).exists():
         raise FixtureNoSePuede(
             f"{categoria} ya tiene partidos jugados: su fixture no se puede rehacer (FIX-09)."
         )

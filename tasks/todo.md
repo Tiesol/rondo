@@ -1137,9 +1137,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Dos goles y un gol en contra dan el marcador correcto; deshacer quita solo el último.
-- [ ] Un W.O. da el marcador de P23; un empate en la eliminación pide penales.
-- [ ] Un jugador de otro equipo no puede figurar en un evento.
+- [x] Dos goles y un gol en contra dan el marcador correcto; deshacer quita solo el último.
+- [x] Un W.O. da el marcador de P23; un empate en la eliminación pide penales.
+- [x] Un jugador de otro equipo no puede figurar en un evento.
 
 **Verificación:** verde.
 **Depende de:** nada (se puede empezar en paralelo a T8.1).
