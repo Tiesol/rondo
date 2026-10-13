@@ -33,11 +33,12 @@
     {% endif %}
     {% else %}
     {% if equipos %}
-    <ul class="lista">{% for e in equipos %}<li class="fila"><strong class="crece">{{ e.nombre }}</strong><span class="sub">{{ e.club }}</span></li>{% endfor %}</ul>
+    <ul class="lista">{% for e in equipos %}<li><a class="fila" href="{{ e.url }}">{% include "parciales/escudo.html" with escudo=e.escudo %}<span class="crece"><strong>{{ e.nombre }}</strong><span class="sub">{{ e.club }}</span></span></a></li>{% endfor %}</ul>
     {% else %}
     {% include "parciales/vacio.html" with icono="torneo" titulo="Todavía no hay equipos" texto="Aparecen cuando cierre la inscripción." %}
     {% endif %}
     {% endif %}
+    {% include "publico/_patrocinadores.html" %}
     <p class="peq tenue pt-4">De cada chico se muestra el nombre con la inicial del apellido y el dorsal. Nunca documentos ni fechas de nacimiento.</p>
   </div>
 </div>

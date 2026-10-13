@@ -17,6 +17,7 @@ PUBLICAS = {
     "publico-categoria",
     "publico-hoy",
     "publico-partido",
+    "publico-equipo",
     "manifest",
     "service-worker",
     "imagen",
