@@ -22,7 +22,7 @@ Restricciones duras:
 - fijos (PRO-10): los partidos jugados o fijados a mano no se mueven.
 
 Objetivo: primero ubicar la mayor cantidad; después, cada fecha de grupos cerca de su fin de
-semana, para repartir la carga (PRO-12).
+semana, para repartir la carga (PRO-12), y poca espera de los profes compartidos (PRO-11).
 """
 
 import time
@@ -126,6 +126,10 @@ class Modelo:
         self.inicio: dict[Hashable, cp_model.IntVar] = {}
         self.en_cancha: dict[Hashable, dict[str, cp_model.IntVar]] = {}
         self.en_dia: dict[Hashable, dict[date, cp_model.IntVar]] = {}
+        # Pares de partidos de equipos con un profe en común, y si el primero va antes (T7.3).
+        self.profes_compartidos: list[
+            tuple[PartidoAProgramar, PartidoAProgramar, cp_model.IntVar]
+        ] = []
 
     def _inicios_posibles(self, partido: PartidoAProgramar) -> list[tuple[int, int]]:
         largo = _pasos(partido.minutos_partido)
@@ -249,18 +253,20 @@ class Modelo:
                     for p in juntos.values()
                 ]
             )
-            if par.motivo != "profe" or not margen:
+            if par.motivo != "profe":
                 continue
             for uno in por_equipo.get(par.a, []):
                 for otro in por_equipo.get(par.b, []):
                     clave = (uno.id, otro.id) if str(uno.id) <= str(otro.id) else (otro.id, uno.id)
                     if uno.id != otro.id and clave not in separados:
                         separados.add(clave)
-                        self._margen_si_cambia_de_cancha(uno, otro, margen)
+                        primero = self._margen_si_cambia_de_cancha(uno, otro, margen)
+                        self.profes_compartidos.append((uno, otro, primero))
 
     def _margen_si_cambia_de_cancha(
         self, uno: PartidoAProgramar, otro: PartidoAProgramar, margen: int
-    ) -> None:
+    ) -> cp_model.IntVar:
+        """Devuelve si `uno` va antes que `otro` (lo usa el objetivo de la espera)."""
         m = self.modelo
         canchas_uno, canchas_otro = self.en_cancha[uno.id], self.en_cancha[otro.id]
         misma = m.new_bool_var(f"{uno.id} y {otro.id} en la misma cancha")
@@ -281,6 +287,48 @@ class Modelo:
         m.add(
             self.inicio[uno.id] >= self.inicio[otro.id] + _pasos(otro.minutos_partido) + margen
         ).only_enforce_if([*presentes, primero.Not()])
+        # Sin el margen, igual uno va antes que el otro (no se pisan).
+        m.add(
+            self.inicio[otro.id] >= self.inicio[uno.id] + _pasos(uno.minutos_partido)
+        ).only_enforce_if([self.presente[uno.id], self.presente[otro.id], primero])
+        m.add(
+            self.inicio[uno.id] >= self.inicio[otro.id] + _pasos(otro.minutos_partido)
+        ).only_enforce_if([self.presente[uno.id], self.presente[otro.id], primero.Not()])
+        return primero
+
+    def _esperas_de_profes(self) -> list[cp_model.IntVar]:
+        """PRO-11: los pasos que espera un profe compartido entre sus partidos del mismo día,
+        del final de un turno al inicio del siguiente."""
+        m = self.modelo
+        esperas = []
+        for uno, otro, primero in self.profes_compartidos:
+            mismo_dia = m.new_bool_var(f"{uno.id} y {otro.id} el mismo día")
+            dias = []
+            for dia in self.en_dia[uno.id].keys() & self.en_dia[otro.id].keys():
+                ambos = m.new_bool_var(f"{uno.id} y {otro.id} el {dia}")
+                m.add_bool_and(
+                    [self.en_dia[uno.id][dia], self.en_dia[otro.id][dia]]
+                ).only_enforce_if(ambos)
+                m.add_bool_or(
+                    [self.en_dia[uno.id][dia].Not(), self.en_dia[otro.id][dia].Not()]
+                ).only_enforce_if(ambos.Not())
+                dias.append(ambos)
+            m.add(sum(dias) == mismo_dia)
+            espera = m.new_int_var(0, self._pasos_por_dia, f"espera entre {uno.id} y {otro.id}")
+            m.add(
+                espera >= self.inicio[otro.id] - self.inicio[uno.id] - _pasos(uno.minutos_turno)
+            ).only_enforce_if([mismo_dia, primero])
+            m.add(
+                espera >= self.inicio[uno.id] - self.inicio[otro.id] - _pasos(otro.minutos_turno)
+            ).only_enforce_if([mismo_dia, primero.Not()])
+            esperas.append(espera)
+        return esperas
+
+    @property
+    def _pasos_por_dia(self) -> int:
+        return max(
+            max(r[1] for r in rangos) - min(r[0] for r in rangos) for rangos in self.dias.values()
+        )
 
     def _despues(
         self, antes: PartidoAProgramar, despues: PartidoAProgramar, *, descanso: bool = False
@@ -334,7 +382,9 @@ class Modelo:
                 self.modelo.add_implication(self.presente[llave.id], self.presente[anterior.id])
 
     def objetivo(self) -> None:
-        """Ubicar manda; después, que cada fecha caiga cerca de su fin de semana."""
+        """Ubicar manda siempre. Después, que cada fecha caiga cerca de su fin de semana
+        (PRO-12) y que los profes compartidos esperen poco entre sus partidos (PRO-11): una
+        semana de desvío pesa como una hora de espera."""
         semanas = sorted({desde.isocalendar()[:2] for desde, _ in self.problema.franjas})
         if self.problema.eliminacion_desde:
             limite = self.problema.eliminacion_desde.isocalendar()[:2]
@@ -356,8 +406,17 @@ class Modelo:
                 distancia = abs(indice[dia.isocalendar()[:2]] - objetivo)
                 if distancia:
                     desvio.append(distancia * en_dia)
-        peso = 1 + sum(len(semanas) for _ in self.problema.partidos)
-        self.modelo.maximize(peso * sum(self.presente.values()) - sum(desvio))
+        esperas = self._esperas_de_profes()
+        peso_semana = 60 // PASO_MIN
+        maximo_blando = (
+            peso_semana * len(semanas) * len(self.problema.partidos)
+            + len(esperas) * self._pasos_por_dia
+        )
+        self.modelo.maximize(
+            (1 + maximo_blando) * sum(self.presente.values())
+            - peso_semana * sum(desvio)
+            - sum(esperas)
+        )
 
     def resolver(self, segundos: float, trabajadores: int, semilla: int) -> Resultado:
         solver = cp_model.CpSolver()

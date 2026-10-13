@@ -905,9 +905,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con dos partidos de un profe en un día con lugar libre, el solver los pone seguidos.
-- [ ] Ubicar un partido más pesa siempre más que cualquier espera.
-- [ ] En la demo, se informa la espera mediana de los profes (objetivo: menos de 30 minutos).
+- [x] Con dos partidos de un profe en un día con lugar libre, el solver los pone seguidos.
+- [x] Ubicar un partido más pesa siempre más que cualquier espera.
+- [ ] En la demo, se informa la espera mediana de los profes (objetivo: menos de 30 minutos). *(Se mide en T7.12.)*
 
 **Verificación:** verde, más `pytest -m lento`.
 **Depende de:** T7.2.
