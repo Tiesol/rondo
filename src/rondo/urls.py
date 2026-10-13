@@ -92,6 +92,7 @@ urlpatterns = [
     path("bloqueos/<int:pk>/borrar/", acf.borrar, name="borrar-bloqueo"),
     path("bloqueos/<int:pk>/propuestas/", reprogramar.propuestas, name="propuestas"),
     path("corridas/<int:pk>/propuestas/", reprogramar.ver_propuestas, name="ver-propuestas"),
+    path("corridas/<int:pk>/wo/", reprogramar.dar_wo, name="dar-wo"),
     path(
         "corridas/<int:pk>/aplicar/<int:indice>/",
         reprogramar.aplicar_propuesta,
