@@ -42,6 +42,7 @@ class Organizador(models.Model):
         validators=[_HEX],
         help_text="Lo que resalta: la pestaña activa, la selección y el año del torneo.",
     )
+    logo = models.FileField(max_length=200, blank=True)  # T8.3
 
     class Meta:
         verbose_name = "organizador"

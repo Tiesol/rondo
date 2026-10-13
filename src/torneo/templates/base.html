@@ -22,7 +22,7 @@
     <div class="cuerpo">
       <header class="barra">
         {% block volver %}{% endblock %}
-        <span class="marca" aria-hidden="true">{{ organizador.sigla }}</span>
+        {% if logo_url %}<img class="marca con-imagen" src="{{ logo_url }}" alt="" aria-hidden="true">{% else %}<span class="marca" aria-hidden="true">{{ organizador.sigla }}</span>{% endif %}
         <h1>{% block encabezado %}Rondo{% endblock %}</h1>
         {% if rol %}<span class="rol-actual">{{ rol_corto }}</span>{% endif %}
         <form method="post" action="{% url 'logout' %}">

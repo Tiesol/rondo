@@ -5,10 +5,12 @@ from django.http import HttpRequest
 
 from torneo.models import Organizador
 from torneo.permisos import MESA, nombre_del_rol
+from torneo.presentacion import url_de_imagen
 
 
-def organizador(request: HttpRequest) -> dict[str, Organizador]:
-    return {"organizador": Organizador.actual()}
+def organizador(request: HttpRequest) -> dict[str, object]:
+    actual = Organizador.actual()
+    return {"organizador": actual, "logo_url": url_de_imagen("logo", actual.pk, actual.logo.name)}
 
 
 def rol(request: HttpRequest) -> dict[str, str]:

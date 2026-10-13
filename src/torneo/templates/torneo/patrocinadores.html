@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Patrocinadores · {{ torneo.nombre }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'mas' %}" aria-label="Volver a Más">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Patrocinadores{% endblock %}
+{% block contenido %}
+{% include "parciales/banda.html" with antes="Patrocinadores" titulo=torneo.nombre despues="Salen al pie de la página pública y en el PNG del fixture, en este orden." %}
+<div class="seccion">
+  {% if lista %}
+  <ul class="lista">
+    {% for item in lista %}
+    <li class="fila-pegada">
+      <div class="fila-pegada-cab">
+        <img class="logo-patrocinador" src="{{ item.url }}" alt="{{ item.modelo.nombre }}" width="96" height="48">
+        <span class="crece"><strong>{{ item.modelo.nombre }}</strong><span class="sub">Orden {{ item.modelo.orden }}</span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <form method="post" action="{% url 'orden-patrocinador' item.modelo.pk %}" class="flex items-center gap-2">
+          {% csrf_token %}
+          <label class="peq" for="orden-{{ item.modelo.pk }}">Orden</label>
+          <input id="orden-{{ item.modelo.pk }}" class="orden" type="number" name="orden" min="0" max="99" value="{{ item.modelo.orden }}" inputmode="numeric">
+          <button type="submit" class="btn chico">Cambiar</button>
+        </form>
+        <form method="post" action="{% url 'borrar-patrocinador' item.modelo.pk %}" class="ml-auto">
+          {% csrf_token %}
+          <button type="submit" class="btn chico">Quitar</button>
+        </form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  {% include "parciales/vacio.html" with icono="torneo" titulo="Todavía no hay patrocinadores" texto="Sube el logo de cada uno, en blanco con fondo transparente si se puede." %}
+  {% endif %}
+</div>
+<form method="post" enctype="multipart/form-data" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% include "parciales/seccion_cab.html" with titulo="Agregar" %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.nombre %}
+    {% include "parciales/campo.html" with campo=form.orden %}
+  </div>
+  {% include "parciales/campo_imagen.html" with nombre="imagen" etiqueta="Logo" ayuda="JPG, PNG o WebP. Mejor en blanco con fondo transparente." %}
+  {% if error_imagen %}{% include "parciales/alerta.html" with estado="error" texto=error_imagen %}{% endif %}
+  {% if imagenes_disponibles %}{% include "parciales/boton.html" with texto="Agregar patrocinador" principal=True bloque=True %}{% endif %}
+</form>
+{% endblock %}

@@ -1,2 +1,2 @@
-{# Escudo provisorio: la sigla del equipo en su color. Parámetros: escudo (sigla, color, texto) y tamano ("ch" o "gr"). #}
-<span class="escudo{% if tamano %} {{ tamano }}{% endif %}"{% if escudo.color %} style="background: {{ escudo.color }}; color: {{ escudo.texto }}"{% endif %} aria-hidden="true">{{ escudo.sigla }}</span>
+{# El escudo del club (T8.3) o, si no tiene, la sigla del equipo en su color. Parámetros: escudo (sigla, color, texto, url) y tamano ("ch" o "gr"). #}
+{% if escudo.url %}<img class="escudo con-imagen{% if tamano %} {{ tamano }}{% endif %}" src="{{ escudo.url }}" alt="" loading="lazy" aria-hidden="true">{% else %}<span class="escudo{% if tamano %} {{ tamano }}{% endif %}"{% if escudo.color %} style="background: {{ escudo.color }}; color: {{ escudo.texto }}"{% endif %} aria-hidden="true">{{ escudo.sigla }}</span>{% endif %}

@@ -1002,6 +1002,27 @@
   }
 
   /* ---------- Imágenes subidas (T8.1) ---------- */
+  .escudo.con-imagen,
+  .marca.con-imagen {
+    background: transparent;
+    box-shadow: none;
+    object-fit: contain;
+  }
+  .logo-patrocinador {
+    width: 96px;
+    height: 48px;
+    border-radius: var(--radius-control);
+    background: var(--color-azul);
+    object-fit: contain;
+  }
+  input.orden {
+    width: 64px;
+    min-height: 36px;
+    padding: 4px 8px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+  }
   .imagen-actual {
     width: 96px;
     height: 96px;

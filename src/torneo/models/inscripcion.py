@@ -27,6 +27,8 @@ class Club(models.Model):
 
     nombre = models.CharField(max_length=80)
     alias = models.JSONField(default=list, blank=True, validators=[_validar_alias])
+    # Uno por club, aunque tenga varios equipos (P68). Lo sube la organización (T8.3).
+    escudo = models.FileField(max_length=200, blank=True)
 
     class Meta:
         ordering = ["nombre"]
