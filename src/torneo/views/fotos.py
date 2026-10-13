@@ -5,6 +5,8 @@ publicarla: sin esa marca, la foto se ve solo adentro de la app. QuiÃ©n la marcÃ
 registrado.
 """
 
+import re
+
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,6 +17,12 @@ from torneo.models import Equipo, Persona
 from torneo.permisos import requiere
 from torneo.presentacion import url_de_imagen
 from torneo.servicios.imagenes import ImagenInvalida, quitar_imagen, reemplazar_imagen
+
+
+def _volver_al_partido(request: HttpRequest) -> str:
+    """T11.9: desde la planilla del partido, se vuelve a la ficha. Solo rutas de la app."""
+    volver = request.POST.get("volver") or request.GET.get("volver") or ""
+    return volver if re.fullmatch(r"/partidos/\d+/ficha/", volver) else ""
 
 
 def _equipo(persona: Persona) -> Equipo | None:
@@ -32,6 +40,7 @@ def foto(request: HttpRequest, pk: int) -> HttpResponse:
     persona = get_object_or_404(Persona, pk=pk)
     equipo = _equipo(persona)
     seccion = "plantel" if persona.jugadores.exists() else "cuerpo-tecnico"
+    al_partido = _volver_al_partido(request)
     error = ""
     if request.method == "POST":
         try:
@@ -47,6 +56,8 @@ def foto(request: HttpRequest, pk: int) -> HttpResponse:
         except ImagenInvalida as problema:
             error = str(problema)
         else:
+            if al_partido:
+                return redirect(al_partido)
             if equipo is not None:
                 return redirect("equipo", pk=equipo.pk, seccion=seccion)
             return redirect("foto-persona", pk=persona.pk)
@@ -56,7 +67,8 @@ def foto(request: HttpRequest, pk: int) -> HttpResponse:
         {
             "persona": persona,
             "equipo": equipo,
-            "volver": f"/equipos/{equipo.pk}/{seccion}/" if equipo else "/",
+            "volver": al_partido or (f"/equipos/{equipo.pk}/{seccion}/" if equipo else "/"),
+            "al_partido": al_partido,
             "actual": url_de_imagen("foto", persona.pk, persona.foto.name),
             "error": error,
         },

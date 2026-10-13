@@ -308,7 +308,7 @@ T8.5 → T8.6         │
 - [x] T11.1 Agregar una categoría o un nivel a un torneo creado
 - [x] T11.7 Historial del partido
 - [x] T11.8 Planilla: convocados y dorsal del partido
-- [ ] T11.9 Alta rápida en la cancha
+- [x] T11.9 Alta rápida en la cancha
 - [ ] T11.10 Eventos completos y partido terminado editable
 - [ ] T11.11 Partidos de hoy
 - [ ] T11.12 Cierre automático

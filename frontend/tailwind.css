@@ -1124,9 +1124,18 @@
   }
   .foto-chica {
     flex: none;
-    width: 40px;
-    height: 40px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    overflow: hidden;
+    border: 1px solid var(--color-linea);
     border-radius: 50%;
+    color: var(--color-tenue);
+  }
+  .foto-chica img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
   .dorsal-partido {

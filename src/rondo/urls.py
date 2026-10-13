@@ -5,6 +5,7 @@ from django.urls import path
 from torneo.autenticacion import VistaDeIngreso
 from torneo.views import (
     acf,
+    alta_rapida,
     asistente,
     calendario,
     canchas,
@@ -88,6 +89,7 @@ urlpatterns = [
     path("partidos/<int:pk>/mover/", mover.mover, name="mover"),
     path("partidos/<int:pk>/ficha/", ficha_partido.ficha, name="ficha-partido"),
     path("partidos/<int:pk>/ficha/accion/", ficha_partido.accion, name="accion-partido"),
+    path("partidos/<int:pk>/alta/<int:equipo>/", alta_rapida.alta_rapida, name="alta-rapida"),
     path("partidos/<int:pk>/asignar/", fixture.asignar, name="asignar-eliminacion"),
     path("torneos/nuevo/", asistente.empezar, name="crear-torneo"),
     path("torneos/nuevo/<int:paso>/", asistente.asistente, name="asistente"),

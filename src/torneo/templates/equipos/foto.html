@@ -5,6 +5,7 @@
 {% block contenido %}
 <form method="post" enctype="multipart/form-data" class="seccion gap-3.5" novalidate>
   {% csrf_token %}
+  {% if al_partido %}<input type="hidden" name="volver" value="{{ al_partido }}">{% endif %}
   <p><strong>{{ persona }}</strong>{% if equipo %}<span class="peq tenue"> · {{ equipo.nombre }} · {{ equipo.categoria }}</span>{% endif %}</p>
   {% if actual %}<img class="foto-persona" src="{{ actual }}" alt="Foto de {{ persona }}" width="160" height="213">{% endif %}
   {% include "parciales/campo_imagen.html" with nombre="foto" etiqueta=actual|yesno:"Cambiar la foto,Foto" ayuda="La que mandó con el uniforme. JPG, PNG o WebP; se achica y se le borran los datos del teléfono (ubicación incluida)." %}
