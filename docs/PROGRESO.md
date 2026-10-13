@@ -4,21 +4,30 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fase:** 7, pedido 2026 (`docs/PEDIDO_CLAUDE_CODE.md`). La organización aprobó la app para el torneo 2026 y Rondo reemplaza a Copa Fácil. Las fases 1b a 5 y la parte A de la fase 6 están terminadas y revisadas.
-- **Siguiente paso:** las fases 7 a 10 están terminadas y revisadas (2026-10-13), en ramas encadenadas sin fusionar. Cuando Sebastian avise que terminó la prueba de la organización: fusionar en orden (de `docs/plan-pedido-2026` a `fase-10/revision`), desplegar producción (DESPLIEGUE.md) y cargar los tres jueves si se confirma P79.
-- **Esperando respuestas:** P44, P75, P78, P79 y lo de "fijar a mano" (revisión de la fase 10).
-- **Para probar (Sebastian):** pegar listas en la ficha del equipo (Plantel y Cuerpo técnico), fecha de nacimiento con solo el año, Copa de Bronce en Reglas, el aviso de fixture desactualizado, "Borrador" en el calendario y el PNG, y la programación con la plantilla 2026. Producción: `docs/DESPLIEGUE.md`, sección "Producción".
-- **Fusiones congeladas:** nada se fusiona a `main` (tampoco `docs/plan-pedido-2026`) hasta que Sebastian avise que terminó la prueba de la organización. Las ramas de tarea salen una de otra, encadenadas desde `docs/plan-pedido-2026`, y se fusionan en orden cuando avise.
-- **Preguntas:** desde el 2026-10-12, la fuente de las P (P1 a P77, con su valor por defecto) es `docs/PREGUNTAS_JMP_CUP_2026.md`.
+- **Fases 7 a 10 terminadas y revisadas (2026-10-13)**, en ramas encadenadas **sin fusionar a `main`**: de `docs/plan-pedido-2026` a `fase-10/revision`, más `docs/antes-de-usar` (estas notas). Todas subidas a GitHub.
+- **Siguiente paso (decidido por Sebastian el 2026-10-13):** hoy, la demo para que el hermano de Sebastian pruebe todo; hoy también, producción, para que la organización la use desde el 14/10. Datos reales solo en producción.
+- **Cambios por venir:** Sebastian manda un .md con cambios; no se escribe código hasta tenerlo (`tasks/todo.md`, fase 11).
 
-## Para retomar (actualizado el 2026-10-08)
+## Para retomar (actualizado el 2026-10-13, al cerrar el chat largo)
 
-- **Dónde estamos:** entre el 2026-10-07 y el 2026-10-08 se hicieron, sin visto bueno entre fases (autorizado por Sebastian, solo esa vez), las fases 1b (pantallas propias), 2 (inscripción), 3 (fixture y verificador), 4 (programador), 5 (reprogramación y calendario) y la parte A de la 6 (P50, personas, seguridad y retención). Cada fase tiene su revisión de cierre en este archivo.
-- **Lo que hay que revisar:** `docs/REVISAR.md`, con cada supuesto (R1 a R52) y lo que hay que hacer.
-- **Próxima acción:** con el visto bueno, preparar la demo (`docs/DEMO.md`, "Antes de la demo") y mostrársela al organizador. Con sus respuestas, la parte B de la fase 6.
-- **Diseño:** `docs/DISENO.md`. El prototipo aprobado está en https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a (copia en `docs/prototipo/prototipo-rondo.html`); el diseño del PNG, en `docs/prototipo/fixture-png.html`.
-- **Demo:** https://rondo-demo.onrender.com. Se despliega sola con cada merge a `main`. El repo es https://github.com/Tiesol/rondo.
-- **Verde:** `uv run pytest -m "not lento"` (600 tests, unos 3,5 min), `uv run pytest -m lento` (la demo programada y el recorrido de punta a punta, unos 2 min), `uv run mypy` y ruff. Si mypy no ve una relación inversa nueva, `rm -rf .mypy_cache`.
+**Orden de hoy:**
+
+1. **Claude:** verificación completa sobre la punta de la cadena (`uv run pytest -m "not lento"`, `uv run pytest -m lento`, mypy, ruff y `docker build` + correr la imagen con `DEBUG=false` y recorrerla por HTTP). Después, fusionar los PR en orden con *merge commit* (crear los que falten con `gh pr create --base <rama anterior>` o fusionar cada rama a `main` en orden). Cada fusión a `main` redespliega la demo (corre las migraciones 0016 a 0025 al arrancar).
+2. **Sebastian:** cargar en Render, servicio `rondo-demo`, las cuatro variables `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` y `R2_BUCKET=rondo-demo` (token de cuenta de R2 con Object Read & Write solo para ese bucket). Se puede hacer antes o después de fusionar: el código viejo las ignora. Guardar variables reinicia el servicio pero **no** toca los datos.
+3. **Sebastian:** regenerar los datos de la demo a mano (`generar_demo --soy-la-demo` contra la rama `demo` de Neon, DESPLIEGUE paso 3c), para que tenga la plantilla 2026 nueva. Regenerar o crear otro torneo, los dos le sirven.
+4. En la demo, antes de programar: agregar los jueves 29/10, 5/11 y 12/11 de 16 a 20 ("Agregar un día" en el calendario). Sin ellos, con F11 en Sub 10 y Sub 11 Avanzado, quedan 6 partidos de C3 afuera (H8, P79).
+5. **El hermano de Sebastian** recorre todo el flujo en la demo.
+6. **Producción, hoy:** Neon `rondo-produccion` (N. Virginia, plan Launch, 7 días de historia), servicio `rondo-produccion` en Render Standard sin Auto-Deploy, bucket `rondo-produccion` con su propio token y sus variables, primer usuario, `cargar_clubes` y el torneo desde el asistente (DESPLIEGUE, "Producción").
+
+**Pendientes sueltos:**
+
+- La prueba local de R2 falló: la app no ve ninguna de las cuatro variables del `.env` (sin guardar, o con `export` adelante). Claude no lee el `.env`; para probar corre un `manage.py shell` que solo dice si cada variable está cargada y sube, lee y borra un archivo de prueba.
+- Preguntas abiertas: P78, P79, P44, P75 y "fijar a mano" (Sebastian dice que son 7).
+- Enlace de Copa Fácil con las categorías ya creadas: compararlas con la convocatoria y la plantilla.
+- T11.1: agregar una categoría o un nivel a un torneo ya creado.
+- **Diseño:** `docs/DISENO.md`. El prototipo aprobado está en https://claude.ai/artifact/VacxSHvhh36heQY2xS8Q3a; el diseño del PNG 2026, en `docs/disenio_fixture/` (sin entrar al repo todavía).
+- **Demo:** https://rondo-demo.onrender.com. Repo: https://github.com/Tiesol/rondo.
+- **Verde:** `uv run pytest -m "not lento"` (905 tests, unos 5 min), `uv run pytest -m lento` (unos 3,5 min), `uv run mypy` y ruff. El chequeo del commit corre los tests rápidos (unos 5 min).
 
 ## Hecho
 
