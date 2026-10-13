@@ -340,3 +340,34 @@ def test_t10_3_los_chicos_van_en_los_primeros_horarios() -> None:
     grandes = todos_contra_todos(list("CD"), "Sub 9", ("C1",))
     resultado = programar(problema(chicos + grandes, [franja(0, 8, 16)]), segundos=5)
     assert resultado.ubicados[chicos[0].id][1] == SABADO.replace(hour=8)
+
+
+def test_t10_6_con_lugar_un_equipo_no_juega_dos_veces_el_mismo_dia() -> None:
+    # P17/P47: se permite, pero "de preferencia evitar que un equipo juegue 2 partidos en un día".
+    partidos = [
+        PartidoAProgramar(**{**p.__dict__, "fecha": i + 1})
+        for i, p in enumerate(todos_contra_todos(list("ABC")))
+    ]
+    resultado = programar(
+        problema(partidos, [franja(0, 8, 16), franja(1, 8, 16), franja(2, 8, 16)]), segundos=10
+    )
+    for equipo in "ABC":
+        dias = [
+            resultado.ubicados[p.id][1].date() for p in partidos if f"Sub 9:{equipo}" in p.equipos
+        ]
+        assert len(dias) == len(set(dias)), equipo
+
+
+def test_t10_6_las_finales_de_preferencia_en_los_dos_ultimos_dias() -> None:
+    final = PartidoAProgramar(
+        id="final", categoria="Sub 9", equipos=("A", "B"), minutos_partido=45, minutos_turno=50,
+        canchas=frozenset({"C1"}), fase="eliminacion", clave="oro_final",
+    )  # fmt: skip
+    viernes = SABADO - timedelta(days=1)
+    franjas = [
+        (viernes.replace(hour=16), viernes.replace(hour=20)),
+        franja(0, 8, 16),
+        franja(1, 8, 16),
+    ]
+    resultado = programar(problema([final], franjas), segundos=5)
+    assert resultado.ubicados["final"][1].date() != viernes.date()
