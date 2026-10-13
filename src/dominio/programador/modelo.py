@@ -12,8 +12,8 @@ Restricciones duras:
   máximo de partidos por día (P47). En la eliminación también los equipos virtuales: el
   ganador o el perdedor de una llave juega la llave que lo usa (T7.1);
 - personas (PRO-05 y PRO-06): dos equipos que comparten un jugador no se pisan; si comparten
-  un profe, además dejan el margen para cambiar de cancha (P35). El margen se aplica también
-  en la misma cancha: es más estricto que la regla, y más simple;
+  un profe y juegan en canchas distintas, además dejan el margen para cambiar (P35).
+  Seguidos en la misma cancha está bien (P18, CONTEXTO 6.4);
 - bloqueos de la ACF (PRO-07): fuera de los inicios posibles;
 - orden (PRO-08, si la regla es "dura"): las fechas de cada equipo van en orden (P19);
 - eliminación (PRO-09): después de la fase de grupos de su categoría y de los partidos a
@@ -227,25 +227,60 @@ class Modelo:
                 )
 
     def personas(self) -> None:
+        """Dos equipos que comparten a alguien no se pisan. Si es un profe y los partidos van
+        en canchas distintas, además dejan el margen para cambiar (P35); seguidos en la
+        misma cancha está bien (P18)."""
         por_equipo: dict[Equipo, list[PartidoAProgramar]] = defaultdict(list)
         for partido in self.problema.partidos:
             for equipo in partido.equipos_definidos:
                 por_equipo[equipo].append(partido)
-        margen = self.problema.reglas.profe_minutos_cambio_de_cancha
+        margen = _pasos(self.problema.reglas.profe_minutos_cambio_de_cancha)
+        separados: set[tuple[Hashable, Hashable]] = set()
         for par in self.problema.pares:
             juntos = {p.id: p for p in por_equipo.get(par.a, []) + por_equipo.get(par.b, [])}
-            extra = margen if par.motivo == "profe" else 0
             self.modelo.add_no_overlap(
                 [
                     self.modelo.new_optional_fixed_size_interval_var(
                         self.inicio[p.id],
-                        _pasos(p.minutos_partido + extra),
+                        _pasos(p.minutos_partido),
                         self.presente[p.id],
                         f"{par.motivo} en {p.id}",
                     )
                     for p in juntos.values()
                 ]
             )
+            if par.motivo != "profe" or not margen:
+                continue
+            for uno in por_equipo.get(par.a, []):
+                for otro in por_equipo.get(par.b, []):
+                    clave = (uno.id, otro.id) if str(uno.id) <= str(otro.id) else (otro.id, uno.id)
+                    if uno.id != otro.id and clave not in separados:
+                        separados.add(clave)
+                        self._margen_si_cambia_de_cancha(uno, otro, margen)
+
+    def _margen_si_cambia_de_cancha(
+        self, uno: PartidoAProgramar, otro: PartidoAProgramar, margen: int
+    ) -> None:
+        m = self.modelo
+        canchas_uno, canchas_otro = self.en_cancha[uno.id], self.en_cancha[otro.id]
+        misma = m.new_bool_var(f"{uno.id} y {otro.id} en la misma cancha")
+        juntas = []
+        for cancha in canchas_uno.keys() & canchas_otro.keys():
+            ambas = m.new_bool_var(f"{uno.id} y {otro.id} en {cancha}")
+            m.add_bool_and([canchas_uno[cancha], canchas_otro[cancha]]).only_enforce_if(ambas)
+            m.add_bool_or([canchas_uno[cancha].Not(), canchas_otro[cancha].Not()]).only_enforce_if(
+                ambas.Not()
+            )
+            juntas.append(ambas)
+        m.add(sum(juntas) == misma)  # cada partido está en una sola cancha
+        primero = m.new_bool_var(f"{uno.id} antes que {otro.id}")
+        presentes = [self.presente[uno.id], self.presente[otro.id], misma.Not()]
+        m.add(
+            self.inicio[otro.id] >= self.inicio[uno.id] + _pasos(uno.minutos_partido) + margen
+        ).only_enforce_if([*presentes, primero])
+        m.add(
+            self.inicio[uno.id] >= self.inicio[otro.id] + _pasos(otro.minutos_partido) + margen
+        ).only_enforce_if([*presentes, primero.Not()])
 
     def _despues(
         self, antes: PartidoAProgramar, despues: PartidoAProgramar, *, descanso: bool = False

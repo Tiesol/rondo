@@ -150,6 +150,38 @@ def test_pro_05_dos_equipos_con_un_profe_en_comun_no_se_pisan() -> None:
     assert segundo - primero >= timedelta(minutes=45 + 10)
 
 
+def test_t7_2_un_profe_compartido_puede_tener_partidos_seguidos_en_la_misma_cancha() -> None:
+    # P18 y CONTEXTO 6.4: seguidos en la misma cancha está bien (5 min entre uno y otro).
+    sub9 = todos_contra_todos(list("AB"), "Sub 9", ("C1",))
+    sub11 = todos_contra_todos(list("CD"), "Sub 11", ("C1",))
+    pares = (ParDeEquipos("Sub 9:A", "Sub 11:C", "profe"),)
+    justa = SABADO.replace(hour=8), SABADO.replace(hour=9, minute=35)  # dos turnos y nada más
+    prob = con(problema(sub9 + sub11, [justa]), pares=pares)
+    resultado = programar(prob, segundos=10)
+    assert resultado.sin_ubicar == []
+    assert choques(prob, resultado) == []
+
+
+def test_t7_2_en_canchas_distintas_necesita_el_margen() -> None:
+    sub9 = todos_contra_todos(list("AB"), "Sub 9", ("C1",))
+    sub11 = todos_contra_todos(list("CD"), "Sub 11", ("C2",))
+    pares = (ParDeEquipos("Sub 9:A", "Sub 11:C", "profe"),)
+    justa = SABADO.replace(hour=8), SABADO.replace(hour=9, minute=35)
+    prob = con(problema(sub9 + sub11, [justa]), pares=pares)
+    resultado = programar(prob, segundos=10)
+    assert len(resultado.sin_ubicar) == 1  # 45 + 10 + 45 no entra en 95 minutos
+    assert choques(prob, resultado) == []
+
+
+def test_t7_2_un_jugador_compartido_no_necesita_margen() -> None:
+    sub9 = todos_contra_todos(list("AB"), "Sub 9", ("C1",))
+    sub11 = todos_contra_todos(list("CD"), "Sub 11", ("C2",))
+    pares = (ParDeEquipos("Sub 9:A", "Sub 11:C", "jugador"),)
+    justa = SABADO.replace(hour=8), SABADO.replace(hour=9, minute=35)
+    resultado = programar(con(problema(sub9 + sub11, [justa]), pares=pares), segundos=10)
+    assert resultado.sin_ubicar == []
+
+
 def test_pro_06_jugador_compartido() -> None:
     sub9 = todos_contra_todos(list("AB"), "Sub 9", ("C1",))
     sub11 = todos_contra_todos(list("CD"), "Sub 11", ("C2",))
