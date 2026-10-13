@@ -297,58 +297,65 @@ def analizar(texto: str, roles: Sequence[str]) -> Analisis:
 # ---------- Filas ----------
 
 
-def leer_filas(analisis: Analisis, roles: Sequence[str]) -> list[FilaLeida]:
-    """Cada fila según las columnas elegidas. Lo que no se entiende queda como error de la
-    fila, para corregirlo; nada se descarta en silencio."""
-    leidas = []
-    for numero, fila in enumerate(analisis.filas, start=1):
-        datos: dict[str, str] = {"nombres": "", "apellidos": "", "documento": ""}
-        nacimiento: Nacimiento | None = None
-        dorsal: int | None = None
-        rol: str | None = None
-        errores: list[str] = []
+CAMPOS = ("nombres", "apellidos", "nacimiento", "documento", "dorsal", "rol")
+
+
+def campos_de_filas(analisis: Analisis) -> list[dict[str, str]]:
+    """Cada fila como texto por campo, según las columnas elegidas (el nombre ya separado)."""
+    resultado = []
+    for fila in analisis.filas:
+        campos = dict.fromkeys(CAMPOS, "")
         for columna, valor in zip(analisis.columnas, fila, strict=False):
             if not valor or columna == "ignorar":
                 continue
-            match columna:
-                case "nombres" | "apellidos" | "documento":
-                    datos[columna] = " ".join(valor.split())
-                case "nombre_completo" | "apellidos_nombres":
-                    orden: OrdenNombre = (
-                        "nombres_primero" if columna == "nombre_completo" else "apellidos_primero"
-                    )
-                    datos["nombres"], datos["apellidos"] = separar_nombre(valor, orden)
-                case "nacimiento":
-                    try:
-                        nacimiento = leer_fecha(valor, analisis.orden_fechas)
-                    except NacimientoInvalido as error:
-                        errores.append(str(error))
-                case "dorsal":
-                    limpio = re.sub(r"^(n[º°o]?|#)\s*", "", valor.strip(), flags=re.I)
-                    if limpio.isdigit():
-                        dorsal = int(limpio)
-                    else:
-                        errores.append(f"El dorsal «{valor}» no es un número.")
-                case "rol":
-                    rol = leer_rol(valor, roles)
-                    if rol is None:
-                        errores.append(
-                            f"No se reconoce el rol «{valor}». Tiene que ser {', '.join(roles)}."
-                        )
-        if not datos["nombres"]:
-            errores.append("Faltan los nombres.")
-        if not datos["apellidos"]:
-            errores.append("Faltan los apellidos.")
-        leidas.append(
-            FilaLeida(
-                numero,
-                datos["nombres"],
-                datos["apellidos"],
-                nacimiento,
-                datos["documento"],
-                dorsal,
-                rol,
-                tuple(errores),
-            )
-        )
-    return leidas
+            if columna in ("nombre_completo", "apellidos_nombres"):
+                orden: OrdenNombre = (
+                    "nombres_primero" if columna == "nombre_completo" else "apellidos_primero"
+                )
+                campos["nombres"], campos["apellidos"] = separar_nombre(valor, orden)
+            else:
+                campos[columna] = " ".join(valor.split())
+        resultado.append(campos)
+    return resultado
+
+
+def leer_campos(
+    numero: int, campos: dict[str, str], *, orden: OrdenFechas, roles: Sequence[str]
+) -> FilaLeida:
+    """Una fila a partir de sus campos de texto (pegados o corregidos a mano). Lo que no se
+    entiende queda como error de la fila, para corregirlo; nada se descarta en silencio."""
+    errores: list[str] = []
+    nacimiento: Nacimiento | None = None
+    if texto := campos.get("nacimiento", "").strip():
+        try:
+            nacimiento = leer_fecha(texto, orden)
+        except NacimientoInvalido as error:
+            errores.append(str(error))
+    dorsal: int | None = None
+    if texto := campos.get("dorsal", "").strip():
+        limpio = re.sub(r"^(n[º°o]?|#)\s*", "", texto, flags=re.I)
+        if limpio.isdigit():
+            dorsal = int(limpio)
+        else:
+            errores.append(f"El dorsal «{texto}» no es un número.")
+    rol: str | None = None
+    if texto := campos.get("rol", "").strip():
+        rol = leer_rol(texto, roles)
+        if rol is None:
+            errores.append(f"No se reconoce el rol «{texto}». Tiene que ser {', '.join(roles)}.")
+    nombres = " ".join(campos.get("nombres", "").split())
+    apellidos = " ".join(campos.get("apellidos", "").split())
+    if not nombres:
+        errores.append("Faltan los nombres.")
+    if not apellidos:
+        errores.append("Faltan los apellidos.")
+    documento = " ".join(campos.get("documento", "").split())
+    return FilaLeida(numero, nombres, apellidos, nacimiento, documento, dorsal, rol, tuple(errores))
+
+
+def leer_filas(analisis: Analisis, roles: Sequence[str]) -> list[FilaLeida]:
+    """Cada fila según las columnas elegidas."""
+    return [
+        leer_campos(numero, campos, orden=analisis.orden_fechas, roles=roles)
+        for numero, campos in enumerate(campos_de_filas(analisis), start=1)
+    ]

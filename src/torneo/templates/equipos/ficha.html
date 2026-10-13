@@ -26,7 +26,10 @@
   {% url "agregar-jugador" equipo.pk as url_agregar %}
   {% if url_agregar and perms.torneo.inscribir_equipos %}
   {% include "parciales/seccion_cab.html" with titulo="Jugadores" %}
-  {% include "parciales/boton.html" with texto="Agregar jugador" url=url_agregar principal=True bloque=True icono="mas-signo" %}
+  <div class="botones">
+    {% include "parciales/boton.html" with texto="Agregar jugador" url=url_agregar principal=True icono="mas-signo" %}
+    {% url "pegar-lista" equipo.pk "jugadores" as url_pegar %}{% include "parciales/boton.html" with texto="Pegar lista" url=url_pegar %}
+  </div>
   {% else %}
   {% include "parciales/seccion_cab.html" with titulo="Jugadores" %}
   {% endif %}
@@ -44,7 +47,12 @@
 <div class="seccion">
   {% url "agregar-profe" equipo.pk as url_profe %}
   {% include "parciales/seccion_cab.html" with titulo="Cuerpo técnico" %}
-  {% if url_profe and perms.torneo.inscribir_equipos %}{% include "parciales/boton.html" with texto="Agregar al cuerpo técnico" url=url_profe bloque=True icono="mas-signo" %}{% endif %}
+  {% if url_profe and perms.torneo.inscribir_equipos %}
+  <div class="botones">
+    {% include "parciales/boton.html" with texto="Agregar al cuerpo técnico" url=url_profe icono="mas-signo" %}
+    {% url "pegar-lista" equipo.pk "profes" as url_pegar_profes %}{% include "parciales/boton.html" with texto="Pegar lista" url=url_pegar_profes %}
+  </div>
+  {% endif %}
   {% if profes %}
   <ul class="lista">
     {% for profe in profes %}

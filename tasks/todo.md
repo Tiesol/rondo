@@ -979,9 +979,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Pegar 20 filas con 2 errores guarda 18 y deja las 2 a la vista para corregir.
-- [ ] Un jugador repetido o que pasa el máximo del plantel se marca como en la carga a mano.
-- [ ] Ningún dato pegado va al log ni queda en la sesión después de guardar (formulario sensible).
+- [x] Pegar 20 filas con 2 errores guarda 18 y deja las 2 a la vista para corregir.
+- [x] Un jugador repetido o que pasa el máximo del plantel se marca como en la carga a mano.
+- [x] Ningún dato pegado va al log ni queda en la sesión después de guardar (formulario sensible).
 
 **Verificación:** verde, más una prueba a mano a 360 px.
 **Depende de:** T7.7.
