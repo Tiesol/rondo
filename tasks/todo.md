@@ -907,7 +907,7 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 - [x] Con dos partidos de un profe en un día con lugar libre, el solver los pone seguidos.
 - [x] Ubicar un partido más pesa siempre más que cualquier espera.
-- [ ] En la demo, se informa la espera mediana de los profes (objetivo: menos de 30 minutos). *(Se mide en T7.12.)*
+- [x] En la demo, se informa la espera mediana de los profes (objetivo: menos de 30 minutos): 5 a 10 min (H7).
 
 **Verificación:** verde, más `pytest -m lento`.
 **Depende de:** T7.2.
@@ -1038,8 +1038,8 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] H7 en PROGRESO.md con los cinco datos y la comparación con la revisión externa.
-- [ ] Si no entra todo o no baja de 30 minutos la espera, se explica por qué y qué pregunta lo destraba (P13, P33).
+- [x] H7 en PROGRESO.md con los cinco datos y la comparación con la revisión externa.
+- [x] Si no entra todo o no baja de 30 minutos la espera, se explica por qué y qué pregunta lo destraba (P13, P33).
 
 **Verificación:** la medición, repetible con un comando o un script fuera del repo, anotado en H7.
 **Depende de:** T7.1 a T7.5.

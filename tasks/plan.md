@@ -216,7 +216,7 @@ T5.3 + T5.6 → T5.8
 - [x] T7.9 Pantalla: pegar el cuerpo técnico
 - [x] T7.10 Producción preparada (T6.5) *(el despliegue lo hace Sebastian)*
 - [x] T7.11 Borrador del calendario y fixture desactualizado
-- [ ] T7.12 Medir la programación 2026 con 1 CPU
+- [x] T7.12 Medir la programación 2026 con 1 CPU
 
 ```
 T7.1 → T7.2 → T7.3 ─┐

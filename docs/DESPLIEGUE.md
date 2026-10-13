@@ -132,7 +132,7 @@ Lo que Sebastian crea una sola vez. Nada de esto va al repo ni al chat: las cade
 | `SECRET_KEY` | Botón **Generate** de Render | Distinta de la demo |
 | `DEBUG` | `false` | |
 | `RONDO_PROGRAMADOR_SEGUNDOS` | `120` | Límite del solver por corrida |
-| `RONDO_PROGRAMADOR_TRABAJADORES` | `8` | Provisional: se confirma con la medición de T7.12 (1 CPU) y se anota aquí |
+| `RONDO_PROGRAMADOR_TRABAJADORES` | `4` | Medido con 1 CPU en T7.12 (PROGRESO, H7): entran los 223 partidos de la demo y los profes esperan menos que con 8 |
 | `ALLOWED_HOSTS` | Vacía, salvo que haya dominio propio | Render agrega solo su dirección (`*.onrender.com`). Con dominio propio: `rondo.ejemplo.com` |
 | `CSRF_TRUSTED_ORIGINS` | Vacía, salvo que haya dominio propio | Con dominio propio: `https://rondo.ejemplo.com` |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | **Todavía no** | Imágenes en Cloudflare R2 (T8.1). Sin ellas, la app funciona y los botones de subir imagen avisan que falta conectar el almacenamiento |
