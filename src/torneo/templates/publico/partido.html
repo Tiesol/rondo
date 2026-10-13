@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}{{ ficha.fila.local }} vs {{ ficha.fila.visitante }} · {{ torneo.nombre }}{% endblock %}
+{% block cuerpo %}
+<div class="app publica">
+  <div class="cuerpo">
+    <header class="pub-cab">
+      <div class="flex items-center gap-3">
+        <a class="icono-btn" href="{{ volver }}" aria-label="Volver a los partidos">{% include "parciales/icono.html" with nombre="volver" %}</a>
+        <div class="min-w-0"><h1>{{ torneo.nombre }}</h1><p class="meta">{{ ficha.fila.categoria }}{% if ficha.fila.nombre %} · {{ ficha.fila.nombre }}{% endif %}</p></div>
+      </div>
+    </header>
+    <main id="contenido">
+      <div class="envoltura" hx-get="{{ request.path }}" hx-trigger="every 60s" hx-select=".envoltura" hx-target="this" hx-swap="outerHTML">
+        <div class="seccion">
+          <p class="peq tenue">{% if ficha.fila.hora %}{{ ficha.fila.hora }} · {% endif %}{{ ficha.fila.cancha }}</p>
+          <div class="marcador">
+            <div class="marcador-equipo">{% if ficha.fila.escudo_local %}{% include "parciales/escudo.html" with escudo=ficha.fila.escudo_local tamano="gr" %}{% endif %}<strong>{{ ficha.fila.local }}</strong></div>
+            {% if ficha.fila.marcador %}<div class="marcador-goles num" aria-label="{{ ficha.fila.marcador.0 }} a {{ ficha.fila.marcador.1 }}">{{ ficha.fila.marcador.0 }}<span aria-hidden="true">–</span>{{ ficha.fila.marcador.1 }}</div>{% else %}<div class="marcador-goles tenue">vs</div>{% endif %}
+            <div class="marcador-equipo">{% if ficha.fila.escudo_visitante %}{% include "parciales/escudo.html" with escudo=ficha.fila.escudo_visitante tamano="gr" %}{% endif %}<strong>{{ ficha.fila.visitante }}</strong></div>
+          </div>
+          {% if ficha.resultado.penales %}<p class="peq tenue centrado">Penales {{ ficha.resultado.penales.0 }} a {{ ficha.resultado.penales.1 }}</p>{% endif %}
+          {% if ficha.resultado.wo %}<p class="peq tenue centrado">W.O.</p>{% endif %}
+          <div class="marcas">{% if ficha.fila.estado == "En juego" %}{% include "parciales/chip.html" with texto="En juego" estado="aviso" %}{% elif ficha.fila.estado %}{% include "parciales/chip.html" with texto=ficha.fila.estado estado="neutro" %}{% else %}{% include "parciales/chip.html" with texto="Por jugar" estado="neutro" %}{% endif %}</div>
+        </div>
+        {% if ficha.mejor %}
+        <div class="seccion"><p class="alerta bien">{% include "parciales/icono.html" with nombre="bien" clase="ico" %}<span><strong>Mejor jugador:</strong> {{ ficha.mejor.dorsal|default_if_none:"s/n" }} · {{ ficha.mejor.nombre }}</span></p></div>
+        {% endif %}
+        {% if ficha.eventos %}
+        <div class="seccion">
+          {% include "parciales/seccion_cab.html" with titulo="Lo que pasó" %}
+          <ul class="lista">
+            {% for e in ficha.eventos %}
+            <li class="fila"><span class="evento {{ e.clase }}" aria-hidden="true"></span><span class="crece"><strong>{{ e.tipo }} · {{ e.equipo }}</strong>{% if e.quien %}<span class="sub">{{ e.quien.dorsal|default_if_none:"s/n" }} · {{ e.quien.nombre }}</span>{% endif %}</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

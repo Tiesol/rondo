@@ -1,5 +1,5 @@
 {# Lo que cambia al elegir categoría o pestaña. Solo datos del torneo: nunca de personas. #}
-<div id="publico" class="envoltura">
+<div id="publico" class="envoltura" hx-get="{{ request.path }}" hx-trigger="every 60s" hx-target="this" hx-swap="outerHTML">
   <div class="banda pt-3">
     <p class="titulo-grande">{{ nombre }}</p>
     <p class="meta">{{ resumen }}</p>
@@ -12,16 +12,32 @@
   {% include "parciales/pestanas.html" with etiqueta="Secciones" htmx_destino="publico" %}
   <div class="seccion">
     {% if pestana == "partidos" %}
-    {% if fixture.hay_fixture %}
-    {% include "fixture/_fixture.html" with editable=False %}
-    {% else %}
-    {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay partidos" texto="El calendario aparece cuando la organización lo publique." %}
-    {% endif %}
+    <p class="peq"><a href="{% url 'publico-hoy' torneo.pk %}">Ver los partidos de hoy de todas las categorías</a></p>
+    {% for grupo in partidos %}
+    {% include "parciales/seccion_cab.html" with titulo=grupo.titulo %}
+    {% include "publico/_partidos.html" with partidos=grupo.partidos %}
+    {% empty %}
+    {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay partidos" texto="Aparecen cuando la organización publique el calendario." %}
+    {% endfor %}
     {% elif pestana == "posiciones" %}
-    {% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay resultados" texto="La tabla aparece con el primer partido jugado." %}
+    {% if tablas %}{% include "posiciones/_tablas.html" %}{% else %}{% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay equipos" texto="La tabla aparece con los equipos de la categoría." %}{% endif %}
+    {% elif pestana == "goleadores" %}
+    {% if goleadores %}
+    <ol class="lista">
+      {% for g in goleadores %}
+      <li class="fila"><span class="dorsal num">{{ g.dorsal|default_if_none:"s/n" }}</span><span class="crece"><strong>{{ g.nombre }}</strong><span class="sub">{{ g.equipo }}</span></span><strong class="num" aria-label="{{ g.goles }} gol{{ g.goles|pluralize:"es" }}">{{ g.goles }}</strong></li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    {% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay goles" texto="La tabla de goleadores aparece con el primer gol." %}
+    {% endif %}
+    {% else %}
+    {% if equipos %}
+    <ul class="lista">{% for e in equipos %}<li class="fila"><strong class="crece">{{ e.nombre }}</strong><span class="sub">{{ e.club }}</span></li>{% endfor %}</ul>
     {% else %}
     {% include "parciales/vacio.html" with icono="torneo" titulo="Todavía no hay equipos" texto="Aparecen cuando cierre la inscripción." %}
     {% endif %}
-    <p class="peq tenue pt-4">Esta página muestra equipos, partidos y resultados. Nunca nombres de jugadores, documentos ni fechas de nacimiento.</p>
+    {% endif %}
+    <p class="peq tenue pt-4">De cada chico se muestra el nombre con la inicial del apellido y el dorsal. Nunca documentos ni fechas de nacimiento.</p>
   </div>
 </div>

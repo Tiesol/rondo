@@ -89,6 +89,8 @@ urlpatterns = [
         name="aplicar-propuesta",
     ),
     path("t/<int:pk>/", vistas_publicas.publico, name="publico"),
+    path("t/<int:pk>/hoy/", vistas_publicas.hoy, name="publico-hoy"),
+    path("t/<int:pk>/partido/<int:partido>/", vistas_publicas.partido, name="publico-partido"),
     path(
         "t/<int:pk>/<int:categoria>/<str:pestana>/",
         vistas_publicas.categoria,

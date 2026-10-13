@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Hoy · {{ torneo.nombre }}{% endblock %}
+{% block cuerpo %}
+<div class="app publica">
+  <div class="cuerpo">
+    <header class="pub-cab">
+      <div class="flex items-center gap-3">
+        <a class="icono-btn" href="{% url 'publico' torneo.pk %}" aria-label="Volver al torneo">{% include "parciales/icono.html" with nombre="volver" %}</a>
+        <div class="min-w-0"><h1>{{ torneo.nombre }}</h1><p class="meta">{{ fechas }}</p></div>
+      </div>
+    </header>
+    <main id="contenido">{% include "publico/_hoy.html" %}</main>
+  </div>
+</div>
+{% endblock %}

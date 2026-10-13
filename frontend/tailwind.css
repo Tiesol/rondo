@@ -1001,6 +1001,15 @@
     gap: 10px;
   }
 
+  /* ---------- Página pública en vivo (T8.10) ---------- */
+  .partido-publico .vs {
+    flex-wrap: wrap;
+  }
+  .marcador-chico {
+    font: 20px/1 var(--font-titulo);
+    letter-spacing: 0.04em;
+  }
+
   /* ---------- Tabla de posiciones (T8.7) ---------- */
   .tabla-posiciones {
     overflow-x: auto;

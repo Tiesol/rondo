@@ -1212,9 +1212,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Un gol cargado aparece en la página pública en el siguiente refresco.
-- [ ] El test de privacidad recorre las páginas nuevas y no encuentra apellidos completos, CI ni fechas.
-- [ ] Las vistas siguen importando solo modelos de la lista permitida.
+- [x] Un gol cargado aparece en la página pública en el siguiente refresco.
+- [x] El test de privacidad recorre las páginas nuevas y no encuentra apellidos completos, CI ni fechas.
+- [x] Las vistas siguen importando solo modelos de la lista permitida.
 
 **Verificación:** verde.
 **Depende de:** T8.7.
