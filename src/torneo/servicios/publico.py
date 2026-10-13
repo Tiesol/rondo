@@ -15,6 +15,7 @@ from django.utils import timezone
 from dominio.config import Reglas
 from torneo.models import CategoriaNivel, Equipo, Evento, Jugador, Partido, Persona, Torneo
 from torneo.presentacion import escudo, url_de_imagen
+from torneo.servicios.hoy import atrasos_del_dia, estado
 from torneo.servicios.partido import resultado_de
 
 # Lo que se publica. Amonestaciones y lesiones son internas (T11.10): nunca salen de la app.
@@ -24,7 +25,6 @@ TIPOS = {
     "amarilla": "Amarilla",
     "roja": "Roja",
 }
-_ESTADOS = {"en_juego": "En juego", "jugado": "Terminado"}
 
 
 def nombre_publico(persona: Persona) -> str:
@@ -55,11 +55,20 @@ class FilaDePartido:
     escudo_local: dict[str, str] | None
     escudo_visitante: dict[str, str] | None
     marcador: tuple[int, int] | None  # solo si empezó
-    estado: str  # "", "En juego" o "Terminado"
+    estado: str  # "", "1T 12'", "Descanso", "2T 27'", "Terminado" o "W.O." (T11.14)
     nombre: str  # en la eliminación: "Semi 1 de Oro"
+    en_vivo: bool = False
+    atraso: int = 0  # minutos estimados, si va tarde (T11.11)
 
 
-def fila_de_partido(partido: Partido) -> FilaDePartido:
+def estado_publico(partido: Partido) -> str:
+    """El estado para las familias: sin "Por jugar" ni "Sin iniciar"; lo cerrado solo es
+    "Terminado"."""
+    texto, _ = estado(partido, timezone.now())
+    return {"Por jugar": "", "Sin iniciar": "", "Cerrado solo": "Terminado"}.get(texto, texto)
+
+
+def fila_de_partido(partido: Partido, atraso: int = 0) -> FilaDePartido:
     local = partido.local.nombre if partido.local else partido.texto_local
     visitante = partido.visitante.nombre if partido.visitante else partido.texto_visitante
     return FilaDePartido(
@@ -72,8 +81,10 @@ def fila_de_partido(partido: Partido) -> FilaDePartido:
         escudo_local=escudo(partido.local) if partido.local else None,
         escudo_visitante=escudo(partido.visitante) if partido.visitante else None,
         marcador=resultado_de(partido).marcador if partido.empezado else None,
-        estado=_ESTADOS.get(partido.estado, ""),
+        estado=estado_publico(partido),
         nombre=partido.nombre,
+        en_vivo=partido.estado == Partido.Estado.EN_JUEGO,
+        atraso=atraso,
     )
 
 
@@ -115,7 +126,8 @@ def partidos_del_dia(torneo: Torneo, dia: date) -> list[FilaDePartido]:
         .prefetch_related("eventos__equipo")
         .order_by("inicio", "cancha__codigo")
     )
-    return [fila_de_partido(p) for p in partidos]
+    atraso = atrasos_del_dia(list(partidos))
+    return [fila_de_partido(p, atraso.get(p.pk, 0)) for p in partidos]
 
 
 def ficha_publica(partido: Partido) -> dict[str, Any]:

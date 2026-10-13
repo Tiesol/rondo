@@ -102,9 +102,9 @@ def test_posiciones_con_la_tabla(client: Client, categoria: CategoriaNivel) -> N
 
 
 @pytest.mark.django_db
-def test_se_actualiza_sola_cada_minuto(client: Client, categoria: CategoriaNivel) -> None:
+def test_se_actualiza_sola_cada_30_segundos(client: Client, categoria: CategoriaNivel) -> None:
     html = client.get(url(categoria, "partidos")).content.decode()
-    assert 'hx-trigger="every 60s"' in html
+    assert 'hx-trigger="every 30s"' in html  # P73 (T11.14)
 
 
 @pytest.mark.django_db

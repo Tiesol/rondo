@@ -378,6 +378,14 @@ class Reglas(Estricto):
         ge=1,
         le=240,
     )
+    tabla_de_goleadores: bool = _regla(
+        True,
+        "Tabla de goleadores",
+        "Se ve en la página pública de cada categoría. Sin goles en contra.",
+        grupo="Resultados",
+        pregunta="P71",
+        regla="RES-06",
+    )
     mejor_jugador: bool = _regla(
         True,
         "Mejor jugador de cada partido",

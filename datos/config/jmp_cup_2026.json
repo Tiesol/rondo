@@ -335,6 +335,7 @@
     "dia_para_reprogramar": "jueves",
     "penales_por_equipo": 3,
     "cierre_automatico_min": 15,
+    "tabla_de_goleadores": true,
     "mejor_jugador": true,
     "puntos_por_partido": [
       3,

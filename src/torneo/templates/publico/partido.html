@@ -13,7 +13,7 @@
       </div>
     </header>
     <main id="contenido">
-      <div class="envoltura" hx-get="{{ request.path }}" hx-trigger="every 60s" hx-select=".envoltura" hx-target="this" hx-swap="outerHTML">
+      <div class="envoltura" hx-get="{{ request.path }}" hx-trigger="every 30s" hx-select=".envoltura" hx-target="this" hx-swap="outerHTML">
         <div class="seccion">
           <p class="peq tenue">{% if ficha.fila.hora %}{{ ficha.fila.hora }} · {% endif %}{{ ficha.fila.cancha }}</p>
           <div class="marcador">
@@ -23,7 +23,7 @@
           </div>
           {% if ficha.resultado.penales %}<p class="peq tenue centrado">Penales {{ ficha.resultado.penales.0 }} a {{ ficha.resultado.penales.1 }}</p>{% endif %}
           {% if ficha.resultado.wo %}<p class="peq tenue centrado">W.O.</p>{% endif %}
-          <div class="marcas">{% if ficha.fila.estado == "En juego" %}{% include "parciales/chip.html" with texto="En juego" estado="aviso" %}{% elif ficha.fila.estado %}{% include "parciales/chip.html" with texto=ficha.fila.estado estado="neutro" %}{% else %}{% include "parciales/chip.html" with texto="Por jugar" estado="neutro" %}{% endif %}</div>
+          <div class="marcas">{% if ficha.fila.en_vivo %}{% include "parciales/chip.html" with texto=ficha.fila.estado estado="aviso" %}{% elif ficha.fila.estado %}{% include "parciales/chip.html" with texto=ficha.fila.estado estado="neutro" %}{% else %}{% include "parciales/chip.html" with texto="Por jugar" estado="neutro" %}{% endif %}</div>
         </div>
         {% if ficha.mejor %}
         <div class="seccion"><p class="alerta bien">{% include "parciales/icono.html" with nombre="bien" clase="ico" %}<span><strong>Mejor jugador:</strong> {{ ficha.mejor.dorsal|default_if_none:"s/n" }} · {{ ficha.mejor.nombre }}</span></p></div>

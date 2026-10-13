@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 
+from dominio.config import Reglas
 from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 from torneo.presentacion import escudo, fechas_del_torneo, resumen_de_categoria
 from torneo.servicios.partido import cerrar_olvidados
@@ -38,7 +39,7 @@ PESTANAS = {
 # Las páginas públicas se guardan en la caché unos segundos (B7): con 1 CPU aguantan muchas
 # visitas a la vez. Lo que cambia (un gol) aparece en menos de un minuto. El fragmento de HTMX
 # y la página completa se guardan aparte.
-CACHE_PUBLICA = 45
+CACHE_PUBLICA = 25  # P73: se recarga cada 30 s
 
 
 def _publica(vista: Any) -> Any:
@@ -63,11 +64,18 @@ def publico(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect("publico-categoria", pk=torneo.pk, categoria=primera.pk, pestana="partidos")
 
 
+def _pestanas(torneo: Torneo) -> dict[str, str]:
+    """P71: sin la tabla de goleadores si el torneo la apaga."""
+    if Reglas.model_validate(torneo.reglas).tabla_de_goleadores:
+        return PESTANAS
+    return {clave: texto for clave, texto in PESTANAS.items() if clave != "goleadores"}
+
+
 @_publica
 def categoria(request: HttpRequest, pk: int, categoria: int, pestana: str) -> HttpResponse:
-    if pestana not in PESTANAS:
-        raise Http404
     torneo = _torneo_publico(pk)
+    if pestana not in _pestanas(torneo):
+        raise Http404
     actual = get_object_or_404(CategoriaNivel, pk=categoria, torneo=torneo)
     contexto = {
         "torneo": torneo,
@@ -107,7 +115,7 @@ def categoria(request: HttpRequest, pk: int, categoria: int, pestana: str) -> Ht
                 "url": reverse("publico-categoria", args=[torneo.pk, actual.pk, clave]),
                 "actual": clave == pestana,
             }
-            for clave, texto in PESTANAS.items()
+            for clave, texto in _pestanas(torneo).items()
         ],
     }
     plantilla = "publico/_categoria.html" if pide_fragmento(request) else "publico/categoria.html"
