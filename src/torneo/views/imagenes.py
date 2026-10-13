@@ -79,6 +79,8 @@ def escudo(request: HttpRequest, pk: int) -> HttpResponse:
     except ImagenInvalida as error:
         messages.error(request, str(error))
     olvidar_escudos()
+    if request.POST.get("volver") == "club":
+        return redirect("club", pk=club.pk)
     equipo = Equipo.objects.filter(pk=request.POST.get("equipo") or 0, club=club).first()
     if equipo is not None:
         return redirect("equipo", pk=equipo.pk, seccion="plantel")

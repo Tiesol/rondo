@@ -42,6 +42,12 @@
   </ul>
 </div>
 
+{% if perms.torneo.inscribir_equipos %}
+<div class="seccion">
+  <a class="fila" href="{% url 'clubes' %}"><span class="crece"><strong>Clubes</strong><span class="sub">Nombres, escudos y repetidos</span></span>{% include "parciales/icono.html" with nombre="chevron" clase="ico" %}</a>
+</div>
+{% endif %}
+
 <div class="seccion">
   {% include "parciales/seccion_cab.html" with titulo="Torneos" %}
   <ul class="lista">

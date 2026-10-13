@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Clubes{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'mas' %}" aria-label="Volver a Más">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Clubes{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  <ul class="lista">
+    {% for item in lista %}
+    <li>
+      <a class="fila" href="{% url 'club' item.club.pk %}">
+        {% if item.escudo %}<img class="escudo-chico" src="{{ item.escudo }}" alt="" width="32" height="32">{% endif %}
+        <span class="crece"><strong>{{ item.club.nombre }}</strong><span class="sub">{{ item.club.cantidad }} equipo{{ item.club.cantidad|pluralize }}{% if item.club.alias %} · {{ item.club.alias|join:", " }}{% endif %}</span></span>
+        {% include "parciales/icono.html" with nombre="chevron" clase="ico" %}
+      </a>
+    </li>
+    {% empty %}
+    <li>{% include "parciales/vacio.html" with icono="personas" titulo="Todavía no hay clubes" texto="Agrega el primero abajo." %}</li>
+    {% endfor %}
+  </ul>
+</div>
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% include "parciales/seccion_cab.html" with titulo="Agregar un club" %}
+  {% include "parciales/campo.html" with campo=form.nombre %}
+  {% include "parciales/campo.html" with campo=form.alias %}
+  {% include "parciales/boton.html" with texto="Agregar" principal=True bloque=True %}
+</form>
+{% endblock %}

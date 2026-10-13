@@ -1442,7 +1442,7 @@ T10.9, T10.10, T10.11 (durante el torneo)
 ### Inscripción
 
 - [x] **T11.5 Altas tardías y plantel máximo con aviso.** El cierre de inscripción no bloquea a nadie: avisa "fuera de plazo". Regla `altas_tardias_hasta` (fin del 2.º fin de semana): después, agregar pide confirmación. Pasar el plantel máximo: aviso con confirmación (P84).
-- [ ] **T11.6 Pantalla de clubes (P10).** Crear, editar, alias, escudo y unir dos clubes duplicados.
+- [x] **T11.6 Pantalla de clubes (P10).** Crear, editar, alias, escudo y unir dos clubes duplicados.
 - [ ] **T11.1 Agregar una categoría o un nivel a un torneo ya creado** (pedido de Sebastian).
 
 ### Día de partido (sección 3, antes del 24/10)
