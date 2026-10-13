@@ -257,6 +257,8 @@ def validar_cuerpo_tecnico(
 def validar_dorsal(dorsal: int | None, usados: frozenset[int], reglas: Reglas) -> list[Hallazgo]:
     """INS-09: opcional al inscribir (según la regla), único en el equipo."""
     if dorsal is None:
+        if reglas.dorsal_obligatorio == "nunca":
+            return []
         if reglas.dorsal_obligatorio == "al_inscribir":
             return [Hallazgo("error", "INS-09", "Falta el dorsal.")]
         return [Hallazgo("aviso", "INS-09", "Sin dorsal. Hace falta antes del primer partido.")]

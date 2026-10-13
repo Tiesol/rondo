@@ -185,14 +185,15 @@ class Reglas(Estricto):
         pregunta="P37",
         regla="INS-07",
     )
-    dorsal_obligatorio: Momento = _regla(
+    dorsal_obligatorio: Literal["al_inscribir", "antes_del_primer_partido", "nunca"] = _regla(
         "antes_del_primer_partido",
         "El dorsal es obligatorio",
-        "Hasta entonces, la lista se guarda con un aviso.",
+        'Hasta entonces, la lista se guarda con un aviso. "Nunca": se puede cambiar de un '
+        "partido a otro desde la ficha del partido.",
         grupo="Inscripción",
         pregunta="P9",
         regla="INS-09",
-        opciones=_MOMENTOS,
+        opciones=_MOMENTOS | {"nunca": "Nunca"},
     )
     ci_obligatorio: Momento = _regla(
         "antes_del_primer_partido",

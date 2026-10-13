@@ -118,6 +118,19 @@ def penales(partido: Partido, local: int, visitante: int) -> None:
     partido.save(update_fields=["penales_local", "penales_visitante"])
 
 
+def cambiar_dorsal(partido: Partido, jugador: Jugador, dorsal: int | None) -> None:
+    """T10.11: el dorsal puede cambiar de un partido a otro; no se repite en el equipo."""
+    if jugador.equipo_id not in (partido.local_id, partido.visitante_id):
+        raise NoSePuede("Ese jugador no juega este partido.")
+    if dorsal is not None:
+        if not 1 <= dorsal <= 99:
+            raise NoSePuede("El dorsal va de 1 a 99.")
+        if jugador.equipo.jugadores.exclude(pk=jugador.pk).filter(dorsal=dorsal).exists():
+            raise NoSePuede(f"El dorsal {dorsal} ya lo usa otro jugador del equipo.")
+    jugador.dorsal = dorsal
+    jugador.save(update_fields=["dorsal"])
+
+
 def mejor_jugador(partido: Partido, jugador: Jugador | None) -> None:
     """P70: lo eligen el árbitro y la mesa; es de uno de los dos equipos."""
     if jugador is not None and jugador.equipo_id not in (partido.local_id, partido.visitante_id):
