@@ -1302,4 +1302,129 @@ T8.5 → T8.6         │
 
 **Checkpoint de la fase 9:**
 
-- [ ] Verde, revisión con `code-review-and-quality`, PROGRESO.md al día y visto bueno de Sebastian.
+- [x] Verde, revisión con `code-review-and-quality`, PROGRESO.md al día y visto bueno de Sebastian.
+
+## Fase 10: respuestas del organizador
+
+> Planificada el 2026-10-13 con las respuestas que Sebastian cargó en `docs/PREGUNTAS_JMP_CUP_2026.md`. Orden: primero lo que pesa en el calendario definitivo del 21/10 (T10.1 a T10.6), después lo demás. Cada respuesta va a la configuración cuando se puede; lo que pide código nuevo, en su tarea.
+
+### T10.1 Reglas del calendario que cambian solo de valor
+
+**Descripción:** P35: sin margen para cambiar de cancha (todas están en el mismo predio). Orden de las fechas (P19): blando; si un partido de la fecha 2 se reprograma después de la 3, no frena a la 3. P57 ya es "solo el entrenador". En `jmp_cup_2026.json` y en PROGRESO, con cada respuesta.
+
+**Aceptación:**
+- [ ] La plantilla 2026 trae `profe_minutos_cambio_de_cancha` 0 y `orden_de_fechas` "blanda".
+- [ ] La demo programada con esos valores sigue sin choques (test lento).
+
+**Archivos:** `datos/config/jmp_cup_2026.json`, tests de la plantilla, PROGRESO.md. **Tamaño:** XS.
+
+### T10.2 La hora final de la franja es el último inicio
+
+**Descripción:** respuesta a 1.1 (P48): "la hora final significa el inicio del último partido". Regla nueva `fin_de_franja`: "último inicio" (por defecto, según la respuesta) o "fin del partido" (como hasta ahora). El programador, el verificador, los motivos y la capacidad la usan.
+
+**Aceptación:**
+- [ ] Con "último inicio", un partido puede empezar a las 16:00 un sábado; con "fin del partido", no.
+- [ ] El verificador da lo mismo que el modelo en los dos casos.
+
+**Archivos:** `src/dominio/config.py`, `src/dominio/programador/modelo.py`, `src/dominio/verificador.py`, `src/dominio/capacidad.py`, tests. **Tamaño:** M.
+
+### T10.3 Días y horarios por categoría (P56)
+
+**Descripción:** Sub 5 y Sub 6 no juegan los viernes (duro) y, de preferencia, van en los primeros horarios del sábado y el domingo (blando). En la configuración: `dias_sin_jugar` por categoría y `prefiere_temprano`.
+
+**Aceptación:**
+- [ ] Ningún partido de Sub 5 o Sub 6 cae un viernes; el verificador lo marca si pasa a mano.
+- [ ] Con lugar libre, sus partidos van en los primeros turnos del día.
+
+**Archivos:** `src/dominio/config.py`, modelo de categoría y migración, programador, verificador, plantilla 2026, tests. **Tamaño:** M.
+
+### T10.4 Sub 10 y Sub 11 Avanzado en F11 (P60) y capacidad
+
+**Descripción:** la respuesta a P60 es F11. Cambiar la plantilla y medir con 1 CPU (como H7) con T10.2 aplicado. Si no entra, informar cuánto falta y qué lo destraba: semis antes (P33: "a veces se pueden adelantar"), días entre semana o partir canchas (T10.5).
+
+**Aceptación:**
+- [ ] La plantilla tiene Sub 10 y Sub 11 Avanzado en F11, con su plantel de 18 a 22.
+- [ ] H8 en PROGRESO con lo que entra y lo que no.
+
+**Archivos:** `datos/config/jmp_cup_2026.json`, tests, PROGRESO.md. **Tamaño:** S.
+
+### T10.5 Canchas flexibles (P13, P63)
+
+**Descripción:** se pueden partir las tres canchas y agregar canchas. Pantalla de canchas del torneo: agregar una cancha, partirla en mitades y elegir qué categorías juegan en cada una. Sub 5 y Sub 6 prefieren media cancha 1.
+
+**Aceptación:**
+- [ ] La organización agrega una cancha y parte la cancha 2 en dos mitades desde la app.
+- [ ] El programador usa las canchas nuevas y respeta que una cancha entera ocupa sus mitades.
+
+**Archivos:** vistas, formularios y plantillas de canchas, `servicios/configuracion.py`, tests. **Tamaño:** M.
+
+### T10.6 Preferencias del calendario (P17, P55, club el mismo día)
+
+**Descripción:** objetivos blandos: evitar que un equipo juegue dos veces el mismo día (P17 y P47: se permite, pero mejor no); las finales, de preferencia en los dos últimos días (P55); los equipos de un mismo club, el mismo día cuando se puede.
+
+**Aceptación:**
+- [ ] Con lugar, ningún equipo juega dos veces el mismo día.
+- [ ] Con lugar, las finales caen en los dos últimos días.
+
+**Archivos:** `src/dominio/programador/modelo.py`, tests. **Tamaño:** M.
+
+### T10.7 Un solo rol por ahora (P64)
+
+**Descripción:** "por el momento cualquier administrador hace todo". La mesa recibe todos los permisos (migración); los roles quedan para separarlos después. Así también cualquier usuario cambia las listas después del cierre.
+
+**Aceptación:**
+- [ ] Un usuario de la mesa configura, programa y carga resultados.
+
+**Archivos:** `src/torneo/permisos.py`, migración, tests de roles. **Tamaño:** S.
+
+### T10.8 Formato para más de 10 equipos (P27, P54)
+
+**Descripción:** grupos A y B, todos contra todos dentro de cada grupo; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º.
+
+**Aceptación:**
+- [ ] Con 11 a 16 equipos se arma el fixture con dos grupos y las semis cruzadas de Oro y Plata.
+
+**Archivos:** `src/dominio/formatos.py` o `datos/config/formatos.json`, tests. **Tamaño:** M.
+
+### T10.9 El partido en vivo, a mano (1.2, P16, P35)
+
+**Descripción:** la mesa marca el inicio real, el fin del primer tiempo, el fin del descanso y el final. Amonestación verbal como evento (Sub 5 a Sub 7). En Sub 5 a Sub 9, dos amarillas muestran "sale 5 minutos". El mejor jugador se puede apagar por torneo.
+
+**Aceptación:**
+- [ ] La ficha muestra el tiempo del partido y la mesa avanza los tiempos.
+- [ ] La amonestación verbal se carga y se ve en la ficha.
+
+**Archivos:** modelo del partido y migración, `servicios/partido.py`, ficha, tests. **Tamaño:** M.
+
+### T10.10 Reprogramar con W.O. y contador (1.4.4)
+
+**Descripción:** al reprogramar por un pedido, la organización puede dar el partido por perdido (W.O.) a ese equipo, y la app avisa cuántas veces ya reprogramó. Preferir no mover ningún otro partido.
+
+**Aceptación:**
+- [ ] Desde las propuestas se puede dar W.O. al equipo que pidió reprogramar.
+- [ ] La app dice "este equipo ya reprogramó N veces".
+
+**Archivos:** reprogramación (servicio, vistas, plantillas), tests. **Tamaño:** M.
+
+### T10.11 Dorsal flexible (1.3)
+
+**Descripción:** el dorsal se puede cambiar de un partido a otro; no hace falta antes del primer partido. Regla `dorsal_obligatorio` con la opción "nunca" y el dorsal se edita desde la ficha del partido.
+
+**Aceptación:**
+- [ ] Se cambia el dorsal de un jugador desde la ficha del partido, sin aviso de dorsal pendiente.
+
+**Archivos:** `src/dominio/config.py`, ficha del partido, tests. **Tamaño:** S.
+
+```
+T10.1 → T10.2 → T10.3 → T10.4
+T10.5, T10.6, T10.7, T10.8 (después, en ese orden)
+T10.9, T10.10, T10.11 (durante el torneo)
+```
+
+**Checkpoint de la fase 10:**
+
+- [ ] Verde, más `pytest -m lento`.
+- [ ] El calendario 2026 con F11 medido (H8).
+- [ ] Revisión con `code-review-and-quality` y PROGRESO.md al día.
+
+**Para preguntarle a Sebastian (no frenan):** P44 (inscribir un equipo durante las primeras fechas choca con FIX-09, que no deja rehacer un fixture con partidos jugados); P75 (la fila del archivo ahora dice "las dos: foto de cada jugador y galería", y el pedido decía sin galería); "no existen partidos fijados a mano" (hoy la organización puede fijar uno al moverlo: ¿se saca?).

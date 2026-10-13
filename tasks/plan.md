@@ -272,7 +272,29 @@ T8.5 → T8.6         │
 
 **Checkpoint de la fase 9:**
 
-- [ ] Verde, revisión con `code-review-and-quality` y tu visto bueno.
+- [x] Verde, revisión con `code-review-and-quality` (PROGRESO.md). Visto bueno dado por adelantado.
+
+#### Fase 10: respuestas del organizador
+
+> Planificada el 2026-10-13 con las respuestas en `docs/PREGUNTAS_JMP_CUP_2026.md`. Primero lo que pesa en el calendario del 21/10.
+
+- [ ] T10.1 Reglas del calendario que cambian solo de valor (P35, P19)
+- [ ] T10.2 La hora final de la franja es el último inicio (P48)
+- [ ] T10.3 Días y horarios por categoría (P56)
+- [ ] T10.4 Sub 10 y Sub 11 Avanzado en F11 (P60) y capacidad
+- [ ] T10.5 Canchas flexibles (P13, P63)
+- [ ] T10.6 Preferencias del calendario (P17, P55, club el mismo día)
+- [ ] T10.7 Un solo rol por ahora (P64)
+- [ ] T10.8 Formato para más de 10 equipos (P27, P54)
+- [ ] T10.9 El partido en vivo, a mano
+- [ ] T10.10 Reprogramar con W.O. y contador
+- [ ] T10.11 Dorsal flexible
+
+**Checkpoint de la fase 10:**
+
+- [ ] Verde, más `pytest -m lento`.
+- [ ] El calendario 2026 con F11 medido (H8).
+- [ ] Revisión con `code-review-and-quality` y PROGRESO.md al día.
 
 ## Grafo de dependencias
 
