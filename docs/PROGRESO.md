@@ -125,6 +125,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-13: T10.1 lista: plantilla 2026 con `profe_minutos_cambio_de_cancha` 0 (P35: todas las canchas están en el mismo predio) y `orden_de_fechas` "blanda" (P19: si se reprograma la fecha 2 después de la 3, no frena a la 3; el reparto por fin de semana igual tiende a respetar el orden). La demo programada sigue sin choques. Dos tests que suponían en qué cancha ponía el solver el primer partido ahora no dependen de eso.
 - 2026-10-13: T10.2 lista: regla `fin_de_franja` (P48, PRO-03): "cuando termina el último partido" (como antes, el valor del modelo) o "cuando empieza el último partido" (la respuesta del organizador; en la plantilla 2026). El programador, el verificador y los motivos la usan. La capacidad que se muestra antes de programar sigue contando hasta el fin de la franja: queda conservadora (con último inicio entra un turno más por franja y cancha).
 - 2026-10-13: T10.3 lista (P56): cada categoría tiene `dias_sin_jugar` y `prefiere_temprano` (configuración y `CategoriaNivel`, migración 0024; se editan en Ajustes de la categoría). En la plantilla 2026, Sub 5 y Sub 6 no juegan los viernes y prefieren los primeros horarios. El programador saca esos días de los inicios posibles; un objetivo blando acerca sus partidos al comienzo del día (con el mismo peso por paso que la espera de los profes); el verificador marca un partido puesto a mano en un día prohibido. La demo programada sigue sin choques.
+- 2026-10-13: T10.4 lista: Sub 10 y Sub 11 Avanzado en F11 en la plantilla (respuesta a P60; plantel de 12 a 16 mientras no se responda P78). Medido en H8: sin días extra quedan 6 partidos de C3 afuera; con tres jueves de 16 a 20, entra todo. Preguntas nuevas P78 y P79.
 
 ## Pendiente
 
@@ -253,6 +254,20 @@ Contra la revisión externa (demo con 5 fines de semana, 2 CPU): la espera media
 - **Asistentes y delegados** (con P57 por defecto no cuentan): con 4 trabajadores, 6 pares quedan con más de 2 h de espera (máxima 305 min). Si la respuesta a P57 es "todo el cuerpo técnico", se cambia la regla y se vuelve a programar.
 - **Producción:** `RONDO_PROGRAMADOR_TRABAJADORES=4`. Da el mismo resultado, o mejor, y le deja más aire a la página mientras programa. Durante los 120 s la página responde más lenta: programar fuera del horario de visitas.
 - **Margen:** con más equipos que la demo (H4 estimaba 117), puede no entrar todo; entonces vale P33 (semis en el 3.er fin de semana) o P13 (más canchas).
+
+### H8. Con Sub 10 y Sub 11 Avanzado en F11, la cancha 3 no alcanza (T10.4, 2026-10-13)
+
+Plantilla 2026 con las respuestas del organizador (F11 en Sub 10 y Sub 11 Avanzado, último inicio, Sub 5 y Sub 6 sin viernes, sin margen entre canchas) y la demo de 93 equipos (223 partidos). 1 CPU, 4 trabajadores, 120 s.
+
+| Escenario | Ubicados | Lo que no entra |
+|---|---|---|
+| Fechas 2026 tal cual | 217 de 223 | 6, todos en C3: finales de Sub 10, Sub 12 y Sub 15 Avanzado, y un partido de grupos de Sub 15 |
+| Eliminación desde el 3.er fin de semana (P33) | 217 de 223 | 6, todos en C3 |
+| **Con tres jueves de 16 a 20 (29/10, 5/11 y 12/11)** | **223 de 223** | Nada. 0 choques; espera de los entrenadores: mediana 5 min, máxima 5; 0 llaves encadenadas sin descanso |
+
+- **Por qué:** la cancha 3 (F11) pide 5.610 minutos y da 4.560 en las fechas 2026. El resto (C1 y C2) usa 5.600 de 9.120.
+- **Qué lo destraba:** sumar tiempo en C3. Los jueves (la convocatoria ya los propone para reprogramar) alcanzan; también podría servir empezar antes o terminar después los sábados y domingos. Es la pregunta P79.
+- Los tests lentos agregan esos tres jueves (fixture `agregar_jueves`) y siguen exigiendo que entre todo.
 
 ## Comentarios de Sebastian sobre la demo (2026-10-07)
 
@@ -552,6 +567,8 @@ Valores que no están en el contexto. Quedan como configuración:
 | P52 | ¿Hace falta guardar fotos de los jugadores? Son datos personales de menores | No, hasta que se confirme y se defina quién las ve |
 | P53 | ¿La página pública (calendario, fixture y posiciones sin login, como Copa Fácil) entra en la demo o queda para después? | **Respondida por Sebastian:** entra una versión simple, solo de lectura, sin datos personales |
 | P54 | Con muchos equipos (por ejemplo, 24 en Sub 15) la categoría se divide en grupos A y B, y los mejores se cruzan después. ¿Desde cuántos equipos se divide, en cuántos grupos y de qué tamaño? ¿Todos contra todos dentro del grupo? ¿Cuántos pasan de cada grupo y cómo sigue (cuartos, semis, final)? | Configurable en `formatos.json`. Mientras no se responda, con más de 10 equipos la app avisa que falta el formato (P27) |
+| P78 | Sub 10 y Sub 11 Avanzado juegan F11 (respuesta a P60). ¿El plantel sigue de 12 a 16, como dice la convocatoria, o pasa a 18 a 22 como el resto de F11? | 12 a 16, como la convocatoria |
+| P79 | Con F11 en Sub 10 y Sub 11 Avanzado, la cancha 3 no alcanza (H8). ¿Se agregan jueves de 16 a 20, se amplía el horario del sábado y el domingo, o se juega F11 en otra cancha? | Sin cambios: la app avisa lo que no entra; con tres jueves entra todo |
 
 ## Planes gratuitos (revisados el 2026-10-06)
 

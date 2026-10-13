@@ -44,10 +44,12 @@ def test_sub_5_y_sub_6_juegan_futbol_6_en_media_cancha_1(config: ConfigTorneo) -
         assert set(canchas_compatibles(config, categoria, "unico")) == {"C1A", "C1B"}
 
 
-def test_sub_10_y_sub_11_avanzado_siguen_en_f8(config: ConfigTorneo) -> None:
-    # P60: F8 por defecto; si la respuesta es F11, es un cambio de configuración.
-    assert _nivel(config, "Sub 10", "avanzado") == "F8"
-    assert _nivel(config, "Sub 11", "avanzado") == "F8"
+def test_p60_sub_10_y_sub_11_avanzado_juegan_f11(config: ConfigTorneo) -> None:
+    # Respuesta del organizador: "los iniciales juegan F7 y los avanzados F11".
+    assert _nivel(config, "Sub 10", "avanzado") == "F11"
+    assert _nivel(config, "Sub 11", "avanzado") == "F11"
+    assert _nivel(config, "Sub 10", "inicial") == "F7"
+    assert set(canchas_compatibles(config, "Sub 10", "avanzado")) == {"C3"}
 
 
 def test_sub_15_femenino_queda_disponible_pero_destildada(config: ConfigTorneo) -> None:

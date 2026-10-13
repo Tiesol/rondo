@@ -40,7 +40,7 @@ def test_crea_el_torneo_2026_completo() -> None:
 def test_resuelve_la_compatibilidad_de_canchas() -> None:
     _cargar()
     assert _codigos("Sub 6", "unico") == {"C1A", "C1B"}
-    assert _codigos("Sub 10", "avanzado") == {"C1"}
+    assert _codigos("Sub 10", "avanzado") == {"C3"}  # F11 (P60)
     assert _codigos("Sub 12", "avanzado") == {"C3"}
     assert _codigos("Sub 9", "inicial") == {"C1", "C2"}
 
