@@ -1,10 +1,10 @@
 """Alta de jugadores y profes (T2.6). Las reglas las aplica el dominio vía el servicio."""
 
-from datetime import date
 from typing import Any
 
 from django import forms
 
+from dominio.nacimiento import Nacimiento, NacimientoInvalido, leer_nacimiento
 from torneo.servicios.inscripcion import DatosPersona
 
 _DOCUMENTO = forms.CharField(
@@ -24,8 +24,30 @@ class _FormularioPersona(forms.Form):
     )
 
 
+class CampoNacimiento(forms.CharField):
+    """dd/mm/aaaa o solo el año (T7.6): con el año alcanza para la regla de edad."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(
+            label="Nacimiento",
+            max_length=10,
+            help_text="dd/mm/aaaa, o solo el año si la lista no trae más.",
+            widget=forms.TextInput(
+                attrs={"autocomplete": "off", "placeholder": "12/03/2014 o 2014"}
+            ),
+            **kwargs,
+        )
+
+    def clean(self, value: Any) -> Nacimiento:
+        texto = super().clean(value)
+        try:
+            return leer_nacimiento(texto)
+        except NacimientoInvalido as error:
+            raise forms.ValidationError(str(error)) from None
+
+
 class FormularioJugador(_FormularioPersona):
-    nacimiento = forms.DateField(label="Nacimiento", widget=forms.DateInput(attrs={"type": "date"}))
+    nacimiento = CampoNacimiento()
     dorsal = forms.IntegerField(
         required=False,
         widget=forms.NumberInput(attrs={"inputmode": "numeric", "placeholder": "Opcional"}),
@@ -61,8 +83,8 @@ class FormularioProfe(_FormularioPersona):
 def datos_a_medias(post: Any) -> tuple[DatosPersona, int | None]:
     """Lo que se escribió hasta ahora, para los avisos en vivo: lo que falta queda vacío."""
     try:
-        nacimiento: date | None = date.fromisoformat(post.get("nacimiento", ""))
-    except ValueError:
+        nacimiento: Nacimiento | None = leer_nacimiento(post.get("nacimiento", ""))
+    except NacimientoInvalido:
         nacimiento = None
     try:
         dorsal: int | None = int(post.get("dorsal", ""))

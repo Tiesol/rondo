@@ -11,6 +11,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.functions import Lower
 
+from dominio.nacimiento import Nacimiento
 from torneo.models.configuracion import CategoriaNivel
 
 _HEX = RegexValidator(r"^#[0-9a-fA-F]{6}$", "Tiene que ser un color hexadecimal, como #c8102e.")
@@ -88,20 +89,46 @@ class Persona(models.Model):
     )
     nombres = models.CharField(max_length=80)
     apellidos = models.CharField(max_length=80)
-    nacimiento = models.DateField(null=True, blank=True)
+    # El año alcanza para la regla de edad (INS-02); la fecha completa, si se conoce (T7.6).
+    anio_nacimiento = models.PositiveSmallIntegerField("año de nacimiento", null=True, blank=True)
+    nacimiento = models.DateField("fecha de nacimiento", null=True, blank=True)
 
     class Meta:
         ordering = ["apellidos", "nombres"]
         constraints = [
+            models.CheckConstraint(
+                condition=models.Q(nacimiento__isnull=True)
+                | models.Q(
+                    anio_nacimiento__isnull=False, nacimiento__year=models.F("anio_nacimiento")
+                ),
+                name="fecha_de_nacimiento_del_mismo_anio",
+            ),
             models.UniqueConstraint(
                 fields=["clave_documento"],
                 condition=~models.Q(clave_documento=""),
                 name="documento_unico_si_existe",
-            )
+            ),
         ]
 
     def __str__(self) -> str:
         return f"{self.nombres} {self.apellidos}"
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        if self.nacimiento is not None:
+            self.anio_nacimiento = self.nacimiento.year
+        super().save(*args, **kwargs)
+
+    @property
+    def nacido(self) -> Nacimiento | None:
+        """El nacimiento como lo usa el dominio: completo o solo el año."""
+        if self.anio_nacimiento is None:
+            return None
+        return Nacimiento(self.anio_nacimiento, self.nacimiento)
+
+    @nacido.setter
+    def nacido(self, valor: Nacimiento | None) -> None:
+        self.anio_nacimiento = valor.anio if valor else None
+        self.nacimiento = valor.fecha if valor else None
 
 
 class Jugador(models.Model):

@@ -56,6 +56,7 @@ def test_no_queda_ningun_dato_personal_del_torneo(terminado: Torneo) -> None:
         assert persona.nombres in ("Jugador", "Profe")
         assert persona.documento == persona.clave_documento == persona.tipo_documento == ""
         assert persona.nacimiento is None
+        assert persona.anio_nacimiento is None
         assert "Inventado" not in persona.apellidos
     dorsales = sorted(d for d in Jugador.objects.values_list("dorsal", flat=True) if d)
     assert dorsales == [1, 1, 1, 2, 2, 2, 3, 3, 3]

@@ -6,7 +6,7 @@ bloquea al equipo, así dos altas a la vez no pasan del máximo.
 """
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 
 from django.db import IntegrityError, transaction
 from django.utils import timezone
@@ -24,6 +24,7 @@ from dominio.inscripcion import (
     validar_alta_de_profe,
     validar_cierre,
 )
+from dominio.nacimiento import Nacimiento
 from torneo.models import Equipo, Jugador, Persona, Profe
 
 
@@ -34,7 +35,7 @@ class DatosPersona:
     documento: str
     nombres: str
     apellidos: str
-    nacimiento: date | None
+    nacimiento: Nacimiento | None
 
 
 @dataclass
@@ -86,10 +87,10 @@ def _preparar(
     persona = Persona.objects.filter(clave_documento=documento.clave).first() if documento else None
     otras: tuple[Participacion, ...] = ()
     if persona is not None:
-        if (persona.nombres, persona.apellidos, persona.nacimiento) != (
+        if (persona.nombres, persona.apellidos, persona.nacido) != (
             datos.nombres,
             datos.apellidos,
-            datos.nacimiento or persona.nacimiento,
+            datos.nacimiento or persona.nacido,
         ):
             hallazgos.append(
                 Hallazgo(
@@ -115,7 +116,7 @@ def _hallazgos_de_jugador(
     if any(h.regla == "INS-04" and h.nivel == "error" for h in preparado.hallazgos):
         return list(preparado.hallazgos)
     categoria = equipo.categoria
-    nacimiento = preparado.persona.nacimiento if preparado.persona else datos.nacimiento
+    nacimiento = preparado.persona.nacido if preparado.persona else datos.nacimiento
     alta = AltaDeJugador(
         equipo=equipo_ref(equipo),
         categoria=CategoriaDelEquipo(
@@ -180,7 +181,8 @@ def _persona(datos: DatosPersona, preparado: _Preparado) -> Persona:
         clave_documento=documento.clave if documento else "",
         nombres=datos.nombres.strip(),
         apellidos=datos.apellidos.strip(),
-        nacimiento=datos.nacimiento,
+        anio_nacimiento=datos.nacimiento.anio if datos.nacimiento else None,
+        nacimiento=datos.nacimiento.fecha if datos.nacimiento else None,
     )
 
 

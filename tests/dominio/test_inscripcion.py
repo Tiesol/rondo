@@ -18,6 +18,7 @@ from dominio.inscripcion import (
     validar_alta_de_profe,
     validar_cierre,
 )
+from dominio.nacimiento import Nacimiento
 
 RIVER_SUB9 = EquipoRef(1, "River Plate", "Sub 9", "Sub 9 Avanzado")
 RIVER_SUB11 = EquipoRef(2, "River Plate", "Sub 11", "Sub 11 Avanzado")
@@ -28,11 +29,13 @@ SUB17 = CategoriaDelEquipo(edad=17, anios_nacimiento=2, min_jugadores=18, max_ju
 
 
 def alta(**cambios: object) -> AltaDeJugador:
+    if isinstance(cambios.get("nacimiento"), date):
+        cambios["nacimiento"] = Nacimiento.de(cambios["nacimiento"])  # type: ignore[arg-type]
     base = AltaDeJugador(
         equipo=RIVER_SUB9,
         categoria=SUB9,
         anio_torneo=2026,
-        nacimiento=date(2017, 3, 14),
+        nacimiento=Nacimiento.de(date(2017, 3, 14)),
         documento=normalizar_documento("1234567 SC"),
         dorsal=10,
         jugadores_en_el_equipo=12,
@@ -98,6 +101,19 @@ def test_ins_02_sub_17_acepta_los_dos_anios(anio: int) -> None:
         alta(categoria=SUB17, nacimiento=date(anio, 6, 1), jugadores_en_el_equipo=18), Reglas()
     )
     assert de_la_regla(hallazgos, "INS-02") == []
+
+
+def test_ins_02_solo_el_anio_alcanza_con_aviso_de_fecha_incompleta() -> None:
+    hallazgos = validar_alta_de_jugador(alta(nacimiento=Nacimiento(2017)), Reglas())
+    assert [(h.nivel, h.mensaje) for h in de_la_regla(hallazgos, "INS-02")] == [
+        ("aviso", "Fecha incompleta: solo el año (2017).")
+    ]
+
+
+def test_ins_02_solo_el_anio_fuera_de_la_categoria_es_el_mismo_error() -> None:
+    solo_anio = validar_alta_de_jugador(alta(nacimiento=Nacimiento(2015)), Reglas())
+    completa = validar_alta_de_jugador(alta(nacimiento=date(2015, 1, 1)), Reglas())
+    assert [h for h in solo_anio if h.nivel == "error"] == completa
 
 
 def test_ins_02_sin_fecha_de_nacimiento_es_un_error() -> None:

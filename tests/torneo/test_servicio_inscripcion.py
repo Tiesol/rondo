@@ -6,6 +6,7 @@ import pytest
 from django.conf import settings
 
 from dominio.config import cargar_config
+from dominio.nacimiento import Nacimiento
 from torneo.models import Club, Equipo, Jugador, Persona, Profe, Torneo
 from torneo.servicios.configuracion import cargar_configuracion
 from torneo.servicios.inscripcion import (
@@ -33,7 +34,7 @@ def equipo(torneo: Torneo, club: str, categoria: str, nivel: str) -> Equipo:
 
 
 def nino(documento: str = "1234567 SC", nacimiento: date = date(2017, 3, 14)) -> DatosPersona:
-    return DatosPersona(documento, "Nombre", "Inventado", nacimiento)
+    return DatosPersona(documento, "Nombre", "Inventado", Nacimiento.de(nacimiento))
 
 
 def reglas(resultado: object) -> list[tuple[str, str]]:
@@ -115,7 +116,7 @@ def test_si_el_documento_ya_existe_valen_los_datos_guardados(torneo: Torneo) -> 
     river11 = equipo(torneo, "River Plate", "Sub 11", "avanzado")
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
     agregar_jugador(river9, nino(), dorsal=7, ahora=AHORA, es_organizacion=True)
-    distinto = DatosPersona("1234567", "Otro", "Nombre", date(2015, 2, 2))
+    distinto = DatosPersona("1234567", "Otro", "Nombre", Nacimiento.de(date(2015, 2, 2)))
     resultado = agregar_jugador(river11, distinto, dorsal=7, ahora=AHORA, es_organizacion=True)
     assert resultado.guardado
     assert ("aviso", "INS-04") in reglas(resultado)
