@@ -1,5 +1,5 @@
 {# Lo que cambia al elegir categoría o pestaña. Solo datos del torneo: nunca de personas. #}
-<div id="publico" class="envoltura" hx-get="{{ request.path }}" hx-trigger="every 60s" hx-target="this" hx-swap="outerHTML">
+<div id="publico" class="envoltura" hx-get="{{ request.path }}" hx-trigger="every 30s" hx-target="this" hx-swap="outerHTML">
   <div class="banda pt-3">
     <p class="titulo-grande">{{ nombre }}</p>
     <p class="meta">{{ resumen }}</p>

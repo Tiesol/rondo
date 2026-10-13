@@ -226,6 +226,7 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 | RES-03 | El marcador sale de los eventos; el gol en contra va con el jugador que lo hizo y suma para el rival (T11.10); el W.O. da el marcador de la regla; en la eliminación, un empate se define por penales | P23, P72 | R `marcador_wo` | 3 a 0 |
 | RES-04 | Un partido que sigue en juego pasado su final esperado (inicio real del 2.º tiempo + sus minutos) más `cierre_automatico_min` se cierra solo y queda marcado | P82 | R `cierre_automatico_min` | 15 |
 | RES-05 | Penales tiro por tiro: `penales_por_equipo` por lado y, si siguen empatados, uno más por equipo hasta definir; se corta apenas uno ya no alcanza. Atajo: solo el resultado | P83 | R `penales_por_equipo` | 3 |
+| RES-06 | La tabla de goleadores se ve en la página pública solo si el torneo la enciende | P71 | R `tabla_de_goleadores` | Sí |
 | SUS-01 | Doble amarilla desde la categoría de la regla: roja y multa; sin pagar, no juega el partido siguiente de su equipo | 4.7, P74 | R `doble_amarilla_desde`, `multa_doble_amarilla` | Sub 10, Bs 30 |
 | SUS-02 | Roja directa y amarillas acumuladas suspenden solo si la regla lo dice; la organización puede suspender a mano | P29 | R `partidos_por_roja_directa`, `amarillas_acumuladas` | 0 y 0 |
 

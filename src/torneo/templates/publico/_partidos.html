@@ -10,9 +10,9 @@
           {% if p.marcador %}<strong class="num marcador-chico" aria-label="{{ p.marcador.0 }} a {{ p.marcador.1 }}">{{ p.marcador.0 }}<span aria-hidden="true">–</span>{{ p.marcador.1 }}</strong>{% else %}<span class="tenue">vs</span>{% endif %}
           <span class="lado">{% if p.escudo_visitante %}{% include "parciales/escudo.html" with escudo=p.escudo_visitante tamano="ch" %}{% endif %}{{ p.visitante }}</span>
         </span>
-        <span class="sub">{% if mostrar_categoria %}{{ p.categoria }} · {% endif %}{% if p.nombre %}{{ p.nombre }} · {% endif %}{{ p.cancha|default:"Sin cancha" }}</span>
+        <span class="sub">{% if mostrar_categoria %}{{ p.categoria }} · {% endif %}{% if p.nombre %}{{ p.nombre }} · {% endif %}{{ p.cancha|default:"Sin cancha" }}{% if p.atraso %} · <strong>unos {{ p.atraso }} min tarde</strong>{% endif %}</span>
       </span>
-      {% if p.estado == "En juego" %}{% include "parciales/chip.html" with texto="En juego" estado="aviso" %}{% elif p.estado %}{% include "parciales/chip.html" with texto=p.estado estado="neutro" %}{% endif %}
+      {% if p.en_vivo %}{% include "parciales/chip.html" with texto=p.estado estado="aviso" %}{% elif p.estado %}{% include "parciales/chip.html" with texto=p.estado estado="neutro" %}{% endif %}
     </a>
   </li>
   {% empty %}

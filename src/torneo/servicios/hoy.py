@@ -53,6 +53,19 @@ def _en_cancha(partido: Partido) -> EnCancha:
     )
 
 
+def atrasos_del_dia(partidos: list[Partido]) -> dict[Any, int]:
+    """El atraso estimado de cada partido de un día, cancha por cancha."""
+    por_cancha: dict[Any, list[Partido]] = defaultdict(list)
+    for partido in partidos:
+        if partido.cancha_id is not None and partido.inicio and not partido.no_se_presento:
+            por_cancha[partido.cancha_id].append(partido)
+    ahora = timezone.now()
+    resultado: dict[Any, int] = {}
+    for suyos in por_cancha.values():
+        resultado |= atrasos([_en_cancha(p) for p in suyos], ahora)
+    return resultado
+
+
 def partidos_de_hoy(torneo: Torneo, dia: date) -> list[dict[str, Any]]:
     ahora = timezone.now()
     desde = timezone.make_aware(datetime.combine(dia, time.min))
