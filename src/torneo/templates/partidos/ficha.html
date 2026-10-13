@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block titulo %}Partido · {{ partido }}{% endblock %}
+{% block volver %}{% if partido.inicio %}<a class="icono-btn" href="{% url 'calendario-dia' partido.inicio|date:'Y-m-d' %}" aria-label="Volver al calendario">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endif %}{% endblock %}
+{% block encabezado %}Partido{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  <p class="peq tenue">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if hora %} · {{ hora }}{% endif %}{% if partido.cancha %} · {{ partido.cancha.nombre }}{% endif %}</p>
+  <div class="marcador">
+    {% for lado in equipos %}
+    <div class="marcador-equipo">{% include "parciales/escudo.html" with escudo=lado.escudo tamano="gr" %}<strong>{{ lado.equipo.nombre }}</strong></div>
+    {% if forloop.first %}<div class="marcador-goles num" aria-label="{{ resultado.marcador.0 }} a {{ resultado.marcador.1 }}">{{ resultado.marcador.0 }}<span aria-hidden="true">–</span>{{ resultado.marcador.1 }}</div>{% endif %}
+    {% endfor %}
+  </div>
+  {% if resultado.penales %}<p class="peq tenue centrado">Penales {{ resultado.penales.0 }} a {{ resultado.penales.1 }}</p>{% endif %}
+  {% if resultado.wo %}<p class="peq tenue centrado">W.O.</p>{% endif %}
+  <div class="marcas">
+    {% if partido.estado == "en_juego" %}{% include "parciales/chip.html" with texto="En juego" estado="aviso" %}{% elif partido.estado == "jugado" %}{% include "parciales/chip.html" with texto="Terminado" estado="bien" %}{% else %}{% include "parciales/chip.html" with texto="Por jugar" estado="neutro" %}{% endif %}
+  </div>
+</div>
+
+{% if equipos|length < 2 %}
+<div class="seccion">{% include "parciales/alerta.html" with estado="aviso" texto="Faltan los equipos de este partido: se asignan en el fixture de la categoría." %}</div>
+{% elif not partido.empezado %}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
+  {% csrf_token %}
+  <button type="submit" name="accion" value="empezar" class="btn principal bloque grande">Empezar el partido</button>
+</form>
+<details class="desplegable seccion">
+  <summary>W.O.: un equipo no se presentó</summary>
+  <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-2">
+    {% csrf_token %}
+    <input type="hidden" name="accion" value="wo">
+    {% for lado in equipos %}<button type="submit" name="no_se_presento" value="{% if forloop.first %}local{% else %}visitante{% endif %}" class="btn bloque">No se presentó {{ lado.equipo.nombre }}</button>{% endfor %}
+  </form>
+</details>
+{% else %}
+<div class="seccion botones-partido">
+  <button type="button" class="btn grande gol" data-abrir-hoja="hoja-gol">Gol</button>
+  <button type="button" class="btn grande amarilla" data-abrir-hoja="hoja-amarilla">Amarilla</button>
+  <button type="button" class="btn grande roja" data-abrir-hoja="hoja-roja">Roja</button>
+</div>
+{% include "parciales/hoja.html" with id="hoja-gol" titulo="¿Quién hizo el gol?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="gol" %}
+{% include "parciales/hoja.html" with id="hoja-amarilla" titulo="Amarilla, ¿a quién?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="amarilla" %}
+{% include "parciales/hoja.html" with id="hoja-roja" titulo="Roja, ¿a quién?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="roja" %}
+
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
+  {% csrf_token %}
+  <button type="submit" name="accion" value="deshacer" class="btn bloque"{% if not eventos %} disabled{% endif %}>Deshacer el último</button>
+</form>
+
+{% if eliminacion %}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
+  {% csrf_token %}
+  <input type="hidden" name="accion" value="penales">
+  {% include "parciales/seccion_cab.html" with titulo="Penales" %}
+  <div class="dos">
+    {% for lado in equipos %}<div class="campo"><label for="penales-{{ forloop.counter }}">{{ lado.equipo.nombre }}</label><input id="penales-{{ forloop.counter }}" type="number" min="0" inputmode="numeric" name="{% if forloop.first %}local{% else %}visitante{% endif %}" value="{% if forloop.first %}{{ partido.penales_local|default_if_none:'' }}{% else %}{{ partido.penales_visitante|default_if_none:'' }}{% endif %}"></div>{% endfor %}
+  </div>
+  <button type="submit" class="btn bloque">Guardar los penales</button>
+</form>
+{% endif %}
+
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
+  {% csrf_token %}
+  <input type="hidden" name="accion" value="mejor">
+  <div class="campo">
+    <label for="mejor">Mejor jugador</label>
+    <select id="mejor" name="jugador" data-enviar-al-cambiar>
+      <option value="">Sin elegir</option>
+      {% for lado in equipos %}<optgroup label="{{ lado.equipo.nombre }}">{% for jugador in lado.plantel %}<option value="{{ jugador.pk }}"{% if partido.mejor_jugador_id == jugador.pk %} selected{% endif %}>{{ jugador.dorsal|default_if_none:"s/n" }} · {{ jugador.persona }}</option>{% endfor %}</optgroup>{% endfor %}
+    </select>
+  </div>
+  <noscript><button type="submit" class="btn bloque">Guardar el mejor jugador</button></noscript>
+</form>
+
+{% if partido.estado != "jugado" %}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
+  {% csrf_token %}
+  <button type="submit" name="accion" value="terminar" class="btn principal bloque">Terminar el partido</button>
+</form>
+{% endif %}
+{% endif %}
+
+{% if eventos %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Lo que pasó" %}
+  <ul class="lista">
+    {% for evento in eventos %}
+    <li class="fila">
+      <span class="evento {{ evento.clase }}" aria-hidden="true"></span>
+      <span class="crece"><strong>{{ evento.tipo }} · {{ evento.equipo }}</strong><span class="sub">{% if evento.jugador %}{{ evento.jugador.dorsal|default_if_none:"s/n" }} · {{ evento.jugador.persona }} · {% endif %}{{ evento.hora }}{% if evento.quien %} · {{ evento.quien }}{% endif %}</span></span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endblock %}
