@@ -140,6 +140,9 @@ class CategoriaNivel(models.Model):
     max_jugadores = models.PositiveSmallIntegerField("máximo de jugadores")
     min_por_tiempo = models.PositiveSmallIntegerField("minutos por tiempo")
     convocados_por_partido = models.PositiveSmallIntegerField(null=True, blank=True)
+    # P56 (T10.3): días en que la categoría no juega y si prefiere los primeros horarios.
+    dias_sin_jugar = models.JSONField("días sin jugar", default=list, blank=True)
+    prefiere_temprano = models.BooleanField("prefiere los primeros horarios", default=False)
     canchas: models.ManyToManyField[Cancha, Any] = models.ManyToManyField(
         "Cancha", blank=True, related_name="categorias", verbose_name="canchas compatibles"
     )

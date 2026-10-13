@@ -19,6 +19,7 @@ from django.utils import timezone
 
 from dominio.config import Reglas
 from dominio.formatos import FormatoFaltante, equipos_virtuales, toman_posiciones
+from dominio.franjas import DIAS_DE_LA_SEMANA
 from dominio.programador.modelo import PartidoAProgramar, Problema, programar
 from dominio.programador.motivos import motivos_sin_ubicar
 from dominio.verificador import Bloqueo as BloqueoDelDominio
@@ -132,6 +133,10 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
                 despues_de=de_la_llave.despues_de if de_la_llave else frozenset(),
                 virtuales=de_la_llave.virtuales if de_la_llave else frozenset(),
                 toma_posiciones=de_la_llave.toma_posiciones if de_la_llave else False,
+                dias_sin_jugar=frozenset(
+                    DIAS_DE_LA_SEMANA.index(d) for d in categoria.dias_sin_jugar
+                ),
+                temprano=categoria.prefiere_temprano,
             )
         )
     return Problema(
@@ -199,6 +204,7 @@ def choques_del_calendario(
             fase=p.fase,
             virtuales=p.virtuales,
             toma_posiciones=p.toma_posiciones,
+            dias_sin_jugar=p.dias_sin_jugar,
         )
         for p in problema.partidos
         if p.id in ubicados

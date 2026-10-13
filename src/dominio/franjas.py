@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from dominio.config import ConfigTorneo, DiaSemana
 
-_DIAS: tuple[DiaSemana, ...] = (
+DIAS_DE_LA_SEMANA: tuple[DiaSemana, ...] = (
     "lunes",
     "martes",
     "miercoles",
@@ -19,7 +19,7 @@ _DIAS: tuple[DiaSemana, ...] = (
 
 def proximo(desde: date, dia: DiaSemana) -> date:
     """El primer `dia` de la semana desde `desde`, incluido (para proponer el jueves)."""
-    return desde + timedelta(days=(_DIAS.index(dia) - desde.weekday()) % 7)
+    return desde + timedelta(days=(DIAS_DE_LA_SEMANA.index(dia) - desde.weekday()) % 7)
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,7 +38,7 @@ def franjas_del_torneo(config: ConfigTorneo) -> tuple[Franja, ...]:
     franjas: list[Franja] = []
     dia = config.torneo.inicio
     while dia <= config.torneo.fin:
-        horario = config.franjas.get(_DIAS[dia.weekday()])
+        horario = config.franjas.get(DIAS_DE_LA_SEMANA[dia.weekday()])
         if horario is not None:
             inicio, fin = (datetime.combine(dia, hora, tzinfo=zona) for hora in horario)
             franjas.append(Franja(inicio.astimezone(UTC), fin.astimezone(UTC)))

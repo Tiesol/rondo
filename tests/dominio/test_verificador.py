@@ -323,3 +323,25 @@ def test_t10_2_el_verificador_acepta_empezar_a_la_hora_final_con_ultimo_inicio()
     assert [c.tipo for c in verificar([a_las(16, 5)], escenario)] == ["franja"]
     hasta_el_final = Escenario(**{**escenario.__dict__, "reglas": Reglas()})
     assert [c.tipo for c in verificar([a_las(16, 0)], hasta_el_final)] == ["franja"]
+
+
+def test_t10_3_el_verificador_marca_un_dia_sin_jugar() -> None:
+    from datetime import datetime
+
+    from dominio.config import Reglas
+    from dominio.verificador import Escenario, PartidoAgendado, verificar
+
+    viernes = datetime(2026, 10, 30, 16, 0)
+    escenario = Escenario(
+        fisicas={"C1A": frozenset({"C1A"})},
+        compatibilidad={"Sub 5": frozenset({"C1A"})},
+        franjas=((viernes, viernes.replace(hour=20)),),
+        pares=(),
+        bloqueos=(),
+        reglas=Reglas(),
+    )
+    partido = PartidoAgendado(
+        "p", "Sub 5", ("A", "B"), "C1A", viernes, 35, 40, dias_sin_jugar=frozenset({4})
+    )
+    choques = verificar([partido], escenario)
+    assert [c.tipo for c in choques] == ["franja"] and "no juega" in choques[0].motivos[0]

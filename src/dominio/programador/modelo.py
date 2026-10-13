@@ -57,6 +57,8 @@ class PartidoAProgramar:
     despues_de: frozenset[str] = frozenset()  # claves de los partidos a los que se refiere
     virtuales: frozenset[str] = frozenset()  # en la eliminación: "ganador de la semi 1" (T7.1)
     toma_posiciones: bool = False  # en la eliminación: juega con equipos de la tabla de grupos
+    dias_sin_jugar: frozenset[int] = frozenset()  # días de la semana (0 es lunes), P56
+    temprano: bool = False  # de preferencia, en los primeros horarios del día (P56)
 
     @property
     def equipos_definidos(self) -> tuple[Equipo, ...]:
@@ -137,6 +139,8 @@ class Modelo:
         largo = 0 if ultimo_inicio else _pasos(partido.minutos_partido)
         ventanas = []
         for desde, hasta in self.problema.franjas:
+            if desde.weekday() in partido.dias_sin_jugar:
+                continue  # P56: esa categoría no juega ese día
             primero = self.reloj.paso(desde, hacia_arriba=True)
             ultimo = self.reloj.paso(hasta, hacia_arriba=False) - largo
             if ultimo >= primero:
@@ -326,6 +330,20 @@ class Modelo:
             esperas.append(espera)
         return esperas
 
+    def _horarios_tempranos(self) -> list[cp_model.IntVar]:
+        """P56: los pasos desde que empieza el día hasta el partido, para los que prefieren
+        jugar temprano (Sub 5 y Sub 6)."""
+        demoras = []
+        for partido in self.problema.partidos:
+            if not partido.temprano:
+                continue
+            demora = self.modelo.new_int_var(0, self._pasos_por_dia, f"demora de {partido.id}")
+            for dia, en_dia in self.en_dia[partido.id].items():
+                primero = min(r[0] for r in self.dias[dia])
+                self.modelo.add(demora >= self.inicio[partido.id] - primero).only_enforce_if(en_dia)
+            demoras.append(demora)
+        return demoras
+
     @property
     def _pasos_por_dia(self) -> int:
         return max(
@@ -409,15 +427,17 @@ class Modelo:
                 if distancia:
                     desvio.append(distancia * en_dia)
         esperas = self._esperas_de_profes()
+        temprano = self._horarios_tempranos()
         peso_semana = 60 // PASO_MIN
         maximo_blando = (
             peso_semana * len(semanas) * len(self.problema.partidos)
-            + len(esperas) * self._pasos_por_dia
+            + (len(esperas) + len(temprano)) * self._pasos_por_dia
         )
         self.modelo.maximize(
             (1 + maximo_blando) * sum(self.presente.values())
             - peso_semana * sum(desvio)
             - sum(esperas)
+            - sum(temprano)
         )
 
     def resolver(self, segundos: float, trabajadores: int, semilla: int) -> Resultado:

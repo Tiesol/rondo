@@ -49,6 +49,8 @@ class Categoria(Estricto):
     niveles: dict[NombreNivel, Nivel] = Field(min_length=1)
     # Solo para el asistente: si la categoría arranca tildada. Sub 15 Femenino, no (P61).
     tildada_en_asistente: bool = True
+    dias_sin_jugar: tuple[DiaSemana, ...] = ()  # P56: Sub 5 y Sub 6 no juegan los viernes
+    prefiere_temprano: bool = False  # P56: de preferencia, en los primeros horarios
 
     @field_validator("niveles")
     @classmethod
