@@ -19,6 +19,19 @@
   </div>
 </div>
 
+{% if confirmar %}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
+  {% csrf_token %}
+  {% for clave, valor in confirmar.datos %}<input type="hidden" name="{{ clave }}" value="{{ valor }}">{% endfor %}
+  <input type="hidden" name="confirmar" value="1">
+  {% include "parciales/alerta.html" with estado="aviso" texto=confirmar.mensaje %}
+  <div class="botones">
+    <a class="btn" href="{% url 'ficha-partido' partido.pk %}">Cancelar</a>
+    <button type="submit" class="btn principal">Guardar igual</button>
+  </div>
+</form>
+{% endif %}
+
 {% if suspendidos %}
 <div class="seccion">
   {% for jugador, motivo in suspendidos %}{% include "parciales/alerta.html" with estado="error" titulo="Suspendido:" texto=jugador.dorsal|default_if_none:"s/n"|stringformat:"s"|add:" · "|add:jugador.persona.nombres|add:" "|add:jugador.persona.apellidos|add:" ("|add:jugador.equipo.nombre|add:"). "|add:motivo %}{% endfor %}
@@ -28,6 +41,10 @@
 {% if equipos|length < 2 %}
 <div class="seccion">{% include "parciales/alerta.html" with estado="aviso" texto="Faltan los equipos de este partido: se asignan en el fixture de la categoría." %}</div>
 {% elif not partido.empezado %}
+<div class="seccion gap-3">
+  {% include "parciales/seccion_cab.html" with titulo="Planilla" %}
+  {% for lado in equipos %}{% include "partidos/_planilla.html" %}{% endfor %}
+</div>
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
   {% csrf_token %}
   <button type="submit" name="accion" value="empezar" class="btn principal bloque grande">Empezar el partido</button>
@@ -84,7 +101,7 @@
     <label for="mejor">Mejor jugador</label>
     <select id="mejor" name="jugador" data-enviar-al-cambiar>
       <option value="">Sin elegir</option>
-      {% for lado in equipos %}<optgroup label="{{ lado.equipo.nombre }}">{% for jugador in lado.plantel %}<option value="{{ jugador.pk }}"{% if partido.mejor_jugador_id == jugador.pk %} selected{% endif %}>{{ jugador.dorsal|default_if_none:"s/n" }} · {{ jugador.persona }}</option>{% endfor %}</optgroup>{% endfor %}
+      {% for lado in equipos %}<optgroup label="{{ lado.equipo.nombre }}">{% for jugador in lado.plantel %}<option value="{{ jugador.pk }}"{% if partido.mejor_jugador_id == jugador.pk %} selected{% endif %}>{{ jugador.numero|default_if_none:"s/n" }} · {{ jugador.persona }}</option>{% endfor %}</optgroup>{% endfor %}
     </select>
   </div>
   <noscript><button type="submit" class="btn bloque">Guardar el mejor jugador</button></noscript>
@@ -113,7 +130,7 @@
     {% csrf_token %}
     <input type="hidden" name="accion" value="suspender">
     <div class="campo"><label for="suspender-jugador">Jugador</label>
-      <select id="suspender-jugador" name="jugador">{% for lado in equipos %}<optgroup label="{{ lado.equipo.nombre }}">{% for jugador in lado.plantel %}<option value="{{ jugador.pk }}">{{ jugador.dorsal|default_if_none:"s/n" }} · {{ jugador.persona }}</option>{% endfor %}</optgroup>{% endfor %}</select>
+      <select id="suspender-jugador" name="jugador">{% for lado in equipos %}<optgroup label="{{ lado.equipo.nombre }}">{% for jugador in lado.plantel %}<option value="{{ jugador.pk }}">{{ jugador.numero|default_if_none:"s/n" }} · {{ jugador.persona }}</option>{% endfor %}</optgroup>{% endfor %}</select>
     </div>
     <div class="dos">
       <div class="campo"><label for="suspender-partidos">Partidos</label><input id="suspender-partidos" type="number" min="1" max="5" name="partidos" value="1" inputmode="numeric"></div>
@@ -126,16 +143,8 @@
 {% endif %}
 
 <details class="desplegable seccion">
-  <summary>Cambiar un dorsal</summary>
-  <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-2">
-    {% csrf_token %}
-    <input type="hidden" name="accion" value="dorsal">
-    <div class="campo"><label for="dorsal-jugador">Jugador</label>
-      <select id="dorsal-jugador" name="jugador">{% for lado in equipos %}<optgroup label="{{ lado.equipo.nombre }}">{% for jugador in lado.plantel %}<option value="{{ jugador.pk }}">{{ jugador.dorsal|default_if_none:"s/n" }} · {{ jugador.persona }}</option>{% endfor %}</optgroup>{% endfor %}</select>
-    </div>
-    <div class="campo"><label for="dorsal-nuevo">Dorsal en este partido</label><input id="dorsal-nuevo" name="dorsal" type="number" min="1" max="99" inputmode="numeric" placeholder="Vacío: sin dorsal"></div>
-    <button type="submit" class="btn bloque">Guardar el dorsal</button>
-  </form>
+  <summary>Planilla y dorsales</summary>
+  <div class="flex flex-col gap-3">{% for lado in equipos %}{% include "partidos/_planilla.html" %}{% endfor %}</div>
 </details>
 
 {% if partido.estado != "jugado" %}
@@ -153,7 +162,7 @@
     {% for evento in eventos %}
     <li class="fila">
       <span class="evento {{ evento.clase }}" aria-hidden="true"></span>
-      <span class="crece"><strong>{{ evento.tipo }} · {{ evento.equipo }}</strong><span class="sub">{% if evento.jugador %}{{ evento.jugador.dorsal|default_if_none:"s/n" }} · {{ evento.jugador.persona }} · {% endif %}{{ evento.hora }}{% if evento.quien %} · {{ evento.quien }}{% endif %}</span>{% if evento.nota %}<span class="sub"><strong>{{ evento.nota }}</strong></span>{% endif %}</span>
+      <span class="crece"><strong>{{ evento.tipo }} · {{ evento.equipo }}</strong><span class="sub">{% if evento.jugador %}{{ evento.dorsal|default_if_none:"s/n" }} · {{ evento.jugador.persona }} · {% endif %}{{ evento.hora }}{% if evento.quien %} · {{ evento.quien }}{% endif %}</span>{% if evento.nota %}<span class="sub"><strong>{{ evento.nota }}</strong></span>{% endif %}</span>
     </li>
     {% endfor %}
   </ul>

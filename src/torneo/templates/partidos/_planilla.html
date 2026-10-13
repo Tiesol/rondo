@@ -1,0 +1,27 @@
+{# T11.8: quiénes juegan y el dorsal de este partido, por equipo. Usa partido y lado. #}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="planilla flex flex-col gap-2">
+  {% csrf_token %}
+  <input type="hidden" name="accion" value="planilla">
+  <input type="hidden" name="equipo" value="{{ lado.equipo.pk }}">
+  <div class="seccion-cab">
+    <strong>{{ lado.equipo.nombre }}</strong>
+    <span class="chip neutro num">{{ lado.juegan|length }} juegan</span>
+    {% if not lado.juegan %}<button type="submit" name="todos" value="1" class="btn chico">Todos</button>{% endif %}
+  </div>
+  <ul class="lista">
+    {% for fila in lado.filas %}
+    <li class="fila-planilla{% if fila.suspendido %} suspendido{% endif %}">
+      <label class="juega">
+        <input type="checkbox" name="juega_{{ fila.jugador.pk }}"{% if fila.juega %} checked{% endif %}>
+        {% if fila.foto %}<img class="foto-chica" src="{{ fila.foto }}" alt="" width="40" height="40" loading="lazy">{% endif %}
+        <span class="crece">{{ fila.jugador.persona }}{% if fila.suspendido %}<span class="sub">Suspendido</span>{% endif %}</span>
+      </label>
+      <input class="dorsal-partido num" type="number" name="dorsal_{{ fila.jugador.pk }}" value="{{ fila.dorsal|default_if_none:'' }}" min="1" max="99" inputmode="numeric" aria-label="Dorsal de {{ fila.jugador.persona }}" placeholder="N.º">
+    </li>
+    {% empty %}
+    <li class="peq tenue">Sin jugadores cargados.</li>
+    {% endfor %}
+  </ul>
+  <label class="opcion"><input type="checkbox" name="entrenador"{% if lado.entrenador %} checked{% endif %}> Entrenador presente</label>
+  <button type="submit" class="btn bloque">Guardar</button>
+</form>

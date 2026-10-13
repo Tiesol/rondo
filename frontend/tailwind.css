@@ -1097,6 +1097,49 @@
     gap: 12px;
     min-height: 52px;
   }
+  /* T11.8: la planilla del partido. Filas grandes para tocar; el dorsal al costado. */
+  .fila-planilla {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-linea);
+  }
+  .fila-planilla .juega {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    font-weight: 600;
+  }
+  .fila-planilla .juega input {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    accent-color: var(--color-accion);
+  }
+  .fila-planilla.suspendido .juega {
+    color: var(--color-error);
+  }
+  .foto-chica {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .dorsal-partido {
+    flex: none;
+    width: 64px;
+    min-height: 44px;
+    padding: 6px 8px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    font-size: 18px;
+    text-align: center;
+  }
   .evento {
     flex: none;
     width: 12px;

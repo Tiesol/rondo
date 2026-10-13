@@ -16,8 +16,9 @@ from django.views.decorators.http import require_POST
 from dominio.config import Reglas
 from torneo.models import Equipo, Jugador, Partido
 from torneo.permisos import requiere
-from torneo.presentacion import escudo
+from torneo.presentacion import escudo, url_de_imagen
 from torneo.servicios import partido as servicio
+from torneo.servicios import planilla
 from torneo.servicios.historial import historial
 from torneo.servicios.partido import NoSePuede
 from torneo.servicios.suspensiones import (
@@ -68,29 +69,56 @@ def _notas(partido: Partido, eventos: list[Any], reglas: Reglas) -> dict[int, st
     return notas
 
 
-def _plantel(equipo: Equipo | None) -> list[Jugador]:
-    if equipo is None:
-        return []
-    return list(equipo.jugadores.select_related("persona").order_by("dorsal", "persona__apellidos"))
+def _plantel(equipo: Equipo, dorsales: dict[int, int | None]) -> list[Jugador]:
+    """El plantel, con `numero`: el dorsal de este partido si juega; si no, el habitual."""
+    jugadores = list(
+        equipo.jugadores.select_related("persona").order_by("dorsal", "persona__apellidos")
+    )
+    for jugador in jugadores:
+        jugador.numero = dorsales.get(jugador.pk, jugador.dorsal)  # type: ignore[attr-defined]
+        jugador.juega = jugador.pk in dorsales  # type: ignore[attr-defined]
+    jugadores.sort(key=lambda j: (not j.juega, j.numero or 100))  # type: ignore[attr-defined]
+    return jugadores
 
 
-@requiere("torneo.cargar_resultados", "cargar los partidos")
-def ficha(request: HttpRequest, pk: int) -> HttpResponse:
-    partido = get_object_or_404(_PARTIDO, pk=pk)
+def _lado(partido: Partido, equipo: Equipo, dorsales: dict[int, int | None]) -> dict[str, Any]:
+    plantel = _plantel(equipo, dorsales)
+    suspendidos = {j.pk: motivo for j, motivo in suspendidos_en(partido)}
+    lado = "local" if equipo.pk == partido.local_id else "visitante"
+    return {
+        "equipo": equipo,
+        "escudo": escudo(equipo),
+        "plantel": plantel,
+        "juegan": [j for j in plantel if j.juega],  # type: ignore[attr-defined]
+        "resto": [j for j in plantel if not j.juega],  # type: ignore[attr-defined]
+        "entrenador": getattr(partido, f"entrenador_{lado}"),
+        "filas": [
+            {
+                "jugador": j,
+                "juega": j.juega,  # type: ignore[attr-defined]
+                "dorsal": j.numero if j.juega else planilla.dorsal_sugerido(partido, j),  # type: ignore[attr-defined]
+                "suspendido": suspendidos.get(j.pk, ""),
+                "foto": url_de_imagen("foto", j.persona_id, j.persona.foto.name),
+            }
+            for j in plantel
+        ],
+    }
+
+
+def _contexto(partido: Partido) -> dict[str, Any]:
     resultado = servicio.resultado_de(partido)
+    dorsales = planilla.dorsales_del_partido(partido)
     eventos = list(
         partido.eventos.select_related("equipo", "jugador__persona", "creado_por").order_by(
             "-creado_en", "-pk"
         )
     )
     equipos: list[dict[str, Any]] = [
-        {"equipo": e, "escudo": escudo(e), "plantel": _plantel(e)}
-        for e in (partido.local, partido.visitante)
-        if e is not None
+        _lado(partido, e, dorsales) for e in (partido.local, partido.visitante) if e is not None
     ]
     reglas = Reglas.model_validate(partido.categoria.torneo.reglas)
     notas = _notas(partido, eventos, reglas)
-    contexto = {
+    return {
         "partido": partido,
         "tiempo": _tiempo(partido),
         "con_mejor_jugador": reglas.mejor_jugador,
@@ -102,6 +130,7 @@ def ficha(request: HttpRequest, pk: int) -> HttpResponse:
                 "clase": e.tipo,
                 "equipo": e.equipo.nombre,
                 "jugador": e.jugador,
+                "dorsal": dorsales.get(e.jugador_id, None) if e.jugador_id else None,
                 "hora": timezone.localtime(e.creado_en).strftime("%H:%M"),
                 "quien": e.creado_por.username if e.creado_por else "",
                 "nota": notas.get(e.pk, ""),
@@ -115,7 +144,12 @@ def ficha(request: HttpRequest, pk: int) -> HttpResponse:
         "hora": timezone.localtime(partido.inicio).strftime("%H:%M") if partido.inicio else "",
         "historial": historial(partido=partido),
     }
-    return render(request, "partidos/ficha.html", contexto)
+
+
+@requiere("torneo.cargar_resultados", "cargar los partidos")
+def ficha(request: HttpRequest, pk: int) -> HttpResponse:
+    partido = get_object_or_404(_PARTIDO, pk=pk)
+    return render(request, "partidos/ficha.html", _contexto(partido))
 
 
 @require_POST
@@ -128,8 +162,21 @@ def accion(request: HttpRequest, pk: int) -> HttpResponse:
         datos["accion"], datos["equipo"], datos["jugador"] = partes[:3]
     try:
         _hacer(request, partido, datos)
-    except NoSePuede as error:
+    except (NoSePuede, planilla.NoSePuede) as error:
         messages.error(request, str(error))
+    except planilla.PideConfirmar as error:
+        # Se vuelve a mostrar la ficha con lo que se mandó y "Guardar igual".
+        contexto = _contexto(partido)
+        contexto["confirmar"] = {
+            "mensaje": str(error),
+            "datos": [
+                (clave, valor)
+                for clave, valores in request.POST.lists()
+                for valor in valores
+                if clave != "csrfmiddlewaretoken"
+            ],
+        }
+        return render(request, "partidos/ficha.html", contexto)
     return redirect("ficha-partido", pk=partido.pk)
 
 
@@ -156,6 +203,15 @@ def _numero(texto: str) -> int:
         return max(0, int(texto))
     except ValueError:
         raise NoSePuede("Los penales son números.") from None
+
+
+def _dorsal(texto: str) -> int | None:
+    texto = texto.strip()
+    if not texto:
+        return None
+    if not texto.isdigit():
+        raise NoSePuede("El dorsal es un número del 1 al 99.")
+    return int(texto)
 
 
 def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> None:
@@ -186,9 +242,28 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
         case "dorsal":
             jugador = _jugador_del_partido(partido, datos.get("jugador", ""))
             texto = datos.get("dorsal", "").strip()
-            servicio.cambiar_dorsal(
+            planilla.cambiar_dorsal(
                 partido, jugador, _numero(texto) if texto else None, request.user
             )
+        case "planilla":
+            equipo = _equipo(partido, datos.get("equipo", ""))
+            if datos.get("todos"):
+                juegan = planilla.todos(partido, equipo)
+            else:
+                juegan = {
+                    j.pk: _dorsal(datos.get(f"dorsal_{j.pk}", ""))
+                    for j in equipo.jugadores.all()
+                    if datos.get(f"juega_{j.pk}")
+                }
+            planilla.guardar_planilla(
+                partido,
+                equipo,
+                juegan,
+                request.user,
+                confirmado=datos.get("confirmar") == "1",
+                entrenador=bool(datos.get("entrenador")) if not datos.get("todos") else None,
+            )
+            messages.success(request, f"Planilla de {equipo.nombre} guardada")
         case "mejor":
             servicio.mejor_jugador(partido, _jugador(datos.get("jugador", "")), request.user)
         case "multa":

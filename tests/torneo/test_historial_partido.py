@@ -9,6 +9,7 @@ from dominio.config import cargar_config
 from torneo.models import Club, Equipo, Jugador, Partido, Persona, Registro, Torneo
 from torneo.permisos import ORGANIZACION
 from torneo.servicios import partido as servicio
+from torneo.servicios import planilla
 from torneo.servicios.configuracion import cargar_configuracion
 from torneo.servicios.fixture import generar_fixture
 
@@ -55,12 +56,13 @@ def test_cada_accion_queda_con_quien_y_lo_de_antes(partido: Partido, usuario: Us
     servicio.empezar(partido, usuario)
     servicio.anotar(partido, "gol", partido.local, jugador, usuario)
     servicio.deshacer(partido, usuario)
-    servicio.cambiar_dorsal(partido, jugador, 10, usuario)
+    planilla.cambiar_dorsal(partido, jugador, 10, usuario)
     servicio.avanzar_tiempo(partido, usuario)
     servicio.terminar(partido, usuario)
     hechos = registros(partido)
     assert [q for q, _, _ in hechos] == [
         "Empezó el partido",
+        "Juega",
         "Gol",
         "Borró: Gol",
         "Dorsal",
