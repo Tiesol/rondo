@@ -1,0 +1,17 @@
+{% comment %}
+Campo para subir una imagen (T8.1). Sin almacenamiento conectado, se ve desactivado y avisa.
+Parámetros: nombre, etiqueta, ayuda (opcional), actual (URL de la imagen que ya está, opcional),
+errores (opcional). Usa imagenes_disponibles, del procesador de contexto.
+{% endcomment %}
+<div class="campo">
+  <label for="id_{{ nombre }}">{{ etiqueta }}</label>
+  {% if actual %}<img class="imagen-actual" src="{{ actual }}" alt="{{ etiqueta }} actual" width="96" height="96">{% endif %}
+  {% if imagenes_disponibles %}
+  <input type="file" id="id_{{ nombre }}" name="{{ nombre }}" accept="image/jpeg,image/png,image/webp"{% if ayuda %} aria-describedby="id_{{ nombre }}_ayuda"{% endif %}>
+  {% if ayuda %}<span class="peq tenue" id="id_{{ nombre }}_ayuda">{{ ayuda }}</span>{% endif %}
+  {% else %}
+  <input type="file" id="id_{{ nombre }}" name="{{ nombre }}" disabled aria-describedby="id_{{ nombre }}_falta">
+  <span class="peq tenue" id="id_{{ nombre }}_falta">Falta conectar el almacenamiento de imágenes.</span>
+  {% endif %}
+  {% for error in errores %}<span class="error-campo" role="alert">{{ error }}</span>{% endfor %}
+</div>

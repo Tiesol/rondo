@@ -72,6 +72,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "torneo.contexto.organizador",
                 "torneo.contexto.rol",
+                "torneo.contexto.imagenes",
             ],
         },
     },
@@ -114,10 +115,39 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [RAIZ / "assets"]
 STATIC_ROOT = RAIZ / "staticfiles"
-STORAGES = {
+STORAGES: dict[str, dict[str, object]] = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
+
+# Imágenes (escudos, fotos, logo y patrocinadores, T8.1): en Cloudflare R2, con un bucket
+# privado. Se conecta con estas cuatro variables. Sin ellas, en desarrollo y en los tests van
+# al disco (media/); en producción o en la demo, la subida queda desactivada con un aviso,
+# porque el disco del contenedor se borra en cada despliegue. La app sirve las imágenes desde
+# su propio dominio (decisión del 2026-10-12): el navegador nunca habla con R2.
+MEDIA_ROOT = RAIZ / "media"
+_R2 = {
+    clave: os.environ.get(clave, "")
+    for clave in ("R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET")
+}
+R2_CONECTADO = all(_R2.values())
+if R2_CONECTADO:
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "bucket_name": _R2["R2_BUCKET"],
+            "endpoint_url": f"https://{_R2['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com",
+            "access_key": _R2["R2_ACCESS_KEY_ID"],
+            "secret_key": _R2["R2_SECRET_ACCESS_KEY"],
+            "region_name": "auto",
+            "signature_version": "s3v4",
+            "default_acl": None,
+            "querystring_auth": True,
+            "querystring_expire": 60 * 60,
+            "file_overwrite": False,
+        },
+    }
+IMAGENES_DISPONIBLES = R2_CONECTADO or DEBUG
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

@@ -1077,9 +1077,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Con las cuatro variables, los archivos van a R2 (probado con un almacenamiento falso en los tests) y las URL vencen.
-- [ ] Sin ellas y con `DEBUG=False`, ningún formulario acepta imágenes y se ve el aviso.
-- [ ] `check --deploy` sigue sin advertencias.
+- [x] Con las cuatro variables, los archivos van a R2 (probado con un almacenamiento falso en los tests) y las URL vencen.
+- [x] Sin ellas y con `DEBUG=False`, ningún formulario acepta imágenes y se ve el aviso.
+- [x] `check --deploy` sigue sin advertencias.
 
 **Verificación:** verde.
 **Depende de:** nada.

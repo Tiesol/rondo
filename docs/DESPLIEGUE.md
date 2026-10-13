@@ -137,6 +137,15 @@ Lo que Sebastian crea una sola vez. Nada de esto va al repo ni al chat: las cade
 | `CSRF_TRUSTED_ORIGINS` | Vacía, salvo que haya dominio propio | Con dominio propio: `https://rondo.ejemplo.com` |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | **Todavía no** | Imágenes en Cloudflare R2 (T8.1). Sin ellas, la app funciona y los botones de subir imagen avisan que falta conectar el almacenamiento |
 
+### Imágenes en Cloudflare R2 (cuando esté la cuenta)
+
+Escudos, fotos de los chicos, logo y patrocinadores. Hasta conectarlo, la app funciona y los botones de subir imagen dicen "Falta conectar el almacenamiento de imágenes".
+
+1. En Cloudflare: **R2 → Create bucket**. Nombre: `rondo-produccion` (y otro, `rondo-demo`, si se quiere probar en la demo). Ubicación automática. **Sin acceso público**: no actives "Public access" ni un dominio. La app sirve las imágenes desde su propio dominio.
+2. **R2 → Manage API tokens → Create API token**: permiso **Object Read & Write**, solo para ese bucket. Copia el *Access Key ID* y el *Secret Access Key* (se ven una sola vez) y el **Account ID** (está en la página de R2).
+3. En Render, servicio `rondo-produccion`, agrega las cuatro variables: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` y `R2_BUCKET`. Con las cuatro, la subida se activa sola; si falta una, sigue desactivada.
+4. **Manual Deploy** para que tome las variables. Ninguna de estas claves va al repo ni al chat.
+
 ### Primer despliegue
 
 1. Con el servicio creado y las variables cargadas, **Manual Deploy → Deploy latest commit**. Al arrancar, el contenedor corre las migraciones.
