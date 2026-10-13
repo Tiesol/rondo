@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Canchas · {{ torneo.nombre }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'mas' %}" aria-label="Volver a Más">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Canchas{% endblock %}
+{% block contenido %}
+{% include "parciales/banda.html" with antes="Canchas" titulo=torneo.nombre despues="Cualquier cancha se puede partir en dos mitades. Quién juega en cada una se elige en los ajustes de cada categoría." %}
+<div class="seccion">
+  <ul class="lista">
+    {% for cancha in canchas %}
+    <li class="fila-pegada">
+      <div class="fila-pegada-cab">
+        <span class="dorsal">{{ cancha.codigo }}</span>
+        <span class="crece"><strong>{{ cancha.nombre }}</strong><span class="sub">{% for mitad in cancha.mitades.all %}{{ mitad.codigo }}{% if not forloop.last %} y {% endif %}{% empty %}Entera{% endfor %}</span></span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {% if cancha.mitades.all %}
+        <form method="post" action="{% url 'accion-cancha' torneo.pk cancha.pk 'unir' %}">{% csrf_token %}<button type="submit" class="btn chico">Unir las mitades</button></form>
+        {% else %}
+        <form method="post" action="{% url 'accion-cancha' torneo.pk cancha.pk 'partir' %}">{% csrf_token %}<button type="submit" class="btn chico">Partir en dos mitades</button></form>
+        {% endif %}
+        <form method="post" action="{% url 'accion-cancha' torneo.pk cancha.pk 'quitar' %}">{% csrf_token %}<button type="submit" class="btn chico">Quitar</button></form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="{% url 'agregar-cancha' torneo.pk %}">{% csrf_token %}{% include "parciales/boton.html" with texto="Agregar una cancha" principal=True bloque=True icono="mas-signo" %}</form>
+</div>
+{% endblock %}

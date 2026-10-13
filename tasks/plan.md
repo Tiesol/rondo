@@ -282,7 +282,7 @@ T8.5 → T8.6         │
 - [x] T10.2 La hora final de la franja es el último inicio (P48)
 - [x] T10.3 Días y horarios por categoría (P56)
 - [x] T10.4 Sub 10 y Sub 11 Avanzado en F11 (P60) y capacidad
-- [ ] T10.5 Canchas flexibles (P13, P63)
+- [x] T10.5 Canchas flexibles (P13, P63)
 - [ ] T10.6 Preferencias del calendario (P17, P55, club el mismo día)
 - [ ] T10.7 Un solo rol por ahora (P64)
 - [ ] T10.8 Formato para más de 10 equipos (P27, P54)
