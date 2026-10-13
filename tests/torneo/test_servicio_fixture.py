@@ -75,11 +75,19 @@ def test_fix_09_no_se_rehace_si_la_regla_lo_impide(torneo: Torneo) -> None:
 
 
 @pytest.mark.django_db
-def test_con_mas_de_diez_equipos_avisa_p27_y_no_guarda(torneo: Torneo) -> None:
-    cn = categoria_con(torneo, 11)
+def test_con_mas_de_veinte_equipos_avisa_p27_y_no_guarda(torneo: Torneo) -> None:
+    cn = categoria_con(torneo, 21)
     with pytest.raises(FixtureNoSePuede, match="P27"):
         generar_fixture(cn)
     assert not Partido.objects.exists()
+
+
+@pytest.mark.django_db
+def test_p27_con_once_equipos_dos_grupos(torneo: Torneo) -> None:
+    cn = categoria_con(torneo, 11)
+    generar_fixture(cn, semilla=1)
+    assert sorted(s.equipos.count() for s in cn.series.all()) == [5, 6]
+    assert cn.partidos.count() == 15 + 10 + 6
 
 
 @pytest.mark.django_db
@@ -121,7 +129,7 @@ def test_nuevo_sorteo_cambia_las_series(torneo: Torneo) -> None:
 def test_generar_los_faltantes_no_pisa_y_junta_los_problemas(torneo: Torneo) -> None:
     sub9 = categoria_con(torneo, 4)
     sub10 = categoria_con(torneo, 5, "Sub 10")
-    sub11 = categoria_con(torneo, 11, "Sub 11")
+    sub11 = categoria_con(torneo, 21, "Sub 11")  # más de 20: falta el formato (P27)
     generar_fixture(sub9)
     sub9.partidos.update(estado="jugado")
     resultado = generar_fixtures_faltantes(torneo)

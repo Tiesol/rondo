@@ -32,7 +32,7 @@ def test_fix_02_con_dos_equipos_ida_y_vuelta_sin_eliminacion(formatos: Formatos)
     assert formato.eliminacion == ()
 
 
-@pytest.mark.parametrize("equipos", [0, 1, 11, 24])
+@pytest.mark.parametrize("equipos", [0, 1, 21, 24])
 def test_fix_02_sin_formato_es_un_error_que_cita_p27(formatos: Formatos, equipos: int) -> None:
     with pytest.raises(FormatoFaltante, match="P27"):
         formatos.para(equipos)
@@ -100,3 +100,17 @@ def test_p62_sin_copa_de_bronce_10_equipos_dan_26(formatos: Formatos) -> None:
 def test_sacar_una_copa_de_la_que_dependen_otras_llaves_es_un_error(formatos: Formatos) -> None:
     with pytest.raises(ValueError, match="oro"):
         formatos.para(4, sin_copas=frozenset({"oro"}))
+
+
+@pytest.mark.parametrize(("equipos", "series"), [(11, (6, 5)), (12, (6, 6)), (16, (8, 8))])
+def test_p27_mas_de_10_equipos_dos_grupos_y_cruces_como_con_8(
+    formatos: Formatos, equipos: int, series: tuple[int, int]
+) -> None:
+    formato = formatos.para(equipos)
+    assert formato.grupos.series == series
+    a, b = series
+    assert formato.total_de_partidos == a * (a - 1) // 2 + b * (b - 1) // 2 + 6
+    oro = [llave for llave in formato.eliminacion if llave.copa == "oro"]
+    plata = [llave for llave in formato.eliminacion if llave.copa == "plata"]
+    assert [llave.local.texto for llave in oro[:2]] == ["1.º A", "1.º B"]
+    assert [llave.local.texto for llave in plata[:2]] == ["3.º A", "3.º B"]

@@ -1,5 +1,5 @@
 {
-  "_fuente": "CONTEXTO 4.5 (sección 9 del reglamento). P25: Bronce 5.º A contra 5.º B. P26: mejor perdedor y mejor 3.º. P27 y P54: con más de 10 equipos falta el formato.",
+  "_fuente": "CONTEXTO 4.5 (sección 9 del reglamento). P25: Bronce 5.º A contra 5.º B. P26: mejor perdedor y mejor 3.º. P27 y P54: de 11 a 20 equipos, grupos A y B como con 8 (respuesta del organizador); con más de 20 falta el formato.",
   "formatos": {
     "2": {
       "notas": "Sin formato en el reglamento: ida y vuelta (P27).",
@@ -575,6 +575,926 @@
           }
         }
       ]
+    },
+    "11": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          6,
+          5
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "12": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          6,
+          6
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "13": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          7,
+          6
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "14": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          7,
+          7
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "15": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          8,
+          7
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "16": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          8,
+          8
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "17": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          9,
+          8
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "18": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          9,
+          9
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "19": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          10,
+          9
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
+    },
+    "20": {
+      "grupos": {
+        "tipo": "series",
+        "series": [
+          10,
+          10
+        ]
+      },
+      "eliminacion": [
+        {
+          "clave": "oro_semi_1",
+          "nombre": "Semi 1 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "oro_semi_2",
+          "nombre": "Semi 2 de Oro",
+          "copa": "oro",
+          "ronda": "semi",
+          "local": {
+            "puesto": 1,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 2,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "oro_final",
+          "nombre": "Final de Oro",
+          "copa": "oro",
+          "ronda": "final",
+          "local": {
+            "ganador": "oro_semi_1"
+          },
+          "visitante": {
+            "ganador": "oro_semi_2"
+          }
+        },
+        {
+          "clave": "plata_semi_1",
+          "nombre": "Semi 1 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "A"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "B"
+          }
+        },
+        {
+          "clave": "plata_semi_2",
+          "nombre": "Semi 2 de Plata",
+          "copa": "plata",
+          "ronda": "semi",
+          "local": {
+            "puesto": 3,
+            "serie": "B"
+          },
+          "visitante": {
+            "puesto": 4,
+            "serie": "A"
+          }
+        },
+        {
+          "clave": "plata_final",
+          "nombre": "Final de Plata",
+          "copa": "plata",
+          "ronda": "final",
+          "local": {
+            "ganador": "plata_semi_1"
+          },
+          "visitante": {
+            "ganador": "plata_semi_2"
+          }
+        }
+      ],
+      "notas": "P27 y P54 (respuesta del organizador): grupos A y B, todos contra todos en cada uno; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º."
     }
   }
 }

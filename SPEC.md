@@ -187,8 +187,8 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 
 | ID | Regla | Origen | Clave | Por defecto |
 |---|---|---|---|---|
-| FIX-01 | Formato según la cantidad de equipos, de 3 a 10 | 4.5 | F | Tabla 4.5 |
-| FIX-02 | Con 2 equipos, ida y vuelta. Con más de 10, aviso de que falta el formato | P27 | F | — |
+| FIX-01 | Formato según la cantidad de equipos, de 3 a 10; de 11 a 20, dos grupos como con 8 (P27, P54) | 4.5, P27, P54 | F | Tabla 4.5 |
+| FIX-02 | Con 2 equipos, ida y vuelta. Con más de 20, aviso de que falta el formato | P27 | F | — |
 | FIX-03 | Todos contra todos por el método del círculo | 4.5 | F | — |
 | FIX-04 | Series cruzadas con 6 y 7 equipos; con 7, descansa un equipo de A en cada fecha | 4.5 | F | — |
 | FIX-05 | Los equipos del mismo club en un grupo se enfrentan en la fecha 1 | P24 | R `mismo_club_fecha_1` | Sí |

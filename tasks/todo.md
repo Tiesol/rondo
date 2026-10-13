@@ -1382,7 +1382,7 @@ T8.5 → T8.6         │
 **Descripción:** grupos A y B, todos contra todos dentro de cada grupo; Copa de Oro con 1.º y 2.º de cada grupo, Copa de Plata con 3.º y 4.º.
 
 **Aceptación:**
-- [ ] Con 11 a 16 equipos se arma el fixture con dos grupos y las semis cruzadas de Oro y Plata.
+- [x] Con 11 a 20 equipos se arma el fixture con dos grupos y las semis cruzadas de Oro y Plata.
 
 **Archivos:** `src/dominio/formatos.py` o `datos/config/formatos.json`, tests. **Tamaño:** M.
 
