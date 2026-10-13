@@ -7,6 +7,7 @@ verificador y se guarda antes de responder.
 """
 
 from collections import Counter
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -17,7 +18,7 @@ from django.db.models import Count
 from django.utils import timezone
 
 from dominio.config import Reglas
-from dominio.formatos import FormatoFaltante
+from dominio.formatos import FormatoFaltante, equipos_virtuales, toman_posiciones
 from dominio.programador.modelo import PartidoAProgramar, Problema, programar
 from dominio.programador.motivos import motivos_sin_ubicar
 from dominio.verificador import Bloqueo as BloqueoDelDominio
@@ -43,16 +44,31 @@ def _con_zona(momento: datetime) -> datetime:
     return timezone.make_aware(momento)
 
 
-def _referidos(categoria: CategoriaNivel, cantidad: int) -> dict[str, frozenset[str]]:
-    """Clave de cada llave → claves de los partidos a los que se refiere (del formato)."""
+@dataclass(frozen=True)
+class _DeLaLlave:
+    """Lo que el formato dice de cada llave para programarla."""
+
+    despues_de: frozenset[str]  # las claves de los partidos a los que se refiere
+    virtuales: frozenset[str]  # sus equipos virtuales (T7.1)
+    toma_posiciones: bool
+
+
+def _llaves(categoria: CategoriaNivel, cantidad: int) -> dict[str, _DeLaLlave]:
     try:
         formato = formatos().para(cantidad)
     except FormatoFaltante:
         return {}
+    virtuales = equipos_virtuales(formato)
+    posiciones = toman_posiciones(formato)
+    # El nombre de la categoría distingue al "ganador de la semi 1" de cada una.
     return {
-        llave.clave: frozenset(
-            llave.local.participante.partidos_referidos
-            + llave.visitante.participante.partidos_referidos
+        llave.clave: _DeLaLlave(
+            frozenset(
+                llave.local.participante.partidos_referidos
+                + llave.visitante.participante.partidos_referidos
+            ),
+            frozenset(f"{categoria}: {v}" for v in virtuales[llave.clave]),
+            llave.clave in posiciones,
         )
         for llave in formato.eliminacion
     }
@@ -91,7 +107,7 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
     compatibles = {
         pk: frozenset(c.codigo for c in cat.canchas.all()) for pk, cat in categorias.items()
     }
-    referidos = {pk: _referidos(cat, cat.cantidad) for pk, cat in categorias.items()}
+    llaves = {pk: _llaves(cat, cat.cantidad) for pk, cat in categorias.items()}
     a_programar = []
     for partido in partidos:
         categoria = partido.categoria
@@ -99,6 +115,7 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
         quieto = partido.estado == Partido.Estado.JUGADO or partido.fijado
         if quieto and partido.cancha and partido.inicio:
             fijo = (partido.cancha.codigo, hora_local(partido.inicio))
+        de_la_llave = llaves[categoria.pk].get(partido.clave) if partido.clave else None
         a_programar.append(
             PartidoAProgramar(
                 id=partido.pk,
@@ -112,7 +129,9 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
                 fecha=partido.fecha,
                 clave=partido.clave,
                 nombre=partido.nombre,
-                despues_de=referidos[categoria.pk].get(partido.clave, frozenset()),
+                despues_de=de_la_llave.despues_de if de_la_llave else frozenset(),
+                virtuales=de_la_llave.virtuales if de_la_llave else frozenset(),
+                toma_posiciones=de_la_llave.toma_posiciones if de_la_llave else False,
             )
         )
     return Problema(
@@ -177,6 +196,9 @@ def choques_del_calendario(
             inicio=ubicados[p.id][1],
             minutos_partido=p.minutos_partido,
             minutos_turno=p.minutos_turno,
+            fase=p.fase,
+            virtuales=p.virtuales,
+            toma_posiciones=p.toma_posiciones,
         )
         for p in problema.partidos
         if p.id in ubicados

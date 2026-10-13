@@ -172,6 +172,45 @@ def _llaves(formato: Formato) -> tuple[Llave, ...]:
     )
 
 
+def equipos_virtuales(formato: FormatoParaN) -> dict[str, frozenset[str]]:
+    """Cada llave con los equipos virtuales que juegan en ella (T7.1, P17).
+
+    El ganador o el perdedor de una llave es un equipo que todavía no se conoce, pero que
+    juega la llave y también la que lo usa. Con un nombre común para los dos partidos
+    ("ganador de la semi 1 de Oro"), el programador y el verificador le aplican las mismas
+    reglas que a un equipo: no se pisa, deja su turno libre y no pasa del máximo del día.
+    El mejor perdedor puede ser cualquiera de los perdedores: cuenta como todos.
+    """
+    nombres = {llave.clave: llave.nombre for llave in formato.eliminacion}
+
+    def virtual(resultado: str, clave: str) -> str:
+        return f"{resultado} de la {_en_minuscula(nombres[clave])}"
+
+    usa: dict[str, set[str]] = {llave.clave: set() for llave in formato.eliminacion}
+    for llave in formato.eliminacion:
+        for referencia in (llave.local, llave.visitante):
+            participante = referencia.participante
+            if participante.ganador:
+                usa[llave.clave].add(virtual("ganador", participante.ganador))
+                usa[participante.ganador].add(virtual("ganador", participante.ganador))
+            for clave in filter(None, (participante.perdedor, *participante.mejor_perdedor)):
+                usa[llave.clave].add(virtual("perdedor", clave))
+                usa[clave].add(virtual("perdedor", clave))
+    return {clave: frozenset(virtuales) for clave, virtuales in usa.items()}
+
+
+def toman_posiciones(formato: FormatoParaN) -> frozenset[str]:
+    """Las llaves que toman equipos de la tabla de grupos (1.º A, mejor 3.º…)."""
+    return frozenset(
+        llave.clave
+        for llave in formato.eliminacion
+        if any(
+            r.participante.puesto or r.participante.mejor_puesto or r.participante.otro_puesto
+            for r in (llave.local, llave.visitante)
+        )
+    )
+
+
 class Formatos(Estricto):
     formatos: dict[int, Formato]
     fuente: str = Field(default="", alias="_fuente")

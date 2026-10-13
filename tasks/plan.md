@@ -205,7 +205,7 @@ T5.3 + T5.6 → T5.8
 
 #### Fase 7: bloque A, calendario y carga de listas (para el miércoles 14/10)
 
-- [ ] T7.1 La eliminación respeta el turno libre (P17), en el modelo y en el verificador
+- [x] T7.1 La eliminación respeta el turno libre (P17), en el modelo y en el verificador
 - [ ] T7.2 Profes: seguidos en la misma cancha, y el choque solo para el entrenador (P18, P35, P57)
 - [ ] T7.3 Objetivo blando: menos espera de los profes (PRO-11)
 - [x] T7.4 Fútbol 6 y plantilla 2026 (convocatoria)
