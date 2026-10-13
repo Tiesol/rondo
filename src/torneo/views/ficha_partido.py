@@ -161,6 +161,8 @@ def _contexto(partido: Partido) -> dict[str, Any]:
 @requiere("torneo.cargar_resultados", "cargar los partidos")
 def ficha(request: HttpRequest, pk: int) -> HttpResponse:
     partido = get_object_or_404(_PARTIDO, pk=pk)
+    if servicio.cerrar_olvidados(partido.categoria.torneo):  # T11.12
+        partido.refresh_from_db()
     return render(request, "partidos/ficha.html", _contexto(partido))
 
 
@@ -273,6 +275,8 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
         case "horas":
             servicio.corregir_horas(partido, _horas(partido, datos), request.user)
             messages.success(request, "Horas guardadas")
+        case "revisado":
+            servicio.marcar_revisado(partido, request.user)
         case "quitar_wo":
             servicio.quitar_wo(partido, request.user)
         case "deshacer":

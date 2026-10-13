@@ -9,6 +9,7 @@ from django.utils import timezone
 from torneo.models import Torneo
 from torneo.permisos import requiere
 from torneo.servicios.hoy import partidos_de_hoy
+from torneo.servicios.partido import cerrar_olvidados
 from torneo.views.fragmentos import pide_fragmento
 
 
@@ -21,6 +22,7 @@ def hoy(request: HttpRequest) -> HttpResponse:
         dia = date.fromisoformat(request.GET.get("dia", ""))
     except ValueError:
         dia = timezone.localdate()
+    cerrar_olvidados(torneo)  # T11.12
     contexto = {"dia": dia, "canchas": partidos_de_hoy(torneo, dia)}
     plantilla = "partidos/_hoy.html" if pide_fragmento(request) else "partidos/hoy.html"
     return render(request, plantilla, contexto)

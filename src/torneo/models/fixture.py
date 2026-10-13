@@ -77,6 +77,8 @@ class Partido(models.Model):
     fin_primer_tiempo = models.DateTimeField(null=True, blank=True)
     fin_descanso = models.DateTimeField(null=True, blank=True)
     fin_real = models.DateTimeField(null=True, blank=True)
+    # T11.12: se cerró solo porque nadie lo terminó (P82); queda marcado para revisar.
+    cerrado_automaticamente = models.BooleanField(default=False)
     # T11.8: si el entrenador de cada equipo estuvo (opcional; vacío, sin marcar).
     entrenador_local = models.BooleanField(null=True, blank=True)
     entrenador_visitante = models.BooleanField(null=True, blank=True)
