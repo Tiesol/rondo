@@ -4,7 +4,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 ## Estado
 
-- **Fases 7 a 10 terminadas y revisadas (2026-10-13)**, en ramas encadenadas **sin fusionar a `main`**: de `docs/plan-pedido-2026` a `fase-10/revision`, más `docs/antes-de-usar` (estas notas). Todas subidas a GitHub.
+- **Fases 7 a 10 terminadas, revisadas y fusionadas a `main` (2026-10-13, PR #75 a #117).** Antes de fusionar: tests rápidos y lentos, mypy, ruff, `docker build`, la imagen con `DEBUG=false` (migraciones hasta la 0025 al arrancar) y un recorrido HTTP con login (223 de 223 sin choques, página pública sin cookies, CSP). La demo se redespliega sola desde `main`.
 - **Siguiente paso (decidido por Sebastian el 2026-10-13):** hoy, la demo para que el hermano de Sebastian pruebe todo; hoy también, producción, para que la organización la use desde el 14/10. Datos reales solo en producción.
 - **Cambios por venir:** Sebastian manda un .md con cambios; no se escribe código hasta tenerlo (`tasks/todo.md`, fase 11).
 
@@ -12,8 +12,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 **Orden de hoy:**
 
-1. **Claude:** verificación completa sobre la punta de la cadena (`uv run pytest -m "not lento"`, `uv run pytest -m lento`, mypy, ruff y `docker build` + correr la imagen con `DEBUG=false` y recorrerla por HTTP). Después, fusionar los PR en orden con *merge commit* (crear los que falten con `gh pr create --base <rama anterior>` o fusionar cada rama a `main` en orden). Cada fusión a `main` redespliega la demo (corre las migraciones 0016 a 0025 al arrancar).
-2. **Sebastian:** cargar en Render, servicio `rondo-demo`, las cuatro variables `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` y `R2_BUCKET=rondo-demo` (token de cuenta de R2 con Object Read & Write solo para ese bucket). Se puede hacer antes o después de fusionar: el código viejo las ignora. Guardar variables reinicia el servicio pero **no** toca los datos.
+1. ~~**Claude:** verificación completa y fusión de la cadena a `main`~~ **Hecho el 2026-10-13** (PR #75 a #117).
+2. **Sebastian:** cargar en Render, servicio `rondo-demo`, las cuatro variables `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` (no `R2_ACCESS_KEY`), `R2_SECRET_ACCESS_KEY` y `R2_BUCKET=rondo-demo` (token de cuenta de R2 con Object Read & Write solo para ese bucket). Se puede hacer antes o después de fusionar: el código viejo las ignora. Guardar variables reinicia el servicio pero **no** toca los datos.
 3. **Sebastian:** regenerar los datos de la demo a mano (`generar_demo --soy-la-demo` contra la rama `demo` de Neon, DESPLIEGUE paso 3c), para que tenga la plantilla 2026 nueva. Regenerar o crear otro torneo, los dos le sirven.
 4. En la demo, antes de programar: agregar los jueves 29/10, 5/11 y 12/11 de 16 a 20 ("Agregar un día" en el calendario). Sin ellos, con F11 en Sub 10 y Sub 11 Avanzado, quedan 6 partidos de C3 afuera (H8, P79).
 5. **El hermano de Sebastian** recorre todo el flujo en la demo.
@@ -21,7 +21,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 **Pendientes sueltos:**
 
-- La prueba local de R2 falló: la app no ve ninguna de las cuatro variables del `.env` (sin guardar, o con `export` adelante). Claude no lee el `.env`; para probar corre un `manage.py shell` que solo dice si cada variable está cargada y sube, lee y borra un archivo de prueba.
+- La prueba local de R2 falló: la app no ve ninguna de las cuatro variables del `.env`. `docker compose` avisa que la línea 13 del `.env` tiene una clave con un espacio: hay que corregirla (y el nombre es `R2_ACCESS_KEY_ID`). Claude no lee el `.env`; para probar corre un `manage.py shell` que solo dice si cada variable está cargada y sube, lee y borra un archivo de prueba.
 - Preguntas abiertas: P78, P79, P44, P75 y "fijar a mano" (Sebastian dice que son 7).
 - Enlace de Copa Fácil con las categorías ya creadas: compararlas con la convocatoria y la plantilla.
 - T11.1: agregar una categoría o un nivel a un torneo ya creado.

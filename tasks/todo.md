@@ -1440,7 +1440,7 @@ T10.9, T10.10, T10.11 (durante el torneo)
 - [ ] Leer el enlace de Copa Fácil con las categorías que ya crearon y compararlas con la convocatoria y la plantilla 2026.
 - [ ] **T11.1 (pedido de Sebastian):** agregar a un torneo ya creado una categoría o un nivel nuevo (por ejemplo, el Avanzado de una categoría que solo tenía Inicial), desde la app.
 - [ ] **Verificación automática, primero:** el test de punta a punta del pedido 2026 (con los cambios del .md), la suite completa, los lentos, mypy y ruff. Después, la imagen Docker con `DEBUG=false` recorrida por HTTP con login.
-- [ ] **Fusionar** la cadena a `main`, en orden y con merge commit (de `docs/plan-pedido-2026` a la última rama). Despliega la demo y corre las migraciones 0016 a 0025.
+- [x] **Fusionar** la cadena a `main`, en orden y con merge commit: PR #75 a #117 (2026-10-13), después de verificar con Docker y `DEBUG=false`.
 - [ ] **El torneo de la demo:** el que existe se creó con la plantilla vieja. Sebastian lo regenera a mano (`generar_demo`, DESPLIEGUE 3c) o crea otro torneo: los dos le sirven. Antes de programar, agregar los jueves 29/10, 5/11 y 12/11 (H8).
 - [ ] **R2 en la demo:** Sebastian carga las cuatro variables en el servicio `rondo-demo` de Render (se puede antes de fusionar; guardar variables reinicia el servicio pero no regenera ni borra datos).
 - [ ] Repetir la prueba de R2 en local (falló: la app no ve las variables del `.env`; falta guardar o sacar el `export`).
