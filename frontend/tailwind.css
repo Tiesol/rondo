@@ -1139,6 +1139,12 @@
     border-radius: var(--radius-control);
     background: var(--color-superficie);
   }
+  .escudo-chico {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
   .imagen-actual {
     width: 96px;
     height: 96px;

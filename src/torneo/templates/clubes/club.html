@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block titulo %}{{ club.nombre }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'clubes' %}" aria-label="Volver a Clubes">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}{{ club.nombre }}{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% include "parciales/campo.html" with campo=form.nombre %}
+  {% include "parciales/campo.html" with campo=form.alias %}
+  {% include "parciales/boton.html" with texto="Guardar" principal=True bloque=True %}
+</form>
+
+<form method="post" action="{% url 'escudo-club' club.pk %}" enctype="multipart/form-data" class="seccion gap-3.5">
+  {% csrf_token %}
+  <input type="hidden" name="volver" value="club">
+  {% include "parciales/campo_imagen.html" with nombre="escudo" etiqueta="Escudo" actual=escudo ayuda="Aparece en todos sus equipos." %}
+  {% if imagenes_disponibles %}
+  <div class="botones">
+    <button type="submit" class="btn principal">Guardar el escudo</button>
+    {% if escudo %}<button type="submit" name="quitar" value="1" class="btn">Quitar</button>{% endif %}
+  </div>
+  {% endif %}
+</form>
+
+{% if equipos %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Equipos" %}
+  <ul class="lista">
+    {% for equipo in equipos %}
+    <li><a class="fila" href="{% url 'equipo' equipo.pk 'plantel' %}"><span class="crece"><strong>{{ equipo.nombre }}</strong><span class="sub">{{ equipo.categoria }}</span></span>{% include "parciales/icono.html" with nombre="chevron" clase="ico" %}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if otros %}
+<details class="seccion desplegable">
+  <summary>¿Está repetido? Unirlo con otro club</summary>
+  <form method="post" action="{% url 'unir-club' club.pk %}" class="flex flex-col gap-2">
+    {% csrf_token %}
+    <label class="peq" for="destino">Sus equipos pasan a</label>
+    <select id="destino" name="destino" class="selector">
+      {% for otro in otros %}<option value="{{ otro.pk }}">{{ otro.nombre }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn">Unir</button>
+  </form>
+</details>
+{% endif %}
+{% endblock %}
