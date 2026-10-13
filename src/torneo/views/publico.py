@@ -7,13 +7,20 @@ from django.contrib.auth.decorators import login_not_required
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
-from torneo.models import CategoriaNivel, Torneo
+from torneo.models import CategoriaNivel, Partido, Torneo
 from torneo.presentacion import fechas_del_torneo, resumen_de_categoria
-from torneo.views.fixture import datos_del_fixture
+from torneo.servicios.publico import ficha_publica, goleadores, partidos_de, partidos_del_dia
+from torneo.servicios.tabla import tablas_de
 from torneo.views.fragmentos import pide_fragmento
 
-PESTANAS = {"partidos": "Partidos", "posiciones": "Posiciones", "equipos": "Equipos"}
+PESTANAS = {
+    "partidos": "Partidos",
+    "posiciones": "Posiciones",
+    "goleadores": "Goleadores",
+    "equipos": "Equipos",
+}
 
 
 def _torneo_publico(pk: int) -> Torneo:
@@ -42,7 +49,10 @@ def categoria(request: HttpRequest, pk: int, categoria: int, pestana: str) -> Ht
         "nombre": str(actual),
         "resumen": resumen_de_categoria(actual),
         "pestana": pestana,
-        "fixture": datos_del_fixture(actual) if pestana == "partidos" else {},
+        "partidos": partidos_de(actual) if pestana == "partidos" else [],
+        "tablas": tablas_de(actual) if pestana == "posiciones" else [],
+        "goleadores": goleadores(actual) if pestana == "goleadores" else [],
+        "equipos": list(actual.equipos.select_related("club")) if pestana == "equipos" else [],
         "categorias": [
             {
                 "texto": str(c),
@@ -61,4 +71,35 @@ def categoria(request: HttpRequest, pk: int, categoria: int, pestana: str) -> Ht
         ],
     }
     plantilla = "publico/_categoria.html" if pide_fragmento(request) else "publico/categoria.html"
+    return render(request, plantilla, contexto)
+
+
+@login_not_required
+def partido(request: HttpRequest, pk: int, partido: int) -> HttpResponse:
+    """La ficha pública: goles, tarjetas y mejor jugador (P70), con "Nombre I." (P65)."""
+    torneo = _torneo_publico(pk)
+    actual = get_object_or_404(
+        Partido.objects.select_related("categoria__torneo", "local__club", "visitante__club"),
+        pk=partido,
+        categoria__torneo=torneo,
+    )
+    contexto = {
+        "torneo": torneo,
+        "fechas": fechas_del_torneo(torneo),
+        "ficha": ficha_publica(actual),
+        "volver": reverse("publico-categoria", args=[torneo.pk, actual.categoria_id, "partidos"]),
+    }
+    return render(request, "publico/partido.html", contexto)
+
+
+@login_not_required
+def hoy(request: HttpRequest, pk: int) -> HttpResponse:
+    """Los partidos de hoy de todo el torneo, en vivo."""
+    torneo = _torneo_publico(pk)
+    contexto = {
+        "torneo": torneo,
+        "fechas": fechas_del_torneo(torneo),
+        "partidos": partidos_del_dia(torneo, timezone.localdate()),
+    }
+    plantilla = "publico/_hoy.html" if pide_fragmento(request) else "publico/hoy.html"
     return render(request, plantilla, contexto)

@@ -1,0 +1,21 @@
+{# Filas de partidos con su resultado (T8.10). Solo datos de equipos y partidos. #}
+<ul class="lista">
+  {% for p in partidos %}
+  <li>
+    <a class="fila partido-publico" href="{% url 'publico-partido' torneo.pk p.pk %}">
+      <span class="hora num">{{ p.hora|default:"—" }}</span>
+      <span class="crece">
+        <span class="vs">
+          {% if p.escudo_local %}{% include "parciales/escudo.html" with escudo=p.escudo_local tamano="ch" %}{% endif %}{{ p.local }}
+          {% if p.marcador %}<strong class="num marcador-chico" aria-label="{{ p.marcador.0 }} a {{ p.marcador.1 }}">{{ p.marcador.0 }}<span aria-hidden="true">–</span>{{ p.marcador.1 }}</strong>{% else %}<span class="tenue">vs</span>{% endif %}
+          {% if p.escudo_visitante %}{% include "parciales/escudo.html" with escudo=p.escudo_visitante tamano="ch" %}{% endif %}{{ p.visitante }}
+        </span>
+        <span class="sub">{% if mostrar_categoria %}{{ p.categoria }} · {% endif %}{% if p.nombre %}{{ p.nombre }} · {% endif %}{{ p.cancha|default:"Sin cancha" }}</span>
+      </span>
+      {% if p.estado == "En juego" %}{% include "parciales/chip.html" with texto="En juego" estado="aviso" %}{% elif p.estado %}{% include "parciales/chip.html" with texto=p.estado estado="neutro" %}{% endif %}
+    </a>
+  </li>
+  {% empty %}
+  {% include "parciales/vacio.html" with icono="calendario" titulo="Todavía no hay partidos" texto="Aparecen cuando la organización publique el calendario." %}
+  {% endfor %}
+</ul>
