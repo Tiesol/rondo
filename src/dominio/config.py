@@ -235,6 +235,15 @@ class Reglas(Estricto):
         pregunta="P44",
         regla="FIX-09",
     )
+    copa_de_bronce: bool = _regla(
+        False,
+        "Copa de Bronce",
+        "Con 10 equipos, final de Bronce entre los 5.º de cada serie. Apagada: 26 partidos "
+        "en lugar de 27.",
+        grupo="Fixture",
+        pregunta="P62",
+        regla="FIX-07",
+    )
     turnos_libres_mismo_dia: int = _regla(
         1,
         "Turnos libres entre dos partidos del mismo día",

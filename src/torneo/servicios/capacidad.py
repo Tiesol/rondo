@@ -13,7 +13,7 @@ from dominio.capacidad import Demanda, GrupoDeCanchas, calcular_capacidad
 from dominio.config import Reglas
 from dominio.formatos import FormatoFaltante
 from torneo.models import Partido, Torneo
-from torneo.servicios.fixture import formatos
+from torneo.servicios.fixture import formato_para
 
 
 @dataclass
@@ -67,7 +67,7 @@ def capacidad_del_torneo(torneo: Torneo) -> Capacidad:
         cantidad: int = categoria.cantidad
         if not grupos and not llaves and cantidad >= 2:
             try:
-                formato = formatos().para(cantidad)
+                formato = formato_para(reglas, cantidad)
             except FormatoFaltante:
                 resultado.sin_formato.append(str(categoria))
                 continue

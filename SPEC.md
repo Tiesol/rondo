@@ -138,7 +138,7 @@ def se_pisan(a: PartidoProgramado, b: PartidoProgramado) -> bool:
 
 Son los de la sección 10 del contexto, con el ajuste de H1:
 
-1. **Fixture:** de 3 a 10 equipos da 8, 10, 12, 14, 17, 18, 22 y 27 partidos. En la fase de grupos no se repite ningún cruce, nadie juega dos veces en la misma fecha y cada equipo juega lo que dice su formato.
+1. **Fixture:** de 3 a 10 equipos da 8, 10, 12, 14, 17, 18, 22 y 26 partidos (27 con la Copa de Bronce prendida, P62). En la fase de grupos no se repite ningún cruce, nadie juega dos veces en la misma fecha y cada equipo juega lo que dice su formato.
 2. **Inscripción:**
    - Rechaza siempre a un jugador mayor que su categoría y acepta a uno menor (P6).
    - No deja pasar del máximo y avisa por debajo del mínimo.
@@ -193,7 +193,7 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 | FIX-04 | Series cruzadas con 6 y 7 equipos; con 7, descansa un equipo de A en cada fecha | 4.5 | F | — |
 | FIX-05 | Los equipos del mismo club en un grupo se enfrentan en la fecha 1 | P24 | R `mismo_club_fecha_1` | Sí |
 | FIX-06 | Series por sorteo, separando a los equipos del mismo club cuando se puede; editables antes de generar | P45 | R `sorteo_separa_clubes` | Sí |
-| FIX-07 | Bronce con 10 equipos: 5.º A contra 5.º B | P25 | F | — |
+| FIX-07 | Bronce con 10 equipos: 5.º A contra 5.º B, si la regla `copa_de_bronce` está prendida | P25, P62 | F, R `copa_de_bronce` | Apagada |
 | FIX-08 | La eliminación tiene participantes "por definir", que el organizador asigna a mano | 4.5, P50 | — | — |
 | FIX-09 | Se puede rehacer el fixture de una categoría sin partidos jugados, y se reprograma solo esa | P22, P44 | R `rehacer_fixture` | Sí |
 

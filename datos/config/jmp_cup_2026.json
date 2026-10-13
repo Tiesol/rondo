@@ -315,6 +315,7 @@
     "mismo_club_fecha_1": true,
     "sorteo_separa_clubes": true,
     "rehacer_fixture": true,
+    "copa_de_bronce": false,
     "turnos_libres_mismo_dia": 1,
     "max_partidos_por_dia": 2,
     "profe_minutos_cambio_de_cancha": 10,

@@ -146,3 +146,15 @@ def test_la_demo_se_rehace_aunque_tenga_fixture() -> None:
     assert Partido.objects.exists()
     call_command("generar_demo", "--soy-la-demo", stdout=io.StringIO())
     assert not Partido.objects.exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(("bronce", "partidos"), [(False, 26), (True, 27)])
+def test_p62_la_copa_de_bronce_es_una_regla(torneo: Torneo, bronce: bool, partidos: int) -> None:
+    assert torneo.reglas["copa_de_bronce"] is False  # por defecto, apagada (P62)
+    torneo.reglas = torneo.reglas | {"copa_de_bronce": bronce}
+    torneo.save()
+    cn = categoria_con(torneo, 10)
+    generar_fixture(cn, semilla=1)
+    assert cn.partidos.count() == partidos
+    assert cn.partidos.filter(copa="bronce").exists() is bronce

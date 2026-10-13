@@ -209,7 +209,7 @@ T5.3 + T5.6 → T5.8
 - [ ] T7.2 Profes: seguidos en la misma cancha, y el choque solo para el entrenador (P18, P35, P57)
 - [ ] T7.3 Objetivo blando: menos espera de los profes (PRO-11)
 - [x] T7.4 Fútbol 6 y plantilla 2026 (convocatoria)
-- [ ] T7.5 Copa de Bronce con interruptor (P62)
+- [x] T7.5 Copa de Bronce con interruptor (P62)
 - [ ] T7.6 Fecha de nacimiento: alcanza con el año
 - [ ] T7.7 Dominio: leer filas pegadas
 - [ ] T7.8 Pantalla: pegar la lista de jugadores

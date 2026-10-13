@@ -182,13 +182,25 @@ class Formatos(Estricto):
             _validar(equipos, formato)
         return self
 
-    def para(self, equipos: int) -> FormatoParaN:
+    def para(self, equipos: int, *, sin_copas: frozenset[Copa] = frozenset()) -> FormatoParaN:
+        """El formato para esa cantidad, sin los partidos de las copas que no se juegan (P62)."""
         formato = self.formatos.get(equipos)
         if formato is None:
             raise FormatoFaltante(
                 f"No hay formato para {equipos} equipos: el reglamento cubre de 3 a 10 (P27, "
                 "P54). Hace falta definirlo en datos/config/formatos.json."
             )
+        if sin_copas:
+            quitados = {p.clave for p in formato.eliminacion if p.copa in sin_copas}
+            quedan = tuple(p for p in formato.eliminacion if p.clave not in quitados)
+            for partido in quedan:
+                for participante in (partido.local, partido.visitante):
+                    if quitados & set(participante.partidos_referidos):
+                        raise ValueError(
+                            f"formato de {equipos}: {partido.clave} depende de una llave de "
+                            f"{', '.join(sorted(sin_copas))}, que no se juega"
+                        )
+            formato = formato.model_copy(update={"eliminacion": quedan})
         return FormatoParaN(equipos, formato.grupos, _llaves(formato))
 
 

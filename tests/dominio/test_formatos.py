@@ -87,3 +87,16 @@ def test_series_que_no_suman_los_equipos_fallan() -> None:
     datos["formatos"]["8"]["grupos"]["series"] = [4, 5]
     with pytest.raises(ValidationError, match="suman 9"):
         Formatos.model_validate(datos)
+
+
+def test_p62_sin_copa_de_bronce_10_equipos_dan_26(formatos: Formatos) -> None:
+    sin_bronce = formatos.para(10, sin_copas=frozenset({"bronce"}))
+    assert sin_bronce.total_de_partidos == 26
+    assert all(llave.copa != "bronce" for llave in sin_bronce.eliminacion)
+    # Los demás formatos no tienen Bronce: no cambian.
+    assert formatos.para(8, sin_copas=frozenset({"bronce"})).total_de_partidos == 18
+
+
+def test_sacar_una_copa_de_la_que_dependen_otras_llaves_es_un_error(formatos: Formatos) -> None:
+    with pytest.raises(ValueError, match="oro"):
+        formatos.para(4, sin_copas=frozenset({"oro"}))

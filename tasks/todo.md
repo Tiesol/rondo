@@ -935,8 +935,8 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con 10 equipos y la regla apagada salen 26 partidos; prendida, 27.
-- [ ] Cambiar la regla con fixtures de 10 equipos ya generados los deja marcados como desactualizados (el aviso es de T7.11).
+- [x] Con 10 equipos y la regla apagada salen 26 partidos; prendida, 27.
+- [ ] Cambiar la regla con fixtures de 10 equipos ya generados los deja marcados como desactualizados (el aviso es de T7.11). *(Pasa a T7.11.)*
 
 **Verificación:** verde.
 **Depende de:** nada.

@@ -14,7 +14,7 @@ from django.db import transaction
 
 from dominio.config import Reglas
 from dominio.fixture import SeriesInvalidas, armar_fixture
-from dominio.formatos import FormatoFaltante, Formatos, cargar_formatos
+from dominio.formatos import Copa, FormatoFaltante, FormatoParaN, Formatos, cargar_formatos
 from torneo.models import CategoriaNivel, Equipo, Partido, Serie, Torneo
 
 
@@ -25,6 +25,12 @@ class FixtureNoSePuede(Exception):
 @cache
 def formatos() -> Formatos:
     return cargar_formatos(settings.FORMATOS)
+
+
+def formato_para(reglas: Reglas, cantidad: int) -> FormatoParaN:
+    """El formato de la categoría con las copas que se juegan según las reglas (P62)."""
+    sin_copas: frozenset[Copa] = frozenset() if reglas.copa_de_bronce else frozenset({"bronce"})
+    return formatos().para(cantidad, sin_copas=sin_copas)
 
 
 def _series_guardadas(categoria: CategoriaNivel, equipos: list[Equipo]) -> dict[str, list[Equipo]]:
@@ -66,11 +72,11 @@ def generar_fixture(
     equipos = list(categoria.equipos.select_related("club").order_by("pk"))
     if len(equipos) < 2:
         raise FixtureNoSePuede(f"{categoria} necesita al menos 2 equipos para tener fixture.")
+    reglas = Reglas.model_validate(categoria.torneo.reglas)
     try:
-        formato = formatos().para(len(equipos))
+        formato = formato_para(reglas, len(equipos))
     except FormatoFaltante as error:
         raise FixtureNoSePuede(f"{categoria}: {error}") from None
-    reglas = Reglas.model_validate(categoria.torneo.reglas)
     _revisar_que_se_puede(categoria, reglas)
 
     if series is None and not nuevo_sorteo:
