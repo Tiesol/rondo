@@ -5,11 +5,12 @@ from datetime import time
 from typing import Any
 
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.test import Client
 from django.utils import timezone
 
-from dominio.config import Reglas
+from dominio.config import cargar_config
 from torneo.models import Franja, Torneo
 from torneo.permisos import MESA, ORGANIZACION
 
@@ -61,13 +62,16 @@ def recorrer(client: Client, cambios: dict[int, Cambio] | None = None) -> Any:
 
 @pytest.mark.django_db
 def test_sin_cambiar_nada_crea_lo_mismo_que_cargar_config(org: Client) -> None:
+    # Salvo Sub 15 Femenino, que arranca destildada (P61).
     respuesta = recorrer(org)
     torneo = Torneo.objects.get()
     assert (torneo.nombre, torneo.anio, torneo.edicion) == ("JMP CUP 2026", 2026, 5)
-    assert torneo.categorias.count() == 23
+    assert torneo.categorias.count() == 22
+    assert not torneo.categorias.filter(categoria="Sub 15 Femenino").exists()
     assert torneo.canchas.count() == 5
-    assert torneo.franjas.count() == 15
-    assert torneo.reglas == Reglas().model_dump(mode="json")
+    assert torneo.franjas.count() == 11
+    plantilla = cargar_config(settings.PLANTILLA_TORNEO)
+    assert torneo.reglas == plantilla.reglas.model_dump(mode="json")
     assert respuesta["Location"] == "/"
     assert "asistente" not in org.session
 
@@ -80,7 +84,7 @@ def test_destildar_una_categoria_y_cambiar_un_horario_se_refleja(org: Client) ->
     recorrer(org, {2: sin_sub_5, 3: {"sabado_inicio": "09:00"}})
     torneo = Torneo.objects.get()
     assert not torneo.categorias.filter(categoria="Sub 5").exists()
-    assert torneo.categorias.count() == 22
+    assert torneo.categorias.count() == 21
     sabados = [f for f in torneo.franjas.all() if timezone.localtime(f.inicio).weekday() == 5]
     assert sabados
     for franja in sabados:
@@ -92,7 +96,16 @@ def test_destildar_una_categoria_y_cambiar_un_horario_se_refleja(org: Client) ->
 @pytest.mark.django_db
 def test_apagar_un_dia_lo_saca_de_las_franjas(org: Client) -> None:
     recorrer(org, {3: {"viernes_activo": None}})
-    assert Torneo.objects.get().franjas.count() == 10
+    assert Torneo.objects.get().franjas.count() == 8
+
+
+@pytest.mark.django_db
+def test_sub_15_femenino_se_puede_tildar(org: Client) -> None:
+    def con_femenino(datos: dict[str, Any]) -> dict[str, Any]:
+        return {"niveles": [*datos["niveles"], "Sub 15 Femenino|unico"]}
+
+    recorrer(org, {2: con_femenino})
+    assert Torneo.objects.get().categorias.filter(categoria="Sub 15 Femenino").exists()
 
 
 @pytest.mark.django_db

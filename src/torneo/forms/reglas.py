@@ -43,9 +43,14 @@ def _campo(descripcion: DescripcionRegla) -> forms.Field:
             )
         case "opcion":
             return forms.ChoiceField(choices=descripcion.opciones, **comunes)
-        case "fecha":
-            return forms.DateField(
-                required=False, widget=forms.DateInput(attrs={"type": "date"}), **comunes
+        case "fecha_hora":
+            return forms.DateTimeField(
+                required=False,
+                input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S"],
+                widget=forms.DateTimeInput(
+                    attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"
+                ),
+                **comunes,
             )
         case "par":
             return ParDeNumeros(**comunes)

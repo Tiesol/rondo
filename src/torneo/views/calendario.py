@@ -12,6 +12,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from dominio.config import Reglas
+from dominio.franjas import proximo
 from torneo.models import Cancha, Club, Franja, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.reprogramar import suspender_dia
@@ -87,7 +89,13 @@ def calendario_dia(request: HttpRequest, fecha: str) -> HttpResponse:
     contexto = {
         "es_dia_de_juego": bool(franjas_del_dia),
         "suspendido": bool(franjas_del_dia) and all(f.suspendida for f in franjas_del_dia),
-        "form_dia": FormularioDia(initial={"dia": dia, "desde": "17:00", "hasta": "20:00"}),
+        "form_dia": FormularioDia(
+            initial={
+                "dia": proximo(dia, Reglas.model_validate(torneo.reglas).dia_para_reprogramar),
+                "desde": "17:00",
+                "hasta": "20:00",
+            }
+        ),
         "torneo": torneo,
         "dia": dia,
         "titulo_dia": f"{DIAS[dia.weekday()]} {dia.day}",

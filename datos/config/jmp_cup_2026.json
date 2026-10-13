@@ -3,8 +3,8 @@
     "nombre": "JMP CUP 2026",
     "edicion": 5,
     "anio": 2026,
-    "inicio": "2026-10-23",
-    "fin": "2026-11-22",
+    "inicio": "2026-10-24",
+    "fin": "2026-11-15",
     "zona_horaria": "America/La_Paz"
   },
   "partido": {
@@ -17,7 +17,7 @@
       "edad": 5,
       "niveles": {
         "unico": {
-          "modalidad": "F5",
+          "modalidad": "F6",
           "min": 8,
           "max": 10,
           "min_por_tiempo": 15
@@ -29,7 +29,7 @@
       "edad": 6,
       "niveles": {
         "unico": {
-          "modalidad": "F7",
+          "modalidad": "F6",
           "min": 8,
           "max": 12,
           "min_por_tiempo": 15
@@ -233,7 +233,8 @@
           "max": 14,
           "min_por_tiempo": 20
         }
-      }
+      },
+      "tildada_en_asistente": false
     }
   ],
   "canchas": [
@@ -310,7 +311,7 @@
     "jugador_y_profe": true,
     "dorsal_obligatorio": "antes_del_primer_partido",
     "ci_obligatorio": "antes_del_primer_partido",
-    "cierre_inscripcion": null,
+    "cierre_inscripcion": "2026-10-21T12:00:00",
     "mismo_club_fecha_1": true,
     "sorteo_separa_clubes": true,
     "rehacer_fixture": true,
@@ -318,7 +319,8 @@
     "max_partidos_por_dia": 2,
     "profe_minutos_cambio_de_cancha": 10,
     "orden_de_fechas": "dura",
-    "eliminacion_desde_fin_de_semana": 5,
+    "eliminacion_desde_fin_de_semana": 4,
+    "dia_para_reprogramar": "jueves",
     "marcador_wo": [
       3,
       0

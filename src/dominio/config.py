@@ -5,7 +5,7 @@ regla dice de dónde sale (sección del contexto o pregunta P#).
 """
 
 from dataclasses import dataclass
-from datetime import date, time
+from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any, Literal, Self, cast, get_args, get_origin
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from pydantic.config import JsonDict
 
 NombreNivel = Literal["unico", "inicial", "avanzado"]
-Modalidad = Literal["F5", "F7", "F8", "F11"]
+Modalidad = Literal["F5", "F6", "F7", "F8", "F11"]
 DiaSemana = Literal["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
 Momento = Literal["al_inscribir", "antes_del_primer_partido"]
 
@@ -47,6 +47,8 @@ class Categoria(Estricto):
     anios_nacimiento: int = Field(default=1, ge=1, le=3)  # Sub 17 abarca dos (4.1)
     genero: Literal["mixto", "F"] = "mixto"
     niveles: dict[NombreNivel, Nivel] = Field(min_length=1)
+    # Solo para el asistente: si la categoría arranca tildada. Sub 15 Femenino, no (P61).
+    tildada_en_asistente: bool = True
 
     @field_validator("niveles")
     @classmethod
@@ -199,10 +201,10 @@ class Reglas(Estricto):
         regla="INS-10",
         opciones=_MOMENTOS,
     )
-    cierre_inscripcion: date | None = _regla(
+    cierre_inscripcion: datetime | None = _regla(
         None,
         "Cierre de la inscripción",
-        "Después de esta fecha, solo la organización cambia las listas. Vacío: sin cierre.",
+        "Desde este día y hora, solo la organización cambia las listas. Vacío: sin cierre.",
         grupo="Inscripción",
         pregunta="P4",
         regla="INS-11",
@@ -290,6 +292,22 @@ class Reglas(Estricto):
         ge=1,
         le=5,
     )
+    dia_para_reprogramar: DiaSemana = _regla(
+        "jueves",
+        "Día para reprogramar",
+        "El día que se propone al agregar un día entre semana, por ejemplo después de una lluvia.",
+        grupo="Programación",
+        regla="PRO-13",
+        opciones={
+            "lunes": "Lunes",
+            "martes": "Martes",
+            "miercoles": "Miércoles",
+            "jueves": "Jueves",
+            "viernes": "Viernes",
+            "sabado": "Sábado",
+            "domingo": "Domingo",
+        },
+    )
     marcador_wo: tuple[int, int] = _regla(
         (3, 0),
         "Marcador del W.O.",
@@ -298,8 +316,22 @@ class Reglas(Estricto):
         pregunta="P23",
     )
 
+    @field_validator("cierre_inscripcion", mode="before")
+    @classmethod
+    def _cierre_solo_con_fecha(cls, valor: Any) -> Any:
+        """La hora local del torneo, sin zona. Un cierre guardado solo con la fecha (como antes)
+        cierra al terminar ese día. Si llega con zona (un formulario de Django), vale la hora
+        que muestra: la de la zona del torneo."""
+        if isinstance(valor, datetime) and valor.tzinfo is not None:
+            return valor.replace(tzinfo=None)
+        if isinstance(valor, str) and len(valor) == 10:
+            valor = date.fromisoformat(valor)
+        if isinstance(valor, date) and not isinstance(valor, datetime):
+            return datetime.combine(valor, time(23, 59, 59))
+        return valor
 
-TipoDeRegla = Literal["si_no", "numero", "opcion", "fecha", "par"]
+
+TipoDeRegla = Literal["si_no", "numero", "opcion", "fecha_hora", "par"]
 
 
 @dataclass(frozen=True)
@@ -327,8 +359,8 @@ def _tipo(nombre: str, anotacion: Any) -> TipoDeRegla:
         return "numero"
     if get_origin(anotacion) is Literal:
         return "opcion"
-    if anotacion == date | None:
-        return "fecha"
+    if anotacion == datetime | None:
+        return "fecha_hora"
     if anotacion == tuple[int, int]:
         return "par"
     raise TypeError(f"La regla {nombre} tiene un tipo que la pantalla no sabe mostrar")

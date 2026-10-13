@@ -119,6 +119,7 @@ class CategoriaNivel(models.Model):
 
     class Modalidad(models.TextChoices):
         F5 = "F5", "Fútbol 5"
+        F6 = "F6", "Fútbol 6"
         F7 = "F7", "Fútbol 7"
         F8 = "F8", "Fútbol 8"
         F11 = "F11", "Fútbol 11"

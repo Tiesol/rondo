@@ -920,9 +920,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] El asistente sin cambios crea el torneo 2026 con 11 días de juego y la eliminación en el 4.º fin de semana.
-- [ ] Sub 5 y Sub 6 son F6 y solo tienen C1A y C1B; Sub 15 Femenino no se crea salvo que se tilde.
-- [ ] Al agregar un día entre semana, la fecha propuesta es el jueves de esa semana.
+- [x] El asistente sin cambios crea el torneo 2026 con 11 días de juego y la eliminación en el 4.º fin de semana.
+- [x] Sub 5 y Sub 6 son F6 y solo tienen C1A y C1B; Sub 15 Femenino no se crea salvo que se tilde.
+- [x] Al agregar un día entre semana, la fecha propuesta es el jueves de esa semana.
 
 **Verificación:** verde, más `cargar_config` en una base vacía.
 **Depende de:** nada.

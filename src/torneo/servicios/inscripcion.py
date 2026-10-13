@@ -6,9 +6,10 @@ bloquea al equipo, así dos altas a la vez no pasan del máximo.
 """
 
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, datetime
 
 from django.db import IntegrityError, transaction
+from django.utils import timezone
 
 from dominio.config import CuerpoTecnico, Reglas
 from dominio.documentos import Documento, DocumentoInvalido, normalizar_documento
@@ -56,6 +57,11 @@ def equipo_ref(equipo: Equipo) -> EquipoRef:
     return EquipoRef(equipo.pk, equipo.club.nombre, categoria.categoria, str(categoria))
 
 
+def ahora_local() -> datetime:
+    """La hora local del torneo, sin zona: así se compara con el cierre (INS-11)."""
+    return timezone.localtime().replace(tzinfo=None)
+
+
 def _reglas(equipo: Equipo) -> Reglas:
     return Reglas.model_validate(equipo.categoria.torneo.reglas)
 
@@ -68,8 +74,10 @@ class _Preparado:
     hallazgos: tuple[Hallazgo, ...]
 
 
-def _preparar(datos: DatosPersona, equipo: Equipo, hoy: date, es_organizacion: bool) -> _Preparado:
-    hallazgos = list(validar_cierre(hoy, _reglas(equipo), es_organizacion=es_organizacion))
+def _preparar(
+    datos: DatosPersona, equipo: Equipo, ahora: datetime, es_organizacion: bool
+) -> _Preparado:
+    hallazgos = list(validar_cierre(ahora, _reglas(equipo), es_organizacion=es_organizacion))
     try:
         documento = normalizar_documento(datos.documento)
     except DocumentoInvalido as error:
@@ -144,17 +152,22 @@ def _hallazgos_de_profe(equipo: Equipo, rol: str, preparado: _Preparado) -> list
 
 
 def revisar_jugador(
-    equipo: Equipo, datos: DatosPersona, dorsal: int | None, *, hoy: date, es_organizacion: bool
+    equipo: Equipo,
+    datos: DatosPersona,
+    dorsal: int | None,
+    *,
+    ahora: datetime,
+    es_organizacion: bool,
 ) -> list[Hallazgo]:
     """Los hallazgos sin guardar nada: para los avisos en vivo del formulario."""
-    preparado = _preparar(datos, equipo, hoy, es_organizacion)
+    preparado = _preparar(datos, equipo, ahora, es_organizacion)
     return _hallazgos_de_jugador(equipo, datos, dorsal, preparado)
 
 
 def revisar_profe(
-    equipo: Equipo, datos: DatosPersona, rol: str, *, hoy: date, es_organizacion: bool
+    equipo: Equipo, datos: DatosPersona, rol: str, *, ahora: datetime, es_organizacion: bool
 ) -> list[Hallazgo]:
-    return _hallazgos_de_profe(equipo, rol, _preparar(datos, equipo, hoy, es_organizacion))
+    return _hallazgos_de_profe(equipo, rol, _preparar(datos, equipo, ahora, es_organizacion))
 
 
 def _persona(datos: DatosPersona, preparado: _Preparado) -> Persona:
@@ -177,7 +190,12 @@ _CHOQUE = Hallazgo(
 
 
 def agregar_jugador(
-    equipo: Equipo, datos: DatosPersona, dorsal: int | None, *, hoy: date, es_organizacion: bool
+    equipo: Equipo,
+    datos: DatosPersona,
+    dorsal: int | None,
+    *,
+    ahora: datetime,
+    es_organizacion: bool,
 ) -> Resultado:
     try:
         with transaction.atomic():
@@ -186,7 +204,7 @@ def agregar_jugador(
                 .select_related("club", "categoria__torneo")
                 .get(pk=equipo.pk)
             )
-            preparado = _preparar(datos, bloqueado, hoy, es_organizacion)
+            preparado = _preparar(datos, bloqueado, ahora, es_organizacion)
             hallazgos = _hallazgos_de_jugador(bloqueado, datos, dorsal, preparado)
             if any(h.nivel == "error" for h in hallazgos):
                 return Resultado(False, hallazgos)
@@ -199,7 +217,7 @@ def agregar_jugador(
 
 
 def agregar_profe(
-    equipo: Equipo, datos: DatosPersona, rol: str, *, hoy: date, es_organizacion: bool
+    equipo: Equipo, datos: DatosPersona, rol: str, *, ahora: datetime, es_organizacion: bool
 ) -> Resultado:
     try:
         with transaction.atomic():
@@ -208,7 +226,7 @@ def agregar_profe(
                 .select_related("club", "categoria__torneo")
                 .get(pk=equipo.pk)
             )
-            preparado = _preparar(datos, bloqueado, hoy, es_organizacion)
+            preparado = _preparar(datos, bloqueado, ahora, es_organizacion)
             hallazgos = _hallazgos_de_profe(bloqueado, rol, preparado)
             if any(h.nivel == "error" for h in hallazgos):
                 return Resultado(False, hallazgos)

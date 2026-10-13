@@ -1,7 +1,7 @@
 """INS-02 a INS-11: validaciones de inscripción, sin base de datos. Datos inventados."""
 
 from dataclasses import replace
-from datetime import date
+from datetime import date, datetime
 
 import pytest
 
@@ -262,12 +262,12 @@ def test_ins_10_un_profe_sin_documento_tambien_queda_pendiente() -> None:
 
 
 def test_ins_11_sin_cierre_siempre_se_puede() -> None:
-    assert validar_cierre(date(2026, 12, 1), Reglas(), es_organizacion=False) == []
+    assert validar_cierre(datetime(2026, 12, 1, 9), Reglas(), es_organizacion=False) == []
 
 
 def test_ins_11_despues_del_cierre_solo_la_organizacion() -> None:
-    con_cierre = reglas(cierre_inscripcion=date(2026, 10, 20))
-    assert validar_cierre(date(2026, 10, 20), con_cierre, es_organizacion=False) == []
-    tarde = validar_cierre(date(2026, 10, 21), con_cierre, es_organizacion=False)
+    con_cierre = reglas(cierre_inscripcion=datetime(2026, 10, 21, 12, 0))
+    assert validar_cierre(datetime(2026, 10, 21, 9), con_cierre, es_organizacion=False) == []
+    tarde = validar_cierre(datetime(2026, 10, 21, 12), con_cierre, es_organizacion=False)
     assert [h.nivel for h in tarde] == ["error"]
-    assert validar_cierre(date(2026, 10, 21), con_cierre, es_organizacion=True) == []
+    assert validar_cierre(datetime(2026, 10, 21, 12), con_cierre, es_organizacion=True) == []

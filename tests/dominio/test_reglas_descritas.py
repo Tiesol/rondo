@@ -22,7 +22,7 @@ def test_los_tipos_se_deducen_del_modelo() -> None:
     numero = por_nombre["propuestas_reprogramacion"]
     assert (numero.tipo, numero.minimo, numero.maximo) == ("numero", 1, 5)
     assert por_nombre["aviso_anios_menor"].minimo == 0
-    assert por_nombre["cierre_inscripcion"].tipo == "fecha"
+    assert por_nombre["cierre_inscripcion"].tipo == "fecha_hora"
     assert por_nombre["marcador_wo"].tipo == "par"
     assert por_nombre["marcador_wo"].defecto == (3, 0)
 

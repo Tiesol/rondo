@@ -32,7 +32,7 @@ def test_crea_el_torneo_2026_completo() -> None:
     assert torneo.categorias.count() == 23
     assert set(torneo.canchas.values_list("codigo", flat=True)) == {"C1", "C1A", "C1B", "C2", "C3"}
     assert Cancha.objects.get(codigo="C1A").padre == Cancha.objects.get(codigo="C1")
-    assert torneo.franjas.count() == 15
+    assert torneo.franjas.count() == 11
     assert torneo.reglas == json.loads(CONFIG_2026.read_text())["reglas"]
 
 
@@ -52,7 +52,7 @@ def test_cargar_dos_veces_no_duplica_nada() -> None:
     assert Torneo.objects.count() == 1
     assert CategoriaNivel.objects.count() == 23
     assert Cancha.objects.count() == 5
-    assert Franja.objects.count() == 15
+    assert Franja.objects.count() == 11
 
 
 @pytest.mark.django_db
@@ -66,7 +66,7 @@ def test_recargar_conserva_las_franjas_agregadas_entre_semana() -> None:
     )
     _cargar()
     assert Franja.objects.filter(tipo=Franja.Tipo.ENTRE_SEMANA).count() == 1
-    assert Franja.objects.count() == 16
+    assert Franja.objects.count() == 12
 
 
 @pytest.mark.django_db

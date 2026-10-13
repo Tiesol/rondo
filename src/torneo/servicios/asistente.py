@@ -38,7 +38,7 @@ def clave_del_nivel(categoria: str, nivel: str) -> str:
     return f"{categoria}|{nivel}"
 
 
-def niveles_de(config: dict[str, Any]) -> list[dict[str, str]]:
+def niveles_de(config: dict[str, Any]) -> list[dict[str, Any]]:
     """Las categorías-nivel de la plantilla, con lo que se muestra en el paso 2."""
     anio = date.fromisoformat(config["torneo"]["inicio"]).year
     niveles = []
@@ -52,6 +52,7 @@ def niveles_de(config: dict[str, Any]) -> list[dict[str, str]]:
                     "titulo": f"{categoria.nombre} {NOMBRE_DEL_NIVEL[nombre_nivel]}".strip(),
                     "sub": f"{nivel.modalidad} · {nivel.min} a {nivel.max} jugadores · "
                     f"nacidos en {nacidos}",
+                    "tildada": categoria.tildada_en_asistente,
                 }
             )
     return niveles
