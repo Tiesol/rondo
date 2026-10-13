@@ -77,6 +77,7 @@ urlpatterns = [
     path("torneo/", torneo, name="torneo"),
     path("torneo/<int:pk>/equipos/nuevo/", equipos.nuevo_equipo, name="nuevo-equipo"),
     path("torneo/<int:pk>/fixture/generar/", fixture.generar, name="generar-fixture"),
+    path("torneo/<int:pk>/rehacer/", fixture.rehacer, name="rehacer-fixture"),
     path("torneo/<int:pk>/series/", fixture.guardar_series, name="guardar-series"),
     path("torneo/<int:pk>/sorteo/", sorteo_de_tabla, name="sorteo-tabla"),
     path("torneo/<int:pk>/cruces/", fixture.cruces, name="cruces-desde-tabla"),

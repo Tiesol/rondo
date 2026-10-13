@@ -13,8 +13,9 @@ from django.conf import settings
 from django.db import transaction
 
 from dominio.config import Reglas
-from dominio.fixture import SeriesInvalidas, armar_fixture
+from dominio.fixture import PartidoDelFixture, SeriesInvalidas, armar_fixture
 from dominio.formatos import Copa, FormatoFaltante, FormatoParaN, Formatos, cargar_formatos
+from dominio.rehacer import planear_rehacer
 from torneo.models import CategoriaNivel, Equipo, Partido, Serie, Torneo
 
 
@@ -55,7 +56,7 @@ def _revisar_que_se_puede(categoria: CategoriaNivel, reglas: Reglas) -> None:
         )
     if partidos.filter(estado__in=[Partido.Estado.EN_JUEGO, Partido.Estado.JUGADO]).exists():
         raise FixtureNoSePuede(
-            f"{categoria} ya tiene partidos jugados: su fixture no se puede rehacer (FIX-09)."
+            f"{categoria} ya tiene partidos jugados: usa «Rehacer conservando lo jugado» (T11.15)."
         )
 
 
@@ -179,3 +180,119 @@ def generar_fixtures_faltantes(torneo: Torneo) -> ResultadoDeTodas:
         else:
             resultado.generadas.append(categoria)
     return resultado
+
+
+@dataclass
+class VistaPrevia:
+    """Lo que hace rehacer conservando lo jugado (T11.15), para mostrarlo antes de confirmar."""
+
+    conservados: list[Partido]
+    descartados: list[Partido]
+    nuevos: int  # partidos que hay que programar
+
+
+@transaction.atomic
+def rehacer_conservando(categoria: CategoriaNivel, *, aplicar: bool) -> VistaPrevia:
+    """T11.15 (P44, P80): con partidos jugados, arma el fixture del formato nuevo eligiendo
+    las series que conservan la mayor cantidad de partidos jugados. Los partidos sin jugar que
+    siguen existiendo se quedan con su horario; los demás se borran, y los nuevos quedan sin
+    programar. Sin `aplicar`, no cambia nada."""
+    equipos = list(categoria.equipos.select_related("club").order_by("pk"))
+    if len(equipos) < 2:
+        raise FixtureNoSePuede(f"{categoria} necesita al menos 2 equipos para tener fixture.")
+    reglas = Reglas.model_validate(categoria.torneo.reglas)
+    if not reglas.rehacer_fixture:
+        raise FixtureNoSePuede("La regla del torneo no deja rehacer el fixture (P44).")
+    try:
+        formato = formato_para(reglas, len(equipos))
+    except FormatoFaltante as error:
+        raise FixtureNoSePuede(f"{categoria}: {error}") from None
+    viejos = list(categoria.partidos.select_related("local", "visitante"))
+    if any(p.empezado for p in viejos if p.fase == Partido.Fase.ELIMINACION):
+        raise FixtureNoSePuede("La eliminación ya empezó: el fixture no se rehace.")
+    jugados: list[tuple[int, int, int]] = [
+        (p.pk, p.local_id, p.visitante_id)
+        for p in viejos
+        if p.empezado
+        and p.fase == Partido.Fase.GRUPOS
+        and p.local_id is not None
+        and p.visitante_id is not None
+    ]
+    por_id = {e.pk: e for e in equipos}
+    plan = planear_rehacer(formato.grupos, list(por_id), jugados, lambda pk: por_id[pk].club_id)
+    series = (
+        {nombre: [por_id[pk] for pk in pks] for nombre, pks in plan.series.items()}
+        if plan.series
+        else None
+    )
+    fixture = armar_fixture(
+        formato,
+        equipos,
+        lambda equipo: equipo.club_id,
+        semilla=random.randrange(1_000_000),
+        separar_clubes=reglas.sorteo_separa_clubes,
+        mismo_club_fecha_1=reglas.mismo_club_fecha_1,
+        series=series,
+    )
+
+    # Primero los jugados que se conservan, después los sin jugar con el mismo cruce.
+    def par(partido: Partido) -> frozenset[int | None]:
+        return frozenset((partido.local_id, partido.visitante_id))
+
+    candidatos = [p for p in viejos if p.pk in plan.conservados] + [
+        p for p in viejos if not p.empezado and p.fase == Partido.Fase.GRUPOS
+    ]
+    llaves = {p.clave: p for p in viejos if p.fase == Partido.Fase.ELIMINACION}
+    usados: set[int] = set()
+    destino: list[tuple[PartidoDelFixture[Equipo], Partido | None]] = []
+    for nuevo in fixture.partidos:
+        elegido = None
+        if nuevo.fase == "grupos":
+            cruce = frozenset(
+                (
+                    nuevo.local.pk if nuevo.local else None,
+                    nuevo.visitante.pk if nuevo.visitante else None,
+                )
+            )
+            elegido = next((p for p in candidatos if p.pk not in usados and par(p) == cruce), None)
+        else:
+            elegido = llaves.get(nuevo.clave)
+        if elegido is not None:
+            usados.add(elegido.pk)
+        destino.append((nuevo, elegido))
+    nuevos = sum(1 for _, elegido in destino if elegido is None or elegido.inicio is None)
+    vista = VistaPrevia(
+        conservados=[p for p in viejos if p.pk in plan.conservados],
+        descartados=[p for p in viejos if p.pk in plan.descartados],
+        nuevos=nuevos,
+    )
+    if not aplicar:
+        return vista
+
+    Partido.objects.filter(pk__in=[p.pk for p in viejos if p.pk not in usados]).delete()
+    categoria.series.all().delete()
+    guardadas: dict[str, Serie] = {}
+    for nombre, lista in fixture.series.items():
+        guardadas[nombre] = Serie.objects.create(categoria=categoria, nombre=nombre)
+        guardadas[nombre].equipos.set(lista)
+    for nuevo, elegido in destino:
+        serie = guardadas.get(nuevo.serie or "")
+        if elegido is not None:
+            elegido.fecha, elegido.serie = nuevo.fecha, serie
+            elegido.save(update_fields=["fecha", "serie"])
+            continue
+        Partido.objects.create(
+            categoria=categoria,
+            fase=nuevo.fase,
+            copa=nuevo.copa or "",
+            ronda=nuevo.ronda or "",
+            clave=nuevo.clave,
+            nombre=nuevo.nombre,
+            fecha=nuevo.fecha,
+            serie=serie,
+            local=nuevo.local,
+            visitante=nuevo.visitante,
+            texto_local=nuevo.texto_local,
+            texto_visitante=nuevo.texto_visitante,
+        )
+    return vista
