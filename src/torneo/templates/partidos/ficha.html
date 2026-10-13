@@ -103,16 +103,49 @@
   <button type="submit" name="accion" value="deshacer" class="btn bloque"{% if not eventos %} disabled{% endif %}>Deshacer el último</button>
 </form>
 
-{% if eliminacion %}
-<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
-  {% csrf_token %}
-  <input type="hidden" name="accion" value="penales">
+{% if tanda %}
+<div class="seccion gap-2 penales">
   {% include "parciales/seccion_cab.html" with titulo="Penales" %}
-  <div class="dos">
-    {% for lado in equipos %}<div class="campo"><label for="penales-{{ forloop.counter }}">{{ lado.equipo.nombre }}</label><input id="penales-{{ forloop.counter }}" type="number" min="0" inputmode="numeric" name="{% if forloop.first %}local{% else %}visitante{% endif %}" value="{% if forloop.first %}{{ partido.penales_local|default_if_none:'' }}{% else %}{{ partido.penales_visitante|default_if_none:'' }}{% endif %}"></div>{% endfor %}
+  {% for lado in tanda.lados %}
+  <div class="tanda">
+    <strong class="crece">{{ lado.equipo.nombre }}</strong>
+    <span class="tiros" aria-label="{{ lado.goles }} convertidos">{% for gol in lado.tiros %}<span class="tiro{% if gol %} gol{% endif %}" aria-hidden="true"></span>{% endfor %}</span>
+    <strong class="num marcador-tanda">{{ lado.goles }}</strong>
   </div>
-  <button type="submit" class="btn bloque">Guardar los penales</button>
-</form>
+  {% if not tanda.ganador %}
+  <form method="post" action="{% url 'accion-partido' partido.pk %}" class="dos">
+    {% csrf_token %}
+    <input type="hidden" name="accion" value="penal">
+    <input type="hidden" name="equipo" value="{{ lado.equipo.pk }}">
+    <button type="submit" name="convirtio" value="1" class="btn gol">Convirtió</button>
+    <button type="submit" name="convirtio" value="" class="btn">Falló</button>
+  </form>
+  {% endif %}
+  {% endfor %}
+  {% if tanda.ganador %}
+  {% include "parciales/alerta.html" with estado="bien" titulo="Gana" texto=tanda.ganador.nombre %}
+  {% else %}
+  <p class="peq tenue">{% if tanda.patea %}Patea {{ tanda.patea.nombre }}.{% else %}{{ tanda.por_equipo }} por equipo.{% endif %}{% if tanda.muerte_subita %} Uno más por equipo hasta definir.{% endif %}</p>
+  {% endif %}
+  {% if tanda.hay_tiros %}
+  <form method="post" action="{% url 'accion-partido' partido.pk %}">
+    {% csrf_token %}
+    <button type="submit" name="accion" value="deshacer_penal" class="btn bloque">Deshacer el último penal</button>
+  </form>
+  {% else %}
+  <details class="desplegable">
+    <summary>Cargar solo el resultado</summary>
+    <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-2">
+      {% csrf_token %}
+      <input type="hidden" name="accion" value="penales">
+      <div class="dos">
+        {% for lado in equipos %}<div class="campo"><label for="penales-{{ forloop.counter }}">{{ lado.equipo.nombre }}</label><input id="penales-{{ forloop.counter }}" type="number" min="0" inputmode="numeric" name="{% if forloop.first %}local{% else %}visitante{% endif %}" value="{% if forloop.first %}{{ partido.penales_local|default_if_none:'' }}{% else %}{{ partido.penales_visitante|default_if_none:'' }}{% endif %}"></div>{% endfor %}
+      </div>
+      <button type="submit" class="btn bloque">Guardar</button>
+    </form>
+  </details>
+  {% endif %}
+</div>
 {% endif %}
 
 {% if con_mejor_jugador %}

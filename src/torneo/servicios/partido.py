@@ -15,7 +15,8 @@ from django.utils import timezone
 from dominio.config import Reglas
 from dominio.partido import Evento as EventoDelDominio
 from dominio.partido import Lado, Resultado, ResultadoInvalido, TipoDeEvento, resultado
-from torneo.models import Equipo, Evento, Jugador, Partido, Torneo
+from dominio.penales import EstadoDePenales, Tiro, estado_de_penales
+from torneo.models import Equipo, Evento, Jugador, Partido, Penal, Torneo
 from torneo.servicios.historial import registrar
 from torneo.servicios.planilla import asegurar_convocado
 
@@ -38,13 +39,28 @@ def _lado(partido: Partido, equipo: Equipo) -> Lado:
     raise NoSePuede(f"{equipo.nombre} no juega este partido.")
 
 
+def _reglas_de(partido: Partido) -> Reglas:
+    return Reglas.model_validate(partido.categoria.torneo.reglas)
+
+
+def estado_penales(partido: Partido) -> EstadoDePenales:
+    """La tanda cargada tiro por tiro (T11.13)."""
+    tiros: list[Tiro] = [
+        (_lado(partido, t.equipo), t.convirtio) for t in partido.tiros.select_related("equipo")
+    ]
+    return estado_de_penales(tiros, por_equipo=_reglas_de(partido).penales_por_equipo)
+
+
 def resultado_de(partido: Partido) -> Resultado:
     eventos = [
         EventoDelDominio(e.tipo, _lado(partido, e.equipo))  # type: ignore[arg-type]
         for e in partido.eventos.select_related("equipo")
     ]
     penales = None
-    if partido.penales_local is not None and partido.penales_visitante is not None:
+    if partido.tiros.exists():  # T11.13: tiro por tiro manda sobre el atajo
+        tanda = estado_penales(partido)
+        penales = (tanda.local, tanda.visitante)
+    elif partido.penales_local is not None and partido.penales_visitante is not None:
         penales = (partido.penales_local, partido.penales_visitante)
     return resultado(
         eventos,
@@ -265,9 +281,47 @@ def _penales_texto(partido: Partido) -> str:
     return f"{partido.penales_local} a {partido.penales_visitante}"
 
 
-def penales(partido: Partido, local: int, visitante: int, usuario: Usuario | None = None) -> None:
+def patear(
+    partido: Partido,
+    equipo: Equipo,
+    convirtio: bool,
+    usuario: Usuario | None,
+    jugador: Jugador | None = None,
+) -> Penal:
+    """Un tiro de la tanda (T11.13, P83). Con ganador, la tanda terminó."""
     if partido.fase != Partido.Fase.ELIMINACION:
         raise NoSePuede("Los penales son solo en la eliminación.")
+    if partido.local_id is None or partido.visitante_id is None:
+        raise NoSePuede("Faltan los equipos de este partido.")
+    _lado(partido, equipo)
+    if estado_penales(partido).ganador is not None:
+        raise NoSePuede("Los penales ya tienen ganador. Deshaz el último si hubo un error.")
+    tiro = Penal.objects.create(
+        partido=partido,
+        equipo=equipo,
+        jugador=jugador,
+        convirtio=convirtio,
+        creado_por=_usuario(usuario),
+    )
+    que = "Penal convertido" if convirtio else "Penal errado"
+    registrar(partido, usuario, que, equipo=equipo, jugador=jugador)
+    return tiro
+
+
+def deshacer_penal(partido: Partido, usuario: Usuario | None) -> None:
+    ultimo = partido.tiros.select_related("equipo").order_by("-creado_en", "-pk").first()
+    if ultimo is None:
+        raise NoSePuede("No hay penales para deshacer.")
+    registrar(partido, usuario, "Borró un penal", equipo=ultimo.equipo, jugador=ultimo.jugador)
+    ultimo.delete()
+
+
+def penales(partido: Partido, local: int, visitante: int, usuario: Usuario | None = None) -> None:
+    """El atajo (P83): solo el resultado final de la tanda."""
+    if partido.fase != Partido.Fase.ELIMINACION:
+        raise NoSePuede("Los penales son solo en la eliminación.")
+    if partido.tiros.exists():
+        raise NoSePuede("Los penales ya se cargan tiro por tiro: deshazlos para usar el atajo.")
     antes = _penales_texto(partido)
     partido.penales_local, partido.penales_visitante = local, visitante
     partido.save(update_fields=["penales_local", "penales_visitante"])

@@ -1153,6 +1153,31 @@
     font-size: 18px;
     text-align: center;
   }
+  /* T11.13: la tanda de penales, un punto por tiro */
+  .tanda {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tanda .tiros {
+    display: flex;
+    gap: 4px;
+  }
+  .tiro {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--color-tenue);
+    border-radius: 50%;
+  }
+  .tiro.gol {
+    border-color: #1f8a4c;
+    background: #1f8a4c;
+  }
+  .marcador-tanda {
+    min-width: 24px;
+    font-size: 22px;
+    text-align: right;
+  }
   .evento {
     flex: none;
     width: 12px;

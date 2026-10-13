@@ -333,6 +333,7 @@
     "orden_de_fechas": "blanda",
     "eliminacion_desde_fin_de_semana": 4,
     "dia_para_reprogramar": "jueves",
+    "penales_por_equipo": 3,
     "cierre_automatico_min": 15,
     "mejor_jugador": true,
     "puntos_por_partido": [
