@@ -5,7 +5,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 7, pedido 2026 (`docs/PEDIDO_CLAUDE_CODE.md`). La organización aprobó la app para el torneo 2026 y Rondo reemplaza a Copa Fácil. Las fases 1b a 5 y la parte A de la fase 6 están terminadas y revisadas.
-- **Siguiente paso:** que Sebastian apruebe las fases 7, 8 y 9 (`tasks/plan.md` y `tasks/todo.md`, planificadas el 2026-10-12). Con el visto bueno, empezar por T7.1. Durante la prueba del martes 13/10 no se fusiona nada a `main` hasta que Sebastian avise.
+- **Siguiente paso:** fases 7, 8 y 9 aprobadas el 2026-10-12. Orden del bloque A: T7.10 + T7.4 + T7.5 → T7.6 a T7.9 → T7.1 a T7.3 → T7.11 → T7.12; si algo no entra para el 14/10, se corre T7.11 o T7.12. Después, la fase 8 y la 9.
+- **Fusiones congeladas:** nada se fusiona a `main` (tampoco `docs/plan-pedido-2026`) hasta que Sebastian avise que terminó la prueba de la organización. Las ramas de tarea salen una de otra, encadenadas desde `docs/plan-pedido-2026`, y se fusionan en orden cuando avise.
 - **Preguntas:** desde el 2026-10-12, la fuente de las P (P1 a P77, con su valor por defecto) es `docs/PREGUNTAS_JMP_CUP_2026.md`.
 
 ## Para retomar (actualizado el 2026-10-08)
@@ -105,7 +106,12 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 | Fecha | Decisión | Motivo |
 |---|---|---|
-| 2026-10-12 | El pedido 2026 se arma en tres fases: 7 (bloque A, calendario y listas), 8 (bloque B, reemplazar a Copa Fácil) y 9 (bloque C, durante el torneo). T6.5 y T6.6 pasan a T7.10, T7.4 y T7.5 | `docs/PEDIDO_CLAUDE_CODE.md`. Pendiente del visto bueno de Sebastian |
+| 2026-10-12 | El pedido 2026 se arma en tres fases: 7 (bloque A, calendario y listas), 8 (bloque B, reemplazar a Copa Fácil) y 9 (bloque C, durante el torneo). T6.5 y T6.6 pasan a T7.10, T7.4 y T7.5 | `docs/PEDIDO_CLAUDE_CODE.md`. Aprobado por Sebastian el 2026-10-12 |
+| 2026-10-12 | Primero T7.10 con T7.4 y T7.5, después pegar listas, después el calendario (T7.1 a T7.3), y al final T7.11 y T7.12 | El torneo real se crea en producción ya con la configuración 2026; las listas cierran el 21/10 a las 12:00 y esa tarde se arma el calendario definitivo |
+| 2026-10-12 | Las imágenes de R2 se sirven desde la app (mismo origen): el bucket sigue privado y sin CORS | Así `modern-screenshot` lee las imágenes para el PNG sin contaminar el canvas |
+| 2026-10-12 | Desde ahora Claude desarrolla sin pedir el visto bueno de cada plan o fase; deja todo anotado y pregunta solo dudas concretas | Autorizado por Sebastian. Los límites de SPEC.md siguen valiendo |
+| 2026-10-12 | Mientras no esté la cuenta de Cloudflare, las imágenes van al disco local en desarrollo y tests, y la subida se prueba ahí | Sebastian crea la cuenta más adelante; la app tiene que funcionar sin ella |
+| 2026-10-12 | PNG 2026: fuente Cinzel, unas 10 filas por imagen; si un día tiene más partidos en una cancha, se parte en "1/2" y "2/2". El lugar de los escudos lo define el diseño de UI. Es de prioridad baja | Diseño en `docs/diseno-fixture-2026/DISENO_FIXTURE_2026.md`; imágenes en `src/torneo/static/png/` |
 | 2026-10-12 | Las imágenes fijas del diseño del PNG (fondo, copa y adornos) van en el repo, en `src/torneo/static/png/`. Escudos, fotos, logo del organizador y patrocinadores van a Cloudflare R2, subidos desde la app | Las primeras son parte del diseño y cambian solo con el código; las otras cambian cada año y las carga la organización |
 | 2026-10-06 | Django 6.1 + HTMX, un solo servicio. El núcleo de dominio va en Python puro y tipado | El solver (OR-Tools CP-SAT) es nativo de Python: un backend en Python evita un segundo servicio solo para el solver. Las pantallas son formularios, tablas y un calendario para pocos usuarios, y eso no necesita una SPA; el contexto lo dice. Django trae login, admin, formularios y migraciones. Que Sebastian quiera practicar Python no fue un criterio |
 | 2026-10-06 | Cloud Run y Neon, los dos en São Paulo | CPU real para el solver (2 vCPU) y requests de hasta 60 minutos, dentro de la capa gratuita. Pide tarjeta |
