@@ -4,6 +4,7 @@ demo → fixtures → programar → bloqueo de la ACF → propuestas → aplicar
 """
 
 import io
+from collections.abc import Callable
 from datetime import timedelta
 from typing import Any
 
@@ -20,10 +21,13 @@ from torneo.servicios.programador import verificar_torneo
 
 @pytest.mark.lento
 @pytest.mark.django_db
-def test_la_demo_de_punta_a_punta(client: Client, settings: Any) -> None:
+def test_la_demo_de_punta_a_punta(
+    client: Client, settings: Any, agregar_jueves: Callable[[Any], None]
+) -> None:
     settings.PROGRAMADOR_SEGUNDOS = 90
     call_command("generar_demo", "--soy-la-demo", stdout=io.StringIO())
     torneo = Torneo.objects.get(es_demo=True)
+    agregar_jueves(torneo)  # con F11 (P60) la cancha 3 no alcanza sin días extra (H8)
     client.force_login(User.objects.create_superuser("sebastian", password="x"))
 
     assert client.post(f"/torneos/{torneo.pk}/fixtures/").status_code == 302

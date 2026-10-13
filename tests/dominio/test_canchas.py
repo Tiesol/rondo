@@ -16,7 +16,7 @@ CONFIG = cargar_config(Path(__file__).resolve().parents[2] / "datos/config/jmp_c
         ("Sub 5", "unico", ("C1A", "C1B")),
         ("Sub 6", "unico", ("C1A", "C1B")),  # F7, pero la regla por categoría manda (CAT-04)
         ("Sub 9", "inicial", ("C1", "C2")),
-        ("Sub 10", "avanzado", ("C1",)),  # F8
+        ("Sub 10", "avanzado", ("C3",)),  # F11 (P60)
         ("Sub 12", "avanzado", ("C3",)),  # F11
         ("Sub 15 Femenino", "unico", ("C1", "C2")),
     ],

@@ -109,7 +109,7 @@
           "min_por_tiempo": 20
         },
         "avanzado": {
-          "modalidad": "F8",
+          "modalidad": "F11",
           "min": 12,
           "max": 16,
           "min_por_tiempo": 20
@@ -127,7 +127,7 @@
           "min_por_tiempo": 20
         },
         "avanzado": {
-          "modalidad": "F8",
+          "modalidad": "F11",
           "min": 12,
           "max": 16,
           "min_por_tiempo": 20

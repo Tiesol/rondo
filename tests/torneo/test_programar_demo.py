@@ -4,6 +4,7 @@ Tarda: programa los 223 partidos de la demo con el solver real. Corre con `pytes
 """
 
 import io
+from collections.abc import Callable
 from typing import Any
 
 import pytest
@@ -16,10 +17,13 @@ from torneo.servicios.programador import programar_torneo
 
 @pytest.mark.lento
 @pytest.mark.django_db
-def test_la_demo_queda_programada_sin_choques(settings: Any) -> None:
+def test_la_demo_queda_programada_sin_choques(
+    settings: Any, agregar_jueves: Callable[[Any], None]
+) -> None:
     settings.PROGRAMADOR_SEGUNDOS = 90
     call_command("generar_demo", "--soy-la-demo", stdout=io.StringIO())
     torneo = Torneo.objects.get(es_demo=True)
+    agregar_jueves(torneo)  # con F11 (P60) la cancha 3 no alcanza sin días extra (H8)
     generar_fixtures_faltantes(torneo)
 
     corrida = programar_torneo(torneo)

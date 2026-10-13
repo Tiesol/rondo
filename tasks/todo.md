@@ -1343,8 +1343,8 @@ T8.5 → T8.6         │
 **Descripción:** la respuesta a P60 es F11. Cambiar la plantilla y medir con 1 CPU (como H7) con T10.2 aplicado. Si no entra, informar cuánto falta y qué lo destraba: semis antes (P33: "a veces se pueden adelantar"), días entre semana o partir canchas (T10.5).
 
 **Aceptación:**
-- [ ] La plantilla tiene Sub 10 y Sub 11 Avanzado en F11, con su plantel de 18 a 22.
-- [ ] H8 en PROGRESO con lo que entra y lo que no.
+- [x] La plantilla tiene Sub 10 y Sub 11 Avanzado en F11 (el plantel sigue de 12 a 16 hasta que se responda P78).
+- [x] H8 en PROGRESO con lo que entra y lo que no.
 
 **Archivos:** `datos/config/jmp_cup_2026.json`, tests, PROGRESO.md. **Tamaño:** S.
 
