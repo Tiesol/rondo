@@ -30,7 +30,9 @@ def test_crea_el_torneo_2026_completo() -> None:
     torneo = Torneo.objects.get()
     assert (torneo.nombre, torneo.anio) == ("JMP CUP 2026", 2026)
     assert torneo.categorias.count() == 23
-    assert set(torneo.canchas.values_list("codigo", flat=True)) == {"C1", "C1A", "C1B", "C2", "C3"}
+    assert set(torneo.canchas.values_list("codigo", flat=True)) == {
+        *("C1", "C1A", "C1B", "C2", "C2A", "C2B", "C3", "C3A", "C3B")
+    }
     assert Cancha.objects.get(codigo="C1A").padre == Cancha.objects.get(codigo="C1")
     assert torneo.franjas.count() == 11
     assert torneo.reglas == json.loads(CONFIG_2026.read_text())["reglas"]
@@ -51,7 +53,7 @@ def test_cargar_dos_veces_no_duplica_nada() -> None:
     _cargar()
     assert Torneo.objects.count() == 1
     assert CategoriaNivel.objects.count() == 23
-    assert Cancha.objects.count() == 5
+    assert Cancha.objects.count() == 9  # 3 enteras y sus mitades (T11.3)
     assert Franja.objects.count() == 11
 
 

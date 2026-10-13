@@ -9,6 +9,13 @@ from django.utils import timezone
 from torneo.models import Cancha, Partido
 
 
+def _nombre_de_cancha(cancha: Cancha) -> str:
+    """ "Cancha 2" o "Cancha 2 · mitad A" (T11.3)."""
+    if cancha.padre is None:
+        return cancha.nombre
+    return f"{cancha.padre.nombre} · mitad {cancha.codigo.removeprefix(cancha.padre.codigo)}"
+
+
 class FormularioMover(forms.Form):
     dia = forms.DateField(label="Día", widget=forms.DateInput(attrs={"type": "date"}))
     hora = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time", "step": 300}))
@@ -25,7 +32,12 @@ class FormularioMover(forms.Form):
         super().__init__(*args, **kwargs)
         campo = self.fields["cancha"]
         assert isinstance(campo, forms.ModelChoiceField)
-        campo.queryset = Cancha.objects.filter(torneo=partido.categoria.torneo).order_by("codigo")
+        campo.queryset = (
+            Cancha.objects.filter(torneo=partido.categoria.torneo)
+            .select_related("padre")
+            .order_by("codigo")
+        )
+        campo.label_from_instance = _nombre_de_cancha  # type: ignore[method-assign,assignment]
 
     def inicio(self) -> datetime:
         return timezone.make_aware(

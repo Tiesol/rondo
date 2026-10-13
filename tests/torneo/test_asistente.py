@@ -68,7 +68,7 @@ def test_sin_cambiar_nada_crea_lo_mismo_que_cargar_config(org: Client) -> None:
     assert (torneo.nombre, torneo.anio, torneo.edicion) == ("JMP CUP 2026", 2026, 5)
     assert torneo.categorias.count() == 22
     assert not torneo.categorias.filter(categoria="Sub 15 Femenino").exists()
-    assert torneo.canchas.count() == 5
+    assert torneo.canchas.count() == 9  # 3 enteras y sus mitades (T11.3)
     assert torneo.franjas.count() == 11
     plantilla = cargar_config(settings.PLANTILLA_TORNEO)
     assert torneo.reglas == plantilla.reglas.model_dump(mode="json")
