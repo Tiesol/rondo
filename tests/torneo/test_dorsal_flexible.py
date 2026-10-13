@@ -44,18 +44,21 @@ def test_la_plantilla_2026_no_exige_dorsal() -> None:
 
 @pytest.mark.django_db
 def test_cambiar_el_dorsal_desde_la_ficha(org: Client, partido: Partido) -> None:
+    # T11.8 (P9): el dorsal que cambia es el de este partido; el habitual del plantel queda.
     assert partido.local is not None
     jugador = partido.local.jugadores.get(dorsal=7)
+    otro = partido.local.jugadores.get(dorsal=10)
     url = f"/partidos/{partido.pk}/ficha/accion/"
     org.post(url, {"accion": "dorsal", "jugador": jugador.pk, "dorsal": "23"})
+    assert partido.convocados.get(jugador=jugador).dorsal == 23
     jugador.refresh_from_db()
-    assert jugador.dorsal == 23
-    # Un dorsal que ya usa otro del equipo no se acepta.
+    assert jugador.dorsal == 7
+    # Un dorsal que ya tiene otro del equipo en este partido no se acepta.
+    org.post(url, {"accion": "dorsal", "jugador": otro.pk, "dorsal": "10"})
     repetido = {"accion": "dorsal", "jugador": jugador.pk, "dorsal": "10"}
     respuesta = org.post(url, repetido, follow=True)
-    jugador.refresh_from_db()
-    assert jugador.dorsal == 23 and "ya lo usa" in respuesta.content.decode()
+    assert partido.convocados.get(jugador=jugador).dorsal == 23
+    assert "ya lo tiene" in respuesta.content.decode()
     # Vacío: sin dorsal.
     org.post(url, {"accion": "dorsal", "jugador": jugador.pk, "dorsal": ""})
-    jugador.refresh_from_db()
-    assert jugador.dorsal is None
+    assert partido.convocados.get(jugador=jugador).dorsal is None

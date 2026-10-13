@@ -34,10 +34,14 @@ def nombre_publico(persona: Persona) -> str:
     return f"{nombre}{inicial}"
 
 
-def _jugador(jugador: Jugador | None) -> dict[str, Any] | None:
+def _jugador(
+    jugador: Jugador | None, dorsales: dict[int, int | None] | None = None
+) -> dict[str, Any] | None:
+    """Con el dorsal de ese partido si jugó (T11.8); si no, el habitual."""
     if jugador is None:
         return None
-    return {"nombre": nombre_publico(jugador.persona), "dorsal": jugador.dorsal}
+    dorsal = (dorsales or {}).get(jugador.pk, jugador.dorsal)
+    return {"nombre": nombre_publico(jugador.persona), "dorsal": dorsal}
 
 
 @dataclass(frozen=True)
@@ -116,6 +120,7 @@ def partidos_del_dia(torneo: Torneo, dia: date) -> list[FilaDePartido]:
 
 def ficha_publica(partido: Partido) -> dict[str, Any]:
     eventos = partido.eventos.select_related("equipo", "jugador__persona")
+    dorsales = dict(partido.convocados.values_list("jugador_id", "dorsal"))
     return {
         "fila": fila_de_partido(partido),
         "resultado": resultado_de(partido),
@@ -124,12 +129,12 @@ def ficha_publica(partido: Partido) -> dict[str, Any]:
                 "tipo": TIPOS[e.tipo],
                 "clase": e.tipo,
                 "equipo": e.equipo.nombre,
-                "quien": _jugador(e.jugador),
+                "quien": _jugador(e.jugador, dorsales),
             }
             for e in eventos.order_by("creado_en", "pk")
         ],
         "mejor": (
-            _jugador(partido.mejor_jugador)
+            _jugador(partido.mejor_jugador, dorsales)
             if Reglas.model_validate(partido.categoria.torneo.reglas).mejor_jugador
             else None
         ),

@@ -77,6 +77,9 @@ class Partido(models.Model):
     fin_primer_tiempo = models.DateTimeField(null=True, blank=True)
     fin_descanso = models.DateTimeField(null=True, blank=True)
     fin_real = models.DateTimeField(null=True, blank=True)
+    # T11.8: si el entrenador de cada equipo estuvo (opcional; vacío, sin marcar).
+    entrenador_local = models.BooleanField(null=True, blank=True)
+    entrenador_visitante = models.BooleanField(null=True, blank=True)
     mejor_jugador = models.ForeignKey(
         "Jugador", on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
     )  # P70

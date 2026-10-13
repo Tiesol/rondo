@@ -14,6 +14,7 @@ from dominio.partido import Evento as EventoDelDominio
 from dominio.partido import Lado, Resultado, ResultadoInvalido, TipoDeEvento, resultado
 from torneo.models import Equipo, Evento, Jugador, Partido
 from torneo.servicios.historial import registrar
+from torneo.servicios.planilla import asegurar_convocado
 
 Usuario = AbstractBaseUser | AnonymousUser
 
@@ -93,6 +94,8 @@ def anotar(
         jugador = None  # P72: sin jugador
     if jugador is not None and jugador.equipo_id != equipo.pk:
         raise NoSePuede(f"Ese jugador no juega en {equipo.nombre}.")
+    if jugador is not None:
+        asegurar_convocado(partido, jugador, usuario)  # T11.8: si no estaba en la planilla
     evento = Evento.objects.create(
         partido=partido, tipo=tipo, equipo=equipo, jugador=jugador, creado_por=_usuario(usuario)
     )
@@ -142,30 +145,6 @@ def penales(partido: Partido, local: int, visitante: int, usuario: Usuario | Non
     partido.penales_local, partido.penales_visitante = local, visitante
     partido.save(update_fields=["penales_local", "penales_visitante"])
     registrar(partido, usuario, "Penales", antes=antes, despues=_penales_texto(partido))
-
-
-def cambiar_dorsal(
-    partido: Partido, jugador: Jugador, dorsal: int | None, usuario: Usuario | None = None
-) -> None:
-    """T10.11: el dorsal puede cambiar de un partido a otro; no se repite en el equipo."""
-    if jugador.equipo_id not in (partido.local_id, partido.visitante_id):
-        raise NoSePuede("Ese jugador no juega este partido.")
-    if dorsal is not None:
-        if not 1 <= dorsal <= 99:
-            raise NoSePuede("El dorsal va de 1 a 99.")
-        if jugador.equipo.jugadores.exclude(pk=jugador.pk).filter(dorsal=dorsal).exists():
-            raise NoSePuede(f"El dorsal {dorsal} ya lo usa otro jugador del equipo.")
-    antes = "" if jugador.dorsal is None else str(jugador.dorsal)
-    jugador.dorsal = dorsal
-    jugador.save(update_fields=["dorsal"])
-    registrar(
-        partido,
-        usuario,
-        "Dorsal",
-        jugador=jugador,
-        antes=antes,
-        despues="" if dorsal is None else str(dorsal),
-    )
 
 
 def mejor_jugador(
