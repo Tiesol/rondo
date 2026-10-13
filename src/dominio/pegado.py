@@ -275,7 +275,8 @@ def _proponer(
         propuestas[textos[0]] = "nombre_completo" if largo >= 2.5 else "nombres"
     else:
         for orden, i in enumerate(textos):
-            propuestas[i] = ("nombres", "apellidos")[orden] if orden < 2 else "ignorar"
+            # Una tercera columna de texto suele ser la función del profe ("Utilero").
+            propuestas[i] = ("nombres", "apellidos", "rol")[orden] if orden < 3 else "ignorar"
     return [p if p in COLUMNAS else "ignorar" for p in propuestas]
 
 

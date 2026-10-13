@@ -213,7 +213,7 @@ T5.3 + T5.6 → T5.8
 - [x] T7.6 Fecha de nacimiento: alcanza con el año
 - [x] T7.7 Dominio: leer filas pegadas
 - [x] T7.8 Pantalla: pegar la lista de jugadores
-- [ ] T7.9 Pantalla: pegar el cuerpo técnico
+- [x] T7.9 Pantalla: pegar el cuerpo técnico
 - [x] T7.10 Producción preparada (T6.5) *(el despliegue lo hace Sebastian)*
 - [ ] T7.11 Borrador del calendario y fixture desactualizado
 - [ ] T7.12 Medir la programación 2026 con 1 CPU
