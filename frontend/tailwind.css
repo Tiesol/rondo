@@ -985,6 +985,36 @@
     gap: 10px;
   }
 
+  /* ---------- Pegar una lista (T7.8) ---------- */
+  .columna-pegada {
+    padding: 12px 0;
+  }
+  .fila-pegada {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 0;
+  }
+  .fila-pegada-cab {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .fila-pegada-cab .crece {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .fila-pegada-cab .sub {
+    font-size: 13px;
+    color: var(--color-tenue);
+  }
+  .campos-fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
   /* ---------- Pasos del asistente ---------- */
   .pasos {
     display: grid;

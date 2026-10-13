@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block titulo %}Pegar lista · {{ equipo.nombre }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Volver a {{ equipo.nombre }}">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}{% if que == "jugadores" %}Pegar jugadores{% else %}Pegar cuerpo técnico{% endif %}{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  <p class="peq tenue">{{ equipo.nombre }} · {{ equipo.categoria }}</p>
+
+  {% if paso == "texto" %}
+  <div class="campo">
+    <label for="texto">Filas de la lista</label>
+    <textarea id="texto" name="texto" rows="10" autocomplete="off" spellcheck="false" aria-describedby="texto_ayuda">{{ texto }}</textarea>
+    <span class="peq tenue" id="texto_ayuda">Abre la lista que mandó el club (Excel, Word o un PDF pasado a Excel), selecciona las filas {% if que == "jugadores" %}de los jugadores{% else %}del cuerpo técnico{% endif %}, con el encabezado si lo tiene, cópialas y pégalas acá. Hasta {{ max_filas }} filas.</span>
+  </div>
+  <div class="botones">
+    <a class="btn" href="{{ volver }}">Cancelar</a>
+    <button type="submit" name="paso" value="columnas" class="btn principal">Seguir</button>
+  </div>
+
+  {% elif paso == "columnas" %}
+  <textarea name="texto" hidden aria-hidden="true">{{ texto }}</textarea>
+  {% if analisis.aviso_fechas %}{% include "parciales/alerta.html" with estado="aviso" texto=analisis.aviso_fechas %}{% endif %}
+  <p>Elige qué es cada columna. {% if analisis.encabezado %}El encabezado no se carga.{% endif %} Abajo de cada una, sus primeros valores.</p>
+  <ol class="lista">
+    {% for nombre, elegida, encabezado, ejemplos in selectores %}
+    <li class="columna-pegada">
+      <div class="campo">
+        <label for="{{ nombre }}">Columna {{ forloop.counter }}{% if encabezado %} · {{ encabezado }}{% endif %}</label>
+        <select id="{{ nombre }}" name="{{ nombre }}" aria-describedby="{{ nombre }}_ejemplos">
+          {% for clave, texto_opcion in opciones %}<option value="{{ clave }}"{% if clave == elegida %} selected{% endif %}>{{ texto_opcion }}</option>{% endfor %}
+        </select>
+        <span class="peq tenue" id="{{ nombre }}_ejemplos">{% for ejemplo in ejemplos %}{{ ejemplo }}{% if not forloop.last %} · {% endif %}{% empty %}Vacía{% endfor %}</span>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  <p class="peq tenue">Si viene el nombre completo en una columna, los apellidos son las dos últimas palabras (o las dos primeras). En la vista previa se puede corregir cada fila.</p>
+  <div class="botones">
+    <button type="submit" name="paso" value="inicio" class="btn">Volver</button>
+    <button type="submit" name="paso" value="revisar" class="btn principal">Ver vista previa</button>
+  </div>
+
+  {% else %}
+  <div class="marcas" aria-live="polite">
+    {% if listas %}<span class="chip bien num">{{ listas }} fila{{ listas|pluralize }} lista{{ listas|pluralize }}</span>{% endif %}
+    {% if con_errores %}<span class="chip error num">{{ con_errores }} con errores</span>{% endif %}
+  </div>
+  <input type="hidden" name="n" value="{{ filas|length }}">
+  <ul class="lista">
+    {% for fila in filas %}
+    <li class="fila-pegada{% if fila.errores %} con-error{% endif %}">
+      <input type="hidden" name="f{{ forloop.counter0 }}-numero" value="{{ fila.numero }}">
+      <div class="fila-pegada-cab">
+        <span class="dorsal num">{{ fila.numero }}</span>
+        <span class="crece">
+          <strong>{{ fila.campos.nombres }} {{ fila.campos.apellidos }}</strong>
+          <span class="sub">{% if que == "jugadores" %}{{ fila.campos.nacimiento|default:"Sin fecha" }} · {{ fila.campos.documento|default:"Documento pendiente" }}{% if fila.campos.dorsal %} · Dorsal {{ fila.campos.dorsal }}{% endif %}{% else %}{{ fila.campos.rol|capfirst|default:"Sin rol" }} · {{ fila.campos.documento|default:"Documento pendiente" }}{% endif %}</span>
+        </span>
+        {% if fila.errores %}{% include "parciales/chip.html" with texto="Corregir" estado="error" %}{% elif fila.guardada %}{% include "parciales/chip.html" with texto="Lista" estado="bien" %}{% endif %}
+      </div>
+      {% for hallazgo in fila.hallazgos %}
+      {% if hallazgo.nivel == "error" %}{% include "parciales/alerta.html" with estado="error" texto=hallazgo.mensaje %}{% else %}{% include "parciales/alerta.html" with estado="aviso" texto=hallazgo.mensaje %}{% endif %}
+      {% endfor %}
+      {% with i=forloop.counter0 %}
+      {% if fila.errores %}
+      <div class="campos-fila">
+        <div class="campo"><label for="f{{ i }}-nombres">Nombres</label><input id="f{{ i }}-nombres" name="f{{ i }}-nombres" value="{{ fila.campos.nombres }}" autocomplete="off"></div>
+        <div class="campo"><label for="f{{ i }}-apellidos">Apellidos</label><input id="f{{ i }}-apellidos" name="f{{ i }}-apellidos" value="{{ fila.campos.apellidos }}" autocomplete="off"></div>
+        {% if que == "jugadores" %}
+        <div class="campo"><label for="f{{ i }}-nacimiento">Nacimiento</label><input id="f{{ i }}-nacimiento" name="f{{ i }}-nacimiento" value="{{ fila.campos.nacimiento }}" placeholder="12/03/2014 o 2014" autocomplete="off"></div>
+        <div class="campo"><label for="f{{ i }}-dorsal">Dorsal</label><input id="f{{ i }}-dorsal" name="f{{ i }}-dorsal" value="{{ fila.campos.dorsal }}" inputmode="numeric" autocomplete="off"></div>
+        {% else %}
+        <div class="campo"><label for="f{{ i }}-rol">Rol</label><input id="f{{ i }}-rol" name="f{{ i }}-rol" value="{{ fila.campos.rol }}" autocomplete="off"></div>
+        {% endif %}
+        <div class="campo"><label for="f{{ i }}-documento">CI o pasaporte</label><input id="f{{ i }}-documento" name="f{{ i }}-documento" value="{{ fila.campos.documento }}" autocomplete="off" autocapitalize="characters"></div>
+      </div>
+      {% else %}
+      {% for campo, valor in fila.campos.items %}<input type="hidden" name="f{{ i }}-{{ campo }}" value="{{ valor }}">{% endfor %}
+      {% endif %}
+      {% endwith %}
+    </li>
+    {% empty %}
+    {% include "parciales/vacio.html" with icono="personas" titulo="No quedan filas" texto="" %}
+    {% endfor %}
+  </ul>
+  <div class="botones">
+    <button type="submit" name="paso" value="revisar" class="btn">Revisar de nuevo</button>
+    <button type="submit" name="paso" value="guardar" class="btn principal">Guardar las filas sin errores</button>
+  </div>
+  <p class="peq tenue">Se guardan solo las filas sin errores; las demás quedan acá para corregirlas. Los avisos no impiden guardar.</p>
+  {% endif %}
+</form>
+{% endblock %}
