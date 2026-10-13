@@ -17,12 +17,12 @@ from torneo.models import CategoriaNivel, Equipo, Evento, Jugador, Partido, Pers
 from torneo.presentacion import escudo, url_de_imagen
 from torneo.servicios.partido import resultado_de
 
+# Lo que se publica. Amonestaciones y lesiones son internas (T11.10): nunca salen de la app.
 TIPOS = {
     "gol": "Gol",
     "gol_en_contra": "Gol en contra",
     "amarilla": "Amarilla",
     "roja": "Roja",
-    "amonestacion": "Amonestación",
 }
 _ESTADOS = {"en_juego": "En juego", "jugado": "Terminado"}
 
@@ -119,7 +119,7 @@ def partidos_del_dia(torneo: Torneo, dia: date) -> list[FilaDePartido]:
 
 
 def ficha_publica(partido: Partido) -> dict[str, Any]:
-    eventos = partido.eventos.select_related("equipo", "jugador__persona")
+    eventos = partido.eventos.filter(tipo__in=TIPOS).select_related("equipo", "jugador__persona")
     dorsales = dict(partido.convocados.values_list("jugador_id", "dorsal"))
     return {
         "fila": fila_de_partido(partido),
@@ -130,6 +130,7 @@ def ficha_publica(partido: Partido) -> dict[str, Any]:
                 "clase": e.tipo,
                 "equipo": e.equipo.nombre,
                 "quien": _jugador(e.jugador, dorsales),
+                "minuto": e.minuto,
             }
             for e in eventos.order_by("creado_en", "pk")
         ],

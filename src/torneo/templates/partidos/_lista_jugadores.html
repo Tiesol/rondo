@@ -16,9 +16,6 @@
     </details>
     {% endif %}
     {% if not lado.plantel %}<p class="peq tenue">Sin jugadores cargados.</p>{% endif %}
-    {% if accion_tipo == "gol" %}
-    <button type="submit" name="evento" value="gol_en_contra|{{ lado.equipo.pk }}|" class="btn">Gol en contra de {{ lado.equipo.nombre }}</button>
-    {% endif %}
   </fieldset>
   {% endfor %}
   <button type="button" class="btn" data-cerrar-hoja>Cancelar</button>

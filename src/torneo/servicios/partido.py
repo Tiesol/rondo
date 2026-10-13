@@ -5,6 +5,8 @@ El marcador no se guarda: sale de los eventos (dominio.partido). Un partido empe
 mueve (PRO-10) ni deja rehacer su fixture (FIX-09).
 """
 
+from typing import Any
+
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser, User
 from django.db import transaction
 from django.utils import timezone
@@ -52,6 +54,86 @@ def resultado_de(partido: Partido) -> Resultado:
     )
 
 
+def minuto_actual(partido: Partido) -> int | None:
+    """T11.10: el minuto en curso, seguido entre tiempos (con 20 por tiempo, el 2.º empieza en
+    el 21). En el descanso, el último del primer tiempo. Sin reloj, ninguno."""
+    ahora = timezone.now()
+    por_tiempo = partido.categoria.min_por_tiempo
+    if partido.tiempo == Partido.Tiempo.PRIMER_TIEMPO and partido.inicio_real:
+        return int((ahora - partido.inicio_real).total_seconds() // 60) + 1
+    if partido.tiempo == Partido.Tiempo.DESCANSO:
+        return por_tiempo
+    if partido.tiempo == Partido.Tiempo.SEGUNDO_TIEMPO and partido.fin_descanso:
+        return por_tiempo + int((ahora - partido.fin_descanso).total_seconds() // 60) + 1
+    return None
+
+
+def corregir_minuto(evento: Evento, minuto: int | None, usuario: Usuario | None) -> None:
+    antes = "" if evento.minuto is None else f"{evento.minuto}'"
+    evento.minuto = minuto
+    evento.save(update_fields=["minuto"])
+    registrar(
+        evento.partido,
+        usuario,
+        "Minuto",
+        equipo=evento.equipo,
+        jugador=evento.jugador,
+        antes=antes,
+        despues="" if minuto is None else f"{minuto}'",
+    )
+
+
+def borrar_evento(evento: Evento, usuario: Usuario | None) -> None:
+    """Cualquier evento, también de un partido terminado (T11.10), con su historial."""
+    registrar(
+        evento.partido,
+        usuario,
+        f"Borró: {evento.get_tipo_display()}",
+        equipo=evento.equipo,
+        jugador=evento.jugador,
+    )
+    evento.delete()
+
+
+HORAS = {
+    "inicio_real": "Inicio",
+    "fin_primer_tiempo": "Fin del 1.er tiempo",
+    "fin_descanso": "Inicio del 2.º tiempo",
+    "fin_real": "Final",
+}
+
+
+def corregir_horas(partido: Partido, horas: dict[str, Any], usuario: Usuario | None) -> None:
+    """T11.10: las horas reales del partido se corrigen, con su historial."""
+    for campo, nueva in horas.items():
+        if campo not in HORAS:
+            continue
+        vieja = getattr(partido, campo)
+        if vieja == nueva:
+            continue
+        setattr(partido, campo, nueva)
+        registrar(
+            partido,
+            usuario,
+            "Horas",
+            antes=f"{HORAS[campo]} {timezone.localtime(vieja):%H:%M}" if vieja else "",
+            despues=f"{HORAS[campo]} {timezone.localtime(nueva):%H:%M}" if nueva else "",
+        )
+    partido.save(update_fields=list(HORAS))
+
+
+def quitar_wo(partido: Partido, usuario: Usuario | None) -> None:
+    if not partido.no_se_presento:
+        raise NoSePuede("Este partido no tiene W.O.")
+    ausente = partido.local if partido.no_se_presento == "local" else partido.visitante
+    partido.no_se_presento = ""
+    if partido.inicio_real is None and not partido.eventos.exists():
+        partido.tiempo = Partido.Tiempo.SIN_EMPEZAR
+        partido.estado = Partido.Estado.PROGRAMADO if partido.inicio else Partido.Estado.PENDIENTE
+    partido.save(update_fields=["no_se_presento", "tiempo", "estado"])
+    registrar(partido, usuario, "Quitó el W.O.", equipo=ausente)
+
+
 def empezar(partido: Partido, usuario: Usuario | None) -> None:
     if partido.local_id is None or partido.visitante_id is None:
         raise NoSePuede("Faltan los equipos de este partido: asígnalos antes de empezar.")
@@ -90,14 +172,17 @@ def anotar(
     if not partido.empezado:
         raise NoSePuede("El partido todavía no empezó: tócalo para empezarlo.")
     _lado(partido, equipo)
-    if tipo == "gol_en_contra":
-        jugador = None  # P72: sin jugador
     if jugador is not None and jugador.equipo_id != equipo.pk:
         raise NoSePuede(f"Ese jugador no juega en {equipo.nombre}.")
     if jugador is not None:
         asegurar_convocado(partido, jugador, usuario)  # T11.8: si no estaba en la planilla
     evento = Evento.objects.create(
-        partido=partido, tipo=tipo, equipo=equipo, jugador=jugador, creado_por=_usuario(usuario)
+        partido=partido,
+        tipo=tipo,
+        equipo=equipo,
+        jugador=jugador,
+        creado_por=_usuario(usuario),
+        minuto=minuto_actual(partido),
     )
     registrar(partido, usuario, evento.get_tipo_display(), equipo=equipo, jugador=jugador)
     return evento

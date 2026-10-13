@@ -33,7 +33,7 @@
           {% include "parciales/seccion_cab.html" with titulo="Lo que pasó" %}
           <ul class="lista">
             {% for e in ficha.eventos %}
-            <li class="fila"><span class="evento {{ e.clase }}" aria-hidden="true"></span><span class="crece"><strong>{{ e.tipo }} · {{ e.equipo }}</strong>{% if e.quien %}<span class="sub">{{ e.quien.dorsal|default_if_none:"s/n" }} · {{ e.quien.nombre }}</span>{% endif %}</span></li>
+            <li class="fila"><span class="evento {{ e.clase }}" aria-hidden="true"></span><span class="crece"><strong>{{ e.tipo }} · {{ e.equipo }}</strong>{% if e.quien or e.minuto %}<span class="sub">{% if e.quien %}{{ e.quien.dorsal|default_if_none:"s/n" }} · {{ e.quien.nombre }}{% endif %}{% if e.minuto %} · {{ e.minuto }}'{% endif %}</span>{% endif %}</span></li>
             {% endfor %}
           </ul>
         </div>
