@@ -650,6 +650,22 @@
     white-space: nowrap;
     -webkit-text-stroke: 2px color-mix(in oklab, var(--png-oro) 28%, transparent);
   }
+  /* T7.11: mientras la página pública esté apagada, el PNG dice que es un borrador. */
+  .pieza-borrador {
+    position: absolute;
+    top: 300px;
+    left: 40px;
+    z-index: 5;
+    padding: 6px 28px;
+    border: 6px solid #c8102e;
+    border-radius: 12px;
+    color: #c8102e;
+    font: 110px/1 var(--font-titulo);
+    letter-spacing: 0.08em;
+    opacity: 0.85;
+    transform: rotate(-12deg);
+    pointer-events: none;
+  }
   .pieza-titular {
     position: absolute;
     top: 8px;

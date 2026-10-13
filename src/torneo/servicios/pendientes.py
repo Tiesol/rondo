@@ -12,6 +12,7 @@ from django.urls import reverse
 
 from dominio.config import describir_reglas
 from torneo.models import Equipo, Torneo
+from torneo.servicios.fixture import motivo_desactualizado
 
 
 def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]]:
@@ -69,6 +70,26 @@ def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]
                 "url": reverse("categoria", args=[sin_fixture[0].pk, "fixture"]),
                 "icono": "calendario",
                 "estado": "info",
+            }
+        )
+
+    desactualizadas = [
+        c
+        for c in torneo.categorias.select_related("torneo").prefetch_related("partidos", "equipos")
+        if motivo_desactualizado(c, list(c.partidos.all()), {e.pk for e in c.equipos.all()})
+    ]
+    if desactualizadas:
+        lista.append(
+            {
+                "titulo": _contar(
+                    len(desactualizadas),
+                    "categoría con el fixture desactualizado",
+                    "categorías con el fixture desactualizado",
+                ),
+                "sub": _primeros(str(c) for c in desactualizadas),
+                "url": reverse("categoria", args=[desactualizadas[0].pk, "fixture"]),
+                "icono": "calendario",
+                "estado": "aviso",
             }
         )
 

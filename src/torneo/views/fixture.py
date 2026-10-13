@@ -20,6 +20,7 @@ from torneo.servicios.fixture import (
     formatos,
     generar_fixture,
     generar_fixtures_faltantes,
+    motivo_desactualizado,
     series_elegidas,
 )
 from torneo.servicios.programador import (
@@ -87,6 +88,7 @@ def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
             "fecha", "inicio", "pk"
         )
     )
+    equipos = list(categoria.equipos.order_by("nombre"))
     fechas: dict[int, list[dict[str, Any]]] = {}
     copas: dict[str, list[dict[str, Any]]] = {}
     for partido in partidos:
@@ -96,6 +98,7 @@ def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
             copas.setdefault(COPAS.get(partido.copa, partido.copa), []).append(_fila(partido))
     return {
         "problema": problema,
+        "desactualizado": motivo_desactualizado(categoria, partidos, {e.pk for e in equipos}),
         "faltan_equipos": cantidad < 2,
         "hay_fixture": bool(partidos),
         "letras": letras,
@@ -111,7 +114,7 @@ def datos_del_fixture(categoria: CategoriaNivel) -> dict[str, Any]:
         ],
         "fechas": [{"numero": n, "partidos": filas} for n, filas in sorted(fechas.items())],
         "eliminacion": [{"copa": copa, "partidos": filas} for copa, filas in copas.items()],
-        "equipos": list(categoria.equipos.order_by("nombre")),
+        "equipos": equipos,
     }
 
 

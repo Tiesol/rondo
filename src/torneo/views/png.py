@@ -83,5 +83,6 @@ def png(request: HttpRequest, fecha: str) -> HttpResponse:
             "marca": torneo.nombre_sin_anio.upper(),
             "edicion": f"{torneo.edicion}.ª edición",
             "piezas": piezas,
+            "borrador": not torneo.publico,
         },
     )

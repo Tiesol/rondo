@@ -88,6 +88,7 @@ def calendario_dia(request: HttpRequest, fecha: str) -> HttpResponse:
     ]
     contexto = {
         "es_dia_de_juego": bool(franjas_del_dia),
+        "borrador": not torneo.publico,
         "suspendido": bool(franjas_del_dia) and all(f.suspendida for f in franjas_del_dia),
         "form_dia": FormularioDia(
             initial={
@@ -205,6 +206,7 @@ def por_club(request: HttpRequest, pk: int) -> HttpResponse:
         "calendario/club.html",
         {
             "club": club,
+            "borrador": not torneo.publico,
             "dias": [
                 {"titulo": f"{DIAS[d.weekday()]} {d.day}", "partidos": filas}
                 for d, filas in dias.items()
