@@ -5,7 +5,8 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 7, pedido 2026 (`docs/PEDIDO_CLAUDE_CODE.md`). La organización aprobó la app para el torneo 2026 y Rondo reemplaza a Copa Fácil. Las fases 1b a 5 y la parte A de la fase 6 están terminadas y revisadas.
-- **Siguiente paso:** las fases 7, 8 y 9 están terminadas y revisadas (2026-10-13). Sigue la fase 10 (respuestas del organizador, `tasks/todo.md`), empezando por T10.1.
+- **Siguiente paso:** las fases 7 a 10 están terminadas y revisadas (2026-10-13), en ramas encadenadas sin fusionar. Cuando Sebastian avise que terminó la prueba de la organización: fusionar en orden (de `docs/plan-pedido-2026` a `fase-10/revision`), desplegar producción (DESPLIEGUE.md) y cargar los tres jueves si se confirma P79.
+- **Esperando respuestas:** P44, P75, P78, P79 y lo de "fijar a mano" (revisión de la fase 10).
 - **Para probar (Sebastian):** pegar listas en la ficha del equipo (Plantel y Cuerpo técnico), fecha de nacimiento con solo el año, Copa de Bronce en Reglas, el aviso de fixture desactualizado, "Borrador" en el calendario y el PNG, y la programación con la plantilla 2026. Producción: `docs/DESPLIEGUE.md`, sección "Producción".
 - **Fusiones congeladas:** nada se fusiona a `main` (tampoco `docs/plan-pedido-2026`) hasta que Sebastian avise que terminó la prueba de la organización. Las ramas de tarea salen una de otra, encadenadas desde `docs/plan-pedido-2026`, y se fusionan en orden cuando avise.
 - **Preguntas:** desde el 2026-10-12, la fuente de las P (P1 a P77, con su valor por defecto) es `docs/PREGUNTAS_JMP_CUP_2026.md`.
@@ -537,6 +538,24 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 | Los suspendidos de otro día aparecen en la lista | Detectada |
 
 - **Privacidad:** las fotos de las personas anonimizadas salen del almacenamiento después de confirmar la base; si algo falla antes, no se pierde nada.
+
+## Revisión de la fase 10 (2026-10-13, `code-review-and-quality`)
+
+**Veredicto: aprobada.** Verde con los lentos (904 rápidos y los 2 lentos, que agregan los tres jueves de H8).
+
+| Mutación | Resultado |
+|---|---|
+| El modelo no saca los días sin jugar (P56) | **Sobrevivió** al principio: el solver igual elegía el sábado. Se agregó un test con solo un viernes disponible; ahora se detecta |
+| El verificador no marca un día sin jugar | Detectada |
+| Último inicio ignorado (P48) | Detectada |
+| Sin los objetivos de un partido por día y finales al final | Detectada |
+| Unir una cancha con partidos en sus mitades | Detectada |
+| Dorsal repetido en el equipo | Detectada |
+| El contador de reprogramaciones siempre en 0 | Detectada |
+
+- **Consider (anotado):** la capacidad que se muestra antes de programar sigue contando hasta el fin de la franja, aunque la regla sea "último inicio": queda conservadora.
+- **Consider:** juntar a los equipos de un mismo club el mismo día (preferencia de la respuesta 1.4.8) no está.
+- **Para Sebastian:** P44 (inscribir un equipo durante las primeras fechas choca con FIX-09), P75 (la galería de fotos de partidos, que el pedido había descartado), P78 y P79 (plantel de F11 en Sub 10 y Sub 11; cómo dar más tiempo a la cancha 3), y si se saca "fijar a mano" al mover un partido ("no existen partidos fijados a mano").
 
 ## Supuestos
 

@@ -371,3 +371,15 @@ def test_t10_6_las_finales_de_preferencia_en_los_dos_ultimos_dias() -> None:
     ]
     resultado = programar(problema([final], franjas), segundos=5)
     assert resultado.ubicados["final"][1].date() != viernes.date()
+
+
+def test_t10_3_si_solo_hay_viernes_el_partido_no_se_ubica() -> None:
+    partidos = [
+        PartidoAProgramar(**{**p.__dict__, "dias_sin_jugar": frozenset({4})})
+        for p in todos_contra_todos(list("AB"))
+    ]
+    viernes = SABADO - timedelta(days=1)
+    resultado = programar(
+        problema(partidos, [(viernes.replace(hour=16), viernes.replace(hour=20))]), segundos=5
+    )
+    assert resultado.sin_ubicar == [partidos[0].id]
