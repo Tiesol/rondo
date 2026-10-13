@@ -22,8 +22,9 @@ PERMISOS_POR_ROL: dict[str, list[str]] = {
         "programar_partidos",
         "inscribir_equipos",
         "verificar_jugadores",
+        "cargar_resultados",
     ],
-    MESA: ["inscribir_equipos", "verificar_jugadores"],
+    MESA: ["inscribir_equipos", "verificar_jugadores", "cargar_resultados"],  # P64
 }
 
 Vista = Callable[..., HttpResponse]

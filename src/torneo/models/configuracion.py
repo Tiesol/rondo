@@ -68,6 +68,7 @@ class Torneo(models.Model):
             ("programar_partidos", "Programar y reprogramar partidos"),
             ("inscribir_equipos", "Cargar equipos y listas"),
             ("verificar_jugadores", "Verificar a los jugadores con su documento"),
+            ("cargar_resultados", "Cargar goles, tarjetas y resultados"),
         ]
 
     def __str__(self) -> str:

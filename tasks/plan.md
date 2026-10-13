@@ -240,7 +240,7 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 - [x] T8.2 Procesar la imagen al subirla
 - [x] T8.3 Escudo del club, logo del organizador y patrocinadores (B2, P68, P69)
 - [x] T8.4 Foto de la persona y autorización (B2, P66, P67, P75)
-- [ ] T8.5 Resultado y eventos del partido (dominio y modelo, B3)
+- [x] T8.5 Resultado y eventos del partido (dominio y modelo, B3)
 - [ ] T8.6 Ficha del partido en el celular (B3)
 - [ ] T8.7 Tabla de posiciones (B4, P26, P28, P34)
 - [ ] T8.8 Cruces de la eliminación desde la tabla (B6, P50)
