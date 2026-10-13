@@ -128,6 +128,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - 2026-10-13: T10.4 lista: Sub 10 y Sub 11 Avanzado en F11 en la plantilla (respuesta a P60; plantel de 12 a 16 mientras no se responda P78). Medido en H8: sin días extra quedan 6 partidos de C3 afuera; con tres jueves de 16 a 20, entra todo. Preguntas nuevas P78 y P79.
 - 2026-10-13: T10.5 lista (P13, P63): pantalla de canchas (Más → Canchas, `/torneos/<id>/canchas/`): agregar una cancha (C4, "Cancha 4"…), partir cualquiera en mitades A y B, unirlas y quitar una cancha; unir o quitar se niega si hay partidos en esas canchas. El programador y el verificador ya usaban `padre`: la entera ocupa sus mitades. Quién juega en cada cancha se elige en los ajustes de la categoría.
 - 2026-10-13: T10.6 lista: dos objetivos blandos más, con el peso de una semana de desvío: un equipo no juega dos veces el mismo día (P17 y P47: se permite, pero mejor no) y las finales van en los dos últimos días (P55). Medido con 1 CPU, la demo 2026 con F11 y los tres jueves: 223 de 223, 0 choques, 0 equipos con dos partidos en un día y las 30 finales en los dos últimos días. Juntar a los equipos de un mismo club el mismo día queda para después (es preferencia y no frena nada).
+- 2026-10-13: T10.7 lista (P64): por ahora todos los usuarios se crean como Organización y pueden hacer todo; la pantalla y `crear_usuario` lo proponen por defecto y lo explican. No se fusionaron los roles en el código: la mesa queda lista para cuando se separen. Anotado en DESPLIEGUE.
 
 ## Pendiente
 
@@ -139,6 +140,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 | Fecha | Decisión | Motivo |
 |---|---|---|
+| 2026-10-13 | P64 (un solo rol): todos los usuarios como Organización, sin fusionar los roles en el código | Es reversible y no toca permisos: cuando se separen los roles, alcanza con cambiar el rol de cada persona |
 | 2026-10-13 | Las respuestas del organizador (`docs/PREGUNTAS_JMP_CUP_2026.md`) arman la fase 10, primero lo que pesa en el calendario del 21/10 | Muchas cambian reglas o piden funciones nuevas (P60 F11, P56, P35, P13, P64, P27, W.O. al reprogramar, tiempos del partido a mano) |
 | 2026-10-12 | El pedido 2026 se arma en tres fases: 7 (bloque A, calendario y listas), 8 (bloque B, reemplazar a Copa Fácil) y 9 (bloque C, durante el torneo). T6.5 y T6.6 pasan a T7.10, T7.4 y T7.5 | `docs/PEDIDO_CLAUDE_CODE.md`. Aprobado por Sebastian el 2026-10-12 |
 | 2026-10-12 | Primero T7.10 con T7.4 y T7.5, después pegar listas, después el calendario (T7.1 a T7.3), y al final T7.11 y T7.12 | El torneo real se crea en producción ya con la configuración 2026; las listas cierran el 21/10 a las 12:00 y esa tarde se arma el calendario definitivo |

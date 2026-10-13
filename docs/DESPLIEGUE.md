@@ -160,7 +160,7 @@ Escudos, fotos de los chicos, logo y patrocinadores. Hasta conectarlo, la app fu
    unset DATABASE_URL RONDO_CLAVE_USUARIO
    ```
 
-   Los demás usuarios se crean desde la app (Más → Personas), con contraseña temporal.
+   Los demás usuarios se crean desde la app (Más → Personas), con contraseña temporal. **Por ahora, todos con el rol Organización** (P64: un solo rol que hace todo; la mesa queda para separar los roles más adelante).
 3. Carga el catálogo de clubes, igual que arriba, con `cargar_clubes` y la cadena de producción.
 4. Crea el torneo 2026 **desde la app**, con el asistente (Torneos → Nuevo). Arranca con la plantilla 2026 (fechas, Fútbol 6, cierre del 21/10). **Nunca** corras `generar_demo` ni `cargar_config` contra producción.
 5. La página pública queda apagada hasta publicar el calendario: mientras tanto, el calendario dice "Borrador".

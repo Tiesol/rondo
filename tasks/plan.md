@@ -284,7 +284,7 @@ T8.5 → T8.6         │
 - [x] T10.4 Sub 10 y Sub 11 Avanzado en F11 (P60) y capacidad
 - [x] T10.5 Canchas flexibles (P13, P63)
 - [x] T10.6 Preferencias del calendario (P17, P55; el club el mismo día queda para después)
-- [ ] T10.7 Un solo rol por ahora (P64)
+- [x] T10.7 Un solo rol por ahora (P64)
 - [ ] T10.8 Formato para más de 10 equipos (P27, P54)
 - [ ] T10.9 El partido en vivo, a mano
 - [ ] T10.10 Reprogramar con W.O. y contador
