@@ -1242,9 +1242,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] El PNG se genera con las imágenes del diseño, los escudos y los patrocinadores, sin datos personales.
-- [ ] Con un club sin escudo o un torneo sin patrocinadores, el PNG sale igual, sin huecos rotos.
-- [ ] Sebastian lo comparte desde su Android (R45).
+- [x] El PNG se genera con las imágenes del diseño, los escudos y los patrocinadores, sin datos personales.
+- [x] Con un club sin escudo o un torneo sin patrocinadores, el PNG sale igual, sin huecos rotos.
+- [ ] Sebastian lo comparte desde su Android (R45). *(Pendiente de Sebastian.)*
 
 **Verificación:** verde, más la prueba en el celular.
 **Depende de:** T8.3 y las imágenes del PSD (Sebastian).

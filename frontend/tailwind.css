@@ -21,6 +21,12 @@
   font-display: swap;
 }
 @font-face {
+  font-family: "Cinzel";
+  src: url("../fuentes/cinzel-variable.ttf") format("truetype");
+  font-weight: 400 900;
+  font-display: block; /* el PNG se arma con la fuente ya cargada */
+}
+@font-face {
   font-family: "Figtree";
   src: url("../fuentes/figtree-latin-variable.woff2") format("woff2");
   font-weight: 300 900;
@@ -613,48 +619,50 @@
     font-weight: 600;
   }
 
-  /* ---------- PNG del día (diseño 2025, 1220 × 690) ----------
-     Usa --marca y --acento tal cual (no los tokens del tema): la imagen no cambia con el
-     modo oscuro. */
+  /* ---------- PNG del día (diseño 2026, 1920 × 1080) ----------
+     Con los colores fijos del diseño: la imagen no cambia con el modo oscuro. */
   .marco-png {
     overflow: hidden;
     border-radius: var(--radius-control);
   }
   .escala-png {
-    width: 1220px;
-    height: 690px;
+    width: 1920px;
+    height: 1080px;
     transform-origin: top left;
   }
+  /* El PNG del fixture con el diseño 2026 (T8.12): 1920 × 1080, las medidas del PSD / 2.
+     El fondo trae todo lo fijo; acá va lo que pone la app. */
   .pieza {
-    --png-azul: var(--marca, #0d2440);
-    --png-oro: var(--acento, #f2cf3a);
     position: relative;
-    width: 1220px;
-    height: 690px;
+    width: 1920px;
+    height: 1080px;
     overflow: hidden;
-    background: radial-gradient(
-      120% 90% at 30% 20%,
-      color-mix(in oklab, var(--png-azul) 80%, white),
-      var(--png-azul) 60%
-    );
-    color: #ffffff;
-    font-family: var(--font-sans);
+    color: #072236;
+    font-family: "Cinzel", serif;
+    text-transform: uppercase;
   }
-  .pieza-fantasma {
+  .pieza-fondo {
     position: absolute;
-    top: -6px;
-    left: -10px;
-    color: transparent;
-    font: 190px/1 var(--font-titulo);
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-    -webkit-text-stroke: 2px color-mix(in oklab, var(--png-oro) 28%, transparent);
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
-  /* T7.11: mientras la página pública esté apagada, el PNG dice que es un borrador. */
+  .pieza-titulo {
+    position: absolute;
+    top: 33px;
+    left: 120px;
+    right: 120px;
+    overflow: hidden;
+    font-size: 91.5px;
+    line-height: 1;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .pieza-borrador {
     position: absolute;
-    top: 300px;
-    left: 40px;
+    top: 420px;
+    left: 600px;
     z-index: 5;
     padding: 6px 28px;
     border: 6px solid #c8102e;
@@ -662,159 +670,90 @@
     color: #c8102e;
     font: 110px/1 var(--font-titulo);
     letter-spacing: 0.08em;
-    opacity: 0.85;
+    opacity: 0.8;
     transform: rotate(-12deg);
-    pointer-events: none;
-  }
-  .pieza-titular {
-    position: absolute;
-    top: 8px;
-    left: 0;
-    width: 950px;
-    color: var(--png-oro);
-    font: 150px/1 var(--font-titulo);
-    text-align: center;
-  }
-  .pieza-dia {
-    position: absolute;
-    top: 172px;
-    left: 0;
-    width: 950px;
-    font: 700 33px/1 var(--font-sans);
-    letter-spacing: 0.02em;
-    text-align: center;
-  }
-  .pieza-filas {
-    position: absolute;
-    top: 222px;
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    width: 950px;
   }
   .pieza-fila {
-    display: grid;
-    grid-template-columns: 180px 56px 1fr 1fr 56px 112px;
-    align-items: center;
-    height: 54px;
-    background: linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--png-oro) 70%, white),
-      var(--png-oro) 45%,
-      color-mix(in oklab, var(--png-oro) 92%, black)
-    );
-    color: var(--png-azul);
-    font: 400 24px/1 "Arvo", Georgia, serif;
+    position: absolute;
+    left: 501px;
+    width: 944px;
+    height: 61px;
   }
-  .pieza-fila .cat,
-  .pieza-fila .eq,
-  .pieza-fila .hora {
+  .pieza-fila.oro {
+    background: rgb(223 208 124 / 0.39);
+  }
+  .pieza-fila.blanca {
+    background: rgb(247 247 247 / 0.4);
+  }
+  .pieza-fila > span {
+    position: absolute;
     overflow: hidden;
+    line-height: 1;
     text-align: center;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .pieza-fila .eq {
-    text-transform: uppercase;
+  .pieza-equipo {
+    top: 15px;
+    font-size: 30px;
   }
-  .pieza-fila .escudo {
-    justify-self: center;
-    width: 46px;
-    height: 46px;
-    border: 2px solid rgb(255 255 255 / 0.85);
-    font-size: 17px;
+  .pieza-equipo.local {
+    left: 4px;
+    width: 409px;
   }
-  .pieza-panel {
+  .pieza-equipo.visitante {
+    left: 502px;
+    width: 438px;
+  }
+  .con-escudo-local .pieza-equipo.local {
+    left: 54px;
+    width: 359px;
+  }
+  .con-escudo-visitante .pieza-equipo.visitante {
+    width: 388px;
+  }
+  .pieza-categoria {
+    top: 2px;
+    left: 414px;
+    width: 88px;
+    font-size: 25.5px;
+  }
+  .pieza-hora {
+    top: 27px;
+    left: 410px;
+    width: 96px;
+    color: #b9a951;
+    font-size: 36px;
+  }
+  /* Los escudos no están en el diseño: van chicos en los extremos, solo si el club lo tiene. */
+  .pieza-escudo {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 248px;
-    height: 600px;
-    border-radius: 120px 0 0 0;
-    background: linear-gradient(
-      160deg,
-      color-mix(in oklab, var(--png-oro) 85%, white),
-      color-mix(in oklab, var(--png-oro) 80%, black) 55%
-    );
+    top: 8.5px;
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
   }
-  .pieza-cancha {
-    position: absolute;
-    top: 18px;
-    right: 0;
-    display: grid;
-    place-items: center;
-    width: 196px;
-    height: 48px;
-    border-radius: 6px 0 0 6px;
-    background: var(--png-azul);
-    color: var(--png-oro);
-    font: 34px/1 var(--font-titulo);
-    letter-spacing: 0.04em;
+  .pieza-escudo.izquierda {
+    left: 6px;
   }
-  .pieza-cancha small {
-    font-size: 20px;
-  }
-  .pieza-copa {
-    position: absolute;
-    top: 120px;
-    right: 34px;
-    width: 180px;
-    height: 260px;
-    color: var(--png-azul);
-  }
-  .pieza-copa-sigla {
-    fill: var(--png-oro);
-    font: 40px var(--font-titulo);
-  }
-  .pieza-marca {
-    position: absolute;
-    top: 410px;
-    right: 22px;
-    width: 204px;
-    color: var(--png-azul);
-    font: 56px/1 var(--font-titulo);
-    text-align: center;
-  }
-  .pieza-edicion {
-    position: absolute;
-    top: 470px;
-    right: 28px;
-    display: grid;
-    place-items: center;
-    width: 190px;
-    height: 34px;
-    background: var(--png-azul);
-    transform: skewX(-12deg);
-  }
-  .pieza-edicion span {
-    color: #ffffff;
-    font: 25px/1 var(--font-titulo);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    transform: skewX(12deg);
+  .pieza-escudo.derecha {
+    right: 6px;
   }
   .pieza-patrocinadores {
     position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    top: 965px;
+    left: 294px;
+    right: 24px;
+    height: 54px;
+    display: flex;
     align-items: center;
-    justify-items: center;
-    height: 90px;
-    padding-inline: 24px;
-    background: #ffffff;
+    gap: 40px;
   }
-  .pieza-patrocinadores span {
-    display: grid;
-    place-items: center;
-    width: 150px;
-    height: 52px;
-    border: 2px dashed #c9ced6;
-    border-radius: 10px;
-    color: #7b8494;
-    font: 600 13px var(--font-sans);
+  .pieza-patrocinadores img {
+    max-width: 260px;
+    height: 54px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* en blanco, como en el diseño */
   }
 
   /* ---------- Capacidad ---------- */
