@@ -48,7 +48,7 @@ class _Calendario:
         fin_partido = inicio + timedelta(minutes=partido.minutos_partido)
         fin_turno = inicio + timedelta(minutes=partido.minutos_turno)
         unidades = self.problema.fisicas.get(cancha, frozenset({cancha}))
-        mios = set(partido.equipos_definidos)
+        mios = set(partido.equipos_y_virtuales)
         companeros: dict[Hashable, str] = {}
         for par in self.problema.pares:
             if par.a in mios:
@@ -61,7 +61,7 @@ class _Calendario:
         partidos_por_equipo: Counter[Hashable] = Counter()
         for otro in del_dia:
             su_cancha, su_inicio, su_fin_partido, su_fin_turno = self.lugar(otro)
-            suyos = set(otro.equipos_definidos)
+            suyos = set(otro.equipos_y_virtuales)
             partidos_por_equipo.update(suyos & mios)
             otras_unidades = self.problema.fisicas.get(su_cancha, frozenset({su_cancha}))
             if unidades & otras_unidades and _se_pisan(inicio, fin_turno, su_inicio, su_fin_turno):

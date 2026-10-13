@@ -9,14 +9,16 @@ Restricciones duras:
 - canchas (PRO-01): cada cancha física tiene un turno a la vez; C1 entera ocupa C1A y C1B;
 - compatibilidad (PRO-02) y franjas (PRO-03): ya están en los valores posibles;
 - equipos (PRO-04): no se pisan, dejan los turnos libres del día (P17) y no pasan del
-  máximo de partidos por día (P47);
+  máximo de partidos por día (P47). En la eliminación también los equipos virtuales: el
+  ganador o el perdedor de una llave juega la llave que lo usa (T7.1);
 - personas (PRO-05 y PRO-06): dos equipos que comparten un jugador no se pisan; si comparten
   un profe, además dejan el margen para cambiar de cancha (P35). El margen se aplica también
   en la misma cancha: es más estricto que la regla, y más simple;
 - bloqueos de la ACF (PRO-07): fuera de los inicios posibles;
 - orden (PRO-08, si la regla es "dura"): las fechas de cada equipo van en orden (P19);
 - eliminación (PRO-09): después de la fase de grupos de su categoría y de los partidos a
-  los que se refiere (sin ellos no se ubica), y desde su fin de semana (P33);
+  los que se refiere (sin ellos no se ubica), y desde su fin de semana (P33). Si toma
+  posiciones de grupo y cae el mismo día que partidos de grupos, deja el turno libre (P17);
 - fijos (PRO-10): los partidos jugados o fijados a mano no se mueven.
 
 Objetivo: primero ubicar la mayor cantidad; después, cada fecha de grupos cerca de su fin de
@@ -53,10 +55,17 @@ class PartidoAProgramar:
     clave: str = ""  # en la eliminación: "oro_semi_1"
     nombre: str = ""  # en la eliminación: "Semi 1 de Oro"
     despues_de: frozenset[str] = frozenset()  # claves de los partidos a los que se refiere
+    virtuales: frozenset[str] = frozenset()  # en la eliminación: "ganador de la semi 1" (T7.1)
+    toma_posiciones: bool = False  # en la eliminación: juega con equipos de la tabla de grupos
 
     @property
     def equipos_definidos(self) -> tuple[Equipo, ...]:
         return tuple(e for e in self.equipos if e is not None)
+
+    @property
+    def equipos_y_virtuales(self) -> tuple[Equipo, ...]:
+        """Para las reglas de equipo (P17, P47): los definidos y los virtuales de las llaves."""
+        return self.equipos_definidos + tuple(sorted(self.virtuales))
 
 
 @dataclass(frozen=True)
@@ -197,7 +206,7 @@ class Modelo:
         reglas = self.problema.reglas
         por_equipo: dict[Equipo, list[PartidoAProgramar]] = defaultdict(list)
         for partido in self.problema.partidos:
-            for equipo in partido.equipos_definidos:
+            for equipo in partido.equipos_y_virtuales:
                 por_equipo[equipo].append(partido)
         for suyos in por_equipo.values():
             # El turno más los turnos libres del día (P17): de un día al siguiente sobra lugar.
@@ -238,10 +247,26 @@ class Modelo:
                 ]
             )
 
-    def _despues(self, antes: PartidoAProgramar, despues: PartidoAProgramar) -> None:
-        self.modelo.add(
-            self.inicio[despues.id] >= self.inicio[antes.id] + _pasos(antes.minutos_turno)
-        ).only_enforce_if([self.presente[antes.id], self.presente[despues.id]])
+    def _despues(
+        self, antes: PartidoAProgramar, despues: PartidoAProgramar, *, descanso: bool = False
+    ) -> None:
+        """`despues` empieza al terminar el turno de `antes`. Con descanso, si caen el mismo
+        día, deja además los turnos libres de P17 (el equipo de una es el de la otra)."""
+        ambos = [self.presente[antes.id], self.presente[despues.id]]
+        turno = _pasos(antes.minutos_turno)
+        self.modelo.add(self.inicio[despues.id] >= self.inicio[antes.id] + turno).only_enforce_if(
+            ambos
+        )
+        if not descanso:
+            return
+        libres = self.problema.reglas.turnos_libres_mismo_dia
+        desde = self.problema.eliminacion_desde
+        for dia in self.dias:
+            if desde is not None and dia < desde.date():
+                continue  # la llave no puede caer ese día
+            self.modelo.add(
+                self.inicio[despues.id] >= self.inicio[antes.id] + turno * (1 + libres)
+            ).only_enforce_if([*ambos, self.en_dia[antes.id][dia], self.en_dia[despues.id][dia]])
 
     def orden(self) -> None:
         partidos = self.problema.partidos
@@ -264,7 +289,7 @@ class Modelo:
                 grupos_de[partido.categoria].append(partido)
         for llave in (p for p in partidos if p.fase == "eliminacion"):
             for grupo in grupos_de[llave.categoria]:
-                self._despues(grupo, llave)
+                self._despues(grupo, llave, descanso=llave.toma_posiciones)
             for clave in llave.despues_de:
                 anterior = por_clave.get((llave.categoria, clave))
                 if anterior is None:

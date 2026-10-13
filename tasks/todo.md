@@ -875,9 +875,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Con 4 equipos y una sola franja, la final no queda a menos de semi + 2 turnos.
-- [ ] El verificador marca el caso de Sub 15 Avanzado de la revisión (semi a las 17:10 y final a las 18:20 en C3).
-- [ ] Con la demo programada, ninguna llave encadenada queda sin descanso (test lento).
+- [x] Con 4 equipos y una sola franja, la final no queda a menos de semi + 2 turnos.
+- [x] El verificador marca el caso de Sub 15 Avanzado de la revisión (semi a las 17:10 y final a las 18:20 en C3).
+- [x] Con la demo programada, ninguna llave encadenada queda sin descanso (test lento).
 
 **Verificación:** verde, más `pytest -m lento`.
 **Depende de:** nada.

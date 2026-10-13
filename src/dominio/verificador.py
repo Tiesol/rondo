@@ -9,7 +9,9 @@ compatibilidad, de franja o de bloqueo) con la lista de sus motivos, y un tipo:
 - franja: el partido no empieza y termina dentro de una franja (el cambio puede quedar
   afuera, P48);
 - equipo: un equipo juega dos partidos que se pisan, no deja los turnos libres del día (P17)
-  o pasa del máximo de partidos por día (P47);
+  o pasa del máximo de partidos por día (P47). En la eliminación cuentan los equipos
+  virtuales (el ganador de una semi juega la final) y el descanso entre los partidos de
+  grupos y la llave que toma sus posiciones, si caen el mismo día (T7.1);
 - persona: dos equipos que comparten un jugador juegan a la vez (P36), o que comparten un
   profe juegan a la vez o en canchas distintas sin el margen para cambiar (P18, P35);
 - bloqueo: un equipo juega durante un bloqueo de la ACF.
@@ -40,6 +42,9 @@ class PartidoAgendado:
     inicio: datetime
     minutos_partido: int  # dos tiempos y el descanso
     minutos_turno: int  # más el cambio entre partidos
+    fase: str = "grupos"  # o "eliminacion"
+    virtuales: frozenset[str] = frozenset()  # en la eliminación: "ganador de la semi 1" (T7.1)
+    toma_posiciones: bool = False  # en la eliminación: juega con equipos de la tabla de grupos
 
     @property
     def fin_partido(self) -> datetime:
@@ -56,6 +61,11 @@ class PartidoAgendado:
     @property
     def equipos_definidos(self) -> tuple[Equipo, ...]:
         return tuple(e for e in self.equipos if e is not None)
+
+    @property
+    def equipos_y_virtuales(self) -> tuple[Equipo, ...]:
+        """Para las reglas de equipo (P17, P47): los definidos y los virtuales de las llaves."""
+        return self.equipos_definidos + tuple(sorted(self.virtuales))
 
 
 @dataclass(frozen=True)
@@ -114,6 +124,7 @@ def verificar(partidos: Iterable[PartidoAgendado], escenario: Escenario) -> list
     for uno, otro in combinations(lista, 2):
         _cancha(uno, otro, escenario, anotar)
     _equipos(lista, escenario.reglas, anotar)
+    _grupos_y_llaves(lista, escenario.reglas, anotar)
     _personas(lista, escenario, anotar)
 
     return [Choque(tipo, ids, tuple(lista_)) for (tipo, ids), lista_ in motivos.items()]
@@ -152,7 +163,7 @@ def _cancha(
 def _equipos(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> None:
     por_equipo: dict[Equipo, list[PartidoAgendado]] = defaultdict(list)
     for partido in lista:
-        for equipo in partido.equipos_definidos:
+        for equipo in partido.equipos_y_virtuales:
             por_equipo[equipo].append(partido)
     for equipo, suyos in por_equipo.items():
         por_dia: dict[date, list[PartidoAgendado]] = defaultdict(list)
@@ -178,6 +189,29 @@ def _equipos(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> N
                         f"{equipo}: sin {reglas.turnos_libres_mismo_dia} turno libre entre "
                         "sus partidos del día",
                     )
+
+
+def _grupos_y_llaves(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> None:
+    """Una llave que toma posiciones de grupo, el mismo día que partidos de grupos de su
+    categoría: cualquiera de esos equipos puede jugarla, así que deja el turno libre (P17)."""
+    grupos: dict[tuple[str, date], list[PartidoAgendado]] = defaultdict(list)
+    for partido in lista:
+        if partido.fase == "grupos":
+            grupos[(partido.categoria, partido.dia)].append(partido)
+    for llave in lista:
+        if not llave.toma_posiciones:
+            continue
+        for grupo in grupos.get((llave.categoria, llave.dia), []):
+            if grupo.inicio > llave.inicio:
+                continue  # eso lo ve el orden de la eliminación, no el descanso
+            libre = (llave.inicio - grupo.fin_turno).total_seconds() / 60
+            if libre < reglas.turnos_libres_mismo_dia * grupo.minutos_turno:
+                anotar(
+                    "equipo",
+                    (grupo.id, llave.id),
+                    f"Sin {reglas.turnos_libres_mismo_dia} turno libre entre la fase de grupos "
+                    "y la llave que toma sus posiciones",
+                )
 
 
 def _personas(lista: list[PartidoAgendado], escenario: Escenario, anotar: _Anotar) -> None:
