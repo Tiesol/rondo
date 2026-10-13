@@ -1292,8 +1292,8 @@ T8.5 → T8.6         │
 
 **Aceptación:**
 
-- [ ] Un jugador suspendido aparece en la lista del día de su próximo partido y desaparece después.
-- [ ] La lista sale de las mismas reglas que T8.9.
+- [x] Un jugador suspendido aparece en la lista del día de su próximo partido y desaparece después.
+- [x] La lista sale de las mismas reglas que T8.9.
 
 **Verificación:** verde.
 **Depende de:** T8.9.

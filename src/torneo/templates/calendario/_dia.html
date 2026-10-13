@@ -18,6 +18,7 @@
   </div>
   {% endif %}
   {% if borrador %}<div class="seccion">{% include "parciales/alerta.html" with estado="info" titulo="Borrador." texto="La página pública está apagada: este calendario todavía puede cambiar. Se publica desde Más." %}</div>{% endif %}
+  {% if perms.torneo.cargar_resultados %}<div class="seccion">{% url "suspendidos-dia" dia.isoformat as url_suspendidos %}{% include "parciales/boton.html" with texto="Suspendidos del día" url=url_suspendidos bloque=True %}</div>{% endif %}
   {% if suspendido %}
   <div class="seccion">{% include "parciales/alerta.html" with estado="aviso" titulo="Día suspendido." texto="No se programa nada en este día." %}</div>
   {% endif %}

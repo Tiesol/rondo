@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Suspendidos · {{ titulo_dia }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'calendario-dia' dia.isoformat %}" aria-label="Volver al calendario">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Suspendidos{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo=titulo_dia %}
+  {% if filas %}
+  <ul class="lista">
+    {% for f in filas %}
+    <li class="fila">
+      <span class="dorsal num">{{ f.jugador.dorsal|default_if_none:"s/n" }}</span>
+      <span class="crece">
+        <strong>{{ f.jugador.persona }}</strong>
+        <span class="sub">{{ f.jugador.equipo.nombre }} · {{ f.partido.categoria }} · {{ f.hora }}{% if f.partido.cancha %} · {{ f.partido.cancha.nombre }}{% endif %}</span>
+        <span class="sub">{{ f.motivo }}</span>
+      </span>
+      <a class="btn chico" href="{% url 'ficha-partido' f.partido.pk %}">Ficha</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  {% include "parciales/vacio.html" with icono="calendario" titulo="No hay suspendidos este día" texto="Salen de las dobles amarillas sin multa pagada y de las suspensiones que marca la organización." %}
+  {% endif %}
+</div>
+{% endblock %}

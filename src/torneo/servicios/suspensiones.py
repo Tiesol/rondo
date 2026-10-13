@@ -2,7 +2,7 @@
 organización a mano. Las reglas están en dominio.suspensiones; acá se juntan los datos."""
 
 from collections import defaultdict
-from datetime import datetime
+from datetime import date, datetime, time, timedelta
 from typing import Any
 
 from django.contrib.auth.models import User
@@ -18,6 +18,7 @@ from torneo.models import (
     MultaPagada,
     Partido,
     SuspensionManual,
+    Torneo,
 )
 
 _LEJOS = timezone.make_aware(datetime(9999, 1, 1))
@@ -113,3 +114,35 @@ def suspender_a_mano(
 
 def jugadores_del_partido(partido: Partido) -> Q:
     return Q(equipo_id__in=[partido.local_id, partido.visitante_id])
+
+
+def suspendidos_del_dia(torneo: Torneo, dia: date) -> list[dict[str, Any]]:
+    """T9.2: quién no puede jugar ese día, con su equipo, el partido y el motivo."""
+    desde = timezone.make_aware(datetime.combine(dia, time.min))
+    del_dia = {
+        p.pk: p
+        for p in Partido.objects.filter(
+            categoria__torneo=torneo, inicio__gte=desde, inicio__lt=desde + timedelta(days=1)
+        ).select_related("categoria__torneo", "local", "visitante", "cancha")
+    }
+    filas = []
+    for categoria in {p.categoria for p in del_dia.values()}:
+        propias = [s for s in suspensiones_de(categoria) if s.partido in del_dia]
+        jugadores = Jugador.objects.select_related("persona", "equipo").in_bulk(
+            [s.jugador for s in propias]
+        )
+        for s in propias:
+            if s.jugador not in jugadores:
+                continue
+            partido = del_dia[s.partido]
+            filas.append(
+                {
+                    "jugador": jugadores[s.jugador],
+                    "partido": partido,
+                    "hora": timezone.localtime(partido.inicio).strftime("%H:%M")
+                    if partido.inicio
+                    else "",
+                    "motivo": s.motivo,
+                }
+            )
+    return sorted(filas, key=lambda f: (f["hora"], str(f["jugador"].persona)))

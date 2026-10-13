@@ -17,6 +17,7 @@ from dominio.franjas import proximo
 from torneo.models import Cancha, Club, Franja, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.reprogramar import suspender_dia
+from torneo.servicios.suspensiones import suspendidos_del_dia
 from torneo.views.fixture import lado
 from torneo.views.fragmentos import pide_fragmento
 
@@ -213,3 +214,21 @@ def por_club(request: HttpRequest, pk: int) -> HttpResponse:
             ],
         },
     )
+
+
+@requiere("torneo.cargar_resultados", "ver los suspendidos")
+def suspendidos(request: HttpRequest, fecha: str) -> HttpResponse:
+    """T9.2: la lista de suspendidos del día, para la mesa."""
+    torneo = Torneo.activo()
+    if torneo is None:
+        return redirect("inicio")
+    try:
+        dia = date.fromisoformat(fecha)
+    except ValueError:
+        raise Http404 from None
+    contexto = {
+        "dia": dia,
+        "titulo_dia": f"{DIAS[dia.weekday()]} {dia.day}",
+        "filas": suspendidos_del_dia(torneo, dia),
+    }
+    return render(request, "calendario/suspendidos.html", contexto)
