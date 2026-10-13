@@ -14,7 +14,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from dominio.programador.reprogramar import proponer
-from torneo.models import Bloqueo, Cambio, Cancha, Corrida, Partido, Torneo
+from torneo.models import Bloqueo, Cambio, Cancha, Corrida, Equipo, Partido, Torneo
 from torneo.servicios.programador import (
     calendario_actual,
     choques_del_calendario,
@@ -233,3 +233,30 @@ def suspender_dia(
         origen={"dia": dia.isoformat()},
         usuario=usuario,
     )
+
+
+def veces_que_reprogramo(equipo: Equipo) -> int:
+    """T10.10: cuántos pedidos de ese equipo ya terminaron en un cambio aplicado."""
+    bloqueos = set(equipo.bloqueos.values_list("pk", flat=True))
+    corridas = Corrida.objects.filter(
+        tipo=Corrida.Tipo.REPROGRAMAR, cambios__isnull=False
+    ).distinct()
+    return sum(1 for c in corridas if c.parametros.get("bloqueo") in bloqueos)
+
+
+def afectados_por(bloqueo: Bloqueo) -> list[tuple[Partido, Equipo]]:
+    """Los partidos de los equipos del pedido que caen en su horario, con el equipo."""
+    equipos = list(bloqueo.equipos.all())
+    resultado = []
+    for partido in Partido.objects.filter(
+        categoria__torneo=bloqueo.torneo, inicio__lt=bloqueo.fin
+    ).select_related("local", "visitante", "categoria"):
+        if partido.inicio is None or partido.empezado:
+            continue
+        fin = partido.inicio + timedelta(minutes=partido.categoria.minutos_partido)
+        if fin <= bloqueo.inicio:
+            continue
+        for equipo in equipos:
+            if equipo.pk in (partido.local_id, partido.visitante_id):
+                resultado.append((partido, equipo))
+    return resultado

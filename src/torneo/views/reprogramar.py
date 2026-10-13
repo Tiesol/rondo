@@ -9,10 +9,18 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from dominio.partido import Lado
 from torneo.models import Bloqueo, Corrida, Partido
 from torneo.permisos import requiere
 from torneo.presentacion import cruce, lugar
-from torneo.servicios.reprogramar import NoSePuedeAplicar, aplicar, calcular_propuestas
+from torneo.servicios.partido import NoSePuede, wo
+from torneo.servicios.reprogramar import (
+    NoSePuedeAplicar,
+    afectados_por,
+    aplicar,
+    calcular_propuestas,
+    veces_que_reprogramo,
+)
 
 
 def _lugar(guardado: list[str] | None) -> str:
@@ -72,11 +80,63 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
                 ],
             }
         )
+    pedido = Bloqueo.objects.filter(pk=corrida.parametros.get("bloqueo")).first()
+    afectados = afectados_por(pedido) if pedido else []
+    veces = {e.pk: veces_que_reprogramo(e) for e in (pedido.equipos.all() if pedido else [])}
     return render(
         request,
         "reprogramar/propuestas.html",
-        {"corrida": corrida, "propuestas": vista, "motivo": corrida.parametros.get("motivo", "")},
+        {
+            "corrida": corrida,
+            "propuestas": vista,
+            "motivo": corrida.parametros.get("motivo", ""),
+            # T10.10: dar W.O. en lugar de reprogramar, y cuántas veces ya reprogramó.
+            "afectados": [
+                {
+                    "partido": p,
+                    "equipo": e,
+                    "cruce": cruce(p),
+                    "aviso": _ya_reprogramo(e.nombre, veces.get(e.pk, 0)),
+                }
+                for p, e in afectados
+            ],
+        },
     )
+
+
+def _ya_reprogramo(nombre: str, veces: int) -> str:
+    """ "River ya reprogramó 2 veces": sin límite, la organización decide (T10.10)."""
+    if not veces:
+        return ""
+    return f"{nombre} ya reprogramó {veces} {'vez' if veces == 1 else 'veces'}."
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "reprogramar")
+def dar_wo(request: HttpRequest, pk: int) -> HttpResponse:
+    """T10.10: el equipo que pidió reprogramar pierde el partido por W.O."""
+    corrida = get_object_or_404(Corrida, pk=pk, tipo=Corrida.Tipo.REPROGRAMAR)
+    pedido = get_object_or_404(Bloqueo, pk=corrida.parametros.get("bloqueo"))
+    elegido = next(
+        (
+            (p, e)
+            for p, e in afectados_por(pedido)
+            if str(p.pk) == request.POST.get("partido") and str(e.pk) == request.POST.get("equipo")
+        ),
+        None,
+    )
+    if elegido is None:
+        messages.error(request, "Ese partido no es del pedido.")
+        return redirect("ver-propuestas", pk=corrida.pk)
+    partido, equipo = elegido
+    lado: Lado = "local" if partido.local_id == equipo.pk else "visitante"
+    try:
+        wo(partido, lado, request.user)
+    except NoSePuede as error:
+        messages.error(request, str(error))
+    else:
+        messages.success(request, f"W.O.: {equipo.nombre} pierde {cruce(partido)}")
+    return redirect("ver-propuestas", pk=corrida.pk)
 
 
 @require_POST

@@ -4,6 +4,17 @@
 {% block encabezado %}Propuestas{% endblock %}
 {% block contenido %}
 <div class="seccion gap-3">
+  {% for a in afectados %}
+  <div class="propuesta">
+    {% if a.aviso %}{% include "parciales/alerta.html" with estado="aviso" texto=a.aviso %}{% endif %}
+    <p><strong>{{ a.cruce }}</strong><span class="peq tenue"> · {{ a.partido.categoria }}</span></p>
+    <form method="post" action="{% url 'dar-wo' corrida.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="partido" value="{{ a.partido.pk }}"><input type="hidden" name="equipo" value="{{ a.equipo.pk }}">
+      <button type="submit" class="btn bloque">Dar W.O.: pierde {{ a.equipo.nombre }}</button>
+    </form>
+  </div>
+  {% endfor %}
   {% include "parciales/seccion_cab.html" with titulo="Propuestas" nota="De menos a más cambios" %}
   <p class="peq tenue">{{ motivo }}. Se mueve solo lo de ese fin de semana y el siguiente; lo jugado y lo fijado a mano no se toca. Cada propuesta pasó por el verificador.</p>
   {% for propuesta in propuestas %}

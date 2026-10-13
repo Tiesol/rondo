@@ -1401,8 +1401,8 @@ T8.5 → T8.6         │
 **Descripción:** al reprogramar por un pedido, la organización puede dar el partido por perdido (W.O.) a ese equipo, y la app avisa cuántas veces ya reprogramó. Preferir no mover ningún otro partido.
 
 **Aceptación:**
-- [ ] Desde las propuestas se puede dar W.O. al equipo que pidió reprogramar.
-- [ ] La app dice "este equipo ya reprogramó N veces".
+- [x] Desde las propuestas se puede dar W.O. al equipo que pidió reprogramar.
+- [x] La app dice "este equipo ya reprogramó N veces".
 
 **Archivos:** reprogramación (servicio, vistas, plantillas), tests. **Tamaño:** M.
 
