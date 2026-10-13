@@ -994,8 +994,8 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Pegar "D.T", "Asistente" y "Delegado" carga los tres roles.
-- [ ] Un segundo entrenador o un cuarto profe se marca como error (INS-08).
+- [x] Pegar "D.T", "Asistente" y "Delegado" carga los tres roles.
+- [x] Un segundo entrenador o un cuarto profe se marca como error (INS-08).
 
 **Verificación:** verde.
 **Depende de:** T7.8.

@@ -87,6 +87,10 @@ def pegar(request: HttpRequest, pk: int, que: str) -> HttpResponse:
 
     if paso == "columnas" or (paso == "revisar" and "texto" in request.POST):
         analisis = analizar(texto, roles)
+        validas = {clave for clave, _ in _opciones(lista)}
+        analisis = analisis.con_columnas(
+            [c if c in validas else "ignorar" for c in analisis.columnas]
+        )
         if not analisis.filas:
             messages.error(request, "No hay filas: pega las filas de la lista.")
             return render(request, "equipos/pegar.html", contexto | {"texto": texto})
