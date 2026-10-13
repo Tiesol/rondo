@@ -13,6 +13,7 @@ from dominio.config import Reglas
 from dominio.partido import Evento as EventoDelDominio
 from dominio.partido import Lado, Resultado, ResultadoInvalido, TipoDeEvento, resultado
 from torneo.models import Equipo, Evento, Jugador, Partido
+from torneo.servicios.historial import registrar
 
 Usuario = AbstractBaseUser | AnonymousUser
 
@@ -60,18 +61,22 @@ def empezar(partido: Partido, usuario: Usuario | None) -> None:
         partido.tiempo = Partido.Tiempo.PRIMER_TIEMPO
         partido.inicio_real = timezone.now()
     partido.save(update_fields=["estado", "tiempo", "inicio_real"])
+    registrar(partido, usuario, "Empezó el partido")
 
 
-def avanzar_tiempo(partido: Partido) -> None:
+def avanzar_tiempo(partido: Partido, usuario: Usuario | None = None) -> None:
     """T10.9: fin del primer tiempo, y después fin del descanso."""
     ahora = timezone.now()
     if partido.tiempo == Partido.Tiempo.PRIMER_TIEMPO:
         partido.tiempo, partido.fin_primer_tiempo = Partido.Tiempo.DESCANSO, ahora
+        que = "Fin del 1.er tiempo"
     elif partido.tiempo == Partido.Tiempo.DESCANSO:
         partido.tiempo, partido.fin_descanso = Partido.Tiempo.SEGUNDO_TIEMPO, ahora
+        que = "Empezó el 2.º tiempo"
     else:
         raise NoSePuede("No hay otro tiempo: el partido se termina con «Terminar».")
     partido.save(update_fields=["tiempo", "fin_primer_tiempo", "fin_descanso"])
+    registrar(partido, usuario, que)
 
 
 def anotar(
@@ -88,15 +93,26 @@ def anotar(
         jugador = None  # P72: sin jugador
     if jugador is not None and jugador.equipo_id != equipo.pk:
         raise NoSePuede(f"Ese jugador no juega en {equipo.nombre}.")
-    return Evento.objects.create(
+    evento = Evento.objects.create(
         partido=partido, tipo=tipo, equipo=equipo, jugador=jugador, creado_por=_usuario(usuario)
     )
+    registrar(partido, usuario, evento.get_tipo_display(), equipo=equipo, jugador=jugador)
+    return evento
 
 
-def deshacer(partido: Partido) -> Evento | None:
+def deshacer(partido: Partido, usuario: Usuario | None = None) -> Evento | None:
     """Borra el último evento cargado (el error más común: tocar el botón equivocado)."""
-    ultimo = partido.eventos.order_by("-creado_en", "-pk").first()
+    ultimo = (
+        partido.eventos.select_related("equipo", "jugador").order_by("-creado_en", "-pk").first()
+    )
     if ultimo is not None:
+        registrar(
+            partido,
+            usuario,
+            f"Borró: {ultimo.get_tipo_display()}",
+            equipo=ultimo.equipo,
+            jugador=ultimo.jugador,
+        )
         ultimo.delete()
     return ultimo
 
@@ -109,16 +125,28 @@ def wo(partido: Partido, no_se_presento: Lado, usuario: Usuario | None) -> None:
     partido.estado = Partido.Estado.JUGADO
     partido.tiempo = Partido.Tiempo.TERMINADO
     partido.save(update_fields=["no_se_presento", "estado", "tiempo"])
+    ausente = partido.local if no_se_presento == "local" else partido.visitante
+    registrar(partido, usuario, "W.O.: no se presentó", equipo=ausente)
 
 
-def penales(partido: Partido, local: int, visitante: int) -> None:
+def _penales_texto(partido: Partido) -> str:
+    if partido.penales_local is None or partido.penales_visitante is None:
+        return ""
+    return f"{partido.penales_local} a {partido.penales_visitante}"
+
+
+def penales(partido: Partido, local: int, visitante: int, usuario: Usuario | None = None) -> None:
     if partido.fase != Partido.Fase.ELIMINACION:
         raise NoSePuede("Los penales son solo en la eliminación.")
+    antes = _penales_texto(partido)
     partido.penales_local, partido.penales_visitante = local, visitante
     partido.save(update_fields=["penales_local", "penales_visitante"])
+    registrar(partido, usuario, "Penales", antes=antes, despues=_penales_texto(partido))
 
 
-def cambiar_dorsal(partido: Partido, jugador: Jugador, dorsal: int | None) -> None:
+def cambiar_dorsal(
+    partido: Partido, jugador: Jugador, dorsal: int | None, usuario: Usuario | None = None
+) -> None:
     """T10.11: el dorsal puede cambiar de un partido a otro; no se repite en el equipo."""
     if jugador.equipo_id not in (partido.local_id, partido.visitante_id):
         raise NoSePuede("Ese jugador no juega este partido.")
@@ -127,16 +155,28 @@ def cambiar_dorsal(partido: Partido, jugador: Jugador, dorsal: int | None) -> No
             raise NoSePuede("El dorsal va de 1 a 99.")
         if jugador.equipo.jugadores.exclude(pk=jugador.pk).filter(dorsal=dorsal).exists():
             raise NoSePuede(f"El dorsal {dorsal} ya lo usa otro jugador del equipo.")
+    antes = "" if jugador.dorsal is None else str(jugador.dorsal)
     jugador.dorsal = dorsal
     jugador.save(update_fields=["dorsal"])
+    registrar(
+        partido,
+        usuario,
+        "Dorsal",
+        jugador=jugador,
+        antes=antes,
+        despues="" if dorsal is None else str(dorsal),
+    )
 
 
-def mejor_jugador(partido: Partido, jugador: Jugador | None) -> None:
+def mejor_jugador(
+    partido: Partido, jugador: Jugador | None, usuario: Usuario | None = None
+) -> None:
     """P70: lo eligen el árbitro y la mesa; es de uno de los dos equipos."""
     if jugador is not None and jugador.equipo_id not in (partido.local_id, partido.visitante_id):
         raise NoSePuede("El mejor jugador tiene que ser de uno de los dos equipos.")
     partido.mejor_jugador = jugador
     partido.save(update_fields=["mejor_jugador"])
+    registrar(partido, usuario, "Mejor jugador", jugador=jugador)
 
 
 @transaction.atomic
@@ -150,3 +190,4 @@ def terminar(partido: Partido, usuario: Usuario | None) -> None:
     partido.estado = Partido.Estado.JUGADO
     partido.tiempo, partido.fin_real = Partido.Tiempo.TERMINADO, timezone.now()
     partido.save(update_fields=["estado", "tiempo", "fin_real"])
+    registrar(partido, usuario, "Terminó el partido")

@@ -1447,7 +1447,7 @@ T10.9, T10.10, T10.11 (durante el torneo)
 
 ### Día de partido (sección 3, antes del 24/10)
 
-- [ ] **T11.7 Historial del partido.** Cada evento, dorsal, hora real, W.O., corrección y cambio de horario guarda usuario, fecha y valor anterior. Se ve en la ficha.
+- [x] **T11.7 Historial del partido.** Cada evento, dorsal, hora real, W.O., corrección y cambio de horario guarda usuario, fecha y valor anterior. Se ve en la ficha.
 - [ ] **T11.8 Planilla: convocados y dorsal del partido (P9).** Se tocan los jugadores que juegan; el dorsal es de ese partido (propone el habitual o el del partido anterior) y no se repite en la base. Suspendido marcado: convocarlo pide confirmar. Entrenador presente. Los eventos eligen entre los convocados.
 - [ ] **T11.9 Alta rápida en la cancha (P39).** Desde la planilla: nombre, apellidos, CI, año o fecha, y foto con la cámara. Mismas validaciones, con avisos.
 - [ ] **T11.10 Eventos completos.** Minuto (sale del reloj, se corrige), gol en contra con jugador (P72), lesión (interna, nunca pública), amonestación interna (sin fair play). Con 2 amarillas en Sub 5 a Sub 9: "afuera 5 min, vuelve 10:42". Un partido terminado sigue editable, con historial.

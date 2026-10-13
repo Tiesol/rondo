@@ -32,6 +32,7 @@ from torneo.views import (
     torneo,
 )
 from torneo.views import publico as vistas_publicas
+from torneo.views.mas import ver_historial
 from torneo.views.publicar import publicar
 from torneo.views.torneo import nueva_categoria
 from torneo.views.torneo import sorteo as sorteo_de_tabla
@@ -41,6 +42,7 @@ urlpatterns = [
     path("manifest.webmanifest", pwa.manifest, name="manifest"),
     path("sw.js", pwa.service_worker, name="service-worker"),
     path("mas/", mas, name="mas"),
+    path("historial/", ver_historial, name="historial"),
     path("personas/nueva/", personas.nueva, name="nueva-persona"),
     path("personas/<int:pk>/rol/", personas.rol, name="rol-persona"),
     path("personas/<int:pk>/foto/", fotos.foto, name="foto-persona"),

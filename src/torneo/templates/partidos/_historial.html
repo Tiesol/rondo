@@ -1,0 +1,12 @@
+{# T11.7: quién hizo qué y cuándo. Usa filas (servicios.historial) y, si con_partido, enlaza la ficha. #}
+<ul class="lista">
+  {% for fila in filas %}
+  <li class="fila">
+    <span class="crece">
+      <strong>{{ fila.que }}</strong>
+      <span class="sub">{% if fila.detalle %}{{ fila.detalle }} · {% endif %}{{ fila.hora }}{% if fila.quien %} · {{ fila.quien }}{% endif %}</span>
+      {% if con_partido %}<a class="sub" href="{% url 'ficha-partido' fila.partido.pk %}">{{ fila.partido }}</a>{% endif %}
+    </span>
+  </li>
+  {% endfor %}
+</ul>
