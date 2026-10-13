@@ -964,9 +964,9 @@ Se instala con `git config core.hooksPath scripts/hooks`.
 
 **Aceptación:**
 
-- [ ] Las cinco formas de lista de 2023 (CONTEXTO 6.5), recreadas con datos inventados, se leen bien.
-- [ ] Una lista en mm/dd/aaaa se detecta y se corrige entera; una con fechas ambiguas no se toca.
-- [ ] Tests de propiedad (hypothesis) sobre fechas y nombres.
+- [x] Las cinco formas de lista de 2023 (CONTEXTO 6.5), recreadas con datos inventados, se leen bien.
+- [x] Una lista en mm/dd/aaaa se detecta y se corrige entera; una con fechas ambiguas no se toca.
+- [x] Tests de propiedad (hypothesis) sobre fechas y nombres.
 
 **Verificación:** verde.
 **Depende de:** T7.6 (fecha con solo el año).
