@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Historial{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'mas' %}" aria-label="Volver a Más">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Historial{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  {% if filas %}
+  {% include "partidos/_historial.html" with filas=filas con_partido=True %}
+  {% else %}
+  {% include "parciales/vacio.html" with icono="documento" titulo="Todavía no hay cambios" texto="Aquí aparece cada gol, tarjeta, dorsal y horario que se cambia, con quién lo hizo." %}
+  {% endif %}
+</div>
+{% endblock %}

@@ -18,6 +18,7 @@ from torneo.models import Equipo, Jugador, Partido
 from torneo.permisos import requiere
 from torneo.presentacion import escudo
 from torneo.servicios import partido as servicio
+from torneo.servicios.historial import historial
 from torneo.servicios.partido import NoSePuede
 from torneo.servicios.suspensiones import (
     marcar_multa,
@@ -112,6 +113,7 @@ def ficha(request: HttpRequest, pk: int) -> HttpResponse:
         "multas": multas_de(partido),
         "monto_multa": Reglas.model_validate(partido.categoria.torneo.reglas).multa_doble_amarilla,
         "hora": timezone.localtime(partido.inicio).strftime("%H:%M") if partido.inicio else "",
+        "historial": historial(partido=partido),
     }
     return render(request, "partidos/ficha.html", contexto)
 
@@ -162,12 +164,12 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
         case "empezar":
             servicio.empezar(partido, request.user)
         case "avanzar_tiempo":
-            servicio.avanzar_tiempo(partido)
+            servicio.avanzar_tiempo(partido, request.user)
         case "gol" | "gol_en_contra" | "amarilla" | "roja" | "amonestacion":
             equipo = _equipo(partido, datos.get("equipo", ""))
             servicio.anotar(partido, que, equipo, _jugador(datos.get("jugador", "")), request.user)
         case "deshacer":
-            if servicio.deshacer(partido) is None:
+            if servicio.deshacer(partido, request.user) is None:
                 raise NoSePuede("No hay nada para deshacer.")
             messages.success(request, "Se deshizo el último")
         case "wo":
@@ -180,13 +182,15 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
                     raise NoSePuede("Elige quién no se presentó.")
         case "penales":
             local, visitante = _numero(datos.get("local", "")), _numero(datos.get("visitante", ""))
-            servicio.penales(partido, local, visitante)
+            servicio.penales(partido, local, visitante, request.user)
         case "dorsal":
             jugador = _jugador_del_partido(partido, datos.get("jugador", ""))
             texto = datos.get("dorsal", "").strip()
-            servicio.cambiar_dorsal(partido, jugador, _numero(texto) if texto else None)
+            servicio.cambiar_dorsal(
+                partido, jugador, _numero(texto) if texto else None, request.user
+            )
         case "mejor":
-            servicio.mejor_jugador(partido, _jugador(datos.get("jugador", "")))
+            servicio.mejor_jugador(partido, _jugador(datos.get("jugador", "")), request.user)
         case "multa":
             jugador = _jugador_del_partido(partido, datos.get("jugador", ""))
             marcar_multa(partido, jugador, pagada=bool(datos.get("pagada")), usuario=request.user)

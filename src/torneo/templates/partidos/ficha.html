@@ -159,4 +159,11 @@
   </ul>
 </div>
 {% endif %}
+
+{% if historial %}
+<details class="desplegable seccion">
+  <summary>Historial</summary>
+  {% include "partidos/_historial.html" with filas=historial %}
+</details>
+{% endif %}
 {% endblock %}

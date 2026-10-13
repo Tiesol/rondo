@@ -20,6 +20,7 @@ from torneo.models import (
     SuspensionManual,
     Torneo,
 )
+from torneo.servicios.historial import registrar
 
 _LEJOS = timezone.make_aware(datetime(9999, 1, 1))
 
@@ -98,18 +99,21 @@ def marcar_multa(partido: Partido, jugador: Jugador, *, pagada: bool, usuario: A
         )
     else:
         MultaPagada.objects.filter(partido=partido, jugador=jugador).delete()
+    registrar(partido, usuario, "Multa pagada" if pagada else "Multa sin pagar", jugador=jugador)
 
 
 def suspender_a_mano(
     partido: Partido, jugador: Jugador, *, partidos: int, motivo: str, usuario: Any
 ) -> SuspensionManual:
-    return SuspensionManual.objects.create(
+    suspension = SuspensionManual.objects.create(
         partido=partido,
         jugador=jugador,
         partidos=max(1, partidos),
         motivo=motivo.strip() or "Suspensión de la organización",
         creada_por=usuario if isinstance(usuario, User) else None,
     )
+    registrar(partido, usuario, "Suspensión a mano", jugador=jugador, despues=suspension.motivo)
+    return suspension
 
 
 def jugadores_del_partido(partido: Partido) -> Q:

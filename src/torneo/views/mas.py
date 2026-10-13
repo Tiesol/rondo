@@ -7,8 +7,9 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from torneo.models import Cambio, Torneo
-from torneo.permisos import MESA, ORGANIZACION, nombre_del_rol
+from torneo.permisos import MESA, ORGANIZACION, nombre_del_rol, requiere
 from torneo.presentacion import cruce, lugar
+from torneo.servicios.historial import historial
 
 ESTADO_DEL_ROL = {ORGANIZACION: "info", MESA: "neutro"}
 
@@ -61,3 +62,11 @@ def mas(request: HttpRequest) -> HttpResponse:
         "torneo/mas.html",
         {"personas": personas, "torneos": torneos, "cambios": cambios},
     )
+
+
+@requiere("torneo.cargar_resultados", "ver el historial")
+def ver_historial(request: HttpRequest) -> HttpResponse:
+    """T11.7: lo último que se cambió en el torneo activo, con quién y cuándo."""
+    torneo = Torneo.activo()
+    filas = historial(torneo=torneo) if torneo else []
+    return render(request, "torneo/historial.html", {"filas": filas})
