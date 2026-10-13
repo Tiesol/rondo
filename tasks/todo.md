@@ -1182,9 +1182,9 @@ T7.8 + T7.10 → T6.7 (carga real, en producción)
 
 **Aceptación:**
 
-- [ ] Con la fase de grupos terminada, las llaves se proponen según la tabla 4.5.
-- [ ] Con un sorteo pendiente o un partido sin jugar, no se propone nada y se dice por qué.
-- [ ] Una propuesta que choca muestra el choque antes de guardar.
+- [x] Con la fase de grupos terminada, las llaves se proponen según la tabla 4.5.
+- [x] Con un sorteo pendiente o un partido sin jugar, no se propone nada y se dice por qué.
+- [x] Una propuesta que choca muestra el choque antes de guardar.
 
 **Verificación:** verde.
 **Depende de:** T8.7.
