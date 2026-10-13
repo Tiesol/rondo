@@ -48,6 +48,7 @@ urlpatterns = [
     path("calendario/<str:fecha>/", calendario.calendario_dia, name="calendario-dia"),
     path("calendario/<str:fecha>/suspender/", calendario.suspender, name="suspender-dia"),
     path("calendario/<str:fecha>/png/", png.png, name="png-dia"),
+    path("calendario/<str:fecha>/suspendidos/", calendario.suspendidos, name="suspendidos-dia"),
     path("escuela/", escuela, name="escuela"),
     path("imagen/<str:tipo>/<int:pk>/", imagenes.imagen, name="imagen"),
     path("clubes/<int:pk>/escudo/", imagenes.escudo, name="escudo-club"),
