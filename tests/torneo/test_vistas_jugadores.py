@@ -4,7 +4,7 @@ Cubre los criterios de inscripción de la sección 10 del contexto desde la pant
 Datos inventados.
 """
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 import pytest
@@ -18,7 +18,7 @@ from torneo.permisos import MESA
 from torneo.servicios.configuracion import cargar_configuracion
 from torneo.servicios.inscripcion import DatosPersona, agregar_jugador, agregar_profe
 
-HOY = date(2026, 10, 10)
+AHORA = datetime(2026, 10, 10, 10, 0)
 
 
 @pytest.fixture
@@ -85,7 +85,7 @@ def test_no_deja_pasar_del_maximo(mesa: Client, river9: Equipo) -> None:
             river9,
             DatosPersona(f"{3000000 + i}", "N", f"I{i}", date(2017, 1, 1)),
             i + 1,
-            hoy=HOY,
+            ahora=AHORA,
             es_organizacion=True,
         )
     respuesta = mesa.post(url(river9), jugador(dorsal="50"))
@@ -112,7 +112,7 @@ def test_avisa_cuando_un_ci_ya_esta_en_otro_equipo(
         river11,
         DatosPersona("1234567", "Nombre", "Inventado", date(2017, 3, 14)),
         7,
-        hoy=HOY,
+        ahora=AHORA,
         es_organizacion=True,
     )
     vivo = mesa.post(url(river9, "jugadores/revisar"), {"documento": "1.234.567 sc"})
@@ -129,7 +129,7 @@ def test_limita_el_cuerpo_tecnico_a_tres_con_rol(mesa: Client, river9: Equipo) -
             river9,
             DatosPersona(f"{4000000 + i}", "P", f"I{i}", None),
             rol,
-            hoy=HOY,
+            ahora=AHORA,
             es_organizacion=True,
         )
     respuesta = mesa.post(
@@ -194,7 +194,7 @@ def test_ins_12_la_mesa_marca_al_jugador_como_verificado(mesa: Client, river9: E
         river9,
         DatosPersona("1234567", "N", "I", date(2017, 1, 1)),
         1,
-        hoy=HOY,
+        ahora=AHORA,
         es_organizacion=True,
     )
     assert resultado.registro is not None
@@ -213,7 +213,7 @@ def test_ins_12_sin_rol_no_se_verifica(client: Client, river9: Equipo) -> None:
         river9,
         DatosPersona("1234567", "N", "I", date(2017, 1, 1)),
         1,
-        hoy=HOY,
+        ahora=AHORA,
         es_organizacion=True,
     )
     assert resultado.registro is not None

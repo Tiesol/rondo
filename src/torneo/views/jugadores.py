@@ -7,7 +7,6 @@ de error), y el log nunca registra cuerpos de requests.
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from django.views.decorators.http import require_POST
 
@@ -60,7 +59,7 @@ def agregar_jugador(request: HttpRequest, pk: int) -> HttpResponse:
             equipo,
             formulario.datos(),
             formulario.cleaned_data["dorsal"],
-            hoy=timezone.localdate(),
+            ahora=inscripcion.ahora_local(),
             es_organizacion=_es_organizacion(request),
         )
         if resultado.guardado:
@@ -82,7 +81,11 @@ def revisar_jugador(request: HttpRequest, pk: int) -> HttpResponse:
     equipo = get_object_or_404(_EQUIPO, pk=pk)
     datos, dorsal = datos_a_medias(request.POST)
     hallazgos = inscripcion.revisar_jugador(
-        equipo, datos, dorsal, hoy=timezone.localdate(), es_organizacion=_es_organizacion(request)
+        equipo,
+        datos,
+        dorsal,
+        ahora=inscripcion.ahora_local(),
+        es_organizacion=_es_organizacion(request),
     )
     if datos.nacimiento is None:
         hallazgos = [h for h in hallazgos if h.regla != "INS-02"]
@@ -103,7 +106,7 @@ def agregar_profe(request: HttpRequest, pk: int) -> HttpResponse:
             equipo,
             formulario.datos(),
             formulario.cleaned_data["rol"],
-            hoy=timezone.localdate(),
+            ahora=inscripcion.ahora_local(),
             es_organizacion=_es_organizacion(request),
         )
         if resultado.guardado:
@@ -127,7 +130,11 @@ def revisar_profe(request: HttpRequest, pk: int) -> HttpResponse:
     return _hallazgos(
         request,
         inscripcion.revisar_profe(
-            equipo, datos, rol, hoy=timezone.localdate(), es_organizacion=_es_organizacion(request)
+            equipo,
+            datos,
+            rol,
+            ahora=inscripcion.ahora_local(),
+            es_organizacion=_es_organizacion(request),
         ),
     )
 

@@ -1,7 +1,7 @@
 """Franjas con fecha concreta (4.3), en UTC. Se muestran en la zona horaria del torneo."""
 
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from dominio.config import ConfigTorneo, DiaSemana
@@ -15,6 +15,11 @@ _DIAS: tuple[DiaSemana, ...] = (
     "sabado",
     "domingo",
 )
+
+
+def proximo(desde: date, dia: DiaSemana) -> date:
+    """El primer `dia` de la semana desde `desde`, incluido (para proponer el jueves)."""
+    return desde + timedelta(days=(_DIAS.index(dia) - desde.weekday()) % 7)
 
 
 @dataclass(frozen=True, slots=True)

@@ -33,7 +33,7 @@ def _formulario(paso: int, datos: Any, respuestas: Respuestas) -> forms.Form:
         return FormularioDatos(datos, initial=inicial)
     if paso == 2:
         niveles = niveles_de(armar(base, {"datos": respuestas["datos"]}).model_dump(mode="json"))
-        elegidos = respuestas.get("niveles", [n["clave"] for n in niveles])
+        elegidos = respuestas.get("niveles", [n["clave"] for n in niveles if n["tildada"]])
         return FormularioNiveles(datos, niveles=niveles, initial={"niveles": elegidos})
     if paso == 3:
         franjas = respuestas.get("franjas", base["franjas"])

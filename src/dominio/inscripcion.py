@@ -6,7 +6,7 @@ con lo que hay en la base y decide.
 """
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 
 from dominio.config import CuerpoTecnico, Reglas
@@ -270,15 +270,19 @@ def validar_documento(documento: Documento | None, reglas: Reglas) -> list[Halla
     ]
 
 
-def validar_cierre(hoy: date, reglas: Reglas, *, es_organizacion: bool) -> list[Hallazgo]:
-    """INS-11: después del cierre de inscripción, solo la organización cambia las listas."""
+def validar_cierre(ahora: datetime, reglas: Reglas, *, es_organizacion: bool) -> list[Hallazgo]:
+    """INS-11: desde el cierre de inscripción, solo la organización cambia las listas.
+
+    `ahora` y el cierre son la hora local del torneo, sin zona.
+    """
     cierre = reglas.cierre_inscripcion
-    if cierre is None or hoy <= cierre or es_organizacion:
+    if cierre is None or ahora < cierre or es_organizacion:
         return []
     return [
         Hallazgo(
             "error",
             "INS-11",
-            f"La inscripción cerró el {cierre:%d/%m/%Y}. Solo la organización cambia las listas.",
+            f"La inscripción cerró el {cierre:%d/%m/%Y a las %H:%M}. "
+            "Solo la organización cambia las listas.",
         )
     ]

@@ -46,7 +46,7 @@ class FormularioNiveles(forms.Form):
         error_messages={"required": "Elige al menos una categoría."},
     )
 
-    def __init__(self, *args: Any, niveles: list[dict[str, str]], **kwargs: Any) -> None:
+    def __init__(self, *args: Any, niveles: list[dict[str, Any]], **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.info = niveles
         campo = self.fields["niveles"]

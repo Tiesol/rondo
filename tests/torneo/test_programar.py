@@ -32,7 +32,7 @@ def test_la_demo_tiene_dos_grupos_de_canchas(demo: Torneo) -> None:
     assert [g.canchas for g in capacidad.total] == [("C1", "C2"), ("C3",)]
     assert capacidad.estimadas == []
     assert all(g.pedido > 0 for g in capacidad.eliminacion)
-    assert capacidad.fines_de_semana == 5
+    assert capacidad.fines_de_semana == 4
 
 
 def test_sin_fixture_se_estima_con_el_formato(demo: Torneo) -> None:
@@ -47,7 +47,7 @@ def test_la_pantalla_muestra_si_entra(client: Client, demo: Torneo) -> None:
     html = entrar(client, ORGANIZACION).get(f"/torneos/{demo.pk}/programar/").content.decode()
     assert "¿Entra todo?" in html
     assert "C1 y C2 · todo el torneo" in html
-    assert "C3 · eliminación, desde el fin de semana 5" in html
+    assert "C3 · eliminación, desde el fin de semana 4" in html
     assert 'class="barra-cap"' in html
 
 

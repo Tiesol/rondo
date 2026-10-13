@@ -1,5 +1,6 @@
 """T5.5: suspender un día y agregar un día entre semana. Datos inventados."""
 
+from datetime import date
 from typing import Any
 
 import pytest
@@ -110,3 +111,13 @@ def test_la_mesa_no_suspende_ni_agrega_dias(client: Client, torneo: Torneo) -> N
     mesa = entrar(client, MESA)
     assert mesa.post(f"/calendario/{dia_con_partidos()}/suspender/").status_code == 403
     assert mesa.post("/calendario/agregar-dia/", {}).status_code == 403
+
+
+@pytest.mark.django_db
+def test_agregar_dia_propone_el_jueves_siguiente(client: Client, torneo: Torneo) -> None:
+    # Convocatoria 2026: las fechas suspendidas se reprograman el jueves.
+    org = entrar(client, ORGANIZACION)
+    sabado = org.get("/calendario/2026-10-31/")
+    assert sabado.context["form_dia"].initial["dia"] == date(2026, 11, 5)
+    domingo = org.get("/calendario/2026-11-01/")
+    assert domingo.context["form_dia"].initial["dia"] == date(2026, 11, 5)

@@ -1,6 +1,6 @@
 """T2.4: servicio de inscripción. Datos inventados."""
 
-from datetime import date
+from datetime import date, datetime
 
 import pytest
 from django.conf import settings
@@ -15,7 +15,7 @@ from torneo.servicios.inscripcion import (
     revisar_jugador,
 )
 
-HOY = date(2026, 10, 10)
+AHORA = datetime(2026, 10, 10, 10, 0)
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def reglas(resultado: object) -> list[tuple[str, str]]:
 @pytest.mark.django_db
 def test_agrega_un_jugador_y_crea_a_la_persona(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
-    resultado = agregar_jugador(river9, nino(), dorsal=10, hoy=HOY, es_organizacion=True)
+    resultado = agregar_jugador(river9, nino(), dorsal=10, ahora=AHORA, es_organizacion=True)
     assert resultado.guardado
     jugador = Jugador.objects.get()
     assert (jugador.equipo, jugador.dorsal) == (river9, 10)
@@ -55,8 +55,10 @@ def test_agrega_un_jugador_y_crea_a_la_persona(torneo: Torneo) -> None:
 def test_mismo_club_otra_categoria_guarda_con_aviso(torneo: Torneo) -> None:
     river11 = equipo(torneo, "River Plate", "Sub 11", "avanzado")
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
-    agregar_jugador(river9, nino(), dorsal=7, hoy=HOY, es_organizacion=True)
-    resultado = agregar_jugador(river11, nino("1234567"), dorsal=7, hoy=HOY, es_organizacion=True)
+    agregar_jugador(river9, nino(), dorsal=7, ahora=AHORA, es_organizacion=True)
+    resultado = agregar_jugador(
+        river11, nino("1234567"), dorsal=7, ahora=AHORA, es_organizacion=True
+    )
     assert resultado.guardado
     assert ("aviso", "INS-05") in reglas(resultado)
     assert Persona.objects.count() == 1
@@ -67,7 +69,7 @@ def test_mismo_club_otra_categoria_guarda_con_aviso(torneo: Torneo) -> None:
 def test_con_un_error_no_se_guarda_nada(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
     resultado = agregar_jugador(
-        river9, nino(nacimiento=date(2014, 1, 1)), dorsal=10, hoy=HOY, es_organizacion=True
+        river9, nino(nacimiento=date(2014, 1, 1)), dorsal=10, ahora=AHORA, es_organizacion=True
     )
     assert not resultado.guardado
     assert ("error", "INS-02") in reglas(resultado)
@@ -80,9 +82,11 @@ def test_el_maximo_no_se_pasa(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
     for i in range(14):
         assert agregar_jugador(
-            river9, nino(f"{1000000 + i}"), dorsal=i + 1, hoy=HOY, es_organizacion=True
+            river9, nino(f"{1000000 + i}"), dorsal=i + 1, ahora=AHORA, es_organizacion=True
         ).guardado
-    resultado = agregar_jugador(river9, nino("2000000"), dorsal=50, hoy=HOY, es_organizacion=True)
+    resultado = agregar_jugador(
+        river9, nino("2000000"), dorsal=50, ahora=AHORA, es_organizacion=True
+    )
     assert not resultado.guardado
     assert ("error", "INS-03") in reglas(resultado)
     assert river9.jugadores.count() == 14
@@ -91,7 +95,7 @@ def test_el_maximo_no_se_pasa(torneo: Torneo) -> None:
 @pytest.mark.django_db
 def test_un_documento_que_no_se_reconoce_es_error(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
-    resultado = agregar_jugador(river9, nino("12#45"), dorsal=1, hoy=HOY, es_organizacion=True)
+    resultado = agregar_jugador(river9, nino("12#45"), dorsal=1, ahora=AHORA, es_organizacion=True)
     assert not resultado.guardado
     assert ("error", "INS-04") in reglas(resultado)
 
@@ -99,8 +103,8 @@ def test_un_documento_que_no_se_reconoce_es_error(torneo: Torneo) -> None:
 @pytest.mark.django_db
 def test_sin_documento_se_guarda_con_aviso_y_cada_uno_es_otra_persona(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
-    uno = agregar_jugador(river9, nino(""), dorsal=1, hoy=HOY, es_organizacion=True)
-    otro = agregar_jugador(river9, nino("S/N"), dorsal=2, hoy=HOY, es_organizacion=True)
+    uno = agregar_jugador(river9, nino(""), dorsal=1, ahora=AHORA, es_organizacion=True)
+    otro = agregar_jugador(river9, nino("S/N"), dorsal=2, ahora=AHORA, es_organizacion=True)
     assert uno.guardado and otro.guardado
     assert ("aviso", "INS-10") in reglas(uno)
     assert Persona.objects.filter(clave_documento="").count() == 2
@@ -110,9 +114,9 @@ def test_sin_documento_se_guarda_con_aviso_y_cada_uno_es_otra_persona(torneo: To
 def test_si_el_documento_ya_existe_valen_los_datos_guardados(torneo: Torneo) -> None:
     river11 = equipo(torneo, "River Plate", "Sub 11", "avanzado")
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
-    agregar_jugador(river9, nino(), dorsal=7, hoy=HOY, es_organizacion=True)
+    agregar_jugador(river9, nino(), dorsal=7, ahora=AHORA, es_organizacion=True)
     distinto = DatosPersona("1234567", "Otro", "Nombre", date(2015, 2, 2))
-    resultado = agregar_jugador(river11, distinto, dorsal=7, hoy=HOY, es_organizacion=True)
+    resultado = agregar_jugador(river11, distinto, dorsal=7, ahora=AHORA, es_organizacion=True)
     assert resultado.guardado
     assert ("aviso", "INS-04") in reglas(resultado)
     assert Persona.objects.get().nombres == "Nombre"
@@ -121,7 +125,7 @@ def test_si_el_documento_ya_existe_valen_los_datos_guardados(torneo: Torneo) -> 
 @pytest.mark.django_db
 def test_revisar_no_guarda(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
-    hallazgos = revisar_jugador(river9, nino(), dorsal=None, hoy=HOY, es_organizacion=True)
+    hallazgos = revisar_jugador(river9, nino(), dorsal=None, ahora=AHORA, es_organizacion=True)
     assert [(h.nivel, h.regla) for h in hallazgos] == [("aviso", "INS-03"), ("aviso", "INS-09")]
     assert Persona.objects.count() == 0
 
@@ -131,8 +135,8 @@ def test_un_profe_en_dos_equipos_de_distinto_club(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
     leones = equipo(torneo, "Leones", "Sub 11", "inicial")
     profe = DatosPersona("7654321 LP", "Profe", "Inventado", None)
-    assert agregar_profe(river9, profe, "entrenador", hoy=HOY, es_organizacion=True).guardado
-    resultado = agregar_profe(leones, profe, "entrenador", hoy=HOY, es_organizacion=True)
+    assert agregar_profe(river9, profe, "entrenador", ahora=AHORA, es_organizacion=True).guardado
+    resultado = agregar_profe(leones, profe, "entrenador", ahora=AHORA, es_organizacion=True)
     assert resultado.guardado
     assert ("aviso", "INS-06") in reglas(resultado)
     assert Profe.objects.count() == 2
@@ -144,8 +148,8 @@ def test_un_segundo_entrenador_no_se_guarda(torneo: Torneo) -> None:
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
     uno = DatosPersona("7654321", "Profe", "Uno", None)
     dos = DatosPersona("7654322", "Profe", "Dos", None)
-    agregar_profe(river9, uno, "entrenador", hoy=HOY, es_organizacion=True)
-    resultado = agregar_profe(river9, dos, "entrenador", hoy=HOY, es_organizacion=True)
+    agregar_profe(river9, uno, "entrenador", ahora=AHORA, es_organizacion=True)
+    resultado = agregar_profe(river9, dos, "entrenador", ahora=AHORA, es_organizacion=True)
     assert not resultado.guardado
     assert ("error", "INS-08") in reglas(resultado)
 
@@ -155,7 +159,7 @@ def test_despues_del_cierre_la_mesa_no_agrega(torneo: Torneo) -> None:
     torneo.reglas = torneo.reglas | {"cierre_inscripcion": "2026-10-05"}
     torneo.save()
     river9 = equipo(torneo, "River Plate", "Sub 9", "avanzado")
-    mesa = agregar_jugador(river9, nino(), dorsal=1, hoy=HOY, es_organizacion=False)
+    mesa = agregar_jugador(river9, nino(), dorsal=1, ahora=AHORA, es_organizacion=False)
     assert not mesa.guardado
     assert ("error", "INS-11") in reglas(mesa)
-    assert agregar_jugador(river9, nino(), dorsal=1, hoy=HOY, es_organizacion=True).guardado
+    assert agregar_jugador(river9, nino(), dorsal=1, ahora=AHORA, es_organizacion=True).guardado
