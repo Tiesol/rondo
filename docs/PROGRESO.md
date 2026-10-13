@@ -5,7 +5,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 ## Estado
 
 - **Fase:** 7, pedido 2026 (`docs/PEDIDO_CLAUDE_CODE.md`). La organización aprobó la app para el torneo 2026 y Rondo reemplaza a Copa Fácil. Las fases 1b a 5 y la parte A de la fase 6 están terminadas y revisadas.
-- **Siguiente paso:** las fases 7 y 8 están terminadas y revisadas (2026-10-13). Sigue la fase 9 (T9.1 y T9.2) y después la fase 10, con las respuestas del organizador en `docs/PREGUNTAS_JMP_CUP_2026.md` (P60 F11, P56, P35, P13, P64 y las demás).
+- **Siguiente paso:** las fases 7, 8 y 9 están terminadas y revisadas (2026-10-13). Sigue la fase 10 (respuestas del organizador, `tasks/todo.md`), empezando por T10.1.
 - **Para probar (Sebastian):** pegar listas en la ficha del equipo (Plantel y Cuerpo técnico), fecha de nacimiento con solo el año, Copa de Bronce en Reglas, el aviso de fixture desactualizado, "Borrador" en el calendario y el PNG, y la programación con la plantilla 2026. Producción: `docs/DESPLIEGUE.md`, sección "Producción".
 - **Fusiones congeladas:** nada se fusiona a `main` (tampoco `docs/plan-pedido-2026`) hasta que Sebastian avise que terminó la prueba de la organización. Las ramas de tarea salen una de otra, encadenadas desde `docs/plan-pedido-2026`, y se fusionan en orden cuando avise.
 - **Preguntas:** desde el 2026-10-12, la fuente de las P (P1 a P77, con su valor por defecto) es `docs/PREGUNTAS_JMP_CUP_2026.md`.
@@ -133,6 +133,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 | Fecha | Decisión | Motivo |
 |---|---|---|
+| 2026-10-13 | Las respuestas del organizador (`docs/PREGUNTAS_JMP_CUP_2026.md`) arman la fase 10, primero lo que pesa en el calendario del 21/10 | Muchas cambian reglas o piden funciones nuevas (P60 F11, P56, P35, P13, P64, P27, W.O. al reprogramar, tiempos del partido a mano) |
 | 2026-10-12 | El pedido 2026 se arma en tres fases: 7 (bloque A, calendario y listas), 8 (bloque B, reemplazar a Copa Fácil) y 9 (bloque C, durante el torneo). T6.5 y T6.6 pasan a T7.10, T7.4 y T7.5 | `docs/PEDIDO_CLAUDE_CODE.md`. Aprobado por Sebastian el 2026-10-12 |
 | 2026-10-12 | Primero T7.10 con T7.4 y T7.5, después pegar listas, después el calendario (T7.1 a T7.3), y al final T7.11 y T7.12 | El torneo real se crea en producción ya con la configuración 2026; las listas cierran el 21/10 a las 12:00 y esa tarde se arma el calendario definitivo |
 | 2026-10-12 | Las imágenes de R2 se sirven desde la app (mismo origen): el bucket sigue privado y sin CORS | Así `modern-screenshot` lee las imágenes para el PNG sin contaminar el canvas |
@@ -499,6 +500,17 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 
 - **FYI:** Django no limita el tamaño de un archivo subido antes de procesarlo (se guarda en un temporal); `procesar_imagen` lee como mucho 8 MB. Solo pueden subir usuarios con sesión.
 - **Catálogo:** RES-01 a RES-03 y SUS-01 y SUS-02 en SPEC.md.
+
+## Revisión de la fase 9 (2026-10-13, `code-review-and-quality`)
+
+**Veredicto: aprobada.** Dos tareas chicas, con sus tests.
+
+| Mutación | Resultado |
+|---|---|
+| Anonimizar no borra los archivos de las fotos | Detectada |
+| Los suspendidos de otro día aparecen en la lista | Detectada |
+
+- **Privacidad:** las fotos de las personas anonimizadas salen del almacenamiento después de confirmar la base; si algo falla antes, no se pierde nada.
 
 ## Supuestos
 
