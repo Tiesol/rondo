@@ -1451,7 +1451,7 @@ T10.9, T10.10, T10.11 (durante el torneo)
 - [x] **T11.8 Planilla: convocados y dorsal del partido (P9).** Se tocan los jugadores que juegan; el dorsal es de ese partido (propone el habitual o el del partido anterior) y no se repite en la base. Suspendido marcado: convocarlo pide confirmar. Entrenador presente. Los eventos eligen entre los convocados.
 - [x] **T11.9 Alta rápida en la cancha (P39).** Desde la planilla: nombre, apellidos, CI, año o fecha, y foto con la cámara. Mismas validaciones, con avisos.
 - [x] **T11.10 Eventos completos.** Minuto (sale del reloj, se corrige), gol en contra con jugador (P72), lesión (interna, nunca pública), amonestación interna (sin fair play). Con 2 amarillas en Sub 5 a Sub 9: "afuera 5 min, vuelve 10:42". Un partido terminado sigue editable, con historial.
-- [ ] **T11.11 Partidos de hoy.** Por cancha y hora, con el estado (por jugar, 1T, descanso, 2T, penales, terminado, W.O., sin iniciar) y el atraso estimado de los siguientes de la cancha.
+- [x] **T11.11 Partidos de hoy.** Por cancha y hora, con el estado (por jugar, 1T, descanso, 2T, penales, terminado, W.O., sin iniciar) y el atraso estimado de los siguientes de la cancha.
 - [ ] **T11.12 Cierre automático (P82, respondida).** Regla `cierre_automatico_min` (15). Si el 2.º tiempo empezó, el final esperado es su inicio + los minutos del tiempo; si no, el inicio real + 2 tiempos + descanso. Pasado eso + 15 min, se cierra con el marcador que tenía y la marca "cerrado automáticamente". Perezoso al cargar páginas, más un comando para un cron.
 - [ ] **T11.13 Penales tiro por tiro (P83).** "Convirtió" o "Falló" por equipo; 3 por equipo (`penales_por_equipo`) y después uno más hasta definir. Atajo: el resultado final.
 

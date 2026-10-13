@@ -5,6 +5,7 @@ El marcador no se guarda: sale de los eventos (dominio.partido). Un partido empe
 mueve (PRO-10) ni deja rehacer su fixture (FIX-09).
 """
 
+from datetime import datetime, timedelta
 from typing import Any
 
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser, User
@@ -65,6 +66,20 @@ def minuto_actual(partido: Partido) -> int | None:
         return por_tiempo
     if partido.tiempo == Partido.Tiempo.SEGUNDO_TIEMPO and partido.fin_descanso:
         return por_tiempo + int((ahora - partido.fin_descanso).total_seconds() // 60) + 1
+    return None
+
+
+def fin_esperado(partido: Partido) -> datetime | None:
+    """Cuándo debería terminar, según lo que marcó la mesa (T11.11 y T11.12, P82): con el 2.º
+    tiempo empezado, su inicio más los minutos del tiempo; si no, desde el inicio real."""
+    por_tiempo = timedelta(minutes=partido.categoria.min_por_tiempo)
+    if partido.tiempo == Partido.Tiempo.SEGUNDO_TIEMPO and partido.fin_descanso:
+        return partido.fin_descanso + por_tiempo
+    if partido.tiempo == Partido.Tiempo.DESCANSO and partido.fin_primer_tiempo:
+        descanso = timedelta(minutes=partido.categoria.torneo.descanso_min)
+        return partido.fin_primer_tiempo + descanso + por_tiempo
+    if partido.inicio_real:
+        return partido.inicio_real + timedelta(minutes=partido.categoria.minutos_partido)
     return None
 
 
