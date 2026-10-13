@@ -17,7 +17,12 @@ class FormularioPersona(forms.Form):
         widget=forms.TextInput(attrs={"autocapitalize": "none", "autocomplete": "off"}),
     )
     nombre = forms.CharField(max_length=60, required=False)
-    rol = forms.ChoiceField(choices=ROLES)
+    # P64: por ahora todos hacen todo; la mesa queda para separar los roles más adelante.
+    rol = forms.ChoiceField(
+        choices=ROLES,
+        initial="organizacion",
+        help_text="Por ahora, todos como Organización: pueden hacer todo (P64).",
+    )
 
     def clean_usuario(self) -> str:
         usuario: str = self.cleaned_data["usuario"].strip().lower()

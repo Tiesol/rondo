@@ -1370,10 +1370,10 @@ T8.5 → T8.6         │
 
 ### T10.7 Un solo rol por ahora (P64)
 
-**Descripción:** "por el momento cualquier administrador hace todo". La mesa recibe todos los permisos (migración); los roles quedan para separarlos después. Así también cualquier usuario cambia las listas después del cierre.
+**Descripción:** "por el momento cualquier administrador hace todo". En lugar de fusionar los roles en el código, todos los usuarios se crean como Organización (es lo que propone la pantalla y `crear_usuario` por defecto); la mesa queda lista para cuando se separen. Así también cualquier usuario cambia las listas después del cierre.
 
 **Aceptación:**
-- [ ] Un usuario de la mesa configura, programa y carga resultados.
+- [x] Todos los usuarios se crean como Organización (pueden hacer todo); la mesa queda para separar los roles después, sin fusionarlos en el código.
 
 **Archivos:** `src/torneo/permisos.py`, migración, tests de roles. **Tamaño:** S.
 

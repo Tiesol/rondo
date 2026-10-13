@@ -89,3 +89,9 @@ def test_cualquiera_cambia_su_contrasenia(client: Client) -> None:
     assert respuesta.status_code == 302
     yo.refresh_from_db()
     assert yo.check_password("Cancha-Nueva-2026!")
+
+
+def test_p64_la_persona_nueva_es_de_la_organizacion_por_defecto() -> None:
+    from torneo.forms.personas import FormularioPersona
+
+    assert FormularioPersona().fields["rol"].initial == "organizacion"
