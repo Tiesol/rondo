@@ -1363,8 +1363,8 @@ T8.5 → T8.6         │
 **Descripción:** objetivos blandos: evitar que un equipo juegue dos veces el mismo día (P17 y P47: se permite, pero mejor no); las finales, de preferencia en los dos últimos días (P55); los equipos de un mismo club, el mismo día cuando se puede.
 
 **Aceptación:**
-- [ ] Con lugar, ningún equipo juega dos veces el mismo día.
-- [ ] Con lugar, las finales caen en los dos últimos días.
+- [x] Con lugar, ningún equipo juega dos veces el mismo día.
+- [x] Con lugar, las finales caen en los dos últimos días.
 
 **Archivos:** `src/dominio/programador/modelo.py`, tests. **Tamaño:** M.
 

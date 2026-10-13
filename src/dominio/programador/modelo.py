@@ -22,7 +22,9 @@ Restricciones duras:
 - fijos (PRO-10): los partidos jugados o fijados a mano no se mueven.
 
 Objetivo: primero ubicar la mayor cantidad; después, cada fecha de grupos cerca de su fin de
-semana, para repartir la carga (PRO-12), y poca espera de los profes compartidos (PRO-11).
+semana, para repartir la carga (PRO-12), poca espera de los profes compartidos (PRO-11), los
+chicos temprano (P56), un solo partido por día por equipo (P17) y las finales en los dos últimos
+días (P55).
 """
 
 import time
@@ -330,6 +332,36 @@ class Modelo:
             esperas.append(espera)
         return esperas
 
+    def _dos_partidos_en_el_dia(self) -> list[cp_model.IntVar]:
+        """P17/P47: dos partidos de un equipo el mismo día se permiten, pero mejor evitarlos.
+        Uno por equipo y día en que juega dos veces."""
+        por_equipo: dict[Equipo, list[PartidoAProgramar]] = defaultdict(list)
+        for partido in self.problema.partidos:
+            for equipo in partido.equipos_definidos:
+                por_equipo[equipo].append(partido)
+        dobles = []
+        for equipo, suyos in por_equipo.items():
+            if len(suyos) < 2:
+                continue
+            for dia in self.dias:
+                doble = self.modelo.new_bool_var(f"{equipo} dos veces el {dia}")
+                self.modelo.add(
+                    sum(self.en_dia[p.id][dia] for p in suyos) <= 1 + doble * len(suyos)
+                )
+                dobles.append(doble)
+        return dobles
+
+    def _finales_antes_de_tiempo(self) -> list[cp_model.IntVar]:
+        """P55: las finales, de preferencia en los dos últimos días (llega la premiación)."""
+        ultimos = set(sorted(self.dias)[-2:])
+        return [
+            en_dia
+            for partido in self.problema.partidos
+            if "final" in partido.clave
+            for dia, en_dia in self.en_dia[partido.id].items()
+            if dia not in ultimos
+        ]
+
     def _horarios_tempranos(self) -> list[cp_model.IntVar]:
         """P56: los pasos desde que empieza el día hasta el partido, para los que prefieren
         jugar temprano (Sub 5 y Sub 6)."""
@@ -428,16 +460,20 @@ class Modelo:
                     desvio.append(distancia * en_dia)
         esperas = self._esperas_de_profes()
         temprano = self._horarios_tempranos()
+        dobles = self._dos_partidos_en_el_dia()
+        finales = self._finales_antes_de_tiempo()
         peso_semana = 60 // PASO_MIN
         maximo_blando = (
             peso_semana * len(semanas) * len(self.problema.partidos)
             + (len(esperas) + len(temprano)) * self._pasos_por_dia
+            + peso_semana * (len(dobles) + len(finales))
         )
         self.modelo.maximize(
             (1 + maximo_blando) * sum(self.presente.values())
             - peso_semana * sum(desvio)
             - sum(esperas)
             - sum(temprano)
+            - peso_semana * (sum(dobles) + sum(finales))
         )
 
     def resolver(self, segundos: float, trabajadores: int, semilla: int) -> Resultado:
