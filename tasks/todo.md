@@ -1262,11 +1262,11 @@ T8.5 → T8.6         │
 
 **Checkpoint de la fase 8:**
 
-- [ ] Verde, más `pytest -m lento`.
-- [ ] Un partido se carga desde el celular y aparece en la página pública, con la tabla y los goleadores al día.
-- [ ] Ninguna página pública muestra CI, fecha de nacimiento, apellido completo ni fotos sin autorización.
-- [ ] Revisión con `code-review-and-quality` y con `security-and-hardening` (subida de imágenes).
-- [ ] PROGRESO.md al día, visto bueno de Sebastian y aviso de qué probar.
+- [x] Verde, más `pytest -m lento`.
+- [x] Un partido se carga desde el celular y aparece en la página pública, con la tabla y los goleadores al día.
+- [x] Ninguna página pública muestra CI, fecha de nacimiento, apellido completo ni fotos sin autorización.
+- [x] Revisión con `code-review-and-quality` y con `security-and-hardening` (subida de imágenes).
+- [x] PROGRESO.md al día, visto bueno de Sebastian y aviso de qué probar.
 
 ## Fase 9: pedido 2026, bloque C (durante el torneo)
 

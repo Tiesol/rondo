@@ -61,7 +61,7 @@ def test_la_demo_de_punta_a_punta(client: Client, settings: Any) -> None:
     assert verificar_torneo(torneo) == {}
 
     png = client.get(f"/calendario/{local.date().isoformat()}/png/").content.decode()
-    assert "FIXTURE" in png
+    assert "png/fondo_fixture_1920" in png and " ~ " in png  # el diseño 2026 (T8.12)
     for persona in Persona.objects.all()[:200]:
         assert f"{persona.nombres} {persona.apellidos}" not in png
         if persona.documento:
