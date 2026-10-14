@@ -7,7 +7,7 @@ verificador y se guarda antes de responder.
 """
 
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -22,6 +22,8 @@ from dominio.formatos import FormatoFaltante, equipos_virtuales, toman_posicione
 from dominio.franjas import DIAS_DE_LA_SEMANA
 from dominio.programador.modelo import PartidoAProgramar, Problema, programar
 from dominio.programador.motivos import motivos_sin_ubicar
+from dominio.programador.relajar import Relajar
+from dominio.programador.relajar import aplicar as aplicar_relajar
 from dominio.verificador import Bloqueo as BloqueoDelDominio
 from dominio.verificador import Choque, Escenario, FranjaExtra, PartidoAgendado, verificar
 from torneo.models import Bloqueo, Cancha, CategoriaNivel, Corrida, Equipo, Franja, Partido, Torneo
@@ -82,32 +84,57 @@ def _texto(partido: Partido) -> str:
     return f"{cruce} · {partido.categoria}"
 
 
-def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
+def ahora_local() -> datetime:
+    return hora_local(timezone.now())
+
+
+def _recortar(
+    franjas: list[tuple[datetime, datetime]], desde: datetime | None
+) -> list[tuple[datetime, datetime]]:
+    """Nada se ubica antes de `desde` (B4): lo que ya pasó se saca y la franja de ahora empieza
+    ahora."""
+    if desde is None:
+        return franjas
+    return [(max(a, desde), b) for a, b in franjas if b > desde and max(a, desde) < b]
+
+
+def problema_del_torneo(
+    torneo: Torneo,
+    partidos: list[Partido],
+    *,
+    desde: datetime | None = None,
+    solo_lo_que_falta: bool = False,
+    relajar: Relajar | None = None,
+    ventana: tuple[datetime, datetime] | None = None,
+) -> Problema:
+    """El problema del torneo para el solver.
+
+    - `desde` (B4): nunca se ubica nada antes, y los partidos cuya hora ya pasó no se mueven,
+      aunque nadie haya cargado su resultado.
+    - `solo_lo_que_falta` (B4): todo lo que ya tiene lugar queda fijo; solo se ubica el resto.
+    - `relajar` (B6): reglas aflojadas solo para esta corrida, dentro de la `ventana`.
+    """
     canchas = list(Cancha.objects.filter(torneo=torneo).prefetch_related("mitades"))
     fisicas = {
         c.codigo: frozenset(m.codigo for m in c.mitades.all()) or frozenset({c.codigo})
         for c in canchas
     }
     vigentes = list(torneo.franjas.filter(suspendida=False).prefetch_related("canchas"))
-    franjas = sorted(
+    todas = sorted(
         (hora_local(f.inicio), hora_local(f.fin)) for f in vigentes if f.tipo == Franja.Tipo.REGULAR
     )
+    franjas = _recortar(todas, desde)
     # A4 (P78): lo agregado a mano es tiempo extra: vale en sus canchas y se usa solo si hace falta.
     extras = tuple(
-        FranjaExtra(
-            hora_local(f.inicio),
-            hora_local(f.fin),
-            frozenset(c.codigo for c in f.canchas.all()),
-        )
+        FranjaExtra(a, b, frozenset(c.codigo for c in f.canchas.all()))
         for f in sorted(vigentes, key=lambda f: f.inicio)
         if f.tipo == Franja.Tipo.ENTRE_SEMANA
+        for a, b in _recortar([(hora_local(f.inicio), hora_local(f.fin))], desde)
     )
     reglas = Reglas.model_validate(torneo.reglas)
-    semanas = sorted({desde.isocalendar()[:2] for desde, _ in franjas})
+    semanas = sorted({a.isocalendar()[:2] for a, _ in todas})
     desde_semana = semanas[reglas.eliminacion_desde_fin_de_semana - 1 :][:1]
-    eliminacion_desde = next(
-        (desde for desde, _ in franjas if desde.isocalendar()[:2] in desde_semana), None
-    )
+    eliminacion_desde = next((a for a, _ in todas if a.isocalendar()[:2] in desde_semana), None)
 
     # Una sola consulta por todas las categorías: sus canchas y cuántos equipos tienen.
     categorias = {
@@ -124,8 +151,10 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
     for partido in partidos:
         categoria = partido.categoria
         fijo = None
-        if partido.empezado and partido.cancha and partido.inicio:
-            fijo = (partido.cancha.codigo, hora_local(partido.inicio))
+        if partido.cancha and partido.inicio:
+            ya_paso = desde is not None and hora_local(partido.inicio) <= desde
+            if partido.empezado or ya_paso or solo_lo_que_falta:
+                fijo = (partido.cancha.codigo, hora_local(partido.inicio))
         de_la_llave = llaves[categoria.pk].get(partido.clave) if partido.clave else None
         a_programar.append(
             PartidoAProgramar(
@@ -150,7 +179,9 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
                 ronda=partido.ronda,
             )
         )
-    return Problema(
+    if extras:
+        a_programar = _sin_extra_si_entra(torneo, a_programar)
+    problema = Problema(
         partidos=tuple(a_programar),
         fisicas=fisicas,
         franjas=tuple(franjas),
@@ -163,6 +194,34 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
             Equipo.objects.filter(categoria__torneo=torneo).values_list("pk", "club_id")
         ),  # P20
     )
+    if relajar is None or relajar.vacio:
+        return problema
+    chicas = {str(pk) for pk, c in categorias.items() if c.modalidad in ("F8", "F11")}
+    return aplicar_relajar(problema, relajar, ventana=ventana, sin_mitades=chicas)
+
+
+def _sin_extra_si_entra(
+    torneo: Torneo, partidos: list[PartidoAProgramar]
+) -> list[PartidoAProgramar]:
+    """A4 (P78): si un grupo de canchas entra en el horario normal ("¿Entra todo?"), sus
+    categorías no usan el tiempo agregado: es solo para lo que no entra. Si todo entra, no se
+    restringe nada (el tiempo agregado igual cuesta más que todo lo blando)."""
+    from torneo.servicios.capacidad import capacidad_del_torneo
+
+    grupos = capacidad_del_torneo(torneo).total
+    if all(g.entra for g in grupos):
+        return partidos
+    no_entran = {c for g in grupos if not g.entra for c in g.canchas}
+    padres = {
+        c.codigo: (c.padre.codigo if c.padre else c.codigo)
+        for c in Cancha.objects.filter(torneo=torneo).select_related("padre")
+    }
+    return [
+        p
+        if p.fijo or {padres.get(c, c) for c in p.canchas} & no_entran
+        else replace(p, sin_extra=True)
+        for p in partidos
+    ]
 
 
 def bloqueos_del_torneo(torneo: Torneo) -> tuple[BloqueoDelDominio, ...]:
@@ -193,10 +252,12 @@ def calendario_actual(partidos: list[Partido]) -> dict[Any, tuple[str, datetime]
     }
 
 
-def verificar_torneo(torneo: Torneo) -> dict[str, int]:
-    """Los choques duros del calendario actual, por tipo (vacío si no hay)."""
+def verificar_torneo(torneo: Torneo, relajar: Relajar | None = None) -> dict[str, int]:
+    """Los choques del calendario actual, por tipo (vacío si no hay). Con `relajar` (B6), con
+    las mismas reglas aflojadas que usó la corrida."""
     partidos = partidos_del_torneo(torneo)
-    return _choques(problema_del_torneo(torneo, partidos), calendario_actual(partidos))
+    problema = problema_del_torneo(torneo, partidos, relajar=relajar)
+    return _choques(problema, calendario_actual(partidos))
 
 
 def _choques(problema: Problema, ubicados: dict[Any, tuple[str, datetime]]) -> dict[str, int]:
@@ -237,7 +298,9 @@ def choques_del_calendario(
     return verificar(agendados, escenario)
 
 
-def _empezar(torneo: Torneo, usuario: AbstractBaseUser | AnonymousUser | None) -> Corrida:
+def _empezar(
+    torneo: Torneo, usuario: AbstractBaseUser | AnonymousUser | None, modo: str = "todo"
+) -> Corrida:
     segundos = settings.PROGRAMADOR_SEGUNDOS
     with transaction.atomic():
         Torneo.objects.select_for_update().get(pk=torneo.pk)
@@ -250,19 +313,59 @@ def _empezar(torneo: Torneo, usuario: AbstractBaseUser | AnonymousUser | None) -
             )
         return Corrida.objects.create(
             torneo=torneo,
-            parametros={"segundos": segundos, "trabajadores": settings.PROGRAMADOR_TRABAJADORES},
+            parametros={
+                "segundos": segundos,
+                "trabajadores": settings.PROGRAMADOR_TRABAJADORES,
+                "modo": modo,
+            },
             usuario=usuario if usuario is not None and usuario.is_authenticated else None,  # type: ignore[misc]
         )
 
 
+@dataclass
+class Resumen:
+    """Qué hay antes de volver a programar (B4): lo que no se mueve y lo que sí."""
+
+    jugados: int = 0
+    sin_resultado: list[Partido] = field(default_factory=list)  # su hora ya pasó
+    futuros: int = 0  # programados que "Volver a programar" mueve
+    sin_lugar: int = 0
+
+    @property
+    def hay_publicados(self) -> bool:
+        return bool(self.jugados or self.sin_resultado or self.futuros)
+
+
+def resumen_antes_de_programar(torneo: Torneo) -> Resumen:
+    ahora = timezone.now()
+    resumen = Resumen()
+    for partido in partidos_del_torneo(torneo):
+        if partido.empezado:
+            resumen.jugados += 1
+        elif partido.inicio is None:
+            resumen.sin_lugar += 1
+        elif partido.inicio <= ahora:
+            resumen.sin_resultado.append(partido)
+        else:
+            resumen.futuros += 1
+    return resumen
+
+
 def programar_torneo(
-    torneo: Torneo, usuario: AbstractBaseUser | AnonymousUser | None = None
+    torneo: Torneo,
+    usuario: AbstractBaseUser | AnonymousUser | None = None,
+    *,
+    solo_lo_que_falta: bool = False,
 ) -> Corrida:
-    corrida = _empezar(torneo, usuario)
+    """Programa el torneo. Nunca ubica antes de ahora y no mueve lo que ya empezó ni lo que su
+    hora ya pasó (B4). Con `solo_lo_que_falta`, todo lo que ya tiene lugar queda fijo."""
+    corrida = _empezar(torneo, usuario, "faltan" if solo_lo_que_falta else "todo")
     comienzo = timezone.now()
     try:
         partidos = partidos_del_torneo(torneo)
-        problema = problema_del_torneo(torneo, partidos)
+        problema = problema_del_torneo(
+            torneo, partidos, desde=ahora_local(), solo_lo_que_falta=solo_lo_que_falta
+        )
         resultado = programar(
             problema,
             segundos=settings.PROGRAMADOR_SEGUNDOS,
@@ -289,6 +392,12 @@ def programar_torneo(
             for id_ in resultado.sin_ubicar
         ],
         "choques": choques,
+        # B4: los que ya pasaron de hora y nadie cargó: no se mueven, y les falta el resultado.
+        "sin_resultado": [
+            _texto(p)
+            for p in partidos
+            if not p.empezado and p.inicio is not None and p.inicio <= comienzo
+        ],
     }
     corrida.save()
     return corrida

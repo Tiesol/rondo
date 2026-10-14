@@ -4,7 +4,6 @@ Datos inventados."""
 import pytest
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.db import IntegrityError, transaction
 from django.test import Client
 
 from dominio.config import cargar_config
@@ -14,7 +13,6 @@ from torneo.servicios import partido as servicio
 from torneo.servicios.configuracion import cargar_configuracion
 from torneo.servicios.fixture import generar_fixture
 from torneo.servicios.planilla import (
-    NoSePuede,
     PideConfirmar,
     dorsal_sugerido,
     guardar_planilla,
@@ -74,17 +72,16 @@ def test_se_eligen_los_que_juegan_con_el_dorsal_del_partido(
 
 
 @pytest.mark.django_db
-def test_un_dorsal_repetido_no_se_guarda(categoria: object, usuario: User) -> None:
+def test_c1_un_dorsal_repetido_avisa_y_se_guarda_con_guardar_igual(
+    categoria: object, usuario: User
+) -> None:
+    # C1 (fase 12): el dorsal repetido es un aviso, no un bloqueo.
     equipo, partido, _ = de_un_equipo(categoria)
-    with pytest.raises(NoSePuede, match="El 7"):
+    with pytest.raises(PideConfirmar, match=r"El 7 está repetido: N07 I\. y N010 I\.$"):
         guardar_planilla(partido, equipo, filas(equipo, {7: 7, 10: 7}), usuario)
     assert not partido.convocados.exists()
-    # Y la base tampoco lo deja (P9: imposible).
-    guardar_planilla(partido, equipo, filas(equipo, {7: 7, 10: 10}), usuario)
-    otro = partido.convocados.get(dorsal=10)
-    otro.dorsal = 7
-    with pytest.raises(IntegrityError), transaction.atomic():
-        otro.save()
+    guardar_planilla(partido, equipo, filas(equipo, {7: 7, 10: 7}), usuario, confirmado=True)
+    assert sorted(c.dorsal or 0 for c in partido.convocados.all()) == [7, 7]
 
 
 @pytest.mark.django_db
@@ -177,3 +174,110 @@ def test_cambiar_el_dorsal_durante_el_partido(
     assert partido.convocados.get(jugador=jugador).dorsal == 23
     jugador.refresh_from_db()
     assert jugador.dorsal == 7  # el habitual queda
+
+
+@pytest.mark.django_db
+def test_c1_cambiar_el_dorsal_a_uno_repetido_pide_confirmar(
+    client: Client, categoria: object, usuario: User
+) -> None:
+    equipo, partido, _ = de_un_equipo(categoria)
+    guardar_planilla(partido, equipo, filas(equipo, {7: 7, 10: 10}), usuario)
+    servicio.empezar(partido, usuario)
+    jugador = equipo.jugadores.get(dorsal=7)
+    client.force_login(usuario)
+    url = f"/partidos/{partido.pk}/ficha/accion/"
+    datos = {"accion": "dorsal", "jugador": jugador.pk, "dorsal": "10"}
+    respuesta = client.post(url, datos)
+    assert "El 10 ya lo tiene" in respuesta.content.decode()
+    assert "Guardar igual" in respuesta.content.decode()
+    assert partido.convocados.get(jugador=jugador).dorsal == 7
+    client.post(url, datos | {"confirmar": "1"})
+    assert partido.convocados.get(jugador=jugador).dorsal == 10
+
+
+@pytest.mark.django_db
+def test_c1_la_planilla_marca_los_repetidos_y_guarda_igual(
+    client: Client, categoria: object, usuario: User
+) -> None:
+    equipo, partido, _ = de_un_equipo(categoria)
+    client.force_login(usuario)
+    a, b = equipo.jugadores.get(dorsal=7), equipo.jugadores.get(dorsal=10)
+    datos = {
+        "accion": "planilla",
+        "equipo": equipo.pk,
+        f"juega_{a.pk}": "on",
+        f"dorsal_{a.pk}": "9",
+        f"juega_{b.pk}": "on",
+        f"dorsal_{b.pk}": "9",
+    }
+    respuesta = client.post(f"/partidos/{partido.pk}/ficha/accion/", datos)
+    html = respuesta.content.decode()
+    assert "El 9 está repetido" in html and "Guardar igual" in html
+    assert not partido.convocados.exists()
+    client.post(f"/partidos/{partido.pk}/ficha/accion/", datos | {"confirmar": "1"})
+    assert partido.convocados.count() == 2
+    # Ya guardados, la planilla los marca.
+    assert "Repetido" in client.get(f"/partidos/{partido.pk}/ficha/").content.decode()
+
+
+# ---------- C2 (fase 12): CI verificado en cada partido ----------
+
+
+@pytest.mark.django_db
+def test_c2_el_ci_se_verifica_por_partido_y_marca_al_jugador(
+    categoria: object, usuario: User
+) -> None:
+    equipo, primero, segundo = de_un_equipo(categoria)
+    a, b = equipo.jugadores.get(dorsal=7), equipo.jugadores.get(dorsal=10)
+    guardar_planilla(primero, equipo, {a.pk: 7, b.pk: 10}, usuario, verificados={a.pk})
+    assert {c.jugador_id: c.ci_verificado for c in primero.convocados.all()} == {
+        a.pk: True,
+        b.pk: False,
+    }
+    a.refresh_from_db()
+    b.refresh_from_db()
+    assert a.verificado and not b.verificado  # lo de la inscripción también se marca
+    # En otro partido empieza sin verificar: es por partido.
+    guardar_planilla(segundo, equipo, {a.pk: 7}, usuario)
+    assert not segundo.convocados.get(jugador=a).ci_verificado
+    # "Verificar todos".
+    guardar_planilla(primero, equipo, {a.pk: 7, b.pk: 10}, usuario, verificar_todos=True)
+    assert all(c.ci_verificado for c in primero.convocados.all())
+
+
+@pytest.mark.django_db
+def test_c2_la_planilla_muestra_el_ci_y_cuantos_estan_verificados(
+    client: Client, categoria: object, usuario: User
+) -> None:
+    equipo, partido, _ = de_un_equipo(categoria)
+    a, b = equipo.jugadores.get(dorsal=7), equipo.jugadores.get(dorsal=10)
+    Persona.objects.filter(pk=a.persona_id).update(documento="1234567 SC")
+    client.force_login(usuario)
+    url = f"/partidos/{partido.pk}/ficha/accion/"
+    base = {"accion": "planilla", "equipo": equipo.pk, f"juega_{a.pk}": "on", f"juega_{b.pk}": "on"}
+    client.post(url, base | {f"ci_{a.pk}": "on", f"dorsal_{a.pk}": "7", f"dorsal_{b.pk}": "10"})
+    html = client.get(f"/partidos/{partido.pk}/ficha/").content.decode()
+    assert "1234567 SC" in html  # interno: se ve con sesión
+    assert "1 de 2" in html
+    client.post(url, base | {"verificar_todos": "1", f"dorsal_{a.pk}": "7", f"dorsal_{b.pk}": "10"})
+    assert "2 de 2" in client.get(f"/partidos/{partido.pk}/ficha/").content.decode()
+    # Nunca en lo público.
+    torneo = partido.categoria.torneo
+    torneo.publico = True
+    torneo.save()
+    publico = client.get(f"/t/{torneo.pk}/partido/{partido.pk}/").content.decode()
+    assert "1234567" not in publico
+
+
+@pytest.mark.django_db
+def test_c1_al_anotar_un_gol_con_dorsal_repetido_se_elige_por_nombre(
+    client: Client, categoria: object, usuario: User
+) -> None:
+    equipo, partido, _ = de_un_equipo(categoria)
+    guardar_planilla(partido, equipo, filas(equipo, {7: 9, 10: 9}), usuario, confirmado=True)
+    servicio.empezar(partido, usuario)
+    client.force_login(usuario)
+    html = client.get(f"/partidos/{partido.pk}/ficha/").content.decode()
+    for nombre in ("N07 Inventado", "N010 Inventado"):
+        assert nombre in html  # los dos con el 9, cada uno con su nombre
+    assert html.count('class="btn jugador"') >= 2

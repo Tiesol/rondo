@@ -9,6 +9,7 @@ from typing import Any
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -34,6 +35,7 @@ from torneo.servicios.programador import (
     problema_del_torneo,
 )
 from torneo.servicios.reprogramar import calcular_propuestas_en
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 
 COPAS = {"oro": "Copa de Oro", "plata": "Copa de Plata", "bronce": "Bronce"}
 
@@ -143,6 +145,15 @@ def _propuesta(categoria: CategoriaNivel, partidos: list[Partido]) -> dict[str, 
     }
 
 
+def _rehacer(categoria: CategoriaNivel) -> str:
+    n = categoria.partidos.count()
+    programados = categoria.partidos.filter(inicio__isnull=False).count()
+    return (
+        f"Se rehace el fixture de {categoria}: se borran sus {n} partidos"
+        f"{f' ({programados} ya programados)' if programados else ''} y se arman de nuevo."
+    )
+
+
 def _volver(categoria: CategoriaNivel) -> HttpResponse:
     return redirect("categoria", pk=categoria.pk, pestana="fixture")
 
@@ -151,6 +162,14 @@ def _volver(categoria: CategoriaNivel) -> HttpResponse:
 @requiere("torneo.configurar_torneo", "generar el fixture")
 def generar(request: HttpRequest, pk: int) -> HttpResponse:
     categoria = get_object_or_404(CategoriaNivel.objects.select_related("torneo"), pk=pk)
+    if categoria.partidos.exists() and not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=_rehacer(categoria),
+            boton="Rehacer el fixture",
+            volver=reverse("categoria", args=[categoria.pk, "fixture"]),
+            peligro=True,
+        )
     try:
         generar_fixture(categoria, nuevo_sorteo=bool(request.POST.get("nuevo_sorteo")))
     except FixtureNoSePuede as error:
@@ -170,6 +189,14 @@ def guardar_series(request: HttpRequest, pk: int) -> HttpResponse:
         for clave in request.POST
         if clave.startswith("serie_") and clave.removeprefix("serie_").isdigit()
     }
+    if categoria.partidos.exists() and not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=_rehacer(categoria),
+            boton="Guardar las series",
+            volver=reverse("categoria", args=[categoria.pk, "fixture"]),
+            peligro=True,
+        )
     try:
         generar_fixture(categoria, series=series_elegidas(categoria, asignacion))
     except FixtureNoSePuede as error:

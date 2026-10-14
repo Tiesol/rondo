@@ -120,10 +120,15 @@ def entrar(client: Client, grupo: str) -> Client:
 @pytest.mark.django_db
 def test_la_organizacion_publica_y_despublica(client: Client, torneo: Torneo) -> None:
     org = entrar(client, ORGANIZACION)
-    assert org.post(f"/torneos/{torneo.pk}/publico/").status_code == 302
+    # B7: sin confirmar no cambia nada; confirmando, sí. (El torneo del test arranca publicado.)
+    assert torneo.publico
+    assert org.post(f"/torneos/{torneo.pk}/publico/").status_code == 200
+    torneo.refresh_from_db()
+    assert torneo.publico
+    assert org.post(f"/torneos/{torneo.pk}/publico/", {"confirmado": "1"}).status_code == 302
     torneo.refresh_from_db()
     assert not torneo.publico
-    org.post(f"/torneos/{torneo.pk}/publico/")
+    org.post(f"/torneos/{torneo.pk}/publico/", {"confirmado": "1"})
     torneo.refresh_from_db()
     assert torneo.publico
 

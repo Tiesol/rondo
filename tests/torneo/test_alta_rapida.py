@@ -109,9 +109,52 @@ def test_la_foto_se_cambia_desde_la_planilla_y_vuelve_al_partido(
     persona = Persona.objects.create(nombres="N", apellidos="Inventado")
     Jugador.objects.create(persona=persona, equipo=partido.local, dorsal=3)
     ficha = f"/partidos/{partido.pk}/ficha/"
-    assert f"/personas/{persona.pk}/foto/?volver={ficha}" in org.get(ficha).content.decode()
-    respuesta = org.post(f"/personas/{persona.pk}/foto/", {"foto": foto(), "volver": ficha})
-    assert respuesta["Location"] == ficha
+    enlace = f"/personas/{persona.pk}/foto/?volver={ficha}&amp;equipo={partido.local_id}"
+    assert enlace in org.get(ficha).content.decode()
+    # C3: vuelve a la planilla, a ese equipo y a ese jugador.
+    respuesta = org.post(
+        f"/personas/{persona.pk}/foto/",
+        {"foto": foto(), "volver": ficha, "equipo": partido.local_id},
+    )
+    assert respuesta["Location"] == f"{ficha}?equipo={partido.local_id}#persona-{persona.pk}"
     # A otro lado no se vuelve.
     respuesta = org.post(f"/personas/{persona.pk}/foto/", {"volver": "https://otro.sitio/"})
     assert "otro.sitio" not in respuesta.get("Location", "")
+
+
+@pytest.mark.django_db
+def test_c3_la_pagina_de_la_foto_tiene_camara_y_galeria(org: Client, partido: Partido) -> None:
+    assert partido.local is not None
+    persona = Persona.objects.create(nombres="N", apellidos="Inventado")
+    Jugador.objects.create(persona=persona, equipo=partido.local, dorsal=3)
+    html = org.get(f"/personas/{persona.pk}/foto/").content.decode()
+    assert 'capture="environment"' in html
+    assert "Sacar foto" in html and "Elegir de la galería" in html
+    assert 'name="foto_galeria"' in html
+    assert "autorizada" in html  # se mantiene la autorización de la familia (P66)
+
+
+@pytest.mark.django_db
+def test_c3_la_foto_de_la_galeria_tambien_se_guarda(org: Client, partido: Partido) -> None:
+    assert partido.local is not None
+    persona = Persona.objects.create(nombres="N", apellidos="Inventado")
+    Jugador.objects.create(persona=persona, equipo=partido.local, dorsal=3)
+    org.post(f"/personas/{persona.pk}/foto/", {"foto_galeria": foto()})
+    persona.refresh_from_db()
+    assert persona.foto
+    assert not persona.foto_autorizada
+
+
+@pytest.mark.django_db
+def test_c3_el_equipo_al_que_se_vuelve_se_abre(org: Client, partido: Partido) -> None:
+    assert partido.local is not None
+    persona = Persona.objects.create(nombres="N", apellidos="Inventado")
+    Jugador.objects.create(persona=persona, equipo=partido.local, dorsal=3)
+    ficha = f"/partidos/{partido.pk}/ficha/"
+    # Con alguien ya convocado, la planilla del equipo viene cerrada; al volver, se abre.
+    cerrada = org.get(ficha).content.decode()
+    abierta = org.get(f"{ficha}?equipo={partido.local_id}").content.decode()
+    assert f'id="persona-{persona.pk}"' in abierta
+    assert abierta.count('<details class="planilla-equipo" open') >= cerrada.count(
+        '<details class="planilla-equipo" open'
+    )

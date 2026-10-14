@@ -69,6 +69,7 @@ class PartidoAProgramar:
     dias_sin_jugar: frozenset[int] = frozenset()  # días de la semana (0 es lunes), P56
     temprano: bool = False  # de preferencia, en los primeros horarios del día (P56)
     ronda: str = ""  # en la eliminación: "semi" o "final" (A1, fase 12)
+    sin_extra: bool = False  # A4: no puede ir al tiempo agregado (su grupo entra sin él)
 
     @property
     def equipos_definidos(self) -> tuple[Equipo, ...]:
@@ -176,6 +177,8 @@ class Modelo:
         self.al_reves: list[cp_model.IntVar] = []
         # A4 (P78): partidos ubicados en tiempo agregado; cuesta más que todo lo blando.
         self.en_extra: list[cp_model.IntVar] = []
+        # Y en cuál: por partido, cada tiempo agregado posible con su variable (B1).
+        self.extra_de: dict[Hashable, list[tuple[FranjaExtra, cp_model.IntVar]]] = {}
         # Pares de partidos de equipos con un profe en común, y si el primero va antes (T7.3).
         self.profes_compartidos: list[
             tuple[PartidoAProgramar, PartidoAProgramar, cp_model.IntVar]
@@ -202,6 +205,8 @@ class Modelo:
         self, partido: PartidoAProgramar
     ) -> list[tuple[FranjaExtra, tuple[int, int]]]:
         """El tiempo agregado donde podría ir: en el día y en alguna de sus canchas."""
+        if partido.sin_extra:
+            return []
         posibles = []
         for extra in self.problema.extras:
             ventana = self._ventana(partido, extra.desde, extra.hasta)
@@ -287,6 +292,7 @@ class Modelo:
                 if not extra.admite(cancha, self.problema.fisicas):
                     m.add_implication(aca, elegida.Not())
             usa.append(aca)
+        self.extra_de[partido.id] = [(e, v) for (e, _), v in zip(extras, usa, strict=True)]
         m.add(sum(usa) == en_extra)
         m.add_implication(en_extra, presente)
         normal = cp_model.Domain.from_intervals([list(v) for v in self._inicios_posibles(partido)])
@@ -702,16 +708,10 @@ def _resolver(problema: Problema, segundos: float, trabajadores: int, semilla: i
     return modelo.resolver(segundos, trabajadores, semilla)
 
 
-def programar(
-    problema: Problema, *, segundos: float = 60, trabajadores: int = 8, semilla: int = 0
-) -> Resultado:
-    """El mejor calendario que encuentra el solver en el tiempo dado.
-
-    Con el orden de fechas "blanda" (P19) se prueba primero exigiéndolo: cuando se puede, el
+def _ordenado(problema: Problema, segundos: float, trabajadores: int, semilla: int) -> Resultado:
+    """Con el orden de fechas "blanda" (P19) se prueba primero exigiéndolo: cuando se puede, el
     resultado tiene que ser ese (A2, fase 12). Solo si así algo queda sin lugar, se resuelve
     la versión blanda, que permite alguna fecha al revés, y gana la que ubica más."""
-    if not problema.partidos:
-        return Resultado(estado="OPTIMAL")
     if problema.reglas.orden_de_fechas == "dura":
         return _resolver(problema, segundos, trabajadores, semilla)
     estricto = replace(
@@ -722,3 +722,14 @@ def programar(
         return primero
     segundo = _resolver(problema, segundos / 2, trabajadores, semilla)
     return segundo if len(segundo.ubicados) > len(primero.ubicados) else primero
+
+
+def programar(
+    problema: Problema, *, segundos: float = 60, trabajadores: int = 8, semilla: int = 0
+) -> Resultado:
+    """El mejor calendario que encuentra el solver en el tiempo dado. El tiempo agregado (A4)
+    cuesta más que todo lo blando: se usa solo si sin él algo queda sin lugar. Los partidos
+    con `sin_extra` no lo usan nunca (sus canchas entran en el horario normal)."""
+    if not problema.partidos:
+        return Resultado(estado="OPTIMAL")
+    return _ordenado(problema, segundos, trabajadores, semilla)

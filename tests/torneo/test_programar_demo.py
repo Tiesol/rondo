@@ -87,3 +87,17 @@ def test_fase_12_bloque_a_en_la_demo_con_jueves(
             if despues.inicio < antes.inicio:
                 al_reves += 1
     assert al_reves == 0, f"{al_reves} fechas al revés"
+    # B5: la lista de intercambios carga rápido aun con los 223 partidos.
+    import time
+
+    from torneo.servicios.reprogramar import candidatos_de_intercambio
+
+    elegido = next(
+        p
+        for p in partidos
+        if p.categoria.modalidad == "F7" and p.inicio and p.local_id and p.visitante_id
+    )
+    comienzo = time.monotonic()
+    candidatos = candidatos_de_intercambio(elegido)
+    assert time.monotonic() - comienzo < 6, "la lista de intercambios tarda demasiado"
+    assert candidatos

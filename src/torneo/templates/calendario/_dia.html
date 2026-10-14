@@ -22,6 +22,13 @@
   {% if suspendido %}
   <div class="seccion">{% include "parciales/alerta.html" with estado="aviso" titulo="Día suspendido." texto="No se programa nada en este día." %}</div>
   {% endif %}
+  {% if en_juego %}
+  <div class="seccion gap-2">
+    {% include "parciales/seccion_cab.html" with titulo="En juego cuando se suspendió" %}
+    <p class="peq tenue">Siguen en el calendario. Termínalo con su marcador o reprográmalo desde su ficha.</p>
+    <ul class="lista">{% for p in en_juego %}<li><a class="fila" href="{% url 'ficha-partido' p.pk %}"><span class="crece"><strong>{{ p.local.nombre }} vs {{ p.visitante.nombre }}</strong><span class="sub">{{ p.categoria }}</span></span>{% include "parciales/icono.html" with nombre="chevron" clase="ico" %}</a></li>{% endfor %}</ul>
+  </div>
+  {% endif %}
   {% if hay_partidos %}
   <div class="seccion">{% url "png-dia" dia.isoformat as url_png %}{% include "parciales/boton.html" with texto="Compartir el día" url=url_png principal=True bloque=True %}</div>
   {% for cancha in canchas %}{% if cancha.partidos %}
@@ -51,11 +58,9 @@
   {% if perms.torneo.configurar_torneo %}
   <div class="seccion">
     {% if es_dia_de_juego and not suspendido %}
-    <form method="post" action="{% url 'suspender-dia' dia.isoformat %}">
-      {% csrf_token %}
-      <button type="submit" class="btn bloque">Suspender este día (por ejemplo, por lluvia)</button>
-    </form>
-    <p class="peq tenue">Sus partidos quedan sin programar, y la app propone dónde ubicarlos.</p>
+    <a class="btn bloque" href="{% url 'suspender-dia' dia.isoformat %}">Suspender este día (por ejemplo, por lluvia)</a>
+    {% elif suspendido %}
+    <a class="btn bloque" href="{% url 'reanudar-dia' dia.isoformat %}">Reanudar este día</a>
     {% endif %}
     <details class="desplegable">
       <summary>Agregar tiempo (un día u horario extra)</summary>
@@ -66,7 +71,7 @@
           {% include "parciales/campo.html" with campo=form_dia.desde %}
           {% include "parciales/campo.html" with campo=form_dia.hasta %}
         </div>
-        {% include "parciales/campo.html" with campo=form_dia.canchas %}
+        {% include "parciales/campo_canchas.html" with campo=form_dia.canchas %}
         <button type="submit" class="btn bloque">Agregar el tiempo</button>
       </form>
     </details>

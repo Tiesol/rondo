@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Suspender el {{ titulo_dia }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'calendario-dia' dia.isoformat %}" aria-label="Volver al día">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Suspender{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% include "parciales/alerta.html" with estado="aviso" titulo="¿Estás seguro?" texto=resumen %}
+  {% if vista.en_juego %}
+  {% include "parciales/alerta.html" with estado="info" titulo="En juego:" texto="Estos partidos no se sacan del calendario; después decides si los terminas con su marcador o los reprogramas." %}
+  <ul class="lista">{% for p in vista.en_juego %}<li class="fila"><span class="crece"><strong>{{ p }}</strong></span></li>{% endfor %}</ul>
+  {% endif %}
+  {% include "parciales/seccion_cab.html" with titulo="¿Dónde se juegan?" %}
+  <p class="peq tenue">Se ubican primero ahí; lo que no entre va a los días siguientes, moviendo lo menos posible. Nada se propone antes de ahora.</p>
+  {% include "parciales/campo.html" with campo=form.dia %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.desde %}
+    {% include "parciales/campo.html" with campo=form.hasta %}
+  </div>
+  {% include "parciales/campo_canchas.html" with campo=form.canchas %}
+  {% include "reprogramar/_aflojar.html" %}
+  <input type="hidden" name="confirmado" value="1">
+  <div class="botones">
+    <a class="btn" href="{% url 'calendario-dia' dia.isoformat %}">Cancelar</a>
+    <button type="submit" class="btn principal">Suspender y ver propuestas</button>
+  </div>
+</form>
+{% endblock %}

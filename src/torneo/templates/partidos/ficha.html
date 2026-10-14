@@ -174,9 +174,13 @@
 {% endif %}
 
 {% if partido.estado != "jugado" %}
-<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
   {% csrf_token %}
   <button type="submit" name="accion" value="terminar" class="btn principal bloque">Terminar el partido</button>
+  {% if dia_suspendido and partido.estado == "en_juego" %}
+  {% include "parciales/alerta.html" with estado="info" texto="Se suspendió el día con este partido en juego: termínalo con su marcador, o reprográmalo." %}
+  <button type="submit" name="accion" value="reprogramar_en_juego" class="btn bloque">Reprogramar</button>
+  {% endif %}
 </form>
 {% endif %}
 {% if con_mejor_jugador %}

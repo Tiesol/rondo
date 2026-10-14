@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}Intercambiar{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'mover' partido.pk %}" aria-label="Volver a mover">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Intercambiar{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  <strong>{{ cruce }}</strong>
+  <p class="peq tenue">{{ partido.categoria }} · ahora: {{ ahora }}</p>
+</div>
+{% if motivos %}
+<form method="post" class="seccion gap-3">
+  {% csrf_token %}
+  <input type="hidden" name="otro" value="{{ elegido.pk }}">
+  {% if pidio %}<input type="hidden" name="pidio" value="{{ pidio.pk }}">{% endif %}
+  {% if bloquea %}
+  <div class="alerta error" role="alert">{% include "parciales/icono.html" with nombre="error" clase="ico" %}<span><strong>No se puede.</strong>{% for motivo in motivos %}<br>{{ motivo }}{% endfor %}</span></div>
+  <a class="btn bloque" href="{% url 'intercambiar' partido.pk %}">Elegir otro</a>
+  {% else %}
+  <div class="alerta aviso" role="alert">{% include "parciales/icono.html" with nombre="aviso" clase="ico" %}<span><strong>Con {{ elegido_cruce }} hay avisos:</strong>{% for motivo in motivos %}<br>{{ motivo }}{% endfor %}</span></div>
+  <div class="botones"><a class="btn" href="{% url 'intercambiar' partido.pk %}">Elegir otro</a><button type="submit" name="confirmar" value="1" class="btn principal">Intercambiar igual</button></div>
+  {% endif %}
+</form>
+{% else %}
+<form method="post" class="seccion gap-3">
+  {% csrf_token %}
+  {% if equipos %}
+  <div class="campo"><label for="pidio">¿Quién pidió el cambio?</label>
+    <select id="pidio" name="pidio"><option value="">Nadie en particular</option>{% for e in equipos %}<option value="{{ e.pk }}">{{ e.nombre }}</option>{% endfor %}</select>
+    <span class="peq tenue">Cuenta para las reprogramaciones de ese equipo.</span>
+  </div>
+  {% endif %}
+  {% include "parciales/seccion_cab.html" with titulo="Intercambiar con" %}
+  <ul class="lista">
+    {% for c in candidatos %}
+    <li class="fila">
+      <span class="crece"><strong>{{ c.lugar }}</strong><span class="sub">{{ c.cruce }} · {{ c.partido.categoria }}</span>{% if c.avisos %}<span class="sub"><strong>{{ c.avisos|length }} aviso{{ c.avisos|length|pluralize }}</strong></span>{% endif %}</span>
+      {% if c.bloquea %}{% include "parciales/chip.html" with texto="No se puede" estado="error" %}
+      {% else %}{% if c.sin_choques %}{% include "parciales/chip.html" with texto="Sin choques" estado="bien" %}{% endif %}
+      <button type="submit" name="otro" value="{{ c.partido.pk }}" class="btn chico">Elegir</button>{% endif %}
+    </li>
+    {% empty %}
+    <li>{% include "parciales/vacio.html" with icono="calendario" titulo="No hay con quién intercambiar" texto="Los partidos de ese día y fin de semana en canchas donde puedan jugar los dos." %}</li>
+    {% endfor %}
+  </ul>
+</form>
+{% endif %}
+{% endblock %}

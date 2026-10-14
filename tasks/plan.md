@@ -321,9 +321,9 @@ T8.5 → T8.6         │
 
 > `docs/PEDIDO_FASE_12.md`. Detalle en `tasks/todo.md`.
 
-- [ ] Bloque A: programador (A1 a A5)
-- [ ] Bloque B: reprogramar (B1 a B9)
-- [ ] Bloque C: día de partido (C1 a C4)
+- [x] Bloque A: programador (A1 a A5)
+- [x] Bloque B: reprogramar (B1 a B9)
+- [x] Bloque C: día de partido (C1 a C4)
 
 ## Grafo de dependencias
 

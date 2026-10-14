@@ -68,7 +68,7 @@ def test_un_bloqueo_da_propuestas_ordenadas_y_aplicar_deja_todo_sin_choques(
     assert f"Mover {cantidades[0]} partido" in html
 
     assert verificar_torneo(bloqueo.torneo) != {}  # el bloqueo choca
-    org.post(f"/corridas/{corrida.pk}/aplicar/0/")
+    org.post(f"/corridas/{corrida.pk}/aplicar/0/", {"confirmado": "1"})
     assert verificar_torneo(bloqueo.torneo) == {}
     assert Cambio.objects.count() == cantidades[0]
     cambio = Cambio.objects.select_related("usuario").first()
@@ -85,7 +85,7 @@ def test_una_propuesta_vieja_no_se_aplica(client: Client, bloqueo: Bloqueo) -> N
     otro = Partido.objects.filter(inicio__isnull=False).order_by("-inicio").first()
     assert otro is not None and otro.inicio is not None
     Partido.objects.filter(pk=otro.pk).update(inicio=otro.inicio + timedelta(minutes=5))
-    respuesta = org.post(f"/corridas/{corrida.pk}/aplicar/0/", follow=True)
+    respuesta = org.post(f"/corridas/{corrida.pk}/aplicar/0/", {"confirmado": "1"}, follow=True)
     assert "El calendario cambió" in respuesta.content.decode()
     assert not Cambio.objects.exists()
 
@@ -95,7 +95,7 @@ def test_el_historial_se_ve_en_mas(client: Client, bloqueo: Bloqueo) -> None:
     org = entrar(client, ORGANIZACION)
     org.post(f"/bloqueos/{bloqueo.pk}/propuestas/")
     corrida = Corrida.objects.get(tipo=Corrida.Tipo.REPROGRAMAR)
-    org.post(f"/corridas/{corrida.pk}/aplicar/0/")
+    org.post(f"/corridas/{corrida.pk}/aplicar/0/", {"confirmado": "1"})
     html = org.get("/mas/").content.decode()
     assert "Cambios recientes" in html
     assert "→" in html

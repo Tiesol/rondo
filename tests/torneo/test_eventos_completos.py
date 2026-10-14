@@ -116,7 +116,7 @@ def test_un_partido_terminado_se_corrige_con_historial(client: Client, usuario: 
     client.post(url(partido), {"accion": "minuto", "evento_id": gol.pk, "minuto": "33"})
     gol.refresh_from_db()
     assert gol.minuto == 33
-    client.post(url(partido), {"accion": "borrar", "evento_id": gol.pk})
+    client.post(url(partido), {"accion": "borrar", "evento_id": gol.pk, "confirmado": "1"})
     assert list(Evento.objects.all()) == [amarilla]
     # Sumar un gol olvidado después de terminar.
     client.post(url(partido), {"evento": f"gol|{partido.local_id}|{jugador.pk}"})  # type: ignore[union-attr]
@@ -134,7 +134,7 @@ def test_un_wo_se_puede_quitar(client: Client, usuario: User) -> None:
     partido = partido_de()
     servicio.wo(partido, "local", usuario)
     client.force_login(usuario)
-    client.post(url(partido), {"accion": "quitar_wo"})
+    client.post(url(partido), {"accion": "quitar_wo", "confirmado": "1"})
     partido.refresh_from_db()
     assert partido.no_se_presento == ""
     assert not partido.empezado

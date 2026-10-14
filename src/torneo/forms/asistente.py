@@ -12,8 +12,12 @@ from torneo.servicios.asistente import DIAS, NOMBRE_DEL_DIA
 class FormularioDatos(forms.Form):
     nombre = forms.CharField(max_length=100)
     edicion = forms.IntegerField(label="Edición", min_value=1)
-    inicio = forms.DateField(label="Empieza", widget=forms.DateInput(attrs={"type": "date"}))
-    fin = forms.DateField(label="Termina", widget=forms.DateInput(attrs={"type": "date"}))
+    inicio = forms.DateField(
+        label="Empieza", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"})
+    )
+    fin = forms.DateField(
+        label="Termina", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"})
+    )
 
     def clean(self) -> dict[str, Any]:
         datos = super().clean() or {}

@@ -73,7 +73,9 @@ def test_mover_equipos_de_serie_rehace_los_cruces(client: Client, torneo: Torneo
     b = list(cn.series.get(nombre="B").equipos.order_by("pk"))
     nuevas = {f"serie_{e.pk}": "A" for e in a} | {f"serie_{e.pk}": "B" for e in b}
     nuevas[f"serie_{a[0].pk}"], nuevas[f"serie_{b[0].pk}"] = "B", "A"
-    respuesta = entrar(client, ORGANIZACION).post(f"/torneo/{cn.pk}/series/", nuevas)
+    respuesta = entrar(client, ORGANIZACION).post(
+        f"/torneo/{cn.pk}/series/", nuevas | {"confirmado": "1"}
+    )
     assert respuesta.status_code == 302
     serie_a = set(cn.series.get(nombre="A").equipos.all())
     assert serie_a == {b[0], *a[1:]}
@@ -87,7 +89,9 @@ def test_series_de_otro_tamanio_no_se_guardan(client: Client, torneo: Torneo) ->
     generar_fixture(cn, semilla=1)
     antes = {s.nombre: set(s.equipos.all()) for s in cn.series.all()}
     todas_a = {f"serie_{e.pk}": "A" for e in cn.equipos.all()}
-    respuesta = entrar(client, ORGANIZACION).post(f"/torneo/{cn.pk}/series/", todas_a, follow=True)
+    respuesta = entrar(client, ORGANIZACION).post(
+        f"/torneo/{cn.pk}/series/", todas_a | {"confirmado": "1"}, follow=True
+    )
     assert "las series son de 3 y 3" in respuesta.content.decode()
     assert {s.nombre: set(s.equipos.all()) for s in cn.series.all()} == antes
 

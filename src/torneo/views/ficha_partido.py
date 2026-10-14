@@ -5,19 +5,21 @@ nombre. Cada acción es un POST que vuelve a la ficha (funciona sin JavaScript).
 nombres de jugadores: solo para quien carga resultados (organización y mesa, P64).
 """
 
+from collections import Counter
 from datetime import datetime, time, timedelta
 from typing import Any
 
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from dominio.config import Reglas
 from torneo.models import Equipo, Evento, Jugador, Partido
 from torneo.permisos import requiere
-from torneo.presentacion import escudo, url_de_imagen
+from torneo.presentacion import cruce, escudo, url_de_imagen
 from torneo.servicios import partido as servicio
 from torneo.servicios import planilla
 from torneo.servicios.historial import historial
@@ -28,6 +30,7 @@ from torneo.servicios.suspensiones import (
     suspender_a_mano,
     suspendidos_en,
 )
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 
 _PARTIDO = Partido.objects.select_related(
     "categoria__torneo", "local__club", "visitante__club", "cancha", "mejor_jugador__persona"
@@ -79,11 +82,22 @@ def _plantel(equipo: Equipo, dorsales: dict[int, int | None]) -> list[Jugador]:
     return jugadores
 
 
-def _lado(partido: Partido, equipo: Equipo, dorsales: dict[int, int | None]) -> dict[str, Any]:
+def _lado(
+    partido: Partido,
+    equipo: Equipo,
+    dorsales: dict[int, int | None],
+    verificados: set[int],
+    abierto: bool = False,
+) -> dict[str, Any]:
     plantel = _plantel(equipo, dorsales)
     suspendidos = {j.pk: motivo for j, motivo in suspendidos_en(partido)}
     lado = "local" if equipo.pk == partido.local_id else "visitante"
+    juegan = [j for j in plantel if j.juega]  # type: ignore[attr-defined]
+    # C1: los dorsales repetidos entre los que juegan se marcan.
+    veces = Counter(j.numero for j in juegan if j.numero is not None)  # type: ignore[attr-defined]
     return {
+        "verificados": sum(1 for j in juegan if j.pk in verificados),
+        "abierto": abierto,
         "equipo": equipo,
         "escudo": escudo(equipo),
         "plantel": plantel,
@@ -96,6 +110,9 @@ def _lado(partido: Partido, equipo: Equipo, dorsales: dict[int, int | None]) -> 
                 "juega": j.juega,  # type: ignore[attr-defined]
                 "dorsal": j.numero if j.juega else planilla.dorsal_sugerido(partido, j),  # type: ignore[attr-defined]
                 "suspendido": suspendidos.get(j.pk, ""),
+                "repetido": j.juega and veces[j.numero] > 1,  # type: ignore[attr-defined]
+                "ci": j.persona.documento or "Sin CI",
+                "ci_verificado": j.pk in verificados,
                 "foto": url_de_imagen("foto", j.persona_id, j.persona.foto.name),
             }
             for j in plantel
@@ -127,7 +144,54 @@ def _tanda(partido: Partido, resultado: Any, equipos: list[dict[str, Any]]) -> d
     }
 
 
-def _contexto(partido: Partido) -> dict[str, Any]:
+# B7: las acciones importantes piden "¿Estás seguro?" y dicen qué va a pasar.
+CONFIRMAN = {
+    "terminar": "Terminar el partido",
+    "wo": "Dar el W.O.",
+    "quitar_wo": "Quitar el W.O.",
+    "borrar": "Borrar",
+    "reprogramar_en_juego": "Reprogramar",
+}
+
+
+def _que_pasa(partido: Partido, datos: dict[str, str]) -> str:
+    equipos = cruce(partido)
+    match datos.get("accion"):
+        case "terminar":
+            local, visitante = servicio.resultado_de(partido).marcador
+            return f"Se termina {equipos} con el marcador {local} a {visitante}."
+        case "wo":
+            ausente = partido.local if datos.get("no_se_presento") == "local" else partido.visitante
+            return f"No se presentó {ausente.nombre if ausente else 'el equipo'}: pierde por W.O."
+        case "quitar_wo":
+            return f"Se quita el W.O. de {equipos}: el partido vuelve a estar por jugar."
+        case "borrar":
+            evento = partido.eventos.filter(pk=datos.get("evento_id") or 0).first()
+            que = evento.get_tipo_display() if evento else "el evento"
+            return f"Se borra «{que}» de {equipos}. Queda en el historial."
+        case "reprogramar_en_juego":
+            n = partido.eventos.count()
+            return (
+                f"{equipos} vuelve a «sin programar». Se borran sus {n} eventos (goles y "
+                "tarjetas); quedan en el historial."
+            )
+    return ""
+
+
+def _dia_suspendido(partido: Partido) -> bool:
+    """B3: el día del partido se suspendió (todas sus franjas)."""
+    if partido.inicio is None:
+        return False
+    dia = timezone.localtime(partido.inicio).date()
+    franjas = [
+        f
+        for f in partido.categoria.torneo.franjas.all()
+        if timezone.localtime(f.inicio).date() == dia
+    ]
+    return bool(franjas) and all(f.suspendida for f in franjas)
+
+
+def _contexto(partido: Partido, abrir: int | None = None) -> dict[str, Any]:
     resultado = servicio.resultado_de(partido)
     dorsales = planilla.dorsales_del_partido(partido)
     eventos = list(
@@ -136,7 +200,9 @@ def _contexto(partido: Partido) -> dict[str, Any]:
         )
     )
     equipos: list[dict[str, Any]] = [
-        _lado(partido, e, dorsales) for e in (partido.local, partido.visitante) if e is not None
+        _lado(partido, e, dorsales, planilla.ci_verificados(partido), e.pk == abrir)
+        for e in (partido.local, partido.visitante)
+        if e is not None
     ]
     reglas = Reglas.model_validate(partido.categoria.torneo.reglas)
     notas = _notas(partido, eventos, reglas)
@@ -168,6 +234,7 @@ def _contexto(partido: Partido) -> dict[str, Any]:
         "monto_multa": Reglas.model_validate(partido.categoria.torneo.reglas).multa_doble_amarilla,
         "hora": timezone.localtime(partido.inicio).strftime("%H:%M") if partido.inicio else "",
         "historial": historial(partido=partido),
+        "dia_suspendido": _dia_suspendido(partido),
         "horas": [
             {
                 "campo": campo,
@@ -188,7 +255,9 @@ def ficha(request: HttpRequest, pk: int) -> HttpResponse:
     partido = get_object_or_404(_PARTIDO, pk=pk)
     if servicio.cerrar_olvidados(partido.categoria.torneo):  # T11.12
         partido.refresh_from_db()
-    return render(request, "partidos/ficha.html", _contexto(partido))
+    abrir = request.GET.get("equipo", "")
+    contexto = _contexto(partido, int(abrir) if abrir.isdigit() else None)
+    return render(request, "partidos/ficha.html", contexto)
 
 
 @require_POST
@@ -199,10 +268,20 @@ def accion(request: HttpRequest, pk: int) -> HttpResponse:
     if "evento" in datos:  # un botón de la lista de jugadores: "tipo|equipo|jugador"
         partes = [*datos["evento"].split("|"), "", ""]
         datos["accion"], datos["equipo"], datos["jugador"] = partes[:3]
+    if datos.get("accion") in CONFIRMAN and not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=_que_pasa(partido, datos),
+            boton=CONFIRMAN[datos["accion"]],
+            volver=reverse("ficha-partido", args=[partido.pk]),
+            peligro=True,
+        )
     try:
         _hacer(request, partido, datos)
     except (NoSePuede, planilla.NoSePuede) as error:
         messages.error(request, str(error))
+    except Reprogramado:
+        return redirect("mover", pk=partido.pk)
     except planilla.PideConfirmar as error:
         # Se vuelve a mostrar la ficha con lo que se mandó y "Guardar igual".
         contexto = _contexto(partido)
@@ -242,6 +321,10 @@ def _numero(texto: str) -> int:
         return max(0, int(texto))
     except ValueError:
         raise NoSePuede("Los penales son números.") from None
+
+
+class Reprogramado(Exception):
+    """Después de reprogramar un partido en juego, se pasa a ubicarlo."""
 
 
 def _evento(partido: Partido, datos: dict[str, str]) -> Evento:
@@ -304,6 +387,10 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
             servicio.marcar_revisado(partido, request.user)
         case "quitar_wo":
             servicio.quitar_wo(partido, request.user)
+        case "reprogramar_en_juego":
+            servicio.reprogramar_en_juego(partido, request.user)
+            messages.success(request, "Sin programar: ubícalo en un día y una cancha")
+            raise Reprogramado
         case "deshacer":
             if servicio.deshacer(partido, request.user) is None:
                 raise NoSePuede("No hay nada para deshacer.")
@@ -328,7 +415,11 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
             jugador = _jugador_del_partido(partido, datos.get("jugador", ""))
             texto = datos.get("dorsal", "").strip()
             planilla.cambiar_dorsal(
-                partido, jugador, _numero(texto) if texto else None, request.user
+                partido,
+                jugador,
+                _numero(texto) if texto else None,
+                request.user,
+                confirmado=datos.get("confirmar") == "1",
             )
         case "planilla":
             equipo = _equipo(partido, datos.get("equipo", ""))
@@ -340,6 +431,7 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
                     for j in equipo.jugadores.all()
                     if datos.get(f"juega_{j.pk}")
                 }
+            tocan_el_ci = not datos.get("todos")
             planilla.guardar_planilla(
                 partido,
                 equipo,
@@ -347,6 +439,12 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
                 request.user,
                 confirmado=datos.get("confirmar") == "1",
                 entrenador=bool(datos.get("entrenador")) if not datos.get("todos") else None,
+                verificados=(
+                    {int(clave.removeprefix("ci_")) for clave in datos if clave.startswith("ci_")}
+                    if tocan_el_ci
+                    else None
+                ),
+                verificar_todos=bool(datos.get("verificar_todos")),
             )
             messages.success(request, f"Planilla de {equipo.nombre} guardada")
         case "mejor":

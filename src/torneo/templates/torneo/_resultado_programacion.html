@@ -18,6 +18,11 @@
     {% endfor %}
   </ul>
   {% endif %}
+  {% if resultado.sin_resultado %}
+  {% include "parciales/seccion_cab.html" with titulo="Les falta el resultado" chip=resultado.sin_resultado|length|stringformat:"s" chip_estado="aviso" %}
+  <p class="peq tenue">Su hora ya pasó: no se movieron. Carga el resultado, o dalos por no jugados desde su ficha.</p>
+  <ul class="lista">{% for texto in resultado.sin_resultado %}<li class="fila"><span class="crece"><strong>{{ texto }}</strong></span></li>{% endfor %}</ul>
+  {% endif %}
   <a class="btn bloque" href="{% url 'calendario' %}">Ver el calendario</a>
   {% endif %}
 </div>

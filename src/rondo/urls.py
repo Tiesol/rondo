@@ -55,6 +55,7 @@ urlpatterns = [
     path("calendario/club/<int:pk>/", calendario.por_club, name="calendario-club"),
     path("calendario/<str:fecha>/", calendario.calendario_dia, name="calendario-dia"),
     path("calendario/<str:fecha>/suspender/", calendario.suspender, name="suspender-dia"),
+    path("calendario/<str:fecha>/reanudar/", calendario.reanudar, name="reanudar-dia"),
     path("calendario/<str:fecha>/png/", png.png, name="png-dia"),
     path("calendario/<str:fecha>/suspendidos/", calendario.suspendidos, name="suspendidos-dia"),
     path("escuela/", escuela, name="escuela"),
@@ -90,6 +91,7 @@ urlpatterns = [
     path("equipos/<int:pk>/<str:seccion>/", equipos.equipo, name="equipo"),
     path("jugadores/<int:pk>/verificar/", jugadores.verificar, name="verificar"),
     path("partidos/<int:pk>/mover/", mover.mover, name="mover"),
+    path("partidos/<int:pk>/intercambiar/", mover.intercambiar, name="intercambiar"),
     path("partidos/<int:pk>/ficha/", ficha_partido.ficha, name="ficha-partido"),
     path("partidos/<int:pk>/ficha/accion/", ficha_partido.accion, name="accion-partido"),
     path("partidos/<int:pk>/alta/<int:equipo>/", alta_rapida.alta_rapida, name="alta-rapida"),
@@ -106,6 +108,7 @@ urlpatterns = [
     path("bloqueos/<int:pk>/propuestas/", reprogramar.propuestas, name="propuestas"),
     path("corridas/<int:pk>/propuestas/", reprogramar.ver_propuestas, name="ver-propuestas"),
     path("corridas/<int:pk>/wo/", reprogramar.dar_wo, name="dar-wo"),
+    path("corridas/<int:pk>/recalcular/", reprogramar.recalcular, name="recalcular-propuestas"),
     path(
         "corridas/<int:pk>/aplicar/<int:indice>/",
         reprogramar.aplicar_propuesta,

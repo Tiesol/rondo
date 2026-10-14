@@ -25,4 +25,7 @@
   {% if ahora == "Sin programar" %}{% include "parciales/boton.html" with texto="Ubicar el partido" principal=True bloque=True %}{% else %}{% include "parciales/boton.html" with texto="Mover el partido" principal=True bloque=True %}{% endif %}
   {% endif %}
 </form>
+{% if ahora != "Sin programar" and partido.estado == "programado" %}
+<div class="seccion"><a class="btn bloque" href="{% url 'intercambiar' partido.pk %}">Intercambiar con otro partido…</a></div>
+{% endif %}
 {% endblock %}

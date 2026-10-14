@@ -25,11 +25,21 @@
   {% if estimadas %}{% include "parciales/alerta.html" with estado="info" titulo="Sin fixture todavía:" texto=estimadas|add:". Se estimaron con su formato." %}{% endif %}
   {% if sin_formato %}{% include "parciales/alerta.html" with estado="aviso" titulo="Sin formato (P27):" texto=sin_formato|add:". No se cuentan." %}{% endif %}
   {% if no_entra %}{% include "parciales/alerta.html" with estado="aviso" titulo="No entra todo." texto="Agrega un día en el calendario, o programa y ubica a mano lo que quede sin lugar." %}{% endif %}
-  <form method="post" hx-post="{% url 'programar' torneo.pk %}" hx-target="#resultado-programacion" hx-swap="outerHTML" hx-indicator="#programando" hx-disabled-elt="find button">
+  {% if resumen.hay_publicados %}
+  <p class="peq">{% if resumen.jugados %}<strong>{{ resumen.jugados }}</strong> jugados o en juego no se mueven. {% endif %}{% if resumen.sin_resultado %}<strong>{{ resumen.sin_resultado|length }}</strong> con la hora ya pasada no se mueven y <strong>les falta el resultado</strong>. {% endif %}{% if resumen.futuros %}<strong>{{ resumen.futuros }}</strong> programados se mueven al volver a programar.{% endif %}</p>
+  {% endif %}
+  <form method="post" hx-post="{% url 'programar' torneo.pk %}" hx-target="#resultado-programacion" hx-swap="outerHTML" hx-indicator="#programando" hx-disabled-elt="find button" class="flex flex-col gap-2">
     {% csrf_token %}
-    <button type="submit" class="btn principal bloque">{% if resultado %}Volver a programar{% else %}Programar los partidos{% endif %}</button>
+    {% if resumen.futuros and resumen.sin_lugar %}
+    <button type="submit" name="modo" value="faltan" class="btn principal bloque">Ubicar solo lo que falta ({{ resumen.sin_lugar }})</button>
+    <button type="submit" name="modo" value="todo" class="btn bloque">Volver a programar todo</button>
+    {% elif resumen.futuros %}
+    <button type="submit" name="modo" value="todo" class="btn bloque">Volver a programar todo</button>
+    {% else %}
+    <button type="submit" name="modo" value="todo" class="btn principal bloque">{% if resultado %}Volver a programar{% else %}Programar los partidos{% endif %}</button>
+    {% endif %}
   </form>
-  <p class="peq tenue">Puede tardar hasta {{ minutos_maximos }} minuto{{ minutos_maximos|pluralize }}. Lo jugado no se mueve; lo movido a mano, sí.</p>
+  <p class="peq tenue">Puede tardar hasta {{ minutos_maximos }} minuto{{ minutos_maximos|pluralize }}. Lo jugado y lo que su hora ya pasó no se mueve.</p>
 </div>
 <div class="seccion">
   <div id="programando" class="esperando" aria-busy="true" aria-label="Programando">

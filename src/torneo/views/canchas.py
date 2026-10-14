@@ -3,11 +3,13 @@
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from torneo.models import Cancha, Torneo
 from torneo.permisos import requiere
 from torneo.servicios import canchas as servicio
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 
 _QUE = "cambiar las canchas"
 
@@ -36,6 +38,19 @@ def accion(request: HttpRequest, pk: int, cancha: int, que: str) -> HttpResponse
     if que not in acciones:
         messages.error(request, "Acción desconocida.")
         return redirect("canchas", pk=pk)
+    if que in ("unir", "quitar") and not confirmado(request):
+        mensaje = (
+            f"Se unen las mitades de {actual.nombre}."
+            if que == "unir"
+            else f"Se quita {actual.nombre} del torneo."
+        )
+        return pedir_confirmacion(
+            request,
+            mensaje=mensaje,
+            boton="Unir" if que == "unir" else "Quitar",
+            volver=reverse("canchas", args=[pk]),
+            peligro=True,
+        )
     try:
         acciones[que](actual)
     except servicio.NoSePuede as error:

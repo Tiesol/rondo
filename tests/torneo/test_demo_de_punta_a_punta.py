@@ -61,7 +61,9 @@ def test_la_demo_de_punta_a_punta(
     assert 2 <= len(reprogramar.resultado["propuestas"]) <= 3
     assert "Recomendada" in client.get(respuesta["Location"]).content.decode()
 
-    client.post(f"/corridas/{reprogramar.pk}/aplicar/0/")
+    pregunta = client.post(f"/corridas/{reprogramar.pk}/aplicar/0/")  # B7: pide confirmar
+    assert "¿Estás seguro?" in pregunta.content.decode()
+    client.post(f"/corridas/{reprogramar.pk}/aplicar/0/", {"confirmado": "1"})
     assert verificar_torneo(torneo) == {}
 
     png = client.get(f"/calendario/{local.date().isoformat()}/png/").content.decode()

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}Propuestas{% endblock %}
-{% block volver %}<a class="icono-btn" href="{% url 'acf' corrida.torneo_id %}" aria-label="Volver a los partidos de la ACF">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Volver">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
 {% block encabezado %}Propuestas{% endblock %}
 {% block contenido %}
 <div class="seccion gap-3">
@@ -16,10 +16,12 @@
   </div>
   {% endfor %}
   {% include "parciales/seccion_cab.html" with titulo="Propuestas" nota="De menos a más cambios" %}
+  {% if aflojadas %}{% include "parciales/alerta.html" with estado="info" titulo="Reglas aflojadas solo esta vez:" texto=aflojadas|join:". " %}{% endif %}
   <p class="peq tenue">{{ motivo }}. Se mueve solo lo de ese fin de semana y el siguiente; lo jugado y lo puesto a mano fuera de horario no se toca.</p>
   {% for propuesta in propuestas %}
   <div class="propuesta{% if forloop.first %} recomendada{% endif %}">
     <div class="seccion-cab"><h3>{{ propuesta.titulo }}</h3>{% if forloop.first %}{% include "parciales/chip.html" with texto="Recomendada" estado="bien" %}{% endif %}</div>
+    <p class="peq">{% if propuesta.publicados %}<strong>Mueve {{ propuesta.publicados }} partido{{ propuesta.publicados|pluralize }} ya publicado{{ propuesta.publicados|pluralize }}.</strong>{% else %}No mueve ningún partido ya publicado.{% endif %}</p>
     {% for mov in propuesta.movimientos %}
     <div class="mov">
       <span class="antes">{{ mov.antes }}</span>
@@ -35,5 +37,10 @@
   {% empty %}
   {% include "parciales/vacio.html" with icono="calendario" titulo="No hay propuestas" texto="O no hace falta mover nada, o no hay forma de hacerlo dentro de este fin de semana y el siguiente. Agrega un día o mueve el partido a mano." %}
   {% endfor %}
+  <form method="post" action="{% url 'recalcular-propuestas' corrida.pk %}" class="flex flex-col gap-3">
+    {% csrf_token %}
+    {% include "reprogramar/_aflojar.html" %}
+    <button type="submit" class="btn bloque">Volver a calcular</button>
+  </form>
 </div>
 {% endblock %}

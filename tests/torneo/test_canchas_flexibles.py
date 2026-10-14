@@ -62,11 +62,11 @@ def test_unir_se_niega_si_una_mitad_tiene_partidos(org: Client, torneo: Torneo) 
     cn = torneo.categorias.get(categoria="Sub 5", nivel="unico")
     Partido.objects.create(categoria=cn, fase="grupos", fecha=1, cancha=c1a)
     c1 = Cancha.objects.get(torneo=torneo, codigo="C1")
-    respuesta = org.post(url(torneo, f"{c1.pk}/unir/"), follow=True)
+    respuesta = org.post(url(torneo, f"{c1.pk}/unir/"), {"confirmado": "1"}, follow=True)
     assert "tiene partidos" in respuesta.content.decode()
     assert c1.mitades.count() == 2
     Partido.objects.all().delete()
-    org.post(url(torneo, f"{c1.pk}/unir/"))
+    org.post(url(torneo, f"{c1.pk}/unir/"), {"confirmado": "1"})
     assert c1.mitades.count() == 0
 
 
@@ -74,7 +74,7 @@ def test_unir_se_niega_si_una_mitad_tiene_partidos(org: Client, torneo: Torneo) 
 def test_quitar_una_cancha_sin_partidos(org: Client, torneo: Torneo) -> None:
     org.post(url(torneo, "agregar/"))
     c4 = Cancha.objects.get(torneo=torneo, codigo="C4")
-    org.post(url(torneo, f"{c4.pk}/quitar/"))
+    org.post(url(torneo, f"{c4.pk}/quitar/"), {"confirmado": "1"})
     assert not Cancha.objects.filter(pk=c4.pk).exists()
 
 

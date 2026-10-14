@@ -1,0 +1,12 @@
+{# B7: qué va a pasar y el botón para confirmar. Los mismos datos del POST, escondidos. #}
+<div{% if destino %} id="{{ destino }}"{% endif %} class="seccion gap-3 confirmar">
+  {% include "parciales/alerta.html" with estado="aviso" titulo="¿Estás seguro?" texto=mensaje %}
+  {% if detalle %}<ul class="lista">{% for linea in detalle %}<li class="fila"><span class="crece">{{ linea }}</span></li>{% endfor %}</ul>{% endif %}
+  <form method="post" action="{{ accion }}"{% if destino %} hx-post="{{ accion }}" hx-target="#{{ destino }}" hx-swap="outerHTML"{% endif %} class="botones">
+    {% csrf_token %}
+    {% for clave, valor in campos %}<input type="hidden" name="{{ clave }}" value="{{ valor }}">{% endfor %}
+    <input type="hidden" name="confirmado" value="1">
+    <a class="btn" href="{{ volver }}">Cancelar</a>
+    <button type="submit" class="btn principal">{{ boton }}</button>
+  </form>
+</div>

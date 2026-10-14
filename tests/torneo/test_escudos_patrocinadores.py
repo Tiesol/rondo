@@ -146,7 +146,7 @@ def test_patrocinadores_se_agregan_ordenan_y_sacan(client: Client, torneo: Torne
     html = org.get(url).content.decode()
     assert f"/imagen/patrocinador/{uno.pk}/" in html
     archivo = uno.imagen.name or ""
-    org.post(f"/patrocinadores/{uno.pk}/borrar/")
+    org.post(f"/patrocinadores/{uno.pk}/borrar/", {"confirmado": "1"})
     assert not Patrocinador.objects.filter(pk=uno.pk).exists()
     assert not uno.imagen.storage.exists(archivo)
 

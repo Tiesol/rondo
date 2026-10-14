@@ -211,6 +211,9 @@ Cada regla tiene un ID estable. La columna "Clave" es dónde vive en la configur
 | PRO-08 | Los partidos de cada equipo van en el orden de las fechas | Dura o blanda | 5.8, P19 | R `orden_de_fechas` | Dura |
 | PRO-09 | La eliminación va después de los grupos, la final después de las semis, y desde un fin de semana dado | Dura | 5.9, P33 | R `eliminacion_desde_fin_de_semana` | 5 |
 | PRO-10 | Los partidos en juego o jugados no se mueven. Mover a mano no fija (T11.2, 1.4) | Dura | 5.10 | — | — |
+| PRO-15 | Nada se ubica antes de ahora, y no se mueve lo que su hora ya pasó aunque no tenga resultado. "Ubicar solo lo que falta" deja todo lo que ya tiene lugar donde está | Fase 12 (B1, B4) | — | — |
+| PRO-16 | El tiempo agregado (un día u horario extra) vale solo en sus canchas y se usa solo si sin él queda algo sin lugar | Fase 12 (A4, P78) | — | — |
+| PRO-17 | Las reglas se pueden aflojar solo para una reprogramación (turnos libres, máximo por día, orden, minutos extra, mitades); la corrida guarda qué se aflojó | Fase 12 (B6) | — | — |
 | PRO-11 | Agrupar los partidos de un club, seguidos y en la misma cancha | Blanda | P20 | R `pesos` | — |
 | PRO-12 | Pocos huecos por cancha y la carga repartida entre fines de semana | Blanda | 5 | R `pesos` | — |
 | PRO-13 | Al reprogramar, mover la menor cantidad de partidos y equipos, preferir el mismo fin de semana y dar 2 o 3 propuestas | Blanda | 5 | R `pesos`, `propuestas` | 3 |

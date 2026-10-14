@@ -6,12 +6,14 @@ from django.contrib import messages
 from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from torneo.models import Patrocinador, Torneo
 from torneo.permisos import requiere
 from torneo.presentacion import url_de_imagen
 from torneo.servicios.imagenes import ImagenInvalida, SinAlmacenamiento, procesar_imagen
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 
 
 class FormularioPatrocinador(forms.Form):
@@ -81,6 +83,14 @@ def orden(request: HttpRequest, pk: int) -> HttpResponse:
 def borrar(request: HttpRequest, pk: int) -> HttpResponse:
     patrocinador = get_object_or_404(Patrocinador, pk=pk)
     torneo = patrocinador.torneo_id
+    if not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=f"Se quita {patrocinador.nombre} y se borra su imagen.",
+            boton="Quitar",
+            volver=reverse("patrocinadores", args=[torneo]),
+            peligro=True,
+        )
     patrocinador.imagen.delete(save=False)
     patrocinador.delete()
     messages.success(request, f"{patrocinador.nombre} quitado")
