@@ -6,9 +6,22 @@
 <form method="post" enctype="multipart/form-data" class="seccion gap-3.5" novalidate>
   {% csrf_token %}
   {% if al_partido %}<input type="hidden" name="volver" value="{{ al_partido }}">{% endif %}
+  {% if de_equipo %}<input type="hidden" name="equipo" value="{{ de_equipo }}">{% endif %}
   <p><strong>{{ persona }}</strong>{% if equipo %}<span class="peq tenue"> · {{ equipo.nombre }} · {{ equipo.categoria }}</span>{% endif %}</p>
   {% if actual %}<img class="foto-persona" src="{{ actual }}" alt="Foto de {{ persona }}" width="160" height="213">{% endif %}
-  {% include "parciales/campo_imagen.html" with nombre="foto" etiqueta=actual|yesno:"Cambiar la foto,Foto" ayuda="La que mandó con el uniforme. JPG, PNG o WebP; se achica y se le borran los datos del teléfono (ubicación incluida)." %}
+  {% if imagenes_disponibles %}
+  <div class="campo">
+    <label for="id_foto">Sacar foto</label>
+    <input type="file" id="id_foto" name="foto" accept="image/*" capture="environment">
+  </div>
+  <div class="campo">
+    <label for="id_foto_galeria">Elegir de la galería</label>
+    <input type="file" id="id_foto_galeria" name="foto_galeria" accept="image/jpeg,image/png,image/webp">
+    <span class="peq tenue">JPG, PNG o WebP; se achica y se le borran los datos del teléfono (ubicación incluida).</span>
+  </div>
+  {% else %}
+  <div class="campo"><span class="peq tenue">Falta conectar el almacenamiento de imágenes.</span></div>
+  {% endif %}
   {% if error %}{% include "parciales/alerta.html" with estado="error" texto=error %}{% endif %}
   <label class="flex items-start gap-2">
     <input type="checkbox" name="autorizada" value="on"{% if persona.foto_autorizada %} checked{% endif %}>

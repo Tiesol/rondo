@@ -1,6 +1,6 @@
-{# T11.8: quiénes juegan y el dorsal de este partido, por equipo. Usa partido y lado. #}
-<details class="planilla-equipo"{% if not lado.juegan %} open{% endif %}>
-<summary><strong>{{ lado.equipo.nombre }}</strong><span class="chip {% if lado.juegan %}bien{% else %}neutro{% endif %} num">{{ lado.juegan|length }} juegan</span></summary>
+{# T11.8, C1 y C2: quiénes juegan, el dorsal y el CI de este partido, por equipo. Usa partido y lado. #}
+<details class="planilla-equipo"{% if not lado.juegan or lado.abierto %} open{% endif %}>
+<summary><strong>{{ lado.equipo.nombre }}</strong><span class="resumen-planilla"><span class="chip {% if lado.juegan %}bien{% else %}neutro{% endif %} num">{{ lado.juegan|length }} juegan</span>{% if lado.juegan %}<span class="chip {% if lado.verificados == lado.juegan|length %}bien{% else %}aviso{% endif %} num">{{ lado.verificados }} de {{ lado.juegan|length }} CI ✓</span>{% endif %}</span></summary>
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="planilla flex flex-col gap-2">
   {% csrf_token %}
   <input type="hidden" name="accion" value="planilla">
@@ -8,18 +8,20 @@
   {% if not lado.juegan and lado.filas %}<button type="submit" name="todos" value="1" class="btn bloque">Juegan todos</button>{% endif %}
   <ul class="lista">
     {% for fila in lado.filas %}
-    <li class="fila-planilla{% if fila.suspendido %} suspendido{% endif %}">
+    <li class="fila-planilla{% if fila.suspendido %} suspendido{% endif %}" id="persona-{{ fila.jugador.persona_id }}">
       <label class="juega">
         <input type="checkbox" name="juega_{{ fila.jugador.pk }}"{% if fila.juega %} checked{% endif %}>
-        <span class="crece">{{ fila.jugador.persona }}{% if fila.suspendido %}<span class="sub">Suspendido</span>{% endif %}</span>
+        <span class="crece">{{ fila.jugador.persona }}{% if fila.suspendido %}<span class="sub">Suspendido</span>{% endif %}{% if fila.repetido %}<span class="sub"><strong>Repetido</strong>: otro usa el mismo dorsal</span>{% endif %}</span>
       </label>
-      <a class="foto-chica{% if not fila.foto %} sin-foto{% endif %}" href="{% url 'foto-persona' fila.jugador.persona_id %}?volver={% url 'ficha-partido' partido.pk %}" aria-label="Foto de {{ fila.jugador.persona }}">{% if fila.foto %}<img src="{{ fila.foto }}" alt="" width="40" height="40" loading="lazy">{% else %}{% include "parciales/icono.html" with nombre="camara" clase="ico" %}{% endif %}</a>
+      <a class="foto-chica{% if not fila.foto %} sin-foto{% endif %}" href="{% url 'foto-persona' fila.jugador.persona_id %}?volver={% url 'ficha-partido' partido.pk %}&amp;equipo={{ lado.equipo.pk }}" aria-label="Foto de {{ fila.jugador.persona }}">{% if fila.foto %}<img src="{{ fila.foto }}" alt="" width="40" height="40" loading="lazy">{% else %}{% include "parciales/icono.html" with nombre="camara" clase="ico" %}{% endif %}</a>
       <input class="dorsal-partido num" type="number" name="dorsal_{{ fila.jugador.pk }}" value="{{ fila.dorsal|default_if_none:'' }}" min="1" max="99" inputmode="numeric" aria-label="Dorsal de {{ fila.jugador.persona }}" placeholder="N.º">
+      {% if fila.juega %}<label class="ci-fila"><input type="checkbox" name="ci_{{ fila.jugador.pk }}"{% if fila.ci_verificado %} checked{% endif %}> CI ✓ <span class="tenue num">{{ fila.ci }}</span></label>{% endif %}
     </li>
     {% empty %}
     <li class="peq tenue">Sin jugadores cargados.</li>
     {% endfor %}
   </ul>
+  {% if lado.juegan %}<button type="submit" name="verificar_todos" value="1" class="btn bloque">Verificar todos los CI</button>{% endif %}
   {% if perms.torneo.inscribir_equipos %}<a class="btn chico" href="{% url 'alta-rapida' partido.pk lado.equipo.pk %}">+ Agregar jugador</a>{% endif %}
   <label class="opcion"><input type="checkbox" name="entrenador"{% if lado.entrenador %} checked{% endif %}> Entrenador presente</label>
   <button type="submit" class="btn principal bloque">Guardar</button>

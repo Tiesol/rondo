@@ -41,6 +41,8 @@ def foto(request: HttpRequest, pk: int) -> HttpResponse:
     equipo = _equipo(persona)
     seccion = "plantel" if persona.jugadores.exists() else "cuerpo-tecnico"
     al_partido = _volver_al_partido(request)
+    de_equipo = request.POST.get("equipo") or request.GET.get("equipo") or ""
+    de_equipo = de_equipo if de_equipo.isdigit() else ""
     error = ""
     if request.method == "POST":
         try:
@@ -49,7 +51,8 @@ def foto(request: HttpRequest, pk: int) -> HttpResponse:
                 _autorizar(persona, request, autorizada=False)
                 messages.success(request, "Foto quitada")
             else:
-                if archivo := request.FILES.get("foto"):
+                # C3: la cámara o la galería; cualquiera de las dos.
+                if archivo := request.FILES.get("foto") or request.FILES.get("foto_galeria"):
                     reemplazar_imagen(persona.foto, archivo, tipo="foto")
                 _autorizar(persona, request, autorizada=bool(request.POST.get("autorizada")))
                 messages.success(request, "Foto guardada")
@@ -57,7 +60,9 @@ def foto(request: HttpRequest, pk: int) -> HttpResponse:
             error = str(problema)
         else:
             if al_partido:
-                return redirect(al_partido)
+                # C3: vuelve a la planilla, a ese equipo y a ese jugador.
+                abierto = f"?equipo={de_equipo}" if de_equipo else ""
+                return redirect(f"{al_partido}{abierto}#persona-{persona.pk}")
             if equipo is not None:
                 return redirect("equipo", pk=equipo.pk, seccion=seccion)
             return redirect("foto-persona", pk=persona.pk)
@@ -69,6 +74,7 @@ def foto(request: HttpRequest, pk: int) -> HttpResponse:
             "equipo": equipo,
             "volver": al_partido or (f"/equipos/{equipo.pk}/{seccion}/" if equipo else "/"),
             "al_partido": al_partido,
+            "de_equipo": de_equipo,
             "actual": url_de_imagen("foto", persona.pk, persona.foto.name),
             "error": error,
         },

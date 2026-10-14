@@ -1,8 +1,9 @@
 """La planilla del partido (T11.8, P9): quiénes juegan y con qué dorsal en este partido.
 
 El dorsal es del partido: se propone el del partido anterior del jugador o, si no hay, el
-habitual del plantel. Dos jugadores del mismo equipo no repiten dorsal en un partido (la base
-no lo deja). Convocar a un suspendido pide confirmación.
+habitual del plantel. Un dorsal repetido en el partido avisa ("El 10 está repetido: Juan P. y
+Luis R.") y se guarda con "Guardar igual" (C1, fase 12). Convocar a un suspendido pide
+confirmación. El CI se verifica por partido (C2) y no bloquea nada.
 """
 
 from typing import Any
@@ -43,6 +44,11 @@ def dorsal_sugerido(partido: Partido, jugador: Jugador) -> int | None:
     return ultimo.dorsal if ultimo is not None else jugador.dorsal
 
 
+def _con_punto(frase: str) -> str:
+    """El nombre abreviado ("Juan P.") ya termina en punto: no se duplica."""
+    return frase if frase.endswith(".") else frase + "."
+
+
 def _nombre(jugador: Jugador) -> str:
     return f"{jugador.persona.nombres} {jugador.persona.apellidos[:1]}.".strip()
 
@@ -56,8 +62,11 @@ def guardar_planilla(
     *,
     confirmado: bool = False,
     entrenador: bool | None = None,
+    verificados: set[int] | None = None,
+    verificar_todos: bool = False,
 ) -> None:
-    """`juegan` es {pk del jugador: dorsal en este partido}; los demás del equipo no juegan."""
+    """`juegan` es {pk del jugador: dorsal en este partido}; los demás del equipo no juegan.
+    `verificados` son los jugadores con el CI visto en este partido (C2); sin él, no cambia."""
     lado = _lado(partido, equipo)
     plantel = {j.pk: j for j in equipo.jugadores.select_related("persona")}
     if ajenos := set(juegan) - set(plantel):
@@ -68,16 +77,20 @@ def guardar_planilla(
             if not 1 <= dorsal <= 99:
                 raise NoSePuede("El dorsal va de 1 a 99.")
             por_dorsal.setdefault(dorsal, []).append(plantel[pk])
-    for dorsal, quienes in sorted(por_dorsal.items()):
-        if len(quienes) > 1:
-            raise NoSePuede(f"El {dorsal} está repetido: {', '.join(map(_nombre, quienes))}.")
+    avisos = [
+        _con_punto(f"El {dorsal} está repetido: {' y '.join(map(_nombre, quienes))}")
+        for dorsal, quienes in sorted(por_dorsal.items())
+        if len(quienes) > 1
+    ]
 
     actuales = {c.jugador_id: c for c in partido.convocados.filter(equipo=equipo)}
     nuevos = set(juegan) - set(actuales)
     suspendidos = {j.pk: motivo for j, motivo in suspendidos_en(partido)}
-    if not confirmado and (en_falta := [pk for pk in nuevos if pk in suspendidos]):
-        jugador = plantel[en_falta[0]]
-        raise PideConfirmar(f"{_nombre(jugador)} está suspendido: {suspendidos[jugador.pk]}.")
+    for pk in nuevos:
+        if pk in suspendidos:
+            avisos.append(_con_punto(f"{_nombre(plantel[pk])} está suspendido: {suspendidos[pk]}"))
+    if avisos and not confirmado:
+        raise PideConfirmar(" ".join(avisos))
 
     for pk, convocado in actuales.items():
         if pk not in juegan:
@@ -107,9 +120,37 @@ def guardar_planilla(
             )
     except IntegrityError:
         raise NoSePuede("Alguien cambió la planilla recién. Vuelve a cargarla.") from None
+    if verificados is not None or verificar_todos:
+        _verificar(partido, equipo, juegan, verificados or set(), verificar_todos, usuario)
     if entrenador is not None:
         setattr(partido, f"entrenador_{lado}", entrenador)
         partido.save(update_fields=[f"entrenador_{lado}"])
+
+
+def _verificar(
+    partido: Partido,
+    equipo: Equipo,
+    juegan: dict[int, int | None],
+    verificados: set[int],
+    todos_: bool,
+    usuario: Any,
+) -> None:
+    """C2: el CI visto en este partido. Si se verifica, también se marca al jugador en la
+    inscripción (INS-12); desmarcarlo en un partido no toca la inscripción."""
+    for convocado in partido.convocados.filter(equipo=equipo, jugador_id__in=list(juegan)):
+        ahora = todos_ or convocado.jugador_id in verificados
+        if ahora == convocado.ci_verificado:
+            continue
+        convocado.ci_verificado = ahora
+        convocado.save(update_fields=["ci_verificado"])
+        registrar(
+            partido,
+            usuario,
+            "CI verificado" if ahora else "CI sin verificar",
+            jugador=convocado.jugador,
+        )
+        if ahora and not convocado.jugador.verificado:
+            Jugador.objects.filter(pk=convocado.jugador_id).update(verificado=True)
 
 
 def todos(partido: Partido, equipo: Equipo) -> dict[int, int | None]:
@@ -148,8 +189,16 @@ def asegurar_convocado(partido: Partido, jugador: Jugador, usuario: Any) -> Conv
     return convocado
 
 
-def cambiar_dorsal(partido: Partido, jugador: Jugador, dorsal: int | None, usuario: Any) -> None:
-    """El dorsal de este partido (T10.11 y T11.8); el habitual del plantel no cambia."""
+def cambiar_dorsal(
+    partido: Partido,
+    jugador: Jugador,
+    dorsal: int | None,
+    usuario: Any,
+    *,
+    confirmado: bool = False,
+) -> None:
+    """El dorsal de este partido (T10.11 y T11.8); el habitual del plantel no cambia. Si otro
+    del equipo ya lo tiene en este partido, avisa y se guarda con "Guardar igual" (C1)."""
     if jugador.equipo_id not in (partido.local_id, partido.visitante_id):
         raise NoSePuede("Ese jugador no juega este partido.")
     if dorsal is not None and not 1 <= dorsal <= 99:
@@ -162,8 +211,8 @@ def cambiar_dorsal(partido: Partido, jugador: Jugador, dorsal: int | None, usuar
             .select_related("jugador__persona")
             .first()
         )
-        if otro is not None:
-            raise NoSePuede(f"El {dorsal} ya lo tiene {_nombre(otro.jugador)}.")
+        if otro is not None and not confirmado:
+            raise PideConfirmar(_con_punto(f"El {dorsal} ya lo tiene {_nombre(otro.jugador)}"))
     antes = "" if convocado.dorsal is None else str(convocado.dorsal)
     convocado.dorsal = dorsal
     convocado.save(update_fields=["dorsal"])
@@ -180,3 +229,8 @@ def cambiar_dorsal(partido: Partido, jugador: Jugador, dorsal: int | None, usuar
 def dorsales_del_partido(partido: Partido) -> dict[int, int | None]:
     """{pk del jugador: dorsal en este partido}, para mostrar los eventos."""
     return dict(partido.convocados.values_list("jugador_id", "dorsal"))
+
+
+def ci_verificados(partido: Partido) -> set[int]:
+    """Los jugadores con el CI visto en este partido (C2)."""
+    return set(partido.convocados.filter(ci_verificado=True).values_list("jugador_id", flat=True))
