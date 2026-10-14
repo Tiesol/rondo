@@ -1484,11 +1484,11 @@ T11.16 (al final)
 
 > Pedido de Sebastian del 2026-10-13. Orden: A (antes del 21/10), B y C (antes del 23/10). Cambios de modelo autorizados: C1 y C2. Las migraciones no borran datos.
 
-- [ ] A1 Máximo por día entre grupos y eliminación (programador y verificador)
-- [ ] A2 Orden de fechas "blanda" penalizado en el objetivo
-- [ ] A3 Sub 5 y Sub 6 solo sábado y domingo
-- [ ] A4 Tiempo extra por canchas y solo si hace falta
-- [ ] A5 "¿Entra todo?" con el último inicio
+- [x] A1 Máximo por día entre grupos y eliminación (programador y verificador)
+- [x] A2 Orden de fechas "blanda" penalizado en el objetivo
+- [x] A3 Sub 5 y Sub 6 solo sábado y domingo
+- [x] A4 Tiempo extra por canchas y solo si hace falta
+- [x] A5 "¿Entra todo?" con el último inicio
 - [ ] B1 Suspender: elegir dónde se juega (por defecto el jueves)
 - [ ] B2 Reanudar el día
 - [ ] B3 Partidos en juego al suspender
@@ -1501,4 +1501,4 @@ T11.16 (al final)
 - [ ] C1 Dorsal repetido: aviso
 - [ ] C2 CI verificado en cada partido
 - [ ] C3 Foto con cámara o galería
-- [ ] C4 Docstrings del último inicio
+- [x] C4 Docstrings del último inicio

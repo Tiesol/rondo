@@ -6,8 +6,9 @@ compatibilidad, de franja o de bloqueo) con la lista de sus motivos, y un tipo:
 
 - cancha: dos partidos usan la misma cancha física a la vez (C1 entera ocupa C1A y C1B);
 - compatibilidad: la categoría no juega en esa cancha;
-- franja: el partido no empieza y termina dentro de una franja (el cambio puede quedar
-  afuera, P48);
+- franja: con "último inicio" (P48), el partido no empieza dentro de una franja; con "fin del
+  partido", no empieza y termina dentro (el cambio puede quedar afuera). El tiempo agregado
+  (A4) cuenta, solo en sus canchas;
 - equipo: un equipo juega dos partidos que se pisan, no deja los turnos libres del día (P17)
   o pasa del máximo de partidos por día (P47). En la eliminación cuentan los equipos
   virtuales (el ganador de una semi juega la final) y el descanso entre los partidos de
@@ -50,6 +51,7 @@ class PartidoAgendado:
     virtuales: frozenset[str] = frozenset()  # en la eliminación: "ganador de la semi 1" (T7.1)
     toma_posiciones: bool = False  # en la eliminación: juega con equipos de la tabla de grupos
     dias_sin_jugar: frozenset[int] = frozenset()  # días de la semana (0 es lunes), P56
+    ronda: str = ""  # en la eliminación: "semi" o "final" (A1, fase 12)
 
     @property
     def fin_partido(self) -> datetime:
@@ -91,6 +93,22 @@ class Bloqueo:
 
 
 @dataclass(frozen=True)
+class FranjaExtra:
+    """Tiempo agregado (A4, P78): un día entre semana, o empezar antes o terminar después un
+    día puntual. Vale solo en sus canchas (vacío: todas) y se usa solo si hace falta."""
+
+    desde: datetime
+    hasta: datetime
+    canchas: frozenset[str] = frozenset()
+
+    def admite(self, cancha: str, fisicas: dict[str, frozenset[str]]) -> bool:
+        if not self.canchas:
+            return True
+        permitidas = set().union(*(fisicas.get(c, frozenset({c})) for c in self.canchas))
+        return fisicas.get(cancha, frozenset({cancha})) <= permitidas
+
+
+@dataclass(frozen=True)
 class Escenario:
     fisicas: dict[str, frozenset[str]]  # cancha → canchas físicas que ocupa
     compatibilidad: dict[str, frozenset[str]]  # categoría → canchas donde puede jugar
@@ -98,6 +116,7 @@ class Escenario:
     pares: tuple[ParDeEquipos, ...]
     bloqueos: tuple[Bloqueo, ...]
     reglas: Reglas
+    extras: tuple[FranjaExtra, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -137,6 +156,7 @@ def verificar(partidos: Iterable[PartidoAgendado], escenario: Escenario) -> list
         _cancha(uno, otro, escenario, anotar)
     _equipos(lista, escenario.reglas, anotar)
     _grupos_y_llaves(lista, escenario.reglas, anotar)
+    _maximo_con_llaves(lista, escenario.reglas, anotar)
     _personas(lista, escenario, anotar)
 
     return [
@@ -154,10 +174,14 @@ def _uno_solo(partido: PartidoAgendado, escenario: Escenario, anotar: _Anotar) -
             f"{partido.categoria} no juega en {partido.cancha}",
         )
     ultimo_inicio = escenario.reglas.fin_de_franja == "ultimo_inicio"  # P48
+    termina = partido.inicio if ultimo_inicio else partido.fin_partido
     if not any(
-        desde <= partido.inicio
-        and (partido.inicio if ultimo_inicio else partido.fin_partido) <= hasta
-        for desde, hasta in escenario.franjas
+        desde <= partido.inicio and termina <= hasta for desde, hasta in escenario.franjas
+    ) and not any(
+        e.desde <= partido.inicio
+        and termina <= e.hasta
+        and e.admite(partido.cancha, escenario.fisicas)
+        for e in escenario.extras
     ):
         anotar("franja", (partido.id,), "Fuera de las franjas de juego")
     if partido.inicio.weekday() in partido.dias_sin_jugar:
@@ -240,6 +264,38 @@ def _grupos_y_llaves(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anot
                     (grupo.id, llave.id),
                     f"Sin {reglas.turnos_libres_mismo_dia} turno libre entre la fase de grupos "
                     "y la llave que toma sus posiciones",
+                )
+
+
+def _rondas_que_puede_jugar(equipo: Equipo, llaves: list[PartidoAgendado]) -> set[str]:
+    """Las rondas de eliminación de ese día que el equipo podría jugar: las llaves por definir
+    pueden ser de cualquiera; las ya asignadas, solo de sus dos equipos."""
+    return {
+        llave.ronda or str(llave.id)
+        for llave in llaves
+        if None in llave.equipos or equipo in llave.equipos
+    }
+
+
+def _maximo_con_llaves(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> None:
+    """A1 (P47): un equipo que juega grupos un día puede jugar después ese mismo día la semi
+    y la final de su categoría. Se cuenta un partido por ronda que podría jugar."""
+    grupos: dict[tuple[str, date], list[PartidoAgendado]] = defaultdict(list)
+    llaves: dict[tuple[str, date], list[PartidoAgendado]] = defaultdict(list)
+    for partido in lista:
+        destino = grupos if partido.fase == "grupos" else llaves
+        destino[(partido.categoria, partido.dia)].append(partido)
+    for clave, del_dia in llaves.items():
+        de_grupos = grupos.get(clave, [])
+        for equipo in {e for g in de_grupos for e in g.equipos_definidos}:
+            suyos = [g for g in de_grupos if equipo in g.equipos_definidos]
+            rondas = _rondas_que_puede_jugar(equipo, del_dia)
+            if len(suyos) + len(rondas) > reglas.max_partidos_por_dia:
+                anotar(
+                    "equipo",
+                    (p.id for p in suyos + del_dia),
+                    f"{equipo}: puede jugar {len(suyos) + len(rondas)} partidos el día, con "
+                    f"grupos y eliminación (máximo {reglas.max_partidos_por_dia})",
                 )
 
 

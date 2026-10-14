@@ -24,6 +24,10 @@
         }
       },
       "dias_sin_jugar": [
+        "lunes",
+        "martes",
+        "miercoles",
+        "jueves",
         "viernes"
       ],
       "prefiere_temprano": true
@@ -40,6 +44,10 @@
         }
       },
       "dias_sin_jugar": [
+        "lunes",
+        "martes",
+        "miercoles",
+        "jueves",
         "viernes"
       ],
       "prefiere_temprano": true

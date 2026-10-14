@@ -1,6 +1,8 @@
 """T3.7: la capacidad se ve antes de programar, solo para la organización."""
 
 import io
+from collections.abc import Callable
+from typing import Any
 
 import pytest
 from django.contrib.auth.models import Group, User
@@ -63,3 +65,44 @@ def test_la_mesa_no_programa(client: Client, demo: Torneo) -> None:
     respuesta = entrar(client, MESA).get(f"/torneos/{demo.pk}/programar/")
     assert respuesta.status_code == 403
     assert "Solo la organización puede programar" in respuesta.content.decode()
+
+
+def test_a5_el_ultimo_inicio_a_la_hora_de_cierre_suma_un_partido_por_franja(demo: Torneo) -> None:
+    # P48: el último partido de cada franja puede empezar a la hora de cierre. Sin jueves,
+    # C3 (F11) pedía 18 h de más; al programar quedan unas 6 h sin lugar.
+    generar_fixtures_faltantes(demo)
+    c3 = next(g for g in capacidad_del_torneo(demo).total if g.canchas == ("C3",))
+    assert 5 * 60 <= c3.faltan <= 7 * 60
+
+
+def test_a5_con_tiempo_agregado_dice_que_entra_usandolo(
+    demo: Torneo, agregar_jueves: Callable[[Any], None]
+) -> None:
+    generar_fixtures_faltantes(demo)
+    agregar_jueves(demo)
+    capacidad = capacidad_del_torneo(demo)
+    c3 = next(g for g in capacidad.total if g.canchas == ("C3",))
+    c3_con = next(g for g in capacidad.con_extra if g.canchas == ("C3",))
+    assert not c3.entra  # con el horario normal, no
+    assert c3_con.entra  # con los jueves, sí
+
+
+def test_a5_la_pantalla_dice_que_hace_falta_el_tiempo_agregado(
+    client: Client,
+    demo: Torneo,
+    agregar_jueves: Callable[[Any], None],
+) -> None:
+    generar_fixtures_faltantes(demo)
+    agregar_jueves(demo)
+    html = entrar(client, ORGANIZACION).get(f"/torneos/{demo.pk}/programar/").content.decode()
+    assert "Entra usando el tiempo agregado" in html
+
+
+def test_el_tiempo_maximo_sale_de_la_configuracion(
+    client: Client, demo: Torneo, settings: Any
+) -> None:
+    org = entrar(client, ORGANIZACION)
+    settings.PROGRAMADOR_SEGUNDOS = 120
+    assert "hasta 2 minutos" in org.get(f"/torneos/{demo.pk}/programar/").content.decode()
+    settings.PROGRAMADOR_SEGUNDOS = 60
+    assert "hasta 1 minuto." in org.get(f"/torneos/{demo.pk}/programar/").content.decode()

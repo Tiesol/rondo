@@ -23,8 +23,8 @@ from dominio.franjas import DIAS_DE_LA_SEMANA
 from dominio.programador.modelo import PartidoAProgramar, Problema, programar
 from dominio.programador.motivos import motivos_sin_ubicar
 from dominio.verificador import Bloqueo as BloqueoDelDominio
-from dominio.verificador import Choque, Escenario, PartidoAgendado, verificar
-from torneo.models import Bloqueo, Cancha, CategoriaNivel, Corrida, Equipo, Partido, Torneo
+from dominio.verificador import Choque, Escenario, FranjaExtra, PartidoAgendado, verificar
+from torneo.models import Bloqueo, Cancha, CategoriaNivel, Corrida, Equipo, Franja, Partido, Torneo
 from torneo.servicios.fixture import formatos
 from torneo.servicios.personas import pares_de_equipos
 
@@ -88,8 +88,19 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
         c.codigo: frozenset(m.codigo for m in c.mitades.all()) or frozenset({c.codigo})
         for c in canchas
     }
+    vigentes = list(torneo.franjas.filter(suspendida=False).prefetch_related("canchas"))
     franjas = sorted(
-        (hora_local(f.inicio), hora_local(f.fin)) for f in torneo.franjas.filter(suspendida=False)
+        (hora_local(f.inicio), hora_local(f.fin)) for f in vigentes if f.tipo == Franja.Tipo.REGULAR
+    )
+    # A4 (P78): lo agregado a mano es tiempo extra: vale en sus canchas y se usa solo si hace falta.
+    extras = tuple(
+        FranjaExtra(
+            hora_local(f.inicio),
+            hora_local(f.fin),
+            frozenset(c.codigo for c in f.canchas.all()),
+        )
+        for f in sorted(vigentes, key=lambda f: f.inicio)
+        if f.tipo == Franja.Tipo.ENTRE_SEMANA
     )
     reglas = Reglas.model_validate(torneo.reglas)
     semanas = sorted({desde.isocalendar()[:2] for desde, _ in franjas})
@@ -136,6 +147,7 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
                     DIAS_DE_LA_SEMANA.index(d) for d in categoria.dias_sin_jugar
                 ),
                 temprano=categoria.prefiere_temprano,
+                ronda=partido.ronda,
             )
         )
     return Problema(
@@ -146,6 +158,7 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
         pares=tuple(pares_de_equipos(torneo)),
         bloqueos=bloqueos_del_torneo(torneo),
         eliminacion_desde=eliminacion_desde,
+        extras=extras,
         clubes=dict(
             Equipo.objects.filter(categoria__torneo=torneo).values_list("pk", "club_id")
         ),  # P20
@@ -207,6 +220,7 @@ def choques_del_calendario(
             virtuales=p.virtuales,
             toma_posiciones=p.toma_posiciones,
             dias_sin_jugar=p.dias_sin_jugar,
+            ronda=p.ronda,
         )
         for p in problema.partidos
         if p.id in ubicados
@@ -218,6 +232,7 @@ def choques_del_calendario(
         pares=problema.pares,
         bloqueos=problema.bloqueos,
         reglas=problema.reglas,
+        extras=problema.extras,
     )
     return verificar(agendados, escenario)
 

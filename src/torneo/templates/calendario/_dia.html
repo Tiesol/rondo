@@ -58,7 +58,7 @@
     <p class="peq tenue">Sus partidos quedan sin programar, y la app propone dónde ubicarlos.</p>
     {% endif %}
     <details class="desplegable">
-      <summary>Agregar un día o un horario</summary>
+      <summary>Agregar tiempo (un día u horario extra)</summary>
       <form method="post" action="{% url 'agregar-dia' %}" class="flex flex-col gap-3">
         {% csrf_token %}
         {% include "parciales/campo.html" with campo=form_dia.dia %}
@@ -66,7 +66,8 @@
           {% include "parciales/campo.html" with campo=form_dia.desde %}
           {% include "parciales/campo.html" with campo=form_dia.hasta %}
         </div>
-        <button type="submit" class="btn bloque">Agregar el día</button>
+        {% include "parciales/campo.html" with campo=form_dia.canchas %}
+        <button type="submit" class="btn bloque">Agregar el tiempo</button>
       </form>
     </details>
   </div>

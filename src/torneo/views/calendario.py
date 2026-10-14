@@ -91,11 +91,12 @@ def calendario_dia(request: HttpRequest, fecha: str) -> HttpResponse:
         "borrador": not torneo.publico,
         "suspendido": bool(franjas_del_dia) and all(f.suspendida for f in franjas_del_dia),
         "form_dia": FormularioDia(
+            torneo=torneo,
             initial={
                 "dia": proximo(dia, Reglas.model_validate(torneo.reglas).dia_para_reprogramar),
                 "desde": "17:00",
                 "hasta": "20:00",
-            }
+            },
         ),
         "torneo": torneo,
         "dia": dia,
@@ -138,6 +139,21 @@ class FormularioDia(forms.Form):
     dia = forms.DateField(label="Día", widget=forms.DateInput(attrs={"type": "date"}))
     desde = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
     hasta = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
+    canchas = forms.ModelMultipleChoiceField(
+        queryset=Cancha.objects.none(),
+        required=False,
+        label="Canchas donde vale",
+        help_text="Sin elegir: todas. Se usa solo si algo no entra en el horario normal.",
+        widget=forms.CheckboxSelectMultiple,
+        to_field_name="pk",
+    )
+
+    def __init__(self, *args: Any, torneo: Torneo | None = None, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        if torneo is not None:
+            self.fields["canchas"].queryset = Cancha.objects.filter(  # type: ignore[attr-defined]
+                torneo=torneo, padre__isnull=True
+            )
 
     def clean(self) -> dict[str, Any]:
         datos = super().clean() or {}
@@ -151,18 +167,19 @@ class FormularioDia(forms.Form):
 def agregar_dia(request: HttpRequest) -> HttpResponse:
     """Cualquier día y horario para reprogramar (1.1), por ejemplo después de una lluvia."""
     torneo = Torneo.activo()
-    formulario = FormularioDia(request.POST)
+    formulario = FormularioDia(request.POST, torneo=torneo)
     if torneo is None or not formulario.is_valid():
         messages.error(request, "Revisa el día y el horario: el fin va después del inicio.")
         return redirect("calendario")
     dia = formulario.cleaned_data["dia"]
-    Franja.objects.create(
+    franja = Franja.objects.create(
         torneo=torneo,
         inicio=timezone.make_aware(datetime.combine(dia, formulario.cleaned_data["desde"])),
         fin=timezone.make_aware(datetime.combine(dia, formulario.cleaned_data["hasta"])),
         tipo=Franja.Tipo.ENTRE_SEMANA,
     )
-    messages.success(request, "Día agregado: lo usan el programador y las propuestas")
+    franja.canchas.set(formulario.cleaned_data["canchas"])
+    messages.success(request, "Tiempo agregado: se usa solo si algo no entra en el horario normal")
     return redirect("calendario-dia", fecha=dia.isoformat())
 
 
