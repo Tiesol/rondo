@@ -237,6 +237,158 @@ def mover_a_mano(
     return cambio
 
 
+# ---------- B5 (fase 12): intercambiar dos partidos ----------
+
+PIDIO = "Intercambio pedido por"
+
+
+@dataclass
+class Candidato:
+    """Un partido con el que se puede intercambiar, y qué pasaría."""
+
+    partido: Partido
+    avisos: list[str]
+    bloquea: bool
+
+    @property
+    def sin_choques(self) -> bool:
+        return not self.avisos and not self.bloquea
+
+
+def _reducido(
+    partido: Partido, otro: Partido, partidos: list[Partido]
+) -> dict[Any, tuple[str, datetime]]:
+    """El calendario que importa para el cambio: los partidos de los dos días y los de los
+    equipos de los dos partidos, con los dos ya intercambiados."""
+    assert partido.cancha and partido.inicio and otro.cancha and otro.inicio
+    dias = {timezone.localtime(partido.inicio).date(), timezone.localtime(otro.inicio).date()}
+    equipos = {e for p in (partido, otro) for e in (p.local_id, p.visitante_id) if e is not None}
+    calendario: dict[Any, tuple[str, datetime]] = {}
+    for p in partidos:
+        if p.cancha is None or p.inicio is None:
+            continue
+        if (
+            timezone.localtime(p.inicio).date() in dias
+            or p.local_id in equipos
+            or p.visitante_id in equipos
+        ):
+            calendario[p.pk] = (p.cancha.codigo, hora_local(p.inicio))
+    calendario[partido.pk] = (otro.cancha.codigo, hora_local(otro.inicio))
+    calendario[otro.pk] = (partido.cancha.codigo, hora_local(partido.inicio))
+    return calendario
+
+
+def _choques_del_cambio(
+    problema: Any, partido: Partido, otro: Partido, partidos: list[Partido]
+) -> tuple[list[str], bool]:
+    """Los avisos del intercambio y si algo lo bloquea (lo físicamente imposible)."""
+    choques = [
+        c
+        for c in choques_del_calendario(problema, _reducido(partido, otro, partidos))
+        if partido.pk in c.partidos or otro.pk in c.partidos
+    ]
+    avisos = [m for c in choques for m in c.motivos]
+    return avisos, any(c.bloquea for c in choques)
+
+
+def _intercambiable(partido: Partido) -> bool:
+    return (
+        partido.cancha_id is not None
+        and partido.inicio is not None
+        and partido.estado == Partido.Estado.PROGRAMADO
+        and partido.local_id is not None
+        and partido.visitante_id is not None
+    )
+
+
+def candidatos_de_intercambio(partido: Partido) -> list[Candidato]:
+    """Los partidos de ese día y de ese fin de semana, en canchas compatibles, con los que se
+    pueden cambiar sin choques primero (B5)."""
+    if not _intercambiable(partido):
+        return []
+    assert partido.inicio is not None
+    torneo = partido.categoria.torneo
+    local = timezone.localtime(partido.inicio)
+    # El "fin de semana": del viernes al domingo de la misma semana (o el día entre semana).
+    desde = timezone.make_aware(
+        datetime.combine(local.date() - timedelta(days=local.weekday()), time.min)
+    )
+    hasta = desde + timedelta(days=7)
+    partidos = partidos_del_torneo(torneo)
+    problema = problema_del_torneo(torneo, partidos)
+    propias = {c.codigo for c in partido.categoria.canchas.all()}
+    resultado = []
+    for otro in partidos:
+        if otro.pk == partido.pk or not _intercambiable(otro):
+            continue
+        assert otro.inicio is not None and otro.cancha is not None and partido.cancha is not None
+        if not desde <= otro.inicio < hasta:
+            continue
+        if otro.cancha.codigo not in propias:
+            continue
+        if partido.cancha.codigo not in {c.codigo for c in otro.categoria.canchas.all()}:
+            continue
+        avisos, bloquea = _choques_del_cambio(problema, partido, otro, partidos)
+        resultado.append(Candidato(otro, avisos, bloquea))
+    return sorted(
+        resultado,
+        key=lambda c: (c.bloquea, len(c.avisos), c.partido.inicio or timezone.now(), c.partido.pk),
+    )
+
+
+@transaction.atomic
+def intercambiar(
+    partido: Partido,
+    otro: Partido,
+    usuario: AbstractBaseUser | AnonymousUser | None = None,
+    *,
+    confirmar: bool = False,
+    pidio: Equipo | None = None,
+) -> tuple[Cambio, Cambio]:
+    """B5: los dos partidos cambian de lugar en un solo paso, con el verificador. Los avisos
+    se confirman; solo bloquea lo físicamente imposible. Queda en el historial y cuenta para el
+    contador de reprogramaciones del equipo que lo pidió."""
+    torneo = Torneo.objects.select_for_update().get(pk=partido.categoria.torneo_id)
+    partido.refresh_from_db()
+    otro.refresh_from_db()
+    for p in (partido, otro):
+        if p.empezado:
+            raise ChoqueAlMover([f"{p} ya empezó: no se mueve."], bloquea=True)
+        if not _intercambiable(p):
+            raise ChoqueAlMover([f"{p} no tiene lugar: no se puede intercambiar."], bloquea=True)
+    partidos = partidos_del_torneo(torneo)
+    problema = problema_del_torneo(torneo, partidos)
+    avisos, bloquea = _choques_del_cambio(problema, partido, otro, partidos)
+    if bloquea:
+        raise ChoqueAlMover(avisos, bloquea=True)
+    if avisos and not confirmar:
+        raise ChoqueAlMover(avisos, bloquea=False)
+    motivo = f"{PIDIO} {pidio.nombre} (#{pidio.pk})" if pidio is not None else "Intercambio"
+    primero = Cambio.objects.create(
+        partido=partido,
+        cancha_antes=partido.cancha,
+        inicio_antes=partido.inicio,
+        cancha_despues=otro.cancha,
+        inicio_despues=otro.inicio,
+        usuario=_usuario(usuario),
+        motivo=motivo,
+    )
+    segundo = Cambio.objects.create(
+        partido=otro,
+        cancha_antes=otro.cancha,
+        inicio_antes=otro.inicio,
+        cancha_despues=partido.cancha,
+        inicio_despues=partido.inicio,
+        usuario=_usuario(usuario),
+        motivo="Intercambio",
+    )
+    partido.cancha, otro.cancha = otro.cancha, partido.cancha
+    partido.inicio, otro.inicio = otro.inicio, partido.inicio
+    partido.save(update_fields=["cancha", "inicio"])
+    otro.save(update_fields=["cancha", "inicio"])
+    return primero, segundo
+
+
 @dataclass
 class Donde:
     """Dónde se juega lo suspendido (B1): un día y un horario, en las canchas elegidas."""
@@ -446,12 +598,17 @@ def reanudar_dia(
 
 
 def veces_que_reprogramo(equipo: Equipo) -> int:
-    """T10.10: cuántos pedidos de ese equipo ya terminaron en un cambio aplicado."""
+    """T10.10 y B5: cuántos pedidos de ese equipo ya terminaron en un cambio aplicado, sea una
+    propuesta o un intercambio que pidió."""
     bloqueos = set(equipo.bloqueos.values_list("pk", flat=True))
     corridas = Corrida.objects.filter(
         tipo=Corrida.Tipo.REPROGRAMAR, cambios__isnull=False
     ).distinct()
-    return sum(1 for c in corridas if c.parametros.get("bloqueo") in bloqueos)
+    propuestas = sum(1 for c in corridas if c.parametros.get("bloqueo") in bloqueos)
+    intercambios = Cambio.objects.filter(
+        motivo__startswith=PIDIO, motivo__endswith=f"(#{equipo.pk})"
+    ).count()
+    return propuestas + intercambios
 
 
 def afectados_por(bloqueo: Bloqueo) -> list[tuple[Partido, Equipo]]:
