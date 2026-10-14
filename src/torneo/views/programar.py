@@ -21,8 +21,9 @@ def _horas(minutos: int) -> str:
     return f"{horas:.1f}".replace(".", ",")
 
 
-def _fila(grupo: GrupoDeCanchas) -> dict[str, Any]:
+def _fila(grupo: GrupoDeCanchas, con_extra: GrupoDeCanchas | None = None) -> dict[str, Any]:
     return {
+        "entra_con_extra": con_extra is not None and not grupo.entra and con_extra.entra,
         "titulo": " y ".join(grupo.canchas) or "Sin canchas compatibles",
         "categorias": ", ".join(grupo.categorias),
         "pedido": _horas(grupo.pedido),
@@ -76,14 +77,15 @@ def programar(request: HttpRequest, pk: int) -> HttpResponse:
 
     capacidad = capacidad_del_torneo(torneo)
     # T11.4: la eliminación ya no tiene un fin de semana propio; se mide todo el torneo.
-    filas = [_fila(g) for g in capacidad.total]
+    con_extra = {g.canchas: g for g in capacidad.con_extra}
+    filas = [_fila(g, con_extra.get(g.canchas)) for g in capacidad.total]
     return render(
         request,
         "torneo/programar.html",
         {
             "torneo": torneo,
             "filas": filas,
-            "no_entra": any(not f["entra"] for f in filas),
+            "no_entra": any(not f["entra"] and not f["entra_con_extra"] for f in filas),
             "capacidad": capacidad,
             "estimadas": ", ".join(capacidad.estimadas),
             "sin_formato": ", ".join(capacidad.sin_formato),

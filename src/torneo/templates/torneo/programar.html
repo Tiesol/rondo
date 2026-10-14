@@ -14,7 +14,7 @@
           {% if fila.entra %}<span class="num peq whitespace-nowrap">{{ fila.pedido }} de {{ fila.disponible }} h</span>{% else %}<span class="chip error num whitespace-nowrap">{{ fila.pedido }} de {{ fila.disponible }} h</span>{% endif %}
         </span>
         <span class="barra-cap" role="img" aria-label="{{ fila.uso }} % de las horas"><span class="{% if not fila.entra %}error{% endif %}" style="width: {{ fila.uso }}%"></span></span>
-        <span class="sub">{% if not fila.entra %}<strong>Faltan {{ fila.faltan }} h.</strong> {% endif %}{{ fila.categorias }}</span>
+        <span class="sub">{% if not fila.entra %}<strong>{% if fila.entra_con_extra %}Entra usando el tiempo agregado (faltan {{ fila.faltan }} h en el horario normal).{% else %}Faltan {{ fila.faltan }} h.{% endif %}</strong> {% endif %}{{ fila.categorias }}</span>
       </span>
     </li>
     {% endfor %}
