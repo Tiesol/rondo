@@ -50,6 +50,7 @@ class PartidoAgendado:
     virtuales: frozenset[str] = frozenset()  # en la eliminación: "ganador de la semi 1" (T7.1)
     toma_posiciones: bool = False  # en la eliminación: juega con equipos de la tabla de grupos
     dias_sin_jugar: frozenset[int] = frozenset()  # días de la semana (0 es lunes), P56
+    ronda: str = ""  # en la eliminación: "semi" o "final" (A1, fase 12)
 
     @property
     def fin_partido(self) -> datetime:
@@ -137,6 +138,7 @@ def verificar(partidos: Iterable[PartidoAgendado], escenario: Escenario) -> list
         _cancha(uno, otro, escenario, anotar)
     _equipos(lista, escenario.reglas, anotar)
     _grupos_y_llaves(lista, escenario.reglas, anotar)
+    _maximo_con_llaves(lista, escenario.reglas, anotar)
     _personas(lista, escenario, anotar)
 
     return [
@@ -240,6 +242,38 @@ def _grupos_y_llaves(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anot
                     (grupo.id, llave.id),
                     f"Sin {reglas.turnos_libres_mismo_dia} turno libre entre la fase de grupos "
                     "y la llave que toma sus posiciones",
+                )
+
+
+def _rondas_que_puede_jugar(equipo: Equipo, llaves: list[PartidoAgendado]) -> set[str]:
+    """Las rondas de eliminación de ese día que el equipo podría jugar: las llaves por definir
+    pueden ser de cualquiera; las ya asignadas, solo de sus dos equipos."""
+    return {
+        llave.ronda or str(llave.id)
+        for llave in llaves
+        if None in llave.equipos or equipo in llave.equipos
+    }
+
+
+def _maximo_con_llaves(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> None:
+    """A1 (P47): un equipo que juega grupos un día puede jugar después ese mismo día la semi
+    y la final de su categoría. Se cuenta un partido por ronda que podría jugar."""
+    grupos: dict[tuple[str, date], list[PartidoAgendado]] = defaultdict(list)
+    llaves: dict[tuple[str, date], list[PartidoAgendado]] = defaultdict(list)
+    for partido in lista:
+        destino = grupos if partido.fase == "grupos" else llaves
+        destino[(partido.categoria, partido.dia)].append(partido)
+    for clave, del_dia in llaves.items():
+        de_grupos = grupos.get(clave, [])
+        for equipo in {e for g in de_grupos for e in g.equipos_definidos}:
+            suyos = [g for g in de_grupos if equipo in g.equipos_definidos]
+            rondas = _rondas_que_puede_jugar(equipo, del_dia)
+            if len(suyos) + len(rondas) > reglas.max_partidos_por_dia:
+                anotar(
+                    "equipo",
+                    (p.id for p in suyos + del_dia),
+                    f"{equipo}: puede jugar {len(suyos) + len(rondas)} partidos el día, con "
+                    f"grupos y eliminación (máximo {reglas.max_partidos_por_dia})",
                 )
 
 

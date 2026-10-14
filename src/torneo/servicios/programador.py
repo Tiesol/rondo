@@ -136,6 +136,7 @@ def problema_del_torneo(torneo: Torneo, partidos: list[Partido]) -> Problema:
                     DIAS_DE_LA_SEMANA.index(d) for d in categoria.dias_sin_jugar
                 ),
                 temprano=categoria.prefiere_temprano,
+                ronda=partido.ronda,
             )
         )
     return Problema(
@@ -207,6 +208,7 @@ def choques_del_calendario(
             virtuales=p.virtuales,
             toma_posiciones=p.toma_posiciones,
             dias_sin_jugar=p.dias_sin_jugar,
+            ronda=p.ronda,
         )
         for p in problema.partidos
         if p.id in ubicados

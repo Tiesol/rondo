@@ -93,10 +93,12 @@ def test_respuestas_del_organizador_en_el_calendario(config: ConfigTorneo) -> No
     assert config.reglas.orden_de_fechas == "blanda"
 
 
-def test_p56_sub_5_y_sub_6_no_juegan_los_viernes_y_prefieren_temprano(config: ConfigTorneo) -> None:
+def test_p56_sub_5_y_sub_6_solo_sabado_y_domingo_y_prefieren_temprano(config: ConfigTorneo) -> None:
+    # A3 (fase 12): solo sábado y domingo, también si se agrega un jueves.
+    entre_semana = ("lunes", "martes", "miercoles", "jueves", "viernes")
     for categoria in config.categorias:
         chicos = categoria.nombre in ("Sub 5", "Sub 6")
-        assert (categoria.dias_sin_jugar == ("viernes",)) is chicos
+        assert (categoria.dias_sin_jugar == entre_semana) is chicos
         assert categoria.prefiere_temprano is chicos
 
 

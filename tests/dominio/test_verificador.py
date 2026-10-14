@@ -379,3 +379,43 @@ def test_t11_2_sin_turno_libre_horario_y_cancha_solo_avisan() -> None:
     ]
     assert all(not bloquea for _, bloquea in gravedad(partidos, escenario()))
     assert {t for t, _ in gravedad(partidos, escenario())} == {"equipo", "franja", "compatibilidad"}
+
+
+# ---------- A1 (fase 12): máximo por día entre grupos y eliminación ----------
+
+
+def llave(id: int, hora: str, ronda: str, equipos: tuple[str | None, str | None] = (None, None)):  # type: ignore[no-untyped-def]
+    base = partido(id, hora, equipos=equipos)
+    return PartidoAgendado(**{**base.__dict__, "fase": "eliminacion", "ronda": ronda})
+
+
+def test_a1_grupos_semi_y_final_el_mismo_dia_pasan_del_maximo() -> None:
+    # Sub 11 Inicial, 15/11: grupos 08:50, semis 10:30 y 12:10, final 13:50. Los de las 08:50
+    # pueden jugar 3 ese día.
+    partidos = [
+        partido(1, "08:50", equipos=("A", "B")),
+        llave(2, "10:30", "semi"),
+        llave(3, "12:10", "semi"),
+        llave(4, "13:50", "final"),
+    ]
+    choques = [c for c in verificar(partidos, escenario()) if "eliminación" in " ".join(c.motivos)]
+    assert choques and not choques[0].bloquea
+    assert 1 in choques[0].partidos
+
+
+def test_a1_grupos_y_una_semi_el_mismo_dia_entran() -> None:
+    partidos = [partido(1, "08:50", equipos=("A", "B")), llave(2, "10:40", "semi")]
+    assert [
+        c for c in verificar(partidos, escenario()) if "eliminación" in " ".join(c.motivos)
+    ] == []
+
+
+def test_a1_una_llave_con_otros_equipos_no_cuenta() -> None:
+    partidos = [
+        partido(1, "08:50", equipos=("A", "B")),
+        llave(2, "10:30", "semi", ("C", "D")),
+        llave(3, "13:50", "final"),
+    ]
+    assert [
+        c for c in verificar(partidos, escenario()) if "eliminación" in " ".join(c.motivos)
+    ] == []

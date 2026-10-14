@@ -1,7 +1,7 @@
 """PRO-01 a PRO-04 y PRO-10: el modelo CP-SAT, comprobado con el verificador."""
 
 from datetime import datetime, timedelta
-from itertools import combinations
+from itertools import combinations, pairwise
 
 from dominio.config import Reglas
 from dominio.programador.modelo import PartidoAProgramar, Problema, Resultado, programar
@@ -278,7 +278,8 @@ def test_t11_4_la_eliminacion_puede_ir_antes_de_su_fin_de_semana_sugerido() -> N
     # P33: "a veces semis o finales van antes". El fin de semana sugerido ya no es un límite:
     # sin lugar después, las llaves van apenas terminan los grupos.
     partidos = grupo_y_llaves()
-    franjas = [franja(d, 8, 16) for d in (0, 1)]
+    # Tres días: con dos, un equipo jugaría grupos, semi y final el mismo día (A1, P47).
+    franjas = [franja(d, 8, 16) for d in (0, 1, 2)]
     desde = SABADO + timedelta(days=7)  # un fin de semana sin franjas
     prob = con(problema(partidos, franjas), eliminacion_desde=desde)
     resultado = programar(prob, segundos=15)
@@ -453,3 +454,87 @@ def test_t11_4_p20_los_equipos_de_un_club_juegan_el_mismo_dia() -> None:
             if any(clubes[str(e)] == club for e in q.equipos_definidos)
         }
         assert len(dias) == 1, club
+
+
+# ---------- A1 (fase 12): máximo por día entre grupos y eliminación ----------
+
+
+def test_a1_un_equipo_de_grupos_no_puede_jugar_semi_y_final_el_mismo_dia() -> None:
+    # Un solo día: la fecha 3 de grupos, las semis y la final no pueden ir todos ahí.
+    partidos = grupo_y_llaves()
+    partidos = [
+        PartidoAProgramar(**{**p.__dict__, "ronda": "final" if "final" in p.clave else "semi"})
+        if p.fase == "eliminacion"
+        else p
+        for p in partidos
+    ]
+    franjas = [franja(0, 8, 20), franja(1, 8, 20)]
+    prob = problema(partidos, franjas)
+    resultado = programar(prob, segundos=15)
+    por_dia: dict[object, list[str]] = {}
+    for id_, (_, inicio) in resultado.ubicados.items():
+        por_dia.setdefault(inicio.date(), []).append(str(id_))
+    for ids in por_dia.values():
+        grupos = [i for i in ids if i.startswith("g")]
+        rondas = {"semi" for i in ids if i.startswith("s")} | {"final" for i in ids if i == "f"}
+        for equipo in "ABCD":
+            suyos = [g for g in grupos for p in partidos if p.id == g and equipo in p.equipos]
+            assert len(suyos) + len(rondas) <= 2, (equipo, ids)
+
+
+# ---------- A2 (fase 12): orden de fechas "blanda" se penaliza ----------
+
+
+def _al_reves(prob: Problema, resultado: Resultado) -> int:
+    por_equipo: dict[object, list[PartidoAProgramar]] = {}
+    for p in prob.partidos:
+        if p.fecha and p.id in resultado.ubicados:
+            for e in p.equipos_definidos:
+                por_equipo.setdefault(e, []).append(p)
+    reves = 0
+    for suyos in por_equipo.values():
+        suyos.sort(key=lambda p: p.fecha or 0)
+        for antes, despues in pairwise(suyos):
+            if resultado.ubicados[despues.id][1] < resultado.ubicados[antes.id][1]:
+                reves += 1
+    return reves
+
+
+def test_a2_con_orden_blanda_y_lugar_ninguna_fecha_queda_al_reves() -> None:
+    from pathlib import Path
+
+    from dominio.fixture import armar_fixture
+    from dominio.formatos import cargar_formatos
+
+    formatos = cargar_formatos(Path(__file__).resolve().parents[2] / "datos/config/formatos.json")
+    fixture = armar_fixture(
+        formatos.para(6),
+        list("ABCDEF"),
+        lambda e: e,
+        semilla=1,
+        separar_clubes=False,
+        mismo_club_fecha_1=False,
+    )
+    partidos = [
+        PartidoAProgramar(
+            id=f"g{i}",
+            categoria="Sub 9",
+            equipos=(p.local, p.visitante),
+            minutos_partido=45,
+            minutos_turno=50,
+            canchas=frozenset({"C1", "C2"}),
+            fecha=p.fecha,
+        )
+        for i, p in enumerate(fixture.partidos)
+        if p.fase == "grupos"
+    ]
+    # Un solo fin de semana: el reparto entre semanas no ayuda a ordenar.
+    prob = Problema(
+        partidos=tuple(partidos),
+        fisicas=FISICAS,
+        franjas=(franja(0, 8, 18), franja(1, 8, 18)),
+        reglas=Reglas(orden_de_fechas="blanda"),
+    )
+    resultado = programar(prob, segundos=15, trabajadores=4)
+    assert resultado.sin_ubicar == []
+    assert _al_reves(prob, resultado) == 0

@@ -67,6 +67,7 @@ def proponer(
     modelo.variables()
     modelo.canchas()
     modelo.equipos()
+    modelo.grupos_y_llaves_por_dia()
     modelo.personas()
     modelo.orden()
     m, reloj = modelo.modelo, modelo.reloj
