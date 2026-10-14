@@ -11,7 +11,7 @@
     <li class="fila-planilla{% if fila.suspendido %} suspendido{% endif %}" id="persona-{{ fila.jugador.persona_id }}">
       <label class="juega">
         <input type="checkbox" name="juega_{{ fila.jugador.pk }}"{% if fila.juega %} checked{% endif %}>
-        <span class="crece">{{ fila.jugador.persona }}{% if fila.suspendido %}<span class="sub">Suspendido</span>{% endif %}{% if fila.repetido %}<span class="sub"><strong>Repetido</strong>: otro usa el mismo dorsal</span>{% endif %}</span>
+        <span class="crece">{{ fila.jugador.persona }}{% if fila.suspendido %}<span class="sub">Suspendido</span>{% endif %}{% if fila.repetido %}<span class="sub"><strong>Repetido</strong></span>{% endif %}</span>
       </label>
       <a class="foto-chica{% if not fila.foto %} sin-foto{% endif %}" href="{% url 'foto-persona' fila.jugador.persona_id %}?volver={% url 'ficha-partido' partido.pk %}&amp;equipo={{ lado.equipo.pk }}" aria-label="Foto de {{ fila.jugador.persona }}">{% if fila.foto %}<img src="{{ fila.foto }}" alt="" width="40" height="40" loading="lazy">{% else %}{% include "parciales/icono.html" with nombre="camara" clase="ico" %}{% endif %}</a>
       <input class="dorsal-partido num" type="number" name="dorsal_{{ fila.jugador.pk }}" value="{{ fila.dorsal|default_if_none:'' }}" min="1" max="99" inputmode="numeric" aria-label="Dorsal de {{ fila.jugador.persona }}" placeholder="N.º">

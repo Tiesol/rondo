@@ -10,14 +10,12 @@
   <p><strong>{{ persona }}</strong>{% if equipo %}<span class="peq tenue"> · {{ equipo.nombre }} · {{ equipo.categoria }}</span>{% endif %}</p>
   {% if actual %}<img class="foto-persona" src="{{ actual }}" alt="Foto de {{ persona }}" width="160" height="213">{% endif %}
   {% if imagenes_disponibles %}
-  <div class="campo">
-    <label for="id_foto">Sacar foto</label>
-    <input type="file" id="id_foto" name="foto" accept="image/*" capture="environment">
-  </div>
-  <div class="campo">
-    <label for="id_foto_galeria">Elegir de la galería</label>
-    <input type="file" id="id_foto_galeria" name="foto_galeria" accept="image/jpeg,image/png,image/webp">
-    <span class="peq tenue">JPG, PNG o WebP; se achica y se le borran los datos del teléfono (ubicación incluida).</span>
+  <div class="flex flex-col gap-2">
+    <label class="btn principal bloque grande" for="id_foto">Sacar foto</label>
+    <input type="file" id="id_foto" name="foto" accept="image/*" capture="environment" class="archivo-oculto" data-enviar-al-cambiar>
+    <label class="btn bloque" for="id_foto_galeria">Elegir de la galería</label>
+    <input type="file" id="id_foto_galeria" name="foto_galeria" accept="image/jpeg,image/png,image/webp" class="archivo-oculto" data-enviar-al-cambiar>
+    <span class="peq tenue">Se guarda al elegirla. Se achica y se le borran los datos del teléfono (ubicación incluida).</span>
   </div>
   {% else %}
   <div class="campo"><span class="peq tenue">Falta conectar el almacenamiento de imágenes.</span></div>

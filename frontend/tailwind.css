@@ -569,6 +569,15 @@
     font: inherit;
     font-weight: 700;
   }
+  /* El archivo se elige con un botón nuestro; el campo del navegador no se ve (sigue ahí). */
+  .archivo-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    opacity: 0;
+  }
   .enlace-sin-linea {
     color: inherit;
     text-decoration: none;
@@ -941,9 +950,17 @@
     flex-direction: column;
     gap: 6px;
   }
-  .campo label {
+  .campo label,
+  .campo .etiqueta {
     font-size: 13.5px;
     font-weight: 600;
+  }
+  /* Las casillas dentro de un campo no son cajas de texto. */
+  .campo .opcion input[type="checkbox"] {
+    width: 18px;
+    min-height: 0;
+    height: 18px;
+    padding: 0;
   }
   .campo input,
   .campo select,
@@ -1143,6 +1160,12 @@
     width: 22px;
     height: 22px;
     accent-color: var(--color-accion);
+  }
+  .fila-planilla .juega .sub {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-error);
   }
   .fila-planilla .ci-fila {
     display: flex;

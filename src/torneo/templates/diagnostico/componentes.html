@@ -75,6 +75,13 @@
   </div>
 </div>
 
+<div class="seccion gap-3">
+  {% include "parciales/seccion_cab.html" with titulo="¿Estás seguro?" nota="Lo importante dice qué va a pasar" %}
+  {% include "parciales/_confirmar.html" with mensaje="Se suspenden los 26 partidos del Sáb 31/10." detalle=detalle_muestra boton="Suspender" volver="#" campos=campos_muestra accion="#" %}
+  {% include "parciales/seccion_cab.html" with titulo="Canchas en línea" %}
+  {% include "parciales/campo_canchas.html" with campo=form_canchas %}
+</div>
+
 {% include "parciales/hoja.html" with id="hoja-muestra" titulo="Agregar jugador" cuerpo="diagnostico/_hoja_muestra.html" %}
 <div class="flotantes">
   {% include "parciales/aviso.html" with texto="Así se ve un aviso flotante" %}

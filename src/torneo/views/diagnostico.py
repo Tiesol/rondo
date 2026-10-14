@@ -46,6 +46,16 @@ FILAS_DE_MUESTRA = [
 ]
 
 
+class FormularioDeCanchas(forms.Form):
+    canchas = forms.MultipleChoiceField(
+        choices=[("1", "C1"), ("2", "C2"), ("3", "C3")],
+        required=False,
+        label="Canchas donde vale",
+        help_text="Sin elegir: todas.",
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+
 class FormularioDeMuestra(forms.Form):
     nombre = forms.CharField(help_text="Aparece en la banda y en la página pública.")
     edicion = forms.IntegerField(label="Edición", min_value=1)
@@ -73,5 +83,8 @@ def componentes(request: HttpRequest) -> HttpResponse:
             "pestanas": pestanas,
             "form": FormularioDeMuestra({"nombre": "JMP CUP 2026", "edicion": "0"}),
             "escudo_muestra": {"sigla": "RIV", "color": "", "texto": ""},
+            "detalle_muestra": ["3 en juego: no se sacan del calendario"],
+            "campos_muestra": [],
+            "form_canchas": FormularioDeCanchas()["canchas"],
         },
     )
