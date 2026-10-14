@@ -1489,16 +1489,16 @@ T11.16 (al final)
 - [x] A3 Sub 5 y Sub 6 solo sábado y domingo
 - [x] A4 Tiempo extra por canchas y solo si hace falta
 - [x] A5 "¿Entra todo?" con el último inicio
-- [ ] B1 Suspender: elegir dónde se juega (por defecto el jueves)
-- [ ] B2 Reanudar el día
-- [ ] B3 Partidos en juego al suspender
-- [ ] B4 Volver a programar con el torneo empezado
-- [ ] B5 Intercambiar dos partidos
-- [ ] B6 Reglas solo para una reprogramación
-- [ ] B7 "¿Estás seguro?" en lo importante
-- [ ] B8 Calendario por club con acciones
-- [ ] B9 Días sin franja en el calendario
-- [ ] C1 Dorsal repetido: aviso
-- [ ] C2 CI verificado en cada partido
-- [ ] C3 Foto con cámara o galería
+- [x] B1 Suspender: elegir dónde se juega (por defecto el jueves)
+- [x] B2 Reanudar el día
+- [x] B3 Partidos en juego al suspender
+- [x] B4 Volver a programar con el torneo empezado
+- [x] B5 Intercambiar dos partidos
+- [x] B6 Reglas solo para una reprogramación
+- [x] B7 "¿Estás seguro?" en lo importante
+- [x] B8 Calendario por club con acciones
+- [x] B9 Días sin franja en el calendario
+- [x] C1 Dorsal repetido: aviso
+- [x] C2 CI verificado en cada partido
+- [x] C3 Foto con cámara o galería
 - [x] C4 Docstrings del último inicio
