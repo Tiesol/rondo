@@ -121,3 +121,26 @@ def test_agregar_dia_propone_el_jueves_siguiente(client: Client, torneo: Torneo)
     assert sabado.context["form_dia"].initial["dia"] == date(2026, 11, 5)
     domingo = org.get("/calendario/2026-11-01/")
     assert domingo.context["form_dia"].initial["dia"] == date(2026, 11, 5)
+
+
+@pytest.mark.django_db
+def test_a4_el_tiempo_agregado_guarda_sus_canchas_y_llega_al_programador(
+    client: Client, torneo: Torneo
+) -> None:
+    from torneo.servicios.programador import partidos_del_torneo, problema_del_torneo
+
+    c3 = torneo.canchas.get(codigo="C3")
+    org = entrar(client, ORGANIZACION)
+    org.post(
+        "/calendario/agregar-dia/",
+        {"dia": "2026-10-29", "desde": "16:00", "hasta": "20:00", "canchas": [c3.pk]},
+    )
+    franja = Franja.objects.get(tipo=Franja.Tipo.ENTRE_SEMANA)
+    assert [c.codigo for c in franja.canchas.all()] == ["C3"]
+    problema = problema_del_torneo(torneo, partidos_del_torneo(torneo))
+    assert [(e.canchas) for e in problema.extras] == [frozenset({"C3"})]
+    # Lo agregado no es horario normal: no está entre las franjas regulares.
+    assert all(desde.day != 29 for desde, _ in problema.franjas)
+    # Sin canchas elegidas, vale en todas.
+    org.post("/calendario/agregar-dia/", {"dia": "2026-11-05", "desde": "16:00", "hasta": "20:00"})
+    assert Franja.objects.exclude(pk=franja.pk).get(tipo="entre_semana").canchas.count() == 0

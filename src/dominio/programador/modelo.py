@@ -41,7 +41,7 @@ from itertools import combinations, pairwise
 from ortools.sat.python import cp_model
 
 from dominio.config import Reglas
-from dominio.verificador import Bloqueo, ParDeEquipos
+from dominio.verificador import Bloqueo, FranjaExtra, ParDeEquipos
 
 PASO_MIN = 5
 Equipo = Hashable
@@ -89,6 +89,11 @@ class Problema:
     bloqueos: tuple[Bloqueo, ...] = ()
     eliminacion_desde: datetime | None = None  # P33: sugerido, para repartir los grupos
     clubes: dict[Equipo, Hashable] = field(default_factory=dict)  # equipo → club (P20)
+    extras: tuple[FranjaExtra, ...] = ()  # A4: tiempo agregado, solo si hace falta
+
+    @property
+    def todas_las_franjas(self) -> tuple[tuple[datetime, datetime], ...]:
+        return self.franjas + tuple((e.desde, e.hasta) for e in self.extras)
 
 
 @dataclass
@@ -134,7 +139,12 @@ def lugar_habitual(
         return False
     ultimo_inicio = problema.reglas.fin_de_franja == "ultimo_inicio"
     fin = inicio if ultimo_inicio else inicio + timedelta(minutes=partido.minutos_partido)
-    return any(desde <= inicio and fin <= hasta for desde, hasta in problema.franjas)
+    if any(desde <= inicio and fin <= hasta for desde, hasta in problema.franjas):
+        return True
+    return any(
+        e.desde <= inicio and fin <= e.hasta and e.admite(cancha, problema.fisicas)
+        for e in problema.extras
+    )
 
 
 def _pasos(minutos: int) -> int:
@@ -147,10 +157,10 @@ class Modelo:
     def __init__(self, problema: Problema) -> None:
         self.problema = problema
         self.modelo = cp_model.CpModel()
-        self.reloj = _Reloj(problema.franjas)
+        self.reloj = _Reloj(problema.todas_las_franjas)
         # Días de juego: la ventana de inicios posibles de cada día, en pasos.
         self.dias: dict[date, list[tuple[int, int]]] = defaultdict(list)
-        for desde, hasta in problema.franjas:
+        for desde, hasta in problema.todas_las_franjas:
             self.dias[desde.date()].append(
                 (
                     self.reloj.paso(desde, hacia_arriba=True),
@@ -163,28 +173,46 @@ class Modelo:
         self.en_dia: dict[Hashable, dict[date, cp_model.IntVar]] = {}
         # A2 (P19 "blanda"): pares de fechas seguidas de un equipo que quedaron al revés.
         self.al_reves: list[cp_model.IntVar] = []
+        # A4 (P78): partidos ubicados en tiempo agregado; cuesta más que todo lo blando.
+        self.en_extra: list[cp_model.IntVar] = []
         # Pares de partidos de equipos con un profe en común, y si el primero va antes (T7.3).
         self.profes_compartidos: list[
             tuple[PartidoAProgramar, PartidoAProgramar, cp_model.IntVar]
         ] = []
 
-    def _inicios_posibles(self, partido: PartidoAProgramar) -> list[tuple[int, int]]:
+    def _ventana(
+        self, partido: PartidoAProgramar, desde: datetime, hasta: datetime
+    ) -> tuple[int, int] | None:
         # P48: el partido termina dentro de la franja, o solo empieza dentro (último inicio).
+        if desde.weekday() in partido.dias_sin_jugar:
+            return None  # P56: esa categoría no juega ese día
         ultimo_inicio = self.problema.reglas.fin_de_franja == "ultimo_inicio"
         largo = 0 if ultimo_inicio else _pasos(partido.minutos_partido)
-        ventanas = []
-        for desde, hasta in self.problema.franjas:
-            if desde.weekday() in partido.dias_sin_jugar:
-                continue  # P56: esa categoría no juega ese día
-            primero = self.reloj.paso(desde, hacia_arriba=True)
-            ultimo = self.reloj.paso(hasta, hacia_arriba=False) - largo
-            if ultimo >= primero:
-                ventanas.append((primero, ultimo))
-        return ventanas
+        primero = self.reloj.paso(desde, hacia_arriba=True)
+        ultimo = self.reloj.paso(hasta, hacia_arriba=False) - largo
+        return (primero, ultimo) if ultimo >= primero else None
+
+    def _inicios_posibles(self, partido: PartidoAProgramar) -> list[tuple[int, int]]:
+        ventanas = [self._ventana(partido, desde, hasta) for desde, hasta in self.problema.franjas]
+        return [v for v in ventanas if v is not None]
+
+    def _extras_posibles(
+        self, partido: PartidoAProgramar
+    ) -> list[tuple[FranjaExtra, tuple[int, int]]]:
+        """El tiempo agregado donde podría ir: en el día y en alguna de sus canchas."""
+        posibles = []
+        for extra in self.problema.extras:
+            ventana = self._ventana(partido, extra.desde, extra.hasta)
+            canchas = partido.canchas & set(self.problema.fisicas)
+            if ventana and any(extra.admite(c, self.problema.fisicas) for c in canchas):
+                posibles.append((extra, ventana))
+        return posibles
 
     def _dominio(self, partido: PartidoAProgramar) -> cp_model.Domain:
-        """Los inicios posibles: dentro de las franjas y fuera de los bloqueos de sus equipos."""
-        dominio = cp_model.Domain.from_intervals([list(v) for v in self._inicios_posibles(partido)])
+        """Los inicios posibles: dentro de las franjas (o del tiempo agregado) y fuera de los
+        bloqueos de sus equipos."""
+        ventanas = self._inicios_posibles(partido) + [v for _, v in self._extras_posibles(partido)]
+        dominio = cp_model.Domain.from_intervals([list(v) for v in ventanas])
         largo = _pasos(partido.minutos_partido)
         for bloqueo in self.problema.bloqueos:
             if bloqueo.equipo in partido.equipos_definidos:
@@ -213,6 +241,9 @@ class Modelo:
             }
             m.add(sum(self.en_cancha[partido.id].values()) == presente)
 
+            if not partido.fijo:
+                self._tiempo_extra(partido)
+
             if partido.fijo:  # T11.2: puede estar fuera de las franjas de su día
                 dia_fijo = partido.fijo[1].date()
                 self.en_dia[partido.id] = {
@@ -235,6 +266,32 @@ class Modelo:
                     m.add(self.en_cancha[partido.id][cancha] == 1)
                 else:  # en una cancha que no es compatible (T11.2): se respeta igual
                     self.en_cancha[partido.id][cancha] = m.new_constant(1)
+
+    def _tiempo_extra(self, partido: PartidoAProgramar) -> None:
+        """A4 (P78): si va en tiempo agregado, solo en las canchas de ese tiempo; si no, en el
+        horario normal. Cada partido en tiempo agregado cuesta en el objetivo."""
+        extras = self._extras_posibles(partido)
+        if not extras:
+            return
+        m = self.modelo
+        inicio, presente = self.inicio[partido.id], self.presente[partido.id]
+        en_extra = m.new_bool_var(f"{partido.id} en tiempo agregado")
+        usa = []
+        for i, (extra, (primero, ultimo)) in enumerate(extras):
+            aca = m.new_bool_var(f"{partido.id} en el agregado {i}")
+            m.add(inicio >= primero).only_enforce_if(aca)
+            m.add(inicio <= ultimo).only_enforce_if(aca)
+            for cancha, elegida in self.en_cancha[partido.id].items():
+                if not extra.admite(cancha, self.problema.fisicas):
+                    m.add_implication(aca, elegida.Not())
+            usa.append(aca)
+        m.add(sum(usa) == en_extra)
+        m.add_implication(en_extra, presente)
+        normal = cp_model.Domain.from_intervals([list(v) for v in self._inicios_posibles(partido)])
+        m.add_linear_expression_in_domain(inicio, normal).only_enforce_if(
+            [presente, en_extra.Not()]
+        )
+        self.en_extra.append(en_extra)
 
     def _paso_fijo(self, partido: PartidoAProgramar) -> int:
         assert partido.fijo is not None
@@ -563,7 +620,7 @@ class Modelo:
         """Ubicar manda siempre. Después, que cada fecha caiga cerca de su fin de semana
         (PRO-12) y que los profes compartidos esperen poco entre sus partidos (PRO-11): una
         semana de desvío pesa como una hora de espera."""
-        semanas = sorted({desde.isocalendar()[:2] for desde, _ in self.problema.franjas})
+        semanas = sorted({dia.isocalendar()[:2] for dia in self.dias})
         if self.problema.eliminacion_desde:
             limite = self.problema.eliminacion_desde.isocalendar()[:2]
             semanas_de_grupos = [s for s in semanas if s < limite] or semanas
@@ -597,6 +654,10 @@ class Modelo:
             + peso_semana * (len(dobles) + len(finales) + len(clubes))
             + peso_reves * len(self.al_reves)
         )
+        # A4: el tiempo agregado se usa solo si sin él algo queda afuera: ubicar pesa más que
+        # todo el tiempo agregado, y el tiempo agregado más que todo lo demás.
+        peso_extra = 1 + maximo_blando
+        maximo_blando += peso_extra * len(self.en_extra)
         self.modelo.maximize(
             (1 + maximo_blando) * sum(self.presente.values())
             - peso_semana * sum(desvio)
@@ -604,6 +665,7 @@ class Modelo:
             - sum(temprano)
             - peso_semana * (sum(dobles) + sum(finales) + sum(clubes))
             - peso_reves * sum(self.al_reves)
+            - peso_extra * sum(self.en_extra)
         )
 
     def resolver(self, segundos: float, trabajadores: int, semilla: int) -> Resultado:

@@ -92,6 +92,22 @@ class Bloqueo:
 
 
 @dataclass(frozen=True)
+class FranjaExtra:
+    """Tiempo agregado (A4, P78): un día entre semana, o empezar antes o terminar después un
+    día puntual. Vale solo en sus canchas (vacío: todas) y se usa solo si hace falta."""
+
+    desde: datetime
+    hasta: datetime
+    canchas: frozenset[str] = frozenset()
+
+    def admite(self, cancha: str, fisicas: dict[str, frozenset[str]]) -> bool:
+        if not self.canchas:
+            return True
+        permitidas = set().union(*(fisicas.get(c, frozenset({c})) for c in self.canchas))
+        return fisicas.get(cancha, frozenset({cancha})) <= permitidas
+
+
+@dataclass(frozen=True)
 class Escenario:
     fisicas: dict[str, frozenset[str]]  # cancha → canchas físicas que ocupa
     compatibilidad: dict[str, frozenset[str]]  # categoría → canchas donde puede jugar
@@ -99,6 +115,7 @@ class Escenario:
     pares: tuple[ParDeEquipos, ...]
     bloqueos: tuple[Bloqueo, ...]
     reglas: Reglas
+    extras: tuple[FranjaExtra, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -156,10 +173,14 @@ def _uno_solo(partido: PartidoAgendado, escenario: Escenario, anotar: _Anotar) -
             f"{partido.categoria} no juega en {partido.cancha}",
         )
     ultimo_inicio = escenario.reglas.fin_de_franja == "ultimo_inicio"  # P48
+    termina = partido.inicio if ultimo_inicio else partido.fin_partido
     if not any(
-        desde <= partido.inicio
-        and (partido.inicio if ultimo_inicio else partido.fin_partido) <= hasta
-        for desde, hasta in escenario.franjas
+        desde <= partido.inicio and termina <= hasta for desde, hasta in escenario.franjas
+    ) and not any(
+        e.desde <= partido.inicio
+        and termina <= e.hasta
+        and e.admite(partido.cancha, escenario.fisicas)
+        for e in escenario.extras
     ):
         anotar("franja", (partido.id,), "Fuera de las franjas de juego")
     if partido.inicio.weekday() in partido.dias_sin_jugar:

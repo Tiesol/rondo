@@ -67,6 +67,7 @@ def choques(prob: Problema, resultado: Resultado) -> list[str]:
         pares=prob.pares,
         bloqueos=prob.bloqueos,
         reglas=prob.reglas,
+        extras=prob.extras,
     )
     return [f"{c.tipo}: {c.motivos}" for c in verificar(agendados, escenario)]
 
@@ -538,3 +539,39 @@ def test_a2_con_orden_blanda_y_lugar_ninguna_fecha_queda_al_reves() -> None:
     resultado = programar(prob, segundos=15, trabajadores=4)
     assert resultado.sin_ubicar == []
     assert _al_reves(prob, resultado) == 0
+
+
+# ---------- A4 (fase 12): tiempo extra solo para lo que no entra ----------
+
+
+def test_a4_con_lugar_en_el_horario_normal_no_se_usa_el_extra() -> None:
+    from dominio.verificador import FranjaExtra
+
+    jueves = FranjaExtra(
+        SABADO.replace(hour=16) - timedelta(days=2), SABADO.replace(hour=20) - timedelta(days=2)
+    )
+    prob = con(
+        problema(todos_contra_todos(list("ABCD")), [franja(0, 8, 14), franja(1, 8, 14)]),
+        extras=(jueves,),
+    )
+    resultado = programar(prob, segundos=10)
+    assert resultado.sin_ubicar == []
+    assert all(inicio.weekday() != 3 for _, inicio in resultado.ubicados.values())
+
+
+def test_a4_lo_que_no_entra_va_al_extra_y_solo_en_sus_canchas() -> None:
+    from dominio.verificador import FranjaExtra
+
+    # Una sola hora el sábado en C1 y C2: entran 2 partidos de 6. El jueves, solo en C2.
+    jueves = FranjaExtra(
+        SABADO.replace(hour=16) - timedelta(days=2),
+        SABADO.replace(hour=22) - timedelta(days=2),
+        frozenset({"C2"}),
+    )
+    prob = con(problema(todos_contra_todos(list("ABCD")), [franja(0, 8, 9)]), extras=(jueves,))
+    resultado = programar(prob, segundos=10)
+    assert resultado.sin_ubicar == []
+    en_jueves = [(c, i) for c, i in resultado.ubicados.values() if i.weekday() == 3]
+    assert len(en_jueves) == 4
+    assert {c for c, _ in en_jueves} == {"C2"}
+    assert choques(prob, resultado) == []

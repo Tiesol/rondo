@@ -419,3 +419,14 @@ def test_a1_una_llave_con_otros_equipos_no_cuenta() -> None:
     assert [
         c for c in verificar(partidos, escenario()) if "eliminación" in " ".join(c.motivos)
     ] == []
+
+
+def test_a4_un_partido_en_el_tiempo_extra_vale_solo_en_sus_canchas() -> None:
+    from dominio.verificador import FranjaExtra
+
+    extra = FranjaExtra(
+        datetime.combine(SABADO, time(16)), datetime.combine(SABADO, time(19)), frozenset({"C3"})
+    )
+    esc = escenario(extras=(extra,))
+    assert tipos([partido(1, "17:00", cancha="C3")], esc) == []
+    assert tipos([partido(1, "17:00", cancha="C2")], esc) == ["franja"]

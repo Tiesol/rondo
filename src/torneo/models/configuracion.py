@@ -210,6 +210,11 @@ class Franja(models.Model):
     suspendida = models.BooleanField(
         default=False, help_text="Por lluvia u otro motivo: no se programa nada en ella"
     )
+    # A4 (fase 12): en un tiempo agregado (tipo "entre semana"), las canchas donde vale. Vacío:
+    # todas. El programador lo usa solo si sin él queda algo sin lugar.
+    canchas: models.ManyToManyField[Cancha, Any] = models.ManyToManyField(
+        "Cancha", blank=True, related_name="franjas_extra", verbose_name="canchas donde vale"
+    )
 
     class Meta:
         ordering = ["torneo", "inicio"]
