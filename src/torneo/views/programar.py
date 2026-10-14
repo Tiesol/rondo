@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from django.conf import settings
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -85,6 +86,7 @@ def programar(request: HttpRequest, pk: int) -> HttpResponse:
         {
             "torneo": torneo,
             "filas": filas,
+            "minutos_maximos": max(1, -(-settings.PROGRAMADOR_SEGUNDOS // 60)),
             "no_entra": any(not f["entra"] and not f["entra_con_extra"] for f in filas),
             "capacidad": capacidad,
             "estimadas": ", ".join(capacidad.estimadas),

@@ -96,3 +96,13 @@ def test_a5_la_pantalla_dice_que_hace_falta_el_tiempo_agregado(
     agregar_jueves(demo)
     html = entrar(client, ORGANIZACION).get(f"/torneos/{demo.pk}/programar/").content.decode()
     assert "Entra usando el tiempo agregado" in html
+
+
+def test_el_tiempo_maximo_sale_de_la_configuracion(
+    client: Client, demo: Torneo, settings: Any
+) -> None:
+    org = entrar(client, ORGANIZACION)
+    settings.PROGRAMADOR_SEGUNDOS = 120
+    assert "hasta 2 minutos" in org.get(f"/torneos/{demo.pk}/programar/").content.decode()
+    settings.PROGRAMADOR_SEGUNDOS = 60
+    assert "hasta 1 minuto." in org.get(f"/torneos/{demo.pk}/programar/").content.decode()

@@ -6,8 +6,9 @@ compatibilidad, de franja o de bloqueo) con la lista de sus motivos, y un tipo:
 
 - cancha: dos partidos usan la misma cancha física a la vez (C1 entera ocupa C1A y C1B);
 - compatibilidad: la categoría no juega en esa cancha;
-- franja: el partido no empieza y termina dentro de una franja (el cambio puede quedar
-  afuera, P48);
+- franja: con "último inicio" (P48), el partido no empieza dentro de una franja; con "fin del
+  partido", no empieza y termina dentro (el cambio puede quedar afuera). El tiempo agregado
+  (A4) cuenta, solo en sus canchas;
 - equipo: un equipo juega dos partidos que se pisan, no deja los turnos libres del día (P17)
   o pasa del máximo de partidos por día (P47). En la eliminación cuentan los equipos
   virtuales (el ganador de una semi juega la final) y el descanso entre los partidos de

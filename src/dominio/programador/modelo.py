@@ -1,6 +1,7 @@
 """El programador (ARQUITECTURA 8): un modelo CP-SAT en pasos de 5 minutos.
 
-Cada partido elige un inicio dentro de una franja (el partido termina adentro, P48) y una
+Cada partido elige un inicio dentro de una franja (con "último inicio", P48, basta que empiece
+adentro; con "fin del partido", tiene que terminar adentro) y una
 cancha compatible, o queda sin ubicar: así el solver siempre devuelve el mejor calendario
 posible, y lo que no entra se informa con su motivo (motivos.py).
 
@@ -34,7 +35,7 @@ días (P55) y los equipos de un club el mismo día (P20).
 import time
 from collections import defaultdict
 from collections.abc import Hashable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from itertools import combinations, pairwise
 
@@ -183,7 +184,8 @@ class Modelo:
     def _ventana(
         self, partido: PartidoAProgramar, desde: datetime, hasta: datetime
     ) -> tuple[int, int] | None:
-        # P48: el partido termina dentro de la franja, o solo empieza dentro (último inicio).
+        # P48: con "último inicio" basta que el partido empiece dentro de la franja; con "fin del
+        # partido", tiene que terminar adentro.
         if desde.weekday() in partido.dias_sin_jugar:
             return None  # P56: esa categoría no juega ese día
         ultimo_inicio = self.problema.reglas.fin_de_franja == "ultimo_inicio"
@@ -688,12 +690,7 @@ class Modelo:
         return resultado
 
 
-def programar(
-    problema: Problema, *, segundos: float = 60, trabajadores: int = 8, semilla: int = 0
-) -> Resultado:
-    """El mejor calendario que encuentra el solver en el tiempo dado."""
-    if not problema.partidos:
-        return Resultado(estado="OPTIMAL")
+def _resolver(problema: Problema, segundos: float, trabajadores: int, semilla: int) -> Resultado:
     modelo = Modelo(problema)
     modelo.variables()
     modelo.canchas()
@@ -703,3 +700,25 @@ def programar(
     modelo.orden()
     modelo.objetivo()
     return modelo.resolver(segundos, trabajadores, semilla)
+
+
+def programar(
+    problema: Problema, *, segundos: float = 60, trabajadores: int = 8, semilla: int = 0
+) -> Resultado:
+    """El mejor calendario que encuentra el solver en el tiempo dado.
+
+    Con el orden de fechas "blanda" (P19) se prueba primero exigiéndolo: cuando se puede, el
+    resultado tiene que ser ese (A2, fase 12). Solo si así algo queda sin lugar, se resuelve
+    la versión blanda, que permite alguna fecha al revés, y gana la que ubica más."""
+    if not problema.partidos:
+        return Resultado(estado="OPTIMAL")
+    if problema.reglas.orden_de_fechas == "dura":
+        return _resolver(problema, segundos, trabajadores, semilla)
+    estricto = replace(
+        problema, reglas=problema.reglas.model_copy(update={"orden_de_fechas": "dura"})
+    )
+    primero = _resolver(estricto, segundos / 2, trabajadores, semilla)
+    if not primero.sin_ubicar:
+        return primero
+    segundo = _resolver(problema, segundos / 2, trabajadores, semilla)
+    return segundo if len(segundo.ubicados) > len(primero.ubicados) else primero

@@ -575,3 +575,35 @@ def test_a4_lo_que_no_entra_va_al_extra_y_solo_en_sus_canchas() -> None:
     assert len(en_jueves) == 4
     assert {c for c, _ in en_jueves} == {"C2"}
     assert choques(prob, resultado) == []
+
+
+def test_a2_si_exigir_el_orden_deja_algo_afuera_se_permite_al_revés() -> None:
+    # La fecha 2 está puesta a las 08:00; la fecha 1 solo entra en la franja de la tarde.
+    a1 = PartidoAProgramar(
+        id="f1",
+        categoria="Sub 9",
+        equipos=("A", "B"),
+        minutos_partido=45,
+        minutos_turno=50,
+        canchas=frozenset({"C2"}),
+        fecha=1,
+    )
+    a2 = PartidoAProgramar(
+        id="f2",
+        categoria="Sub 9",
+        equipos=("A", "C"),
+        minutos_partido=45,
+        minutos_turno=50,
+        canchas=frozenset({"C2"}),
+        fecha=2,
+        fijo=("C2", SABADO.replace(hour=8)),
+    )
+    prob = Problema(
+        partidos=(a1, a2),
+        fisicas=FISICAS,
+        franjas=(franja(0, 8, 8), franja(0, 14, 15)),
+        reglas=Reglas(orden_de_fechas="blanda"),
+    )
+    resultado = programar(prob, segundos=10)
+    assert resultado.sin_ubicar == []
+    assert resultado.ubicados["f1"][1] > resultado.ubicados["f2"][1]  # al revés, pero entra
