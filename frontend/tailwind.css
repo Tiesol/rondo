@@ -553,6 +553,26 @@
     gap: 12px;
     padding: 10px 0;
   }
+  /* Elegir o sacar una foto: el botón del navegador, con la forma de los nuestros. */
+  input[type="file"] {
+    max-width: 100%;
+    font-size: 14px;
+  }
+  input[type="file"]::file-selector-button {
+    min-height: 44px;
+    margin-right: 10px;
+    padding: 8px 14px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    color: var(--color-tinta);
+    font: inherit;
+    font-weight: 700;
+  }
+  .enlace-sin-linea {
+    color: inherit;
+    text-decoration: none;
+  }
   a.turno {
     color: inherit;
     text-decoration: none;
@@ -1137,6 +1157,34 @@
     border-radius: 50%;
     color: var(--color-tenue);
   }
+  .foto-chica.sin-foto {
+    border-color: transparent;
+  }
+  .dorsal-partido::-webkit-inner-spin-button,
+  .dorsal-partido::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+  .dorsal-partido {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .planilla-equipo {
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radius-control);
+  }
+  .planilla-equipo > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 52px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .planilla-equipo > form {
+    padding: 0 12px 12px;
+  }
   .foto-chica img {
     width: 100%;
     height: 100%;
@@ -1483,7 +1531,8 @@
     inset: auto 0 0;
     z-index: 30;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
     padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--color-linea);
     background: var(--color-superficie);

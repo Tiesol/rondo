@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}Agregar categoría{% endblock %}
 {% block volver %}{% if volver %}<a class="icono-btn" href="{% url 'categoria' volver.pk 'equipos' %}" aria-label="Volver al torneo">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endif %}{% endblock %}
-{% block encabezado %}Agregar categoría{% endblock %}
+{% block encabezado %}Nueva categoría{% endblock %}
 {% block contenido %}
 <form method="post" class="seccion gap-3.5" novalidate>
   {% csrf_token %}

@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block titulo %}Agregar jugador{% endblock %}
 {% block volver %}<a class="icono-btn" href="{% url 'ficha-partido' partido.pk %}" aria-label="Volver al partido">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
-{% block encabezado %}Agregar jugador{% endblock %}
+{% block encabezado %}Jugador nuevo{% endblock %}
 {% block contenido %}
 <form method="post" enctype="multipart/form-data" class="seccion gap-3.5" novalidate>
   {% csrf_token %}
   <p class="peq tenue">{{ equipo.nombre }} · {{ equipo.categoria }}</p>
   <div class="campo">
-    <label for="id_foto">Foto</label>
+    <label for="id_foto">Foto (opcional)</label>
     {% if imagenes_disponibles %}
-    <input type="file" id="id_foto" name="foto" accept="image/*" capture="environment">
+    <input type="file" id="id_foto" name="foto" accept="image/*" capture="environment" class="archivo-camara">
     {% else %}
     <input type="file" id="id_foto" name="foto" disabled>
     <span class="peq tenue">Falta conectar el almacenamiento de imágenes.</span>

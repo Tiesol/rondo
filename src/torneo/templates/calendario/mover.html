@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block titulo %}Mover un partido{% endblock %}
+{% block titulo %}{% if ahora == "Sin programar" %}Ubicar{% else %}Mover{% endif %} un partido{% endblock %}
 {% block volver %}<a class="icono-btn" href="{% url 'calendario' %}" aria-label="Volver al calendario">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
-{% block encabezado %}Mover{% endblock %}
+{% block encabezado %}{% if ahora == "Sin programar" %}Ubicar{% else %}Mover{% endif %}{% endblock %}
 {% block contenido %}
 <form method="post" class="seccion gap-3.5" novalidate>
   {% csrf_token %}
   <div>
     <strong>{{ cruce }}</strong>
-    <p class="peq tenue">{{ partido.categoria }} · {% if ahora %}ahora: {{ ahora }}{% else %}sin lugar{% endif %}</p>
+    <p class="peq tenue">{{ partido.categoria }} · {% if ahora == "Sin programar" %}todavía sin lugar{% else %}ahora: {{ ahora }}{% endif %}</p>
   </div>
   {% if motivos and bloquea %}
   <div class="alerta error" role="alert">{% include "parciales/icono.html" with nombre="error" clase="ico" %}<span><strong>No se puede.</strong>{% for motivo in motivos %}<br>{{ motivo }}{% endfor %}</span></div>
@@ -22,7 +22,7 @@
   {% if motivos and not bloquea %}
   <button type="submit" name="confirmar" value="1" class="btn principal bloque">Mover igual</button>
   {% else %}
-  {% include "parciales/boton.html" with texto="Mover el partido" principal=True bloque=True %}
+  {% if ahora == "Sin programar" %}{% include "parciales/boton.html" with texto="Ubicar el partido" principal=True bloque=True %}{% else %}{% include "parciales/boton.html" with texto="Mover el partido" principal=True bloque=True %}{% endif %}
   {% endif %}
 </form>
 {% endblock %}

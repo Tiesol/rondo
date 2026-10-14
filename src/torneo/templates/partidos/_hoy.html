@@ -16,7 +16,7 @@
             </span>
             <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if partido.atraso %} · <strong>{{ partido.atraso }} min tarde</strong>{% endif %}</span>
           </span>
-          {% include "parciales/chip.html" with texto=partido.estado estado=partido.color %}
+          {% if partido.estado != "Por jugar" %}{% include "parciales/chip.html" with texto=partido.estado estado=partido.color %}{% endif %}
         </a>
       </li>
       {% endfor %}

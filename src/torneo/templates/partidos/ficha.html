@@ -14,8 +14,7 @@
   {% if resultado.penales %}<p class="peq tenue centrado">Penales {{ resultado.penales.0 }} a {{ resultado.penales.1 }}</p>{% endif %}
   {% if resultado.wo %}<p class="peq tenue centrado">W.O.</p>{% endif %}
   <div class="marcas">
-    {% if tiempo %}<span class="chip info num">{{ tiempo }}</span>{% endif %}
-    {% if partido.estado == "en_juego" %}{% include "parciales/chip.html" with texto="En juego" estado="aviso" %}{% elif partido.estado == "jugado" %}{% include "parciales/chip.html" with texto="Terminado" estado="bien" %}{% else %}{% include "parciales/chip.html" with texto="Por jugar" estado="neutro" %}{% endif %}
+    {% if partido.estado == "en_juego" %}<span class="chip aviso num">{{ tiempo|default:"En juego" }}</span>{% elif partido.estado == "jugado" %}{% include "parciales/chip.html" with texto="Terminado" estado="bien" %}{% else %}{% include "parciales/chip.html" with texto="Por jugar" estado="neutro" %}{% endif %}
   </div>
 </div>
 
@@ -49,14 +48,14 @@
 {% if equipos|length < 2 %}
 <div class="seccion">{% include "parciales/alerta.html" with estado="aviso" texto="Faltan los equipos de este partido: se asignan en el fixture de la categoría." %}</div>
 {% elif not partido.empezado %}
-<div class="seccion gap-3">
-  {% include "parciales/seccion_cab.html" with titulo="Planilla" %}
-  {% for lado in equipos %}{% include "partidos/_planilla.html" %}{% endfor %}
-</div>
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
   {% csrf_token %}
   <button type="submit" name="accion" value="empezar" class="btn principal bloque grande">Empezar el partido</button>
 </form>
+<div class="seccion gap-2">
+  {% include "parciales/seccion_cab.html" with titulo="Planilla" %}
+  {% for lado in equipos %}{% include "partidos/_planilla.html" %}{% endfor %}
+</div>
 <details class="desplegable seccion">
   <summary>W.O.: un equipo no se presentó</summary>
   <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-2">
@@ -84,13 +83,9 @@
     <button type="button" class="btn" data-abrir-hoja="hoja-lesion">Lesión</button>
   </div>
 </div>
-<div class="seccion">
-  <div class="botones">
-    {% if partido.tiempo == "primer_tiempo" or partido.tiempo == "descanso" %}
-    <form method="post" action="{% url 'accion-partido' partido.pk %}">{% csrf_token %}<button type="submit" name="accion" value="avanzar_tiempo" class="btn">{% if partido.tiempo == "primer_tiempo" %}Fin del 1.er tiempo{% else %}Empieza el 2.º tiempo{% endif %}</button></form>
-    {% endif %}
-  </div>
-</div>
+{% if partido.tiempo == "primer_tiempo" or partido.tiempo == "descanso" %}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">{% csrf_token %}<button type="submit" name="accion" value="avanzar_tiempo" class="btn bloque">{% if partido.tiempo == "primer_tiempo" %}Fin del 1.er tiempo{% else %}Empieza el 2.º tiempo{% endif %}</button></form>
+{% endif %}
 {% include "parciales/hoja.html" with id="hoja-gol" titulo="¿Quién hizo el gol?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="gol" %}
 {% include "parciales/hoja.html" with id="hoja-amarilla" titulo="Amarilla, ¿a quién?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="amarilla" %}
 {% include "parciales/hoja.html" with id="hoja-roja" titulo="Roja, ¿a quién?" cuerpo="partidos/_lista_jugadores.html" accion_tipo="roja" %}
@@ -103,6 +98,36 @@
   <button type="submit" name="accion" value="deshacer" class="btn bloque"{% if not eventos %} disabled{% endif %}>Deshacer el último</button>
 </form>
 
+{% if partido.estado == "jugado" %}</details>{% endif %}
+{% endif %}
+
+{% if eventos %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Lo que pasó" %}
+  <ul class="lista">
+    {% for evento in eventos %}
+    <li class="fila evento-fila">
+      <span class="minuto num">{% if evento.minuto %}{{ evento.minuto }}'{% endif %}</span>
+      <span class="evento {{ evento.clase }}" aria-hidden="true"></span>
+      <span class="crece"><strong>{{ evento.tipo }} · {{ evento.equipo }}</strong><span class="sub">{% if evento.jugador %}{{ evento.dorsal|default_if_none:"s/n" }} · {{ evento.jugador.persona }}{% endif %}</span>{% if evento.nota %}<span class="sub"><strong>{{ evento.nota }}</strong></span>{% endif %}</span>
+      <details class="editar-evento">
+        <summary aria-label="Corregir">{% include "parciales/icono.html" with nombre="mas" clase="ico" %}</summary>
+        <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex items-end gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="evento_id" value="{{ evento.pk }}">
+          <div class="campo"><label for="minuto-{{ evento.pk }}">Minuto</label><input id="minuto-{{ evento.pk }}" class="dorsal-partido num" type="number" min="0" max="130" inputmode="numeric" name="minuto" value="{{ evento.minuto|default_if_none:'' }}"></div>
+          <button type="submit" name="accion" value="minuto" class="btn chico">Guardar</button>
+          <button type="submit" name="accion" value="borrar" class="btn chico">Borrar</button>
+        </form>
+      </details>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+
+{% if partido.empezado and not resultado.wo and equipos|length == 2 %}
 {% if tanda %}
 <div class="seccion gap-2 penales">
   {% include "parciales/seccion_cab.html" with titulo="Penales" %}
@@ -148,6 +173,12 @@
 </div>
 {% endif %}
 
+{% if partido.estado != "jugado" %}
+<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
+  {% csrf_token %}
+  <button type="submit" name="accion" value="terminar" class="btn principal bloque">Terminar el partido</button>
+</form>
+{% endif %}
 {% if con_mejor_jugador %}
 <form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion gap-2">
   {% csrf_token %}
@@ -178,6 +209,25 @@
 </div>
 {% endif %}
 
+<div class="seccion gap-2">
+  {% include "parciales/seccion_cab.html" with titulo="Planilla" %}
+  {% for lado in equipos %}{% include "partidos/_planilla.html" %}{% endfor %}
+</div>
+
+{% if partido.estado != "jugado" %}
+<details class="desplegable seccion">
+  <summary>Corregir las horas</summary>
+  <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-2">
+    {% csrf_token %}
+    <input type="hidden" name="accion" value="horas">
+    <div class="dos">
+      {% for hora in horas %}<div class="campo"><label for="hora-{{ hora.campo }}">{{ hora.texto }}</label><input id="hora-{{ hora.campo }}" type="time" name="{{ hora.campo }}" value="{{ hora.valor }}"></div>{% endfor %}
+    </div>
+    <button type="submit" class="btn bloque">Guardar las horas</button>
+  </form>
+</details>
+
+{% endif %}
 {% if perms.torneo.configurar_torneo %}
 <details class="desplegable seccion">
   <summary>Suspender a un jugador a mano</summary>
@@ -197,54 +247,6 @@
 </details>
 {% endif %}
 
-<details class="desplegable seccion">
-  <summary>Planilla y dorsales</summary>
-  <div class="flex flex-col gap-3">{% for lado in equipos %}{% include "partidos/_planilla.html" %}{% endfor %}</div>
-</details>
-
-<details class="desplegable seccion">
-  <summary>Corregir las horas</summary>
-  <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex flex-col gap-2">
-    {% csrf_token %}
-    <input type="hidden" name="accion" value="horas">
-    <div class="dos">
-      {% for hora in horas %}<div class="campo"><label for="hora-{{ hora.campo }}">{{ hora.texto }}</label><input id="hora-{{ hora.campo }}" type="time" name="{{ hora.campo }}" value="{{ hora.valor }}"></div>{% endfor %}
-    </div>
-    <button type="submit" class="btn bloque">Guardar las horas</button>
-  </form>
-</details>
-
-{% if partido.estado == "jugado" %}</details>{% else %}
-<form method="post" action="{% url 'accion-partido' partido.pk %}" class="seccion">
-  {% csrf_token %}
-  <button type="submit" name="accion" value="terminar" class="btn principal bloque">Terminar el partido</button>
-</form>
-{% endif %}
-{% endif %}
-
-{% if eventos %}
-<div class="seccion">
-  {% include "parciales/seccion_cab.html" with titulo="Lo que pasó" %}
-  <ul class="lista">
-    {% for evento in eventos %}
-    <li class="fila evento-fila">
-      <span class="minuto num">{% if evento.minuto %}{{ evento.minuto }}'{% endif %}</span>
-      <span class="evento {{ evento.clase }}" aria-hidden="true"></span>
-      <span class="crece"><strong>{{ evento.tipo }} · {{ evento.equipo }}</strong><span class="sub">{% if evento.jugador %}{{ evento.dorsal|default_if_none:"s/n" }} · {{ evento.jugador.persona }} · {% endif %}{{ evento.hora }}{% if evento.quien %} · {{ evento.quien }}{% endif %}</span>{% if evento.nota %}<span class="sub"><strong>{{ evento.nota }}</strong></span>{% endif %}</span>
-      <details class="editar-evento">
-        <summary aria-label="Corregir">{% include "parciales/icono.html" with nombre="mas" clase="ico" %}</summary>
-        <form method="post" action="{% url 'accion-partido' partido.pk %}" class="flex items-end gap-2">
-          {% csrf_token %}
-          <input type="hidden" name="evento_id" value="{{ evento.pk }}">
-          <div class="campo"><label for="minuto-{{ evento.pk }}">Minuto</label><input id="minuto-{{ evento.pk }}" class="dorsal-partido num" type="number" min="0" max="130" inputmode="numeric" name="minuto" value="{{ evento.minuto|default_if_none:'' }}"></div>
-          <button type="submit" name="accion" value="minuto" class="btn chico">Guardar</button>
-          <button type="submit" name="accion" value="borrar" class="btn chico">Borrar</button>
-        </form>
-      </details>
-    </li>
-    {% endfor %}
-  </ul>
-</div>
 {% endif %}
 
 {% if historial %}

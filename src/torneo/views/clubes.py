@@ -36,7 +36,7 @@ def clubes(request: HttpRequest) -> HttpResponse:
             return redirect("clubes")
     lista = [
         {"club": c, "escudo": url_de_imagen("escudo", c.pk, c.escudo.name)}
-        for c in Club.objects.annotate(cantidad=Count("equipos"))
+        for c in Club.objects.annotate(cantidad=Count("equipos")).order_by("nombre")
     ]
     return render(request, "clubes/lista.html", {"lista": lista, "form": formulario})
 
