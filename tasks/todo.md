@@ -1479,3 +1479,26 @@ T11.16 (al final)
 - [ ] Producción: Neon, Render y el bucket `rondo-produccion` (`docs/DESPLIEGUE.md`).
 - [ ] Preguntas sin responder: P79, P81, P83, P84, P85 y P86 (quedan con su valor por defecto).
 - [ ] Cada fusión a `main` reinicia la demo: con la organización usándola, fusionar fuera de su horario y avisar antes.
+
+## Fase 12: revisión de la fase 11 (`docs/PEDIDO_FASE_12.md`)
+
+> Pedido de Sebastian del 2026-10-13. Orden: A (antes del 21/10), B y C (antes del 23/10). Cambios de modelo autorizados: C1 y C2. Las migraciones no borran datos.
+
+- [ ] A1 Máximo por día entre grupos y eliminación (programador y verificador)
+- [ ] A2 Orden de fechas "blanda" penalizado en el objetivo
+- [ ] A3 Sub 5 y Sub 6 solo sábado y domingo
+- [ ] A4 Tiempo extra por canchas y solo si hace falta
+- [ ] A5 "¿Entra todo?" con el último inicio
+- [ ] B1 Suspender: elegir dónde se juega (por defecto el jueves)
+- [ ] B2 Reanudar el día
+- [ ] B3 Partidos en juego al suspender
+- [ ] B4 Volver a programar con el torneo empezado
+- [ ] B5 Intercambiar dos partidos
+- [ ] B6 Reglas solo para una reprogramación
+- [ ] B7 "¿Estás seguro?" en lo importante
+- [ ] B8 Calendario por club con acciones
+- [ ] B9 Días sin franja en el calendario
+- [ ] C1 Dorsal repetido: aviso
+- [ ] C2 CI verificado en cada partido
+- [ ] C3 Foto con cámara o galería
+- [ ] C4 Docstrings del último inicio

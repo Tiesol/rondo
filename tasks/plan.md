@@ -317,6 +317,14 @@ T8.5 → T8.6         │
 - [x] T11.15 Rehacer el fixture con partidos jugados
 - [x] T11.16 Pasada de UI/UX
 
+#### Fase 12: revisión de la fase 11
+
+> `docs/PEDIDO_FASE_12.md`. Detalle en `tasks/todo.md`.
+
+- [ ] Bloque A: programador (A1 a A5)
+- [ ] Bloque B: reprogramar (B1 a B9)
+- [ ] Bloque C: día de partido (C1 a C4)
+
 ## Grafo de dependencias
 
 ```
