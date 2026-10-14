@@ -31,15 +31,14 @@
       {% for partido in cancha.partidos %}
       <li class="turno">
         <span class="hora num">{{ partido.hora }}</span>
-        <span class="crece">
+        <{% if perms.torneo.cargar_resultados %}a href="{% url 'ficha-partido' partido.pk %}"{% else %}span{% endif %} class="crece enlace-sin-linea">
           <span class="vs">
             {% if partido.local.escudo %}{% include "parciales/escudo.html" with escudo=partido.local.escudo tamano="ch" %}{{ partido.local.nombre }}{% else %}<span class="por-definir">{{ partido.local.nombre }}</span>{% endif %}
             <span class="tenue">vs</span>
             {% if partido.visitante.escudo %}{% include "parciales/escudo.html" with escudo=partido.visitante.escudo tamano="ch" %}{{ partido.visitante.nombre }}{% else %}<span class="por-definir">{{ partido.visitante.nombre }}</span>{% endif %}
           </span>
           <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if partido.mitad %} · {{ partido.mitad }}{% endif %}</span>
-        </span>
-        {% if perms.torneo.cargar_resultados %}<a class="btn chico" href="{% url 'ficha-partido' partido.pk %}">Ficha</a>{% endif %}
+        </{% if perms.torneo.cargar_resultados %}a{% else %}span{% endif %}>
         {% if perms.torneo.configurar_torneo %}<a class="btn chico" href="{% url 'mover' partido.pk %}">Mover</a>{% endif %}
       </li>
       {% endfor %}

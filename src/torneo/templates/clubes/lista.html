@@ -4,6 +4,7 @@
 {% block encabezado %}Clubes{% endblock %}
 {% block contenido %}
 <div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Clubes" accion="Agregar" accion_url="#agregar" %}
   <ul class="lista">
     {% for item in lista %}
     <li>
@@ -18,7 +19,7 @@
     {% endfor %}
   </ul>
 </div>
-<form method="post" class="seccion gap-3.5" novalidate>
+<form method="post" class="seccion gap-3.5" id="agregar" novalidate>
   {% csrf_token %}
   {% include "parciales/seccion_cab.html" with titulo="Agregar un club" %}
   {% include "parciales/campo.html" with campo=form.nombre %}
