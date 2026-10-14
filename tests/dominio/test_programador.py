@@ -607,3 +607,27 @@ def test_a2_si_exigir_el_orden_deja_algo_afuera_se_permite_al_revés() -> None:
     resultado = programar(prob, segundos=10)
     assert resultado.sin_ubicar == []
     assert resultado.ubicados["f1"][1] > resultado.ubicados["f2"][1]  # al revés, pero entra
+
+
+def test_a4_el_tiempo_agregado_es_solo_para_las_canchas_de_lo_que_no_entra() -> None:
+    from dominio.verificador import FranjaExtra
+
+    # C2 tiene lugar de sobra; C3 no alcanza. El jueves vale en todas las canchas, pero solo
+    # lo de C3 puede ir ahí.
+    holgados = todos_contra_todos(list("ABC"), "Sub 8", ("C2",))
+    apretados = todos_contra_todos(list("DEFGHI"), "Sub 12", ("C3",))  # 15 partidos
+    jueves = FranjaExtra(
+        SABADO.replace(hour=16) - timedelta(days=2), SABADO.replace(hour=22) - timedelta(days=2)
+    )
+    fisicas = {**FISICAS, "C3": frozenset({"C3"})}
+    prob = Problema(
+        partidos=tuple(holgados + apretados),
+        fisicas=fisicas,
+        franjas=(franja(0, 8, 12), franja(1, 8, 12)),
+        reglas=Reglas(),
+        extras=(jueves,),
+    )
+    resultado = programar(prob, segundos=10)
+    assert all(p.id in resultado.ubicados for p in holgados)
+    del_jueves = [i for i, (_, inicio) in resultado.ubicados.items() if inicio.weekday() == 3]
+    assert del_jueves and all(str(i).startswith("Sub 12") for i in del_jueves)

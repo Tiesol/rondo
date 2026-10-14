@@ -7,7 +7,7 @@ verificador y se guarda antes de responder.
 """
 
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -179,6 +179,8 @@ def problema_del_torneo(
                 ronda=partido.ronda,
             )
         )
+    if extras:
+        a_programar = _sin_extra_si_entra(torneo, a_programar)
     problema = Problema(
         partidos=tuple(a_programar),
         fisicas=fisicas,
@@ -196,6 +198,30 @@ def problema_del_torneo(
         return problema
     chicas = {str(pk) for pk, c in categorias.items() if c.modalidad in ("F8", "F11")}
     return aplicar_relajar(problema, relajar, ventana=ventana, sin_mitades=chicas)
+
+
+def _sin_extra_si_entra(
+    torneo: Torneo, partidos: list[PartidoAProgramar]
+) -> list[PartidoAProgramar]:
+    """A4 (P78): si un grupo de canchas entra en el horario normal ("¿Entra todo?"), sus
+    categorías no usan el tiempo agregado: es solo para lo que no entra. Si todo entra, no se
+    restringe nada (el tiempo agregado igual cuesta más que todo lo blando)."""
+    from torneo.servicios.capacidad import capacidad_del_torneo
+
+    grupos = capacidad_del_torneo(torneo).total
+    if all(g.entra for g in grupos):
+        return partidos
+    no_entran = {c for g in grupos if not g.entra for c in g.canchas}
+    padres = {
+        c.codigo: (c.padre.codigo if c.padre else c.codigo)
+        for c in Cancha.objects.filter(torneo=torneo).select_related("padre")
+    }
+    return [
+        p
+        if p.fijo or {padres.get(c, c) for c in p.canchas} & no_entran
+        else replace(p, sin_extra=True)
+        for p in partidos
+    ]
 
 
 def bloqueos_del_torneo(torneo: Torneo) -> tuple[BloqueoDelDominio, ...]:
