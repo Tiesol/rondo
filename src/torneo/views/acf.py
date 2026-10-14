@@ -5,6 +5,7 @@ from typing import Any
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -13,6 +14,7 @@ from torneo.forms.reprogramar import CamposAflojar
 from torneo.models import Bloqueo, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.bloqueos import partidos_que_chocan
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 
 DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 
@@ -102,6 +104,15 @@ def revisar(request: HttpRequest, pk: int) -> HttpResponse:
 def borrar(request: HttpRequest, pk: int) -> HttpResponse:
     bloqueo = get_object_or_404(Bloqueo, pk=pk)
     torneo_pk = bloqueo.torneo_id
+    if not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=f"Se borra el bloqueo «{bloqueo.motivo or 'sin motivo'}». Esos equipos "
+            "vuelven a poder jugar en ese horario.",
+            boton="Borrar el bloqueo",
+            volver=reverse("acf", args=[torneo_pk]),
+            peligro=True,
+        )
     bloqueo.delete()
     messages.success(request, "Bloqueo borrado")
     return redirect("acf", pk=torneo_pk)

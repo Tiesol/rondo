@@ -116,7 +116,7 @@ def test_un_horario_al_reves_muestra_el_error(client: Client, torneo: Torneo) ->
 def test_se_borra_un_bloqueo(client: Client, torneo: Torneo) -> None:
     inicio, fin = primer_dia(torneo)
     bloqueo = Bloqueo.objects.create(torneo=torneo, inicio=inicio, fin=fin)
-    entrar(client, ORGANIZACION).post(f"/bloqueos/{bloqueo.pk}/borrar/")
+    entrar(client, ORGANIZACION).post(f"/bloqueos/{bloqueo.pk}/borrar/", {"confirmado": "1"})
     assert not Bloqueo.objects.exists()
 
 

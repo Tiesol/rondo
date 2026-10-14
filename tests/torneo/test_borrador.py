@@ -103,7 +103,7 @@ def test_rehacer_quita_el_aviso_y_la_programacion_vieja(org: Client, torneo: Tor
     programar_torneo(torneo)
     assert cn.partidos.filter(inicio__isnull=False).exists()
     Equipo.objects.create(club=Club.objects.create(nombre="Tarde"), categoria=cn, nombre="Tarde")
-    org.post(f"/torneo/{cn.pk}/fixture/generar/")
+    org.post(f"/torneo/{cn.pk}/fixture/generar/", {"confirmado": "1"})
     assert motivo_desactualizado(cn) == ""
     assert cn.partidos.count() == 12  # el formato de 5
     assert not cn.partidos.filter(inicio__isnull=False).exists()

@@ -56,7 +56,15 @@ def test_se_ven_todas_las_reglas_con_su_pregunta_y_sin_json(client: Client, torn
 def test_guardar_cambia_las_reglas(client: Client, torneo: Torneo) -> None:
     datos = datos_validos(max_partidos_por_dia=3, marcador_wo_0=2)
     del datos["jugador_y_profe"]  # interruptor apagado
-    respuesta = entrar(client, ORGANIZACION).post(f"/torneos/{torneo.pk}/reglas/", datos)
+    org = entrar(client, ORGANIZACION)
+    # B7: antes de guardar dice qué cambia.
+    pregunta = org.post(f"/torneos/{torneo.pk}/reglas/", datos)
+    html = pregunta.content.decode()
+    assert pregunta.status_code == 200 and "¿Estás seguro?" in html
+    assert "Partidos por día de un equipo, como máximo: 2 → 3" in html
+    torneo.refresh_from_db()
+    assert torneo.reglas["max_partidos_por_dia"] != 3
+    respuesta = org.post(f"/torneos/{torneo.pk}/reglas/", datos | {"confirmado": "1"})
     assert respuesta.status_code == 302
     torneo.refresh_from_db()
     assert torneo.reglas["max_partidos_por_dia"] == 3
