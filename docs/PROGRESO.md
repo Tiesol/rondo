@@ -6,7 +6,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 
 - **Fases 7 a 10 terminadas, revisadas y fusionadas a `main` (2026-10-13, PR #75 a #117).** Antes de fusionar: tests rápidos y lentos, mypy, ruff, `docker build`, la imagen con `DEBUG=false` (migraciones hasta la 0025 al arrancar) y un recorrido HTTP con login (223 de 223 sin choques, página pública sin cookies, CSP). La demo se redespliega sola desde `main`.
 - **Siguiente paso (decidido por Sebastian el 2026-10-13):** hoy, la demo para que el hermano de Sebastian pruebe todo; hoy también, producción, para que la organización la use desde el 14/10. Datos reales solo en producción.
-- **Fase 11 en curso (2026-10-13):** los cambios de `docs/RESPUESTAS_Y_CAMBIOS.md` y las respuestas P78, P80 y P82 (su sección 7). Tareas T11.1 a T11.16 en `tasks/todo.md`; primero el calendario flexible (T11.2). Auditoría abajo.
+- **Fase 11 terminada (2026-10-13, PR #119 a #135):** los cambios de `docs/RESPUESTAS_Y_CAMBIOS.md` y las respuestas P78, P80 y P82 (T11.1 a T11.16). Falta la revisión de cierre de fase (`code-review-and-quality`) y la prueba de Sebastian en la demo. Siguen sin respuesta P79, P81, P83, P84, P85 y P86 (con su valor por defecto).
 
 ## Para retomar (actualizado el 2026-10-13, al cerrar el chat largo)
 
