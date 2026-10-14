@@ -14,9 +14,17 @@ from django.views.decorators.http import require_POST
 
 from dominio.config import Reglas
 from dominio.franjas import proximo
+from torneo.forms.reprogramar import FormularioSuspension
 from torneo.models import Cancha, Club, Franja, Partido, Torneo
 from torneo.permisos import requiere
-from torneo.servicios.reprogramar import suspender_dia
+from torneo.servicios.reprogramar import (
+    Donde,
+    donde_por_defecto,
+    reanudar_dia,
+    suspender_dia,
+    vista_de_reanudar,
+    vista_de_suspension,
+)
 from torneo.servicios.suspensiones import suspendidos_del_dia
 from torneo.views.fixture import lado
 from torneo.views.fragmentos import pide_fragmento
@@ -25,7 +33,16 @@ DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 
 
 def _dias(torneo: Torneo) -> list[date]:
-    return sorted({timezone.localtime(f.inicio).date() for f in torneo.franjas.all()})
+    """Los días de las franjas y también los de partidos ubicados a mano en un día sin franja
+    (B9), por ejemplo un miércoles."""
+    de_franjas = {timezone.localtime(f.inicio).date() for f in torneo.franjas.all()}
+    de_partidos = {
+        timezone.localtime(inicio).date()
+        for inicio in Partido.objects.filter(
+            categoria__torneo=torneo, inicio__isnull=False
+        ).values_list("inicio", flat=True)
+    }
+    return sorted(de_franjas | de_partidos)
 
 
 def calendario(request: HttpRequest) -> HttpResponse:
@@ -86,10 +103,13 @@ def calendario_dia(request: HttpRequest, fecha: str) -> HttpResponse:
     franjas_del_dia = [
         f for f in torneo.franjas.all() if timezone.localtime(f.inicio).date() == dia
     ]
+    suspendido = bool(franjas_del_dia) and all(f.suspendida for f in franjas_del_dia)
     contexto = {
         "es_dia_de_juego": bool(franjas_del_dia),
         "borrador": not torneo.publico,
-        "suspendido": bool(franjas_del_dia) and all(f.suspendida for f in franjas_del_dia),
+        "suspendido": suspendido,
+        # B3: lo que estaba en juego cuando se suspendió se muestra aparte; decide la organización.
+        "en_juego": vista_de_suspension(torneo, dia).en_juego if suspendido else [],
         "form_dia": FormularioDia(
             torneo=torneo,
             initial={
@@ -120,9 +140,10 @@ def calendario_dia(request: HttpRequest, fecha: str) -> HttpResponse:
     return render(request, plantilla, contexto)
 
 
-@require_POST
 @requiere("torneo.configurar_torneo", "suspender días")
 def suspender(request: HttpRequest, fecha: str) -> HttpResponse:
+    """B1 y B7: se dice qué se suspende y dónde se juega (por defecto, el próximo jueves de 16
+    a 20), y se confirma. Nada se suspende con un solo toque."""
     torneo = Torneo.activo()
     if torneo is None:
         return redirect("inicio")
@@ -130,13 +151,77 @@ def suspender(request: HttpRequest, fecha: str) -> HttpResponse:
         dia = date.fromisoformat(fecha)
     except ValueError:
         raise Http404 from None
-    corrida = suspender_dia(torneo, dia, request.user)
-    messages.success(request, "Día suspendido: sus partidos quedaron sin programar")
-    return redirect("ver-propuestas", pk=corrida.pk)
+    vista = vista_de_suspension(torneo, dia)
+    por_defecto = donde_por_defecto(torneo, dia)
+    formulario = FormularioSuspension(
+        request.POST if request.method == "POST" else None,
+        torneo=torneo,
+        initial=FormularioSuspension.inicial(por_defecto.dia, por_defecto.desde, por_defecto.hasta),
+    )
+    titulo_dia = f"{DIAS[dia.weekday()]} {dia.day}/{dia.month}"
+    n = len(vista.se_suspenden)
+    resumen = (
+        f"Se suspenden los {n} partidos del {titulo_dia}."
+        if n != 1
+        else (f"Se suspende el partido del {titulo_dia}.")
+    )
+    if request.method == "POST" and formulario.is_valid() and request.POST.get("confirmado") == "1":
+        datos = formulario.cleaned_data
+        corrida = suspender_dia(
+            torneo,
+            dia,
+            request.user,
+            donde=Donde(datos["dia"], datos["desde"], datos["hasta"], list(datos["canchas"])),
+            relajar=formulario.relajar(),
+        )
+        messages.success(request, "Día suspendido: sus partidos quedaron sin programar")
+        return redirect("ver-propuestas", pk=corrida.pk)
+    return render(
+        request,
+        "calendario/suspender.html",
+        {
+            "dia": dia,
+            "titulo_dia": titulo_dia,
+            "vista": vista,
+            "resumen": resumen,
+            "form": formulario,
+        },
+    )
+
+
+@requiere("torneo.configurar_torneo", "reanudar días")
+def reanudar(request: HttpRequest, fecha: str) -> HttpResponse:
+    """B2: vuelve a abrir el día. Los que siguen sin lugar vuelven adonde estaban; los que ya se
+    ubicaron en otro lado quedan donde están. Con confirmación (B7)."""
+    torneo = Torneo.activo()
+    if torneo is None:
+        return redirect("inicio")
+    try:
+        dia = date.fromisoformat(fecha)
+    except ValueError:
+        raise Http404 from None
+    vista = vista_de_reanudar(torneo, dia)
+    titulo_dia = f"{DIAS[dia.weekday()]} {dia.day}/{dia.month}"
+    detalle = [f"Vuelven a su lugar: {len(vista.vuelven)}"]
+    if vista.en_otro_lado:
+        detalle.append(f"Quedan donde están, ya reubicados: {len(vista.en_otro_lado)}")
+    if vista.franja_extra is not None:
+        detalle.append("Se quita el tiempo agregado al suspender, que quedó vacío")
+    if request.method == "POST" and request.POST.get("confirmado") == "1":
+        reanudar_dia(torneo, dia, request.user)
+        messages.success(request, f"{titulo_dia} reanudado")
+        return redirect("calendario-dia", fecha=dia.isoformat())
+    return render(
+        request,
+        "calendario/reanudar.html",
+        {"dia": dia, "titulo_dia": titulo_dia, "vista": vista, "detalle": detalle},
+    )
 
 
 class FormularioDia(forms.Form):
-    dia = forms.DateField(label="Día", widget=forms.DateInput(attrs={"type": "date"}))
+    dia = forms.DateField(
+        label="Día", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"})
+    )
     desde = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
     hasta = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
     canchas = forms.ModelMultipleChoiceField(

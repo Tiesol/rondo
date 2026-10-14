@@ -6,11 +6,14 @@ from typing import Any
 from django.contrib import messages
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from dominio.partido import Lado
-from torneo.models import Bloqueo, Corrida, Partido
+from dominio.programador.relajar import Relajar
+from torneo.forms.reprogramar import CamposAflojar
+from torneo.models import Bloqueo, Corrida, Franja, Partido
 from torneo.permisos import requiere
 from torneo.presentacion import cruce, lugar
 from torneo.servicios.partido import NoSePuede, wo
@@ -19,8 +22,10 @@ from torneo.servicios.reprogramar import (
     afectados_por,
     aplicar,
     calcular_propuestas,
+    calcular_propuestas_en,
     veces_que_reprogramo,
 )
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 
 
 def _lugar(guardado: list[str] | None) -> str:
@@ -43,11 +48,60 @@ def _titulo(propuesta: list[dict[str, Any]]) -> str:
     return f"Ubicar {partidos(ubicar)}" if ubicar else f"Mover {partidos(mover)}"
 
 
+def _inicial_aflojar(relajar: Relajar) -> dict[str, Any]:
+    return {
+        "turnos_libres": relajar.turnos_libres,
+        "max_por_dia": relajar.max_por_dia,
+        "orden_blando": relajar.orden == "blanda",
+        "minutos_extra": relajar.minutos_extra or None,
+        "usar_mitades": relajar.usar_mitades,
+    }
+
+
+def _volver(corrida: Corrida) -> str:
+    if "bloqueo" in corrida.parametros:
+        return reverse("acf", args=[corrida.torneo_id])
+    if dia := corrida.parametros.get("dia"):
+        return reverse("calendario-dia", args=[dia])
+    return reverse("calendario")
+
+
 @require_POST
 @requiere("torneo.configurar_torneo", "reprogramar")
 def propuestas(request: HttpRequest, pk: int) -> HttpResponse:
     bloqueo = get_object_or_404(Bloqueo.objects.select_related("torneo"), pk=pk)
-    corrida = calcular_propuestas(bloqueo, request.user)
+    aflojar = CamposAflojar(request.POST)
+    relajar = aflojar.relajar() if aflojar.is_valid() else None
+    corrida = calcular_propuestas(bloqueo, request.user, relajar=relajar)
+    return redirect("ver-propuestas", pk=corrida.pk)
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "reprogramar")
+def recalcular(request: HttpRequest, pk: int) -> HttpResponse:
+    """B6: las mismas propuestas, aflojando reglas solo esta vez. Queda anotado en la corrida."""
+    anterior = get_object_or_404(Corrida, pk=pk, tipo=Corrida.Tipo.REPROGRAMAR)
+    aflojar = CamposAflojar(request.POST)
+    if not aflojar.is_valid():
+        messages.error(request, "Revisa los números de las reglas.")
+        return redirect("ver-propuestas", pk=anterior.pk)
+    parametros = anterior.parametros
+    desde = datetime.fromisoformat(parametros["desde"])
+    hasta = datetime.fromisoformat(parametros["hasta"])
+    franja = Franja.objects.filter(pk=parametros.get("franja_extra")).first()
+    origen = {
+        k: v for k, v in parametros.items() if k in ("bloqueo", "dia", "franja_extra", "categoria")
+    }
+    corrida = calcular_propuestas_en(
+        anterior.torneo,
+        desde,
+        hasta,
+        motivo=parametros.get("motivo", ""),
+        origen=origen,
+        usuario=request.user,
+        preferidas=[franja] if franja else None,
+        relajar=aflojar.relajar(),
+    )
     return redirect("ver-propuestas", pk=corrida.pk)
 
 
@@ -67,6 +121,7 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
         vista.append(
             {
                 "indice": indice,
+                "publicados": sum(1 for m in propuesta if m["antes"] is not None),
                 "titulo": _titulo(propuesta),
                 "movimientos": [
                     {
@@ -83,6 +138,7 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
     pedido = Bloqueo.objects.filter(pk=corrida.parametros.get("bloqueo")).first()
     afectados = afectados_por(pedido) if pedido else []
     veces = {e.pk: veces_que_reprogramo(e) for e in (pedido.equipos.all() if pedido else [])}
+    relajar = Relajar.desde_dict(corrida.parametros.get("relajar") or {})
     return render(
         request,
         "reprogramar/propuestas.html",
@@ -90,6 +146,9 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
             "corrida": corrida,
             "propuestas": vista,
             "motivo": corrida.parametros.get("motivo", ""),
+            "aflojadas": relajar.describir(),
+            "form": CamposAflojar(initial=_inicial_aflojar(relajar)),
+            "volver": _volver(corrida),
             # T10.10: dar W.O. en lugar de reprogramar, y cuántas veces ya reprogramó.
             "afectados": [
                 {
@@ -130,6 +189,14 @@ def dar_wo(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect("ver-propuestas", pk=corrida.pk)
     partido, equipo = elegido
     lado: Lado = "local" if partido.local_id == equipo.pk else "visitante"
+    if not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=f"{equipo.nombre} pierde {cruce(partido)} por W.O. (marcador del reglamento).",
+            boton="Dar el W.O.",
+            volver=reverse("ver-propuestas", args=[corrida.pk]),
+            peligro=True,
+        )
     try:
         wo(partido, lado, request.user)
     except NoSePuede as error:
@@ -145,6 +212,25 @@ def aplicar_propuesta(request: HttpRequest, pk: int, indice: int) -> HttpRespons
     corrida = get_object_or_404(Corrida, pk=pk, tipo=Corrida.Tipo.REPROGRAMAR)
     if not 0 <= indice < len(corrida.resultado.get("propuestas", [])):
         raise Http404
+    if not confirmado(request):
+        movimientos = corrida.resultado["propuestas"][indice]
+        publicados = sum(1 for m in movimientos if m["antes"] is not None)
+        nuevos = len(movimientos) - publicados
+        partes = []
+        if nuevos:
+            partes.append(f"se ubican {nuevos} partido{'s' if nuevos != 1 else ''}")
+        if publicados:
+            partes.append(
+                f"se mueven {publicados} que ya estaban publicados"
+                if publicados != 1
+                else "se mueve 1 que ya estaba publicado"
+            )
+        return pedir_confirmacion(
+            request,
+            mensaje="Al aplicar esta propuesta " + " y ".join(partes) + ".",
+            boton="Aplicar",
+            volver=reverse("ver-propuestas", args=[corrida.pk]),
+        )
     try:
         cambios = aplicar(corrida, indice, request.user)
     except NoSePuedeAplicar as error:

@@ -62,7 +62,10 @@ def test_desde_las_propuestas_se_da_wo_al_equipo_que_pidio(org: Client, victima:
     corrida = Corrida.objects.get(tipo=Corrida.Tipo.REPROGRAMAR)
     html = org.get(f"/corridas/{corrida.pk}/propuestas/").content.decode()
     assert "Dar W.O." in html
-    org.post(f"/corridas/{corrida.pk}/wo/", {"partido": victima.pk, "equipo": victima.local_id})
+    org.post(
+        f"/corridas/{corrida.pk}/wo/",
+        {"partido": victima.pk, "equipo": victima.local_id, "confirmado": "1"},
+    )
     victima.refresh_from_db()
     assert victima.estado == Partido.Estado.JUGADO and victima.no_se_presento == "local"
     assert resultado_de(victima).marcador == (0, 3)
@@ -73,7 +76,7 @@ def test_avisa_cuantas_veces_reprogramo_el_equipo(org: Client, victima: Partido)
     org.post(f"/bloqueos/{pedido(victima).pk}/propuestas/")
     primera = Corrida.objects.get(tipo=Corrida.Tipo.REPROGRAMAR)
     assert "ya reprogramó" not in org.get(f"/corridas/{primera.pk}/propuestas/").content.decode()
-    org.post(f"/corridas/{primera.pk}/aplicar/0/")
+    org.post(f"/corridas/{primera.pk}/aplicar/0/", {"confirmado": "1"})
     victima.refresh_from_db()
     org.post(f"/bloqueos/{pedido(victima).pk}/propuestas/")
     segunda = Corrida.objects.filter(tipo=Corrida.Tipo.REPROGRAMAR).latest("pk")

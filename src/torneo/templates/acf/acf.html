@@ -29,7 +29,7 @@
         {% if fila.choques %}<span class="sub">{{ fila.choques|length }} partido{{ fila.choques|length|pluralize:" choca, partidos chocan" }}: {% for p in fila.choques %}{{ p.cruce }} ({{ p.cuando }}){% if not forloop.last %}; {% endif %}{% endfor %}</span>{% endif %}
       </span>
       <span class="control">
-        {% if fila.choques %}<form method="post" action="{% url 'propuestas' fila.bloqueo.pk %}">{% csrf_token %}<button type="submit" class="btn chico principal">Ver propuestas</button></form>{% endif %}
+        {% if fila.choques %}<form method="post" action="{% url 'propuestas' fila.bloqueo.pk %}" class="flex flex-col gap-2">{% csrf_token %}{% include "reprogramar/_aflojar.html" with form=aflojar %}<button type="submit" class="btn chico principal">Ver propuestas</button></form>{% endif %}
         <form method="post" action="{% url 'borrar-bloqueo' fila.bloqueo.pk %}">{% csrf_token %}<button type="submit" class="btn chico">Borrar</button></form>
       </span>
     </li>

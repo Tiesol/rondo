@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block titulo %}¿Estás seguro?{% endblock %}
+{% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Cancelar">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}¿Estás seguro?{% endblock %}
+{% block contenido %}{% include "parciales/_confirmar.html" %}{% endblock %}

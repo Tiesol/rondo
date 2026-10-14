@@ -6,12 +6,19 @@ from django.conf import settings
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from dominio.capacidad import GrupoDeCanchas
 from torneo.models import Corrida, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.capacidad import capacidad_del_torneo
-from torneo.servicios.programador import ProgramacionEnCurso, programar_torneo
+from torneo.servicios.programador import (
+    ProgramacionEnCurso,
+    Resumen,
+    programar_torneo,
+    resumen_antes_de_programar,
+)
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 from torneo.views.fragmentos import pide_fragmento
 
 
@@ -33,6 +40,29 @@ def _fila(grupo: GrupoDeCanchas, con_extra: GrupoDeCanchas | None = None) -> dic
         "entra": grupo.entra,
         "uso": min(round(100 * grupo.pedido / grupo.disponible), 100) if grupo.disponible else 100,
     }
+
+
+def _plural(n: int, uno: str, varios: str) -> str:
+    return f"{n} {uno if n == 1 else varios}"
+
+
+def _que_pasa(resumen: Resumen) -> str:
+    mueve = _plural(resumen.futuros, "partido ya programado", "partidos ya programados")
+    return f"Volver a programar mueve {mueve} y ubica los que faltan. Nada se ubica antes de ahora."
+
+
+def _detalle(resumen: Resumen) -> list[str]:
+    lineas = []
+    if resumen.jugados:
+        jugados = _plural(resumen.jugados, "jugado o en juego", "jugados o en juego")
+        lineas.append(f"No se mueven: {jugados}.")
+    if resumen.sin_resultado:
+        pasados = _plural(
+            len(resumen.sin_resultado), "partido cuya hora ya pasó", "partidos cuya hora ya pasó"
+        )
+        lineas.append(f"No se mueven: {pasados}, y les falta el resultado.")
+    lineas.append(f"Se mueven: {_plural(resumen.futuros, 'partido', 'partidos')} programados.")
+    return lineas
 
 
 def _resultado(torneo: Torneo) -> dict[str, Any] | None:
@@ -59,15 +89,28 @@ def _resultado(torneo: Torneo) -> dict[str, Any] | None:
         "total": resultado.get("total", 0),
         "choques": sum(resultado.get("choques", {}).values()),
         "sin_ubicar": [s for s in resultado.get("sin_ubicar", []) if s["id"] in pendientes],
+        "sin_resultado": resultado.get("sin_resultado", []),
     }
 
 
 @requiere("torneo.configurar_torneo", "programar")
 def programar(request: HttpRequest, pk: int) -> HttpResponse:
     torneo = get_object_or_404(Torneo, pk=pk)
+    resumen = resumen_antes_de_programar(torneo)
     if request.method == "POST":
+        faltan = request.POST.get("modo") == "faltan"
+        if not faltan and resumen.hay_publicados and not confirmado(request):
+            return pedir_confirmacion(
+                request,
+                mensaje=_que_pasa(resumen),
+                detalle=_detalle(resumen),
+                boton="Volver a programar",
+                volver=reverse("programar", args=[torneo.pk]),
+                peligro=True,
+                destino="resultado-programacion",
+            )
         try:
-            programar_torneo(torneo, request.user)
+            programar_torneo(torneo, request.user, solo_lo_que_falta=faltan)
         except ProgramacionEnCurso as error:
             messages.error(request, str(error))
         if pide_fragmento(request):
@@ -85,6 +128,7 @@ def programar(request: HttpRequest, pk: int) -> HttpResponse:
         "torneo/programar.html",
         {
             "torneo": torneo,
+            "resumen": resumen,
             "filas": filas,
             "minutos_maximos": max(1, -(-settings.PROGRAMADOR_SEGUNDOS // 60)),
             "no_entra": any(not f["entra"] and not f["entra_con_extra"] for f in filas),

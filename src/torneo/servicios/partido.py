@@ -16,7 +16,7 @@ from dominio.config import Reglas
 from dominio.partido import Evento as EventoDelDominio
 from dominio.partido import Lado, Resultado, ResultadoInvalido, TipoDeEvento, resultado
 from dominio.penales import EstadoDePenales, Tiro, estado_de_penales
-from torneo.models import Equipo, Evento, Jugador, Partido, Penal, Torneo
+from torneo.models import Cambio, Equipo, Evento, Jugador, Partido, Penal, Torneo
 from torneo.servicios.historial import registrar
 from torneo.servicios.planilla import asegurar_convocado
 
@@ -178,6 +178,32 @@ def corregir_horas(partido: Partido, horas: dict[str, Any], usuario: Usuario | N
             despues=f"{HORAS[campo]} {timezone.localtime(nueva):%H:%M}" if nueva else "",
         )
     partido.save(update_fields=list(HORAS))
+
+
+def reprogramar_en_juego(partido: Partido, usuario: Usuario | None) -> None:
+    """B3 (fase 12): un partido que estaba en juego cuando se suspendió el día y la organización
+    decide reprogramarlo. Vuelve a "sin programar" y empieza de nuevo: los goles y tarjetas
+    cargados se borran, y todo queda en el historial."""
+    if partido.estado != Partido.Estado.EN_JUEGO:
+        raise NoSePuede("Solo se reprograma un partido que está en juego.")
+    local, visitante = resultado_de(partido).marcador
+    registrar(partido, usuario, "Reprogramado en juego", despues=f"marcador {local} a {visitante}")
+    for evento in list(partido.eventos.select_related("equipo", "jugador")):
+        borrar_evento(evento, usuario)
+    partido.tiros.all().delete()
+    Cambio.objects.create(
+        partido=partido,
+        cancha_antes=partido.cancha,
+        inicio_antes=partido.inicio,
+        usuario=usuario if isinstance(usuario, User) else None,
+        motivo="Reprogramado (estaba en juego)",
+    )
+    partido.estado, partido.tiempo = Partido.Estado.PENDIENTE, Partido.Tiempo.SIN_EMPEZAR
+    partido.cancha = partido.inicio = None
+    partido.inicio_real = partido.fin_primer_tiempo = partido.fin_descanso = None
+    partido.fin_real = partido.mejor_jugador = None
+    partido.penales_local = partido.penales_visitante = None
+    partido.save()
 
 
 def quitar_wo(partido: Partido, usuario: Usuario | None) -> None:

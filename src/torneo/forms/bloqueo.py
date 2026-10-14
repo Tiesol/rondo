@@ -25,7 +25,9 @@ class FormularioBloqueo(forms.Form):
         widget=forms.SelectMultiple(attrs={"size": 8}),
         help_text="Uno o varios: un partido de la ACF puede afectar a varios equipos del club.",
     )
-    dia = forms.DateField(label="Día", widget=forms.DateInput(attrs={"type": "date"}))
+    dia = forms.DateField(
+        label="Día", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"})
+    )
     desde = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
     hasta = forms.TimeField(
         widget=forms.TimeInput(attrs={"type": "time"}), help_text="Con el margen del traslado."

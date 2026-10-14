@@ -10,13 +10,14 @@ conjunto de partidos movidos y se vuelve a resolver.
 """
 
 from collections import defaultdict
-from collections.abc import Hashable
+from collections.abc import Hashable, Sequence
 from dataclasses import dataclass, replace
 from datetime import datetime
 
 from ortools.sat.python import cp_model
 
 from dominio.programador.modelo import Equipo, Modelo, Problema, lugar_habitual
+from dominio.verificador import FranjaExtra
 
 Lugar = tuple[str, datetime]  # cancha e inicio
 
@@ -46,9 +47,15 @@ def proponer(
     cuantas: int = 3,
     segundos: float = 20,
     trabajadores: int = 8,
+    preferidas: Sequence[FranjaExtra] = (),
 ) -> list[Propuesta]:
     """Hasta `cuantas` propuestas distintas, de menos a más movimientos. Vacío si no hace
-    falta mover nada o si no hay forma dentro de la ventana."""
+    falta mover nada o si no hay forma dentro de la ventana.
+
+    B1 (fase 12): con `preferidas` (el tiempo que la organización eligió para jugar lo
+    suspendido), lo que estaba sin lugar se ubica primero ahí; lo que no entra va a los días
+    siguientes, moviendo lo menos posible. El resto del tiempo agregado se usa solo si hace
+    falta."""
     movibles = {
         p.id
         for p in problema.partidos
@@ -108,9 +115,24 @@ def proponer(
         afectado = m.new_bool_var(f"afectado {equipo}")
         m.add_max_equality(afectado, suyos)
         afectados.append(afectado)
+    elegidas = set(preferidas)
+    extra_no_elegido = []
+    fuera_de_lo_elegido = []
+    for partido in quietos:
+        if partido.id not in movibles:
+            continue
+        de_este = modelo.extra_de.get(partido.id, [])
+        extra_no_elegido += [v for e, v in de_este if e not in elegidas]
+        if elegidas and partido.id not in actual:
+            aca = [v for e, v in de_este if e in elegidas]
+            en_elegida = m.new_bool_var(f"{partido.id} en lo elegido")
+            m.add_max_equality(en_elegida, aca or [m.new_constant(0)])
+            fuera_de_lo_elegido.append(modelo.presente[partido.id] - en_elegida)
     m.minimize(
         1000 * sum(movido.values())
         + 100 * sum(afectados)
+        + 30 * sum(fuera_de_lo_elegido)
+        + 60 * sum(extra_no_elegido)
         + 10 * sum(costo_de_semana)
         - 100_000 * sum(nuevos)
     )

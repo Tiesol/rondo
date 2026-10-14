@@ -176,6 +176,8 @@ class Modelo:
         self.al_reves: list[cp_model.IntVar] = []
         # A4 (P78): partidos ubicados en tiempo agregado; cuesta más que todo lo blando.
         self.en_extra: list[cp_model.IntVar] = []
+        # Y en cuál: por partido, cada tiempo agregado posible con su variable (B1).
+        self.extra_de: dict[Hashable, list[tuple[FranjaExtra, cp_model.IntVar]]] = {}
         # Pares de partidos de equipos con un profe en común, y si el primero va antes (T7.3).
         self.profes_compartidos: list[
             tuple[PartidoAProgramar, PartidoAProgramar, cp_model.IntVar]
@@ -287,6 +289,7 @@ class Modelo:
                 if not extra.admite(cancha, self.problema.fisicas):
                     m.add_implication(aca, elegida.Not())
             usa.append(aca)
+        self.extra_de[partido.id] = [(e, v) for (e, _), v in zip(extras, usa, strict=True)]
         m.add(sum(usa) == en_extra)
         m.add_implication(en_extra, presente)
         normal = cp_model.Domain.from_intervals([list(v) for v in self._inicios_posibles(partido)])

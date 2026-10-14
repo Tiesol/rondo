@@ -17,7 +17,9 @@ def _nombre_de_cancha(cancha: Cancha) -> str:
 
 
 class FormularioMover(forms.Form):
-    dia = forms.DateField(label="Día", widget=forms.DateInput(attrs={"type": "date"}))
+    dia = forms.DateField(
+        label="Día", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"})
+    )
     hora = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time", "step": 300}))
     cancha = forms.ModelChoiceField(
         queryset=Cancha.objects.none(), empty_label=None, to_field_name="codigo"

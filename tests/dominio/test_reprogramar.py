@@ -7,7 +7,7 @@ from itertools import combinations
 from dominio.config import Reglas
 from dominio.programador.modelo import PartidoAProgramar, Problema, programar
 from dominio.programador.reprogramar import proponer
-from dominio.verificador import Bloqueo, Escenario, PartidoAgendado, verificar
+from dominio.verificador import Bloqueo, Escenario, FranjaExtra, PartidoAgendado, verificar
 
 FISICAS = {"C1": frozenset({"C1"}), "C2": frozenset({"C2"})}
 SAB = datetime(2026, 10, 24)
@@ -168,3 +168,63 @@ def test_t11_2_un_partido_puesto_a_mano_fuera_de_horario_no_se_mueve() -> None:
     )
     assert propuestas
     assert all(m.partido != a_mano for m in propuestas[0].movimientos)
+
+
+# ---------- B1 (fase 12): ubicar primero en el tiempo elegido ----------
+
+
+def _con_extra(horas: int) -> tuple[Problema, dict[object, tuple[str, datetime]], FranjaExtra]:
+    problema, actual = base()
+    jueves = SAB - timedelta(days=2) + timedelta(hours=16)  # el jueves antes del sábado
+    extra = FranjaExtra(jueves, jueves + timedelta(hours=horas))
+    return replace(problema, extras=(extra,)), actual, extra
+
+
+def test_b1_los_sin_lugar_van_primero_al_tiempo_elegido() -> None:
+    problema, actual, extra = _con_extra(4)
+    sin_lugar = ["A-B", "C-D", "E-F"]  # equipos distintos: pueden jugar a la vez
+    parcial = {k: v for k, v in actual.items() if k not in sin_lugar}
+    propuestas = proponer(
+        problema,
+        parcial,
+        desde=extra.desde,
+        hasta=SAB + timedelta(days=9),
+        cuantas=1,
+        segundos=10,
+        preferidas=(extra,),
+    )
+    assert propuestas
+    movimientos = propuestas[0].movimientos
+    assert {m.partido for m in movimientos} == set(sin_lugar)  # no se mueve nada más
+    assert all(extra.desde <= m.despues[1] < extra.hasta for m in movimientos)
+
+
+def test_b1_lo_que_no_entra_en_el_tiempo_elegido_va_a_los_dias_siguientes() -> None:
+    # Una hora el jueves, con dos canchas: entran 2 partidos (turnos de 50 min).
+    problema, actual, extra = _con_extra(1)
+    sin_lugar = ["A-B", "C-D", "E-F", "A-C", "B-D"]
+    parcial = {k: v for k, v in actual.items() if k not in sin_lugar}
+    propuestas = proponer(
+        problema,
+        parcial,
+        desde=extra.desde,
+        hasta=SAB + timedelta(days=9),
+        cuantas=1,
+        segundos=10,
+        preferidas=(extra,),
+    )
+    movimientos = propuestas[0].movimientos
+    assert {m.partido for m in movimientos} == set(sin_lugar)
+    en_el_jueves = [m for m in movimientos if m.despues[1] < extra.hasta]
+    assert len(en_el_jueves) == 2
+    assert all(m.despues[1] >= extra.desde for m in movimientos)  # nunca antes de la ventana
+
+
+def test_b1_sin_preferencia_el_tiempo_agregado_no_se_usa_si_no_hace_falta() -> None:
+    problema, actual, extra = _con_extra(4)
+    sin_lugar = ["A-B", "C-D"]
+    parcial = {k: v for k, v in actual.items() if k not in sin_lugar}
+    propuestas = proponer(
+        problema, parcial, desde=extra.desde, hasta=SAB + timedelta(days=9), cuantas=1, segundos=10
+    )
+    assert all(m.despues[1] >= extra.hasta for m in propuestas[0].movimientos)

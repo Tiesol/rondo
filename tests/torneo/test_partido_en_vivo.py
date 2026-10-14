@@ -53,7 +53,7 @@ def test_la_mesa_marca_los_tiempos_del_partido(org: Client) -> None:
     hacer(org, partido, accion="avanzar_tiempo")
     partido.refresh_from_db()
     assert partido.tiempo == "segundo_tiempo" and partido.fin_descanso is not None
-    hacer(org, partido, accion="terminar")
+    hacer(org, partido, accion="terminar", confirmado="1")
     partido.refresh_from_db()
     assert partido.tiempo == "terminado" and partido.fin_real is not None
 

@@ -55,6 +55,7 @@ urlpatterns = [
     path("calendario/club/<int:pk>/", calendario.por_club, name="calendario-club"),
     path("calendario/<str:fecha>/", calendario.calendario_dia, name="calendario-dia"),
     path("calendario/<str:fecha>/suspender/", calendario.suspender, name="suspender-dia"),
+    path("calendario/<str:fecha>/reanudar/", calendario.reanudar, name="reanudar-dia"),
     path("calendario/<str:fecha>/png/", png.png, name="png-dia"),
     path("calendario/<str:fecha>/suspendidos/", calendario.suspendidos, name="suspendidos-dia"),
     path("escuela/", escuela, name="escuela"),
@@ -106,6 +107,7 @@ urlpatterns = [
     path("bloqueos/<int:pk>/propuestas/", reprogramar.propuestas, name="propuestas"),
     path("corridas/<int:pk>/propuestas/", reprogramar.ver_propuestas, name="ver-propuestas"),
     path("corridas/<int:pk>/wo/", reprogramar.dar_wo, name="dar-wo"),
+    path("corridas/<int:pk>/recalcular/", reprogramar.recalcular, name="recalcular-propuestas"),
     path(
         "corridas/<int:pk>/aplicar/<int:indice>/",
         reprogramar.aplicar_propuesta,
