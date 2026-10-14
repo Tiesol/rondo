@@ -86,3 +86,29 @@ def test_por_categoria_el_fixture_muestra_los_partidos_en_orden(
     fecha_1 = Partido.objects.filter(categoria=sub9, fecha=1).first()
     assert fecha_1 is not None and fecha_1.inicio is not None
     assert f"{timezone.localtime(fecha_1.inicio):%H:%M}" in html
+
+
+@pytest.mark.django_db
+def test_b8_por_club_tocar_el_partido_abre_la_ficha_y_la_organizacion_puede_mover(
+    client: Client, torneo: Torneo
+) -> None:
+    from torneo.permisos import ORGANIZACION
+
+    river = Club.objects.get(nombre="River Plate")
+    suyo = (
+        (Partido.objects.filter(local__club=river) | Partido.objects.filter(visitante__club=river))
+        .filter(inicio__isnull=False)
+        .first()
+    )
+    assert suyo is not None
+    # La mesa abre la ficha (goles, tarjetas, planilla) pero no mueve.
+    html = mesa(client).get(f"/calendario/club/{river.pk}/").content.decode()
+    assert f"/partidos/{suyo.pk}/ficha/" in html
+    assert f"/partidos/{suyo.pk}/mover/" not in html
+    # La organización, además, tiene "Mover".
+    usuario = User.objects.create_user("org", password="x")
+    usuario.groups.add(Group.objects.get(name=ORGANIZACION))
+    client.force_login(usuario)
+    html = client.get(f"/calendario/club/{river.pk}/").content.decode()
+    assert f"/partidos/{suyo.pk}/ficha/" in html
+    assert f"/partidos/{suyo.pk}/mover/" in html

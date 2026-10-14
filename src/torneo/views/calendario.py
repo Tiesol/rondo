@@ -295,6 +295,7 @@ def por_club(request: HttpRequest, pk: int) -> HttpResponse:
         local = timezone.localtime(partido.inicio)
         dias.setdefault(local.date(), []).append(
             {
+                "pk": partido.pk,
                 "hora": f"{local:%H:%M}",
                 "cancha": partido.cancha.codigo if partido.cancha else "",
                 "categoria": str(partido.categoria),
