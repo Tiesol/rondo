@@ -123,10 +123,18 @@ def _regla(
     regla: str = "",
     unidad: str = "",
     opciones: dict[str, str] | None = None,
+    oculta: bool = False,
     **limites: Any,
 ) -> Any:
-    """Un campo de Reglas con lo que necesita la pantalla: título, ayuda y de dónde sale."""
-    extra: JsonDict = {"grupo": grupo, "pregunta": pregunta, "regla": regla, "unidad": unidad}
+    """Un campo de Reglas con lo que necesita la pantalla: título, ayuda y de dónde sale. Una
+    regla `oculta` no aparece en la pantalla: vale su valor por defecto (T13.27)."""
+    extra: JsonDict = {
+        "grupo": grupo,
+        "pregunta": pregunta,
+        "regla": regla,
+        "unidad": unidad,
+        "oculta": oculta,
+    }
     if opciones:
         extra["opciones"] = dict(opciones)
     return Field(
@@ -172,6 +180,7 @@ class Reglas(Estricto):
         grupo="Inscripción",
         pregunta="P7",
         regla="INS-05",
+        oculta=True,  # T13.27: pedido de Sebastian; vale el valor por defecto
         opciones={
             "mismo_club_otra_categoria": "Solo del mismo club, en otra categoría",
             "nunca": "Nunca",
@@ -207,8 +216,8 @@ class Reglas(Estricto):
     cierre_inscripcion: datetime | None = _regla(
         None,
         "Cierre de la inscripción",
-        "Desde este día y hora, las altas se marcan «fuera de plazo». No bloquea. Vacío: sin "
-        "cierre.",
+        "Después de esta fecha se puede seguir inscribiendo, pero la app marca esos equipos y "
+        "jugadores como tardíos. Vacío: sin cierre.",
         grupo="Inscripción",
         pregunta="P4",
         regla="INS-11",
@@ -324,8 +333,8 @@ class Reglas(Estricto):
     eliminacion_desde_fin_de_semana: int = _regla(
         5,
         "Fin de semana sugerido para la eliminación",
-        "El número del fin de semana (1 es el primero) que se deja para semis y finales. Es una "
-        "sugerencia: si hace falta, van antes, apenas termina la fase de grupos (T11.4).",
+        "En qué fin de semana van las semis y finales (1 = el primero del torneo). Si los grupos "
+        "terminan antes, se pueden jugar antes.",
         grupo="Programación",
         pregunta="P33",
         regla="PRO-09",
@@ -343,7 +352,7 @@ class Reglas(Estricto):
     dia_para_reprogramar: DiaSemana = _regla(
         "jueves",
         "Día para reprogramar",
-        "El día que se propone al agregar un día entre semana, por ejemplo después de una lluvia.",
+        "Día que la app sugiere primero al reprogramar un día suspendido. Se puede elegir otro.",
         grupo="Programación",
         regla="PRO-13",
         opciones={
@@ -414,8 +423,8 @@ class Reglas(Estricto):
     criterio_de_desempate: Literal["reglamento_2025", "diferencia_de_gol"] = _regla(
         "reglamento_2025",
         "Desempate en la tabla",
-        "Reglamento 2025: entre los empatados, puntos, goles a favor, menos goles en contra y "
-        "fair play; después, sorteo. Excel de 2023: diferencia de gol y goles a favor.",
+        "Reglamento 2025: puntos entre los empatados, goles a favor, goles en contra, fair play "
+        "y sorteo. Excel 2023: diferencia de gol y goles a favor.",
         grupo="Resultados",
         regla="RES-02",
         opciones={
@@ -521,11 +530,16 @@ def _tipo(nombre: str, anotacion: Any) -> TipoDeRegla:
     raise TypeError(f"La regla {nombre} tiene un tipo que la pantalla no sabe mostrar")
 
 
-def describir_reglas(modelo: type[Reglas] = Reglas) -> list[DescripcionRegla]:
-    """Las reglas en el orden del modelo, con todo lo necesario para la pantalla."""
+def describir_reglas(
+    modelo: type[Reglas] = Reglas, *, incluir_ocultas: bool = False
+) -> list[DescripcionRegla]:
+    """Las reglas en el orden del modelo, con todo lo necesario para la pantalla. Las ocultas
+    (T13.27) no van, salvo que se pidan."""
     descripciones = []
     for nombre, campo in modelo.model_fields.items():
         extra = campo.json_schema_extra if isinstance(campo.json_schema_extra, dict) else {}
+        if extra.get("oculta") and not incluir_ocultas:
+            continue
         tipo = _tipo(nombre, campo.annotation)
         limites = {
             clave: getattr(m, clave)

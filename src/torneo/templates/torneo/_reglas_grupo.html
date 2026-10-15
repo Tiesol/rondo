@@ -5,7 +5,6 @@
     <span class="crece">
       <span class="nombre">
         <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-        {% if descripcion.pregunta %}<span class="pregunta">{{ descripcion.pregunta }}</span>{% endif %}
       </span>
       <span class="sub" id="{{ campo.auto_id }}_helptext">{{ campo.help_text }}</span>
       {% for error in campo.errors %}<span class="error-campo" role="alert">{{ error }}</span>{% endfor %}

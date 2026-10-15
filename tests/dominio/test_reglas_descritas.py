@@ -9,7 +9,7 @@ from dominio.config import Reglas, describir_reglas
 
 
 def test_todas_las_reglas_tienen_titulo_ayuda_grupo_y_origen() -> None:
-    descripciones = describir_reglas()
+    descripciones = describir_reglas(incluir_ocultas=True)
     assert [d.nombre for d in descripciones] == list(Reglas.model_fields)
     for d in descripciones:
         assert d.titulo and d.ayuda and d.grupo, d.nombre
@@ -28,7 +28,9 @@ def test_los_tipos_se_deducen_del_modelo() -> None:
 
 
 def test_cada_opcion_tiene_su_etiqueta_en_espaniol() -> None:
-    opcion = next(d for d in describir_reglas() if d.nombre == "jugador_en_dos_equipos")
+    opcion = next(
+        d for d in describir_reglas(incluir_ocultas=True) if d.nombre == "jugador_en_dos_equipos"
+    )
     assert opcion.tipo == "opcion"
     assert dict(opcion.opciones) == {
         "mismo_club_otra_categoria": "Solo del mismo club, en otra categoría",

@@ -29,7 +29,7 @@
     {% url "acf" torneo.pk as url_acf %}
     <li>{% include "parciales/fila.html" with titulo="Un equipo no puede jugar" sub="Partido de la ACF o decisión de la organización: qué choca y cómo reprogramar" url=url_acf icono="calendario" %}</li>
     {% url "reglas" torneo.pk as url_reglas %}
-    <li>{% include "parciales/fila.html" with titulo="Reglas del torneo" sub="Interruptores y números, con su pregunta al organizador" url=url_reglas icono="documento" %}</li>
+    <li>{% include "parciales/fila.html" with titulo="Reglas del torneo" sub="Interruptores y números, con su explicación" url=url_reglas icono="documento" %}</li>
     {% endif %}
     {% if torneo.publico %}
     {% url "publico" torneo.pk as url_publico %}
