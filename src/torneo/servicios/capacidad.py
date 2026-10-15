@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from dominio.capacidad import Demanda, GrupoDeCanchas, calcular_capacidad
 from dominio.config import Reglas
-from dominio.formatos import FormatoFaltante
+from dominio.formatos import CategoriaNoSeAbre, FormatoFaltante
 from torneo.models import Franja, Partido, Torneo
 from torneo.servicios.fixture import formato_para
 
@@ -100,6 +100,8 @@ def capacidad_del_torneo(torneo: Torneo) -> Capacidad:
         if not grupos and not llaves and cantidad >= 2:
             try:
                 formato = formato_para(reglas, cantidad)
+            except CategoriaNoSeAbre:
+                continue  # T13.7: no se juega
             except FormatoFaltante:
                 resultado.sin_formato.append(str(categoria))
                 continue

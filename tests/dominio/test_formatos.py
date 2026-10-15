@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from dominio.formatos import FormatoFaltante, Formatos, cargar_formatos
+from dominio.formatos import CategoriaNoSeAbre, FormatoFaltante, Formatos, cargar_formatos
 
 ARCHIVO = Path(__file__).resolve().parents[2] / "datos" / "config" / "formatos.json"
 
@@ -18,7 +18,7 @@ def formatos() -> Formatos:
 
 @pytest.mark.parametrize(
     ("equipos", "partidos"),
-    [(2, 2), (3, 8), (4, 10), (5, 12), (6, 14), (7, 17), (8, 18), (9, 22), (10, 27)],
+    [(3, 8), (4, 10), (5, 12), (6, 14), (7, 17), (8, 18), (9, 22), (10, 27)],
 )
 def test_fix_01_cada_formato_da_sus_partidos(
     formatos: Formatos, equipos: int, partidos: int
@@ -26,13 +26,18 @@ def test_fix_01_cada_formato_da_sus_partidos(
     assert formatos.para(equipos).total_de_partidos == partidos
 
 
-def test_fix_02_con_dos_equipos_ida_y_vuelta_sin_eliminacion(formatos: Formatos) -> None:
-    formato = formatos.para(2)
-    assert formato.grupos.ida_y_vuelta
-    assert formato.eliminacion == ()
+@pytest.mark.parametrize("equipos", [0, 1, 2])
+def test_fix_02_con_menos_de_tres_equipos_la_categoria_no_se_abre(
+    formatos: Formatos, equipos: int
+) -> None:
+    """P86c (T13.7): antes, con 2 equipos se jugaba ida y vuelta; la convocatoria 2026 dice que
+    la categoría no se abre. El mínimo sale de formatos.json."""
+    assert formatos.minimo_equipos == 3
+    with pytest.raises(CategoriaNoSeAbre, match="no se abre"):
+        formatos.para(equipos)
 
 
-@pytest.mark.parametrize("equipos", [0, 1, 21, 24])
+@pytest.mark.parametrize("equipos", [21, 24])
 def test_fix_02_sin_formato_es_un_error_que_cita_p27(formatos: Formatos, equipos: int) -> None:
     with pytest.raises(FormatoFaltante, match="P27"):
         formatos.para(equipos)
@@ -53,7 +58,7 @@ def test_las_referencias_se_leen_en_espaniol(formatos: Formatos) -> None:
 
 
 def test_las_series_suman_los_equipos(formatos: Formatos) -> None:
-    for equipos in range(2, 11):
+    for equipos in range(3, 11):
         formato = formatos.para(equipos)
         assert sum(formato.grupos.tamanios(equipos)) == equipos
 

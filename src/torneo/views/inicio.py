@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from torneo.models import Torneo
 from torneo.presentacion import edicion, fechas_del_torneo
+from torneo.servicios.fixture import formatos
 from torneo.servicios.pendientes import pendientes
 
 
@@ -20,7 +21,7 @@ def inicio(request: HttpRequest) -> HttpResponse:
         "fechas": fechas_del_torneo(torneo) if torneo else "",
         "faltan_fixtures": torneo is not None
         and torneo.categorias.annotate(cantidad=Count("equipos", distinct=True))
-        .filter(cantidad__gte=2, partidos__isnull=True)
+        .filter(cantidad__gte=formatos().minimo_equipos, partidos__isnull=True)
         .exists(),
     }
     return render(request, "torneo/inicio.html", contexto)

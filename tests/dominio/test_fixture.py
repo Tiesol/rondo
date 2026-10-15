@@ -50,7 +50,7 @@ def test_fix_06_con_la_regla_apagada_es_solo_azar() -> None:
     assert sorted(e for s in series.values() for e in s) == equipos
 
 
-@pytest.mark.parametrize("n", range(2, 11))
+@pytest.mark.parametrize("n", range(3, 11))
 def test_el_fixture_tiene_los_partidos_del_formato(n: int) -> None:
     formato = FORMATOS.para(n)
     fixture = armar_fixture(

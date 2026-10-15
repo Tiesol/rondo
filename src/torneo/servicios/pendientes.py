@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from dominio.config import describir_reglas
 from torneo.models import Equipo, EquipoDeClub, Torneo
-from torneo.servicios.fixture import motivo_desactualizado
+from torneo.servicios.fixture import formatos, motivo_desactualizado
 
 
 def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]]:
@@ -55,9 +55,31 @@ def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]
             }
         )
 
+    minimo = formatos().minimo_equipos
+    no_se_abren = list(
+        torneo.categorias.annotate(cantidad=Count("equipos", distinct=True)).filter(
+            cantidad__gt=0, cantidad__lt=minimo
+        )
+    )
+    if no_se_abren:
+        lista.append(
+            {
+                "titulo": _contar(
+                    len(no_se_abren),
+                    f"categoría no se abre: tiene {no_se_abren[0].cantidad} equipo"
+                    + ("s" if no_se_abren[0].cantidad != 1 else ""),
+                    f"categorías no se abren: tienen menos de {minimo} equipos",
+                ),
+                "sub": _primeros(str(c) for c in no_se_abren),
+                "url": reverse("categoria", args=[no_se_abren[0].pk, "fixture"]),
+                "icono": "info",
+                "estado": "info",
+            }
+        )
+
     sin_fixture = list(
         torneo.categorias.annotate(cantidad=Count("equipos", distinct=True))
-        .filter(cantidad__gte=2, partidos__isnull=True)
+        .filter(cantidad__gte=minimo, partidos__isnull=True)
         .distinct()
     )
     if sin_fixture:
