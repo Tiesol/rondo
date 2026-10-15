@@ -26,6 +26,20 @@
       {% endif %}
     </form>
   </details>
+  <details class="desplegable">
+    <summary>Corregir o borrar</summary>
+    <div class="flex flex-col gap-2">
+      {% url "editar-equipo" equipo.pk as url_editar %}{% include "parciales/boton.html" with texto="Cambiar club, categoría, nombre o colores" url=url_editar %}
+      {% if tiene_jugados %}
+      <p class="peq tenue">Ya jugó partidos en {{ categoria }}: no se puede borrar.</p>
+      {% else %}
+      <form method="post" action="{% url 'borrar-equipo' equipo.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn peligro">Borrar el equipo</button>
+      </form>
+      {% endif %}
+    </div>
+  </details>
   {% endif %}
   <div class="marcas">
     <span class="chip {% if completo %}bien{% else %}aviso{% endif %} num">{{ resumen.total }} de {{ categoria.max_jugadores }} jugadores</span>

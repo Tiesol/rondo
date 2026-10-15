@@ -5,14 +5,16 @@ from django.contrib import messages
 from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from torneo.models import Club, EquipoDeClub, Torneo
 from torneo.permisos import requiere
 from torneo.presentacion import escudo, olvidar_escudos
-from torneo.servicios.clubes import NoSePuede, crear_club, editar_club, unir_clubes
+from torneo.servicios.clubes import NoSePuede, borrar_club, crear_club, editar_club, unir_clubes
 from torneo.servicios.equipos import renombrar_equipo
 from torneo.servicios.pendientes import sin_escudo_del_torneo
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 
 
 class FormularioClub(forms.Form):
@@ -141,4 +143,27 @@ def unir(request: HttpRequest, pk: int) -> HttpResponse:
             request,
             "Tenían equipos con el mismo nombre y quedaron unidos en uno: " + ", ".join(unidos),
         )
+    return redirect("clubes")
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "borrar clubes")
+def borrar(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.3: solo un club sin equipos inscritos."""
+    actual = get_object_or_404(Club, pk=pk)
+    if not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=f"Se borra el club {actual.nombre}.",
+            boton="Borrar el club",
+            volver=reverse("club", args=[pk]),
+            peligro=True,
+        )
+    try:
+        borrar_club(actual)
+    except NoSePuede as error:
+        messages.error(request, str(error))
+        return redirect("club", pk=pk)
+    olvidar_escudos()
+    messages.success(request, f"{actual.nombre} borrado")
     return redirect("clubes")

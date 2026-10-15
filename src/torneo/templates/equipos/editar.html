@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titulo %}Corregir {{ equipo.nombre }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Volver al equipo">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Corregir equipo{% endblock %}
+{% block contenido %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}{% for error in form.non_field_errors %}{% include "parciales/alerta.html" with estado="error" texto=error %}{% endfor %}{% endif %}
+  {% if tiene_jugados %}{% include "parciales/alerta.html" with estado="aviso" texto="Ya jugó partidos: solo se cambian el nombre y los colores." %}{% endif %}
+  {% include "parciales/campo.html" with campo=form.club %}
+  {% include "parciales/campo.html" with campo=form.categoria %}
+  {% include "parciales/campo.html" with campo=form.nombre %}
+  <div class="dos">
+    {% include "parciales/campo.html" with campo=form.color_1 %}
+    {% include "parciales/campo.html" with campo=form.color_2 %}
+  </div>
+  <p class="peq tenue">Cambiar la categoría lo saca del fixture de la anterior: hay que rehacerlo. El plantel va con el equipo.</p>
+  {% include "parciales/boton.html" with texto="Guardar" principal=True bloque=True %}
+</form>
+{% endblock %}

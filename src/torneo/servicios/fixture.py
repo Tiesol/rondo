@@ -143,6 +143,9 @@ def motivo_desactualizado(
         formato = formato_para(reglas, len(equipos))
     except FormatoFaltante:
         return ""
+    if len(grupos) != formato.grupos.cantidad_de_partidos(len(equipos)):
+        # Por ejemplo, se borró un equipo con sus partidos (T13.3).
+        return "Cambiaron los equipos de la categoría después de armar el fixture."
     if len(partidos) - len(grupos) != len(formato.eliminacion):
         return "Cambiaron las copas que se juegan (Copa de Bronce, P62)."
     return ""

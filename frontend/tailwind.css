@@ -894,6 +894,10 @@
   .btn.principal:hover {
     filter: brightness(1.15);
   }
+  .btn.peligro {
+    border-color: var(--color-error);
+    color: var(--color-error);
+  }
   .btn.chico {
     min-height: 36px;
     padding: 6px 12px;
