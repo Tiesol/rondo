@@ -25,6 +25,8 @@ class Capacidad:
     fines_de_semana: int
     estimadas: list[str] = field(default_factory=list)  # sin fixture: según su formato
     sin_formato: list[str] = field(default_factory=list)
+    # T13.31: categoría → (partidos, minutos del turno), para decirlo en palabras.
+    partidos: dict[str, tuple[int, int]] = field(default_factory=dict)
 
 
 def _cola_por_cancha(
@@ -110,6 +112,7 @@ def capacidad_del_torneo(torneo: Torneo) -> Capacidad:
             resultado.estimadas.append(str(categoria))
         canchas = frozenset(c.codigo for c in categoria.canchas.all())
         turno = categoria.minutos_turno
+        resultado.partidos[str(categoria)] = (grupos + llaves, turno)
         total.append(Demanda(str(categoria), (grupos + llaves) * turno, canchas))
         eliminacion.append(Demanda(str(categoria), llaves * turno, canchas))
 
