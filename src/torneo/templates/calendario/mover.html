@@ -25,6 +25,36 @@
   {% if ahora == "Sin programar" %}{% include "parciales/boton.html" with texto="Ubicar el partido" principal=True bloque=True %}{% else %}{% include "parciales/boton.html" with texto="Mover el partido" principal=True bloque=True %}{% endif %}
   {% endif %}
 </form>
+{% if sugeridos %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo="Horarios libres sugeridos" %}
+  {% if sugeridos.libres %}
+  <ul class="lista">
+    {% for s in sugeridos.libres %}
+    <li class="fila">
+      <span class="crece"><strong>{{ s.texto }}</strong><span class="sub">Sin choques ni avisos</span></span>
+      <form method="post">{% csrf_token %}<input type="hidden" name="dia" value="{{ s.dia }}"><input type="hidden" name="hora" value="{{ s.hora }}"><input type="hidden" name="cancha" value="{{ s.cancha }}"><button type="submit" class="btn chico principal">Mover aquí</button></form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="peq tenue">No hay horarios sin choques en las canchas de {{ partido.categoria }}.</p>
+  {% endif %}
+  {% if sugeridos.con_avisos %}
+  <details class="desplegable">
+    <summary>Con avisos ({{ sugeridos.con_avisos|length }})</summary>
+    <ul class="lista">
+      {% for s in sugeridos.con_avisos %}
+      <li class="fila">
+        <span class="crece"><strong>{{ s.texto }}</strong><span class="sub">{{ s.avisos }}</span></span>
+        <form method="post">{% csrf_token %}<input type="hidden" name="dia" value="{{ s.dia }}"><input type="hidden" name="hora" value="{{ s.hora }}"><input type="hidden" name="cancha" value="{{ s.cancha }}"><button type="submit" class="btn chico">Mover aquí</button></form>
+      </li>
+      {% endfor %}
+    </ul>
+  </details>
+  {% endif %}
+</div>
+{% endif %}
 {% if ahora != "Sin programar" and partido.estado == "programado" %}
 <div class="seccion"><a class="btn bloque" href="{% url 'intercambiar' partido.pk %}">Intercambiar con otro partido…</a></div>
 {% endif %}
