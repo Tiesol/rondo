@@ -91,6 +91,8 @@ def escudo(request: HttpRequest, pk: int) -> HttpResponse:
     olvidar_escudos()
     if request.POST.get("volver") == "club":
         return redirect("club", pk=del_club.club_id)
+    if request.POST.get("volver") == "sin-escudo" and request.POST.get("torneo", "").isdigit():
+        return redirect("sin-escudo", pk=int(request.POST["torneo"]))
     equipo = Equipo.objects.filter(pk=request.POST.get("equipo") or 0, equipo_de_club=pk).first()
     if equipo is not None:
         return redirect("equipo", pk=equipo.pk, seccion="plantel")

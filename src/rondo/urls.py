@@ -65,6 +65,7 @@ urlpatterns = [
     path("clubes/<int:pk>/unir/", clubes.unir, name="unir-club"),
     path("equipos-del-club/<int:pk>/escudo/", imagenes.escudo, name="escudo-equipo"),
     path("equipos-del-club/<int:pk>/nombre/", clubes.renombrar, name="renombrar-equipo"),
+    path("torneos/<int:pk>/sin-escudo/", clubes.sin_escudo, name="sin-escudo"),
     path("torneos/<int:pk>/patrocinadores/", patrocinadores.patrocinadores, name="patrocinadores"),
     path("torneos/<int:pk>/categorias/nueva/", nueva_categoria, name="nueva-categoria"),
     path("torneos/<int:pk>/canchas/", canchas.canchas, name="canchas"),

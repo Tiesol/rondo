@@ -209,3 +209,81 @@ def test_la_migracion_pasa_el_escudo_del_club_a_sus_equipos() -> None:
     ejecutor = MigrationExecutor(connection)
     ejecutor.loader.build_graph()
     ejecutor.migrate(ejecutor.loader.graph.leaf_nodes())
+
+
+# ---------- T13.2: dónde se sube y el pendiente ----------
+
+
+@pytest.mark.django_db
+def test_inicio_muestra_los_equipos_sin_escudo_y_su_lista(org: Client, torneo: Torneo) -> None:
+    club = Club.objects.create(nombre="Norte FC")
+    azul = Equipo.objects.create(club=club, categoria=_categoria(torneo, "Sub 9"), nombre="Azul")
+    Equipo.objects.create(club=club, categoria=_categoria(torneo, "Sub 10"), nombre="Azul")
+    Equipo.objects.create(club=club, categoria=_categoria(torneo, "Sub 9"), nombre="Blanco")
+    inicio = org.get("/").content.decode()
+    assert "2 equipos sin escudo" in inicio
+    url = f"/torneos/{torneo.pk}/sin-escudo/"
+    assert url in inicio
+    lista = org.get(url).content.decode()
+    assert "Azul" in lista and "Blanco" in lista
+    assert f"/equipos-del-club/{azul.equipo_de_club_id}/escudo/" in lista
+    org.post(f"/equipos-del-club/{azul.equipo_de_club_id}/escudo/", {"escudo": png()})
+    assert "1 equipo sin escudo" in org.get("/").content.decode()
+
+
+@pytest.mark.django_db
+def test_con_todos_los_escudos_no_hay_pendiente(org: Client, torneo: Torneo) -> None:
+    club = Club.objects.create(nombre="Norte FC")
+    azul = Equipo.objects.create(club=club, categoria=_categoria(torneo, "Sub 9"), nombre="Azul")
+    EquipoDeClub.objects.filter(pk=azul.equipo_de_club_id).update(escudo="escudos/azul.webp")
+    assert "sin escudo" not in org.get("/").content.decode()
+
+
+@pytest.mark.django_db
+def test_desde_la_lista_se_sube_y_se_vuelve_a_la_lista(org: Client, torneo: Torneo) -> None:
+    club = Club.objects.create(nombre="Norte FC")
+    azul = Equipo.objects.create(club=club, categoria=_categoria(torneo, "Sub 9"), nombre="Azul")
+    respuesta = org.post(
+        f"/equipos-del-club/{azul.equipo_de_club_id}/escudo/",
+        {"escudo": png(), "volver": "sin-escudo", "torneo": torneo.pk},
+    )
+    assert respuesta.status_code == 302
+    assert respuesta["Location"] == f"/torneos/{torneo.pk}/sin-escudo/"
+
+
+@pytest.mark.django_db
+def test_la_pantalla_del_club_lista_sus_equipos_y_los_renombra(org: Client, torneo: Torneo) -> None:
+    club = Club.objects.create(nombre="Norte FC")
+    azul = Equipo.objects.create(club=club, categoria=_categoria(torneo, "Sub 9"), nombre="Azul")
+    html = org.get(f"/clubes/{club.pk}/").content.decode()
+    assert "Azul" in html and "Sin escudo" in html
+    assert f"/equipos-del-club/{azul.equipo_de_club_id}/escudo/" in html
+    org.post(f"/equipos-del-club/{azul.equipo_de_club_id}/nombre/", {"nombre": "Celeste"})
+    azul.refresh_from_db()
+    assert azul.nombre == "Celeste"
+
+
+@pytest.mark.django_db
+def test_unir_clubes_mueve_los_equipos_y_sus_escudos(torneo: Torneo) -> None:
+    from torneo.servicios.clubes import unir_clubes
+
+    bueno = Club.objects.create(nombre="Tigres FC")
+    repetido = Club.objects.create(nombre="Club Tigres")
+    rojo = Equipo.objects.create(
+        club=repetido, categoria=_categoria(torneo, "Sub 9"), nombre="Rojo"
+    )
+    EquipoDeClub.objects.filter(pk=rojo.equipo_de_club_id).update(escudo="escudos/rojo.webp")
+    # El mismo equipo cargado en los dos clubes, en categorías distintas: se une en uno.
+    Equipo.objects.create(club=bueno, categoria=_categoria(torneo, "Sub 9"), nombre="Tigres")
+    tigres = Equipo.objects.create(
+        club=repetido, categoria=_categoria(torneo, "Sub 10"), nombre="tigres"
+    )
+    EquipoDeClub.objects.filter(pk=tigres.equipo_de_club_id).update(escudo="escudos/tigres.webp")
+    unidos = unir_clubes(repetido, bueno)
+    assert unidos == ["Tigres"]
+    escudos = dict(EquipoDeClub.objects.values_list("nombre", "escudo"))
+    assert escudos == {"Rojo": "escudos/rojo.webp", "Tigres": "escudos/tigres.webp"}
+    assert set(EquipoDeClub.objects.values_list("club", flat=True)) == {bueno.pk}
+    for equipo in Equipo.objects.select_related("equipo_de_club"):
+        assert equipo.club_id == bueno.pk
+        assert equipo.nombre == equipo.equipo_de_club.nombre

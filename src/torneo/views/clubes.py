@@ -7,11 +7,12 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from torneo.models import Club, EquipoDeClub
+from torneo.models import Club, EquipoDeClub, Torneo
 from torneo.permisos import requiere
 from torneo.presentacion import escudo, olvidar_escudos
 from torneo.servicios.clubes import NoSePuede, crear_club, editar_club, unir_clubes
 from torneo.servicios.equipos import renombrar_equipo
+from torneo.servicios.pendientes import sin_escudo_del_torneo
 
 
 class FormularioClub(forms.Form):
@@ -84,6 +85,26 @@ def _equipos_del_club(club: Club) -> list[dict[str, object]]:
             }
         )
     return filas
+
+
+@requiere("torneo.configurar_torneo", "cambiar los escudos")
+def sin_escudo(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.2 (P88): los equipos del torneo sin escudo, cada uno con su botón para subirlo."""
+    torneo = get_object_or_404(Torneo, pk=pk)
+    equipos = [
+        {
+            "id": str(d.pk),
+            "del_club": d,
+            "categorias": list(
+                d.equipos.filter(categoria__torneo=torneo).select_related("categoria")
+            ),
+        }
+        for d in sin_escudo_del_torneo(torneo)
+    ]
+    titulo = f"Faltan {len(equipos)}" if equipos else "Sin pendientes"
+    return render(
+        request, "clubes/sin_escudo.html", {"torneo": torneo, "equipos": equipos, "titulo": titulo}
+    )
 
 
 @require_POST
