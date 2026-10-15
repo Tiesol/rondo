@@ -178,8 +178,12 @@
   {% csrf_token %}
   <button type="submit" name="accion" value="terminar" class="btn principal bloque">Terminar el partido</button>
   {% if dia_suspendido and partido.estado == "en_juego" %}
+  {% if perms.torneo.configurar_torneo %}
   {% include "parciales/alerta.html" with estado="info" texto="Se suspendió el día con este partido en juego: termínalo con su marcador, o reprográmalo." %}
   <button type="submit" name="accion" value="reprogramar_en_juego" class="btn bloque">Reprogramar</button>
+  {% else %}
+  {% include "parciales/alerta.html" with estado="info" texto="Se suspendió el día con este partido en juego: termínalo con su marcador. Reprogramarlo lo decide la organización." %}
+  {% endif %}
   {% endif %}
 </form>
 {% endif %}

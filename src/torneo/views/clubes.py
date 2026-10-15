@@ -1,4 +1,5 @@
-"""Clubes (T11.6, P10): la organización los crea, los edita y une los duplicados."""
+"""Clubes (T11.6, P10): la organización los crea, los edita y une los duplicados. Solo la
+organización (P85, T13.5)."""
 
 from django import forms
 from django.contrib import messages
@@ -27,7 +28,7 @@ class FormularioClub(forms.Form):
     )
 
 
-@requiere("torneo.inscribir_equipos", "cambiar los clubes")
+@requiere("torneo.configurar_torneo", "cambiar los clubes")
 def clubes(request: HttpRequest) -> HttpResponse:
     formulario = FormularioClub(request.POST or None)
     if request.method == "POST" and formulario.is_valid():
@@ -45,7 +46,7 @@ def clubes(request: HttpRequest) -> HttpResponse:
     return render(request, "clubes/lista.html", {"lista": lista, "form": formulario})
 
 
-@requiere("torneo.inscribir_equipos", "cambiar los clubes")
+@requiere("torneo.configurar_torneo", "cambiar los clubes")
 def club(request: HttpRequest, pk: int) -> HttpResponse:
     actual = get_object_or_404(Club, pk=pk)
     formulario = FormularioClub(
@@ -110,7 +111,7 @@ def sin_escudo(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_POST
-@requiere("torneo.inscribir_equipos", "cambiar los clubes")
+@requiere("torneo.configurar_torneo", "cambiar los clubes")
 def renombrar(request: HttpRequest, pk: int) -> HttpResponse:
     """El nombre de un equipo del club, en todas sus categorías (T13.1)."""
     del_club = get_object_or_404(EquipoDeClub, pk=pk)
@@ -124,7 +125,7 @@ def renombrar(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_POST
-@requiere("torneo.inscribir_equipos", "unir clubes")
+@requiere("torneo.configurar_torneo", "unir clubes")
 def unir(request: HttpRequest, pk: int) -> HttpResponse:
     repetido = get_object_or_404(Club, pk=pk)
     destino = Club.objects.filter(pk=request.POST.get("destino") or 0).first()

@@ -388,6 +388,8 @@ def _hacer(request: HttpRequest, partido: Partido, datos: dict[str, str]) -> Non
         case "quitar_wo":
             servicio.quitar_wo(partido, request.user)
         case "reprogramar_en_juego":
+            if not request.user.has_perm("torneo.configurar_torneo"):  # P85 (T13.5)
+                raise NoSePuede("Solo la organización reprograma un partido.")
             servicio.reprogramar_en_juego(partido, request.user)
             messages.success(request, "Sin programar: ubícalo en un día y una cancha")
             raise Reprogramado

@@ -1,7 +1,8 @@
 """Roles y control de acceso a las vistas (docs/DISENO.md, "Roles").
 
-Organización puede todo. Mesa de control carga equipos y listas, verifica jugadores y ve el
-calendario. Ver es para cualquiera con sesión; lo demás pide uno de los permisos de Torneo.
+Organización puede todo. Mesa de control (P85, T13.5) carga equipos y listas, verifica
+jugadores, lleva la ficha del partido y Hoy, y ve todo lo demás. Ver es para cualquiera con
+sesión; lo demás pide uno de los permisos de Torneo.
 """
 
 from collections.abc import Callable
@@ -24,7 +25,7 @@ PERMISOS_POR_ROL: dict[str, list[str]] = {
         "verificar_jugadores",
         "cargar_resultados",
     ],
-    MESA: ["inscribir_equipos", "verificar_jugadores", "cargar_resultados"],  # P64
+    MESA: ["inscribir_equipos", "verificar_jugadores", "cargar_resultados"],  # P85
 }
 
 Vista = Callable[..., HttpResponse]
@@ -59,6 +60,7 @@ def requiere(permiso: str, que: str) -> Callable[[Vista], Vista]:
                 return sin_permiso(request, que)
             return vista(request, *args, **kwargs)
 
+        envuelta.permiso = permiso  # type: ignore[attr-defined]  # para la matriz de T13.5
         return envuelta
 
     return decorador

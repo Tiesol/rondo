@@ -91,7 +91,8 @@ def test_cualquiera_cambia_su_contrasenia(client: Client) -> None:
     assert yo.check_password("Cancha-Nueva-2026!")
 
 
-def test_p64_la_persona_nueva_es_de_la_organizacion_por_defecto() -> None:
+def test_p85_la_persona_nueva_es_de_la_mesa_por_defecto() -> None:
+    """P64 (todos como Organización) quedó reemplazada por P85 (T13.5): dos roles."""
     from torneo.forms.personas import FormularioPersona
 
-    assert FormularioPersona().fields["rol"].initial == "organizacion"
+    assert FormularioPersona().fields["rol"].initial == "mesa"
