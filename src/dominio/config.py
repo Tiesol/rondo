@@ -434,7 +434,7 @@ class Reglas(Estricto):
     )
     doble_amarilla_desde: int = _regla(
         10,
-        "Doble amarilla es roja desde Sub",
+        "Doble amarilla es roja desde",
         "Desde esta categoría, dos amarillas en un partido son roja y multa; si no se paga, "
         "el jugador no juega el partido siguiente. Más abajo, sale unos minutos.",
         grupo="Resultados",

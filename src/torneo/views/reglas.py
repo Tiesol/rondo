@@ -38,7 +38,7 @@ def _cambios(antes: dict[str, Any], despues: dict[str, Any]) -> list[str]:
 @requiere("torneo.configurar_torneo", "cambiar las reglas")
 def reglas(request: HttpRequest, pk: int) -> HttpResponse:
     torneo = get_object_or_404(Torneo, pk=pk)
-    formulario = FormularioReglas(request.POST or None, initial=dict(torneo.reglas))
+    formulario = FormularioReglas(request.POST or None, initial=dict(torneo.reglas), torneo=torneo)
     if request.method == "POST" and formulario.is_valid():
         nuevas = formulario.reglas.model_dump(mode="json")
         cambios = _cambios(torneo.reglas, nuevas)
