@@ -336,6 +336,7 @@ T8.5 → T8.6         │
 - [x] Bloque C, durante el torneo: T13.15 a T13.24 (reprogramar, bloqueos, horarios sugeridos, propuestas, fijar, editar cruces, copas por club)
 - [x] Bloque D, diseño y textos: T13.25 a T13.31
 - [ ] Checkpoint D: `code-review-and-quality` y visto bueno
+- [ ] Bloque E, prueba desde el celular (2026-10-15): T13.32 PNG, T13.33 interruptores, T13.34 y T13.37 "¿Entra todo?", T13.35 programar sin solución, T13.36 resultado de la última corrida
 
 ## Grafo de dependencias
 
