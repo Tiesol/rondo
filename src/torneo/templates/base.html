@@ -6,6 +6,7 @@
   <title>{% block titulo %}Rondo{% endblock %} · {{ organizador.nombre }}</title>
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="{{ organizador.color_primario }}">
+  <link rel="icon" href="{% if logo_url %}{{ logo_url }}{% else %}{% static 'iconos/icono-192.png' %}{% endif %}">
   <link rel="apple-touch-icon" href="{% static 'iconos/icono-192.png' %}">
   <link rel="preload" href="{% static 'fuentes/figtree-latin-variable.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fuentes/bebas-neue-latin-400.woff2' %}" as="font" type="font/woff2" crossorigin>
@@ -22,7 +23,7 @@
     <div class="cuerpo">
       <header class="barra">
         {% block volver %}{% endblock %}
-        {% if logo_url %}<img class="marca con-imagen" src="{{ logo_url }}" alt="" aria-hidden="true">{% else %}<span class="marca" aria-hidden="true">{{ organizador.sigla }}</span>{% endif %}
+        {% include "parciales/marca.html" %}
         <h1>{% block encabezado %}Rondo{% endblock %}</h1>
         {% if rol %}<span class="rol-actual">{{ rol_corto }}</span>{% endif %}
         <form method="post" action="{% url 'logout' %}">
