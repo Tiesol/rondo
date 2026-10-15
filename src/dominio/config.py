@@ -367,11 +367,21 @@ class Reglas(Estricto):
         ge=1,
         le=10,
     )
+    cierre_automatico: bool = _regla(
+        False,
+        "Cerrar solo un partido olvidado",
+        "Apagado: un partido que sigue en juego después de su final no se cierra solo; Hoy y la "
+        "ficha avisan para que la mesa lo termine.",
+        grupo="Resultados",
+        pregunta="P82",
+        regla="RES-04",
+    )
     cierre_automatico_min: int = _regla(
         15,
-        "Cierre automático de un partido olvidado",
+        "Aviso de un partido olvidado",
         "Minutos después del final esperado (el inicio real del 2.º tiempo más sus minutos) en "
-        "que un partido que sigue en juego se cierra solo, con el marcador que tenía.",
+        "que Hoy avisa de un partido que sigue en juego; si está prendido «Cerrar solo», se "
+        "cierra con el marcador que tenía.",
         grupo="Resultados",
         pregunta="P82",
         regla="RES-04",

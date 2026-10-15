@@ -99,12 +99,27 @@ def fin_esperado(partido: Partido) -> datetime | None:
     return None
 
 
+def olvidado_desde(partido: Partido, ahora: datetime | None = None) -> datetime | None:
+    """T13.11: el final esperado de un partido que sigue en juego y ya lo pasó por más que el
+    margen de la regla; si no, None."""
+    if partido.estado != Partido.Estado.EN_JUEGO:
+        return None
+    fin = fin_esperado(partido)
+    margen = timedelta(minutes=_reglas_de(partido).cierre_automatico_min)
+    if fin is None or (ahora or timezone.now()) < fin + margen:
+        return None
+    return fin
+
+
 def cerrar_olvidados(torneo: Torneo, ahora: datetime | None = None) -> int:
     """T11.12 (P82): los partidos en juego pasado su final esperado más `cierre_automatico_min`
     se cierran con el marcador que tenían y la marca "cerrado automáticamente". Corre perezoso
     (al abrir Hoy, la ficha o la página pública) y con un comando para un cron."""
+    reglas = Reglas.model_validate(torneo.reglas)
+    if not reglas.cierre_automatico:  # T13.11 (P82): "no se cierra sola"
+        return 0
     ahora = ahora or timezone.now()
-    margen = timedelta(minutes=Reglas.model_validate(torneo.reglas).cierre_automatico_min)
+    margen = timedelta(minutes=reglas.cierre_automatico_min)
     cerrados = 0
     for partido in Partido.objects.filter(
         categoria__torneo=torneo, estado=Partido.Estado.EN_JUEGO

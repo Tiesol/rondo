@@ -342,6 +342,7 @@
     "eliminacion_desde_fin_de_semana": 4,
     "dia_para_reprogramar": "jueves",
     "penales_por_equipo": 3,
+    "cierre_automatico": false,
     "cierre_automatico_min": 15,
     "tabla_de_goleadores": true,
     "mejor_jugador": true,
