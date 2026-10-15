@@ -1502,3 +1502,201 @@ T11.16 (al final)
 - [x] C2 CI verificado en cada partido
 - [x] C3 Foto con cámara o galería
 - [x] C4 Docstrings del último inicio
+
+## Fase 13: producción y respuestas del 2026-10-15 (`docs/PENDIENTES_PRODUCCION.md`)
+
+> Planificada el 2026-10-15 con la prueba de Sebastian en producción y las respuestas nuevas del organizador (convocatoria 2026 y audio). **Meta: usar Rondo desde el sábado 24/10; si no está, la organización vuelve a Copa Fácil (P77).** Orden: A (antes de cargar datos reales en producción), B (fallos: primero lo que hace falta para armar el fixture el 21/10, después lo del día de partido), C (funciones para durante el torneo, por la fecha en que se usan) y D (diseño y textos). Cada tarea: rama `fase-13/…`, test primero, PR con merge commit. Las migraciones son aditivas o copian datos; ninguna borra datos sin copiarlos antes. Desplegar a producción se le pregunta a Sebastian en cada checkpoint.
+>
+> **Verde de cada tarea:** `uv run pytest -m "not lento"`, `uv run mypy`, `uv run ruff check . && uv run ruff format --check .`; en las que tocan el programador o el fixture, también `uv run pytest -m lento`.
+
+### Bloque A: antes de cargar datos reales (meta: sábado 17/10)
+
+> **Si el bloque A no está el 17/10, avisarle a Sebastian:** la organización tiene que cargar unos 1.700 jugadores antes del 21/10 a las 12:00, y puede que tengan que empezar antes, confiando en que las migraciones copian los datos.
+
+- [ ] **T13.1 Escudo por equipo: modelo y migración (P68, P88 y P89).**
+  - Modelo nuevo `EquipoDeClub` (club, nombre, escudo), único por club y nombre sin distinguir mayúsculas, sin límite por club. `Equipo` (un equipo en una categoría) apunta a él (`PROTECT`). El escudo se sube una vez y vale en todas las categorías del equipo.
+  - Migración en tres pasos (crear, copiar, quitar): crea un `EquipoDeClub` por cada club + nombre que ya existe, le copia el escudo de su club y recién después quita `Club.escudo`.
+  - `presentacion.escudo()`, la caché de escudos y la ruta `/imagen/escudo/<id>/` pasan a ser por `EquipoDeClub`. Con eso, ficha, fixture, Hoy, la página pública y el PNG toman el escudo del equipo sin más cambios.
+  - Crear un equipo (formulario, pegar lista, demo y `generar_demo`) busca o crea su `EquipoDeClub`.
+  - **Nombre (decidido por Sebastian):** vive en `EquipoDeClub`, y `Equipo.nombre` es una copia. Se cambia solo con un servicio de renombrar, que actualiza los dos en una transacción. Un test falla si quedan distintos.
+  - Unicidad nueva de `Equipo`: (`equipo_de_club`, `categoria`). Reemplaza a (club, categoría, nombre).
+  - *Aceptación:* dos equipos del mismo club con escudos distintos; un equipo en tres categorías con un solo escudo; la migración conserva el escudo que tenía cada club.
+  - *Verificación:* tests de modelo, de la migración (con `MigrationExecutor`) y de `presentacion.escudo()`; `makemigrations --check`.
+  - *Archivos:* `models/inscripcion.py`, migración 0034, `presentacion.py`, `servicios/imagenes.py`, `views/imagenes.py`, `servicios/clubes.py`, `servicios/demo.py`. *Tamaño:* M-L. *Depende de:* nada.
+- [ ] **T13.2 Escudo por equipo: dónde se sube y el pendiente.**
+  - "Escudo de <equipo>" en la ficha del equipo. La pantalla del club lista sus equipos, cada uno con su escudo y "Subir".
+  - Inicio muestra siempre "N equipos sin escudo" mientras falte alguno. Al tocarlo, la lista con el enlace para subir cada uno. No bloquea nada (P88).
+  - Unir clubes mueve los equipos del club y sus escudos. Si quedan dos con el mismo nombre, avisa y los une (los `Equipo` de cada categoría siguen siendo distintos).
+  - *Aceptación:* subir desde la ficha cambia el escudo en todas las categorías del equipo; el pendiente aparece y desaparece al subir el último; unir clubes conserva los escudos.
+  - *Verificación:* tests de vistas (ficha, club, Inicio), de `unir_clubes` y del PNG con el escudo del equipo; captura a 360 px de la ficha y del club.
+  - *Archivos:* `views/equipos.py`, `views/clubes.py`, `servicios/clubes.py`, `servicios/pendientes.py` y sus plantillas. *Tamaño:* M. *Depende de:* T13.1.
+- [ ] **T13.3 Borrar un club y borrar un equipo (sin partidos jugados).**
+  - "Borrar club" solo si no tiene equipos en ningún torneo; si tiene, la app dice por qué no se puede.
+  - "Borrar equipo" solo si no tiene partidos jugados (con resultado, W.O. o eventos). Borra su plantel y su cuerpo técnico en ese torneo, sus partidos sin jugar y sus bloqueos. Saca al equipo de su serie, y el fixture de la categoría queda desactualizado: el pendiente de Inicio lo dice.
+  - Con el "¿Estás seguro?" de B7, que dice cuántos jugadores y partidos se borran. Solo la organización.
+  - Revisar si la ficha deja cambiar la categoría o el club de un equipo mal cargado. Si no, que lo deje mientras no tenga partidos jugados.
+  - *Aceptación:* borrar un equipo con fixture y sin jugar deja la categoría "fixture desactualizado"; con un partido jugado, el botón no está y la ficha ofrece "Retirar" (T13.4).
+  - *Verificación:* tests de servicio y de vista (permisos, confirmación, qué se borra y qué no).
+  - *Archivos:* `servicios/clubes.py`, servicio nuevo `servicios/equipos.py`, `views/equipos.py`, `views/clubes.py` y sus plantillas. *Tamaño:* M. *Depende de:* T13.1, por el modelo.
+- [ ] **T13.4 Retirar un equipo del torneo (P87, por defecto).**
+  - `Equipo.retirado_en` (migración aditiva). "Retirar del torneo", con confirmación.
+  - Lo jugado cuenta, y lo que falta pasa a W.O. 3 a 0 para el rival con el `wo()` que ya existe, con historial.
+  - El retirado no se programa, no aparece en Ubicar y figura "Retirado" en la tabla, el fixture y la página pública.
+  - Si pasa a la eliminación, la app avisa y la organización corrige el cruce a mano (P50).
+  - *Aceptación:* retirar un equipo con 2 jugados y 3 por jugar deja 3 W.O. y la tabla con sus 2 resultados.
+  - *Verificación:* tests de servicio, de tabla y de vista. *Tamaño:* M. *Depende de:* T13.3.
+  - **Puede pasar a después del 24/10:** el campo es aditivo y retirar recién se usa con el torneo empezado.
+- [ ] **T13.5 Roles: Organización y Mesa de control (P85).**
+  - Mesa: inscribir equipos, cargar y corregir listas (pegar, jugadores, cuerpo técnico, fotos, verificar CI), toda la ficha del partido (empezar, eventos, dorsales, alta rápida, W.O., terminar), Hoy, y ver todo lo demás.
+  - Mesa no: reglas, fixture y series, programar, mover, intercambiar, reprogramar, bloqueos, suspender, borrar o retirar, publicar, clubes, escuela, patrocinadores ni personas.
+  - Una tabla de vista → permiso, con un test parametrizado que la recorre entera con un usuario de cada rol.
+  - "Agregar persona" ofrece los dos roles y deja de decir "Por ahora, todos como Organización".
+  - Un tercer rol de solo lectura ("ver listas") queda para cuando se confirme (P85, seguimiento).
+  - *Aceptación:* la mesa recibe 403 con "Solo la organización puede…" en cada vista de la lista "no", y los botones de esas acciones no se le muestran.
+  - *Verificación:* el test de la matriz y las capturas de la ficha del partido y de Inicio como Mesa.
+  - *Archivos:* `permisos.py`, `forms/personas.py`, las vistas que cambien de permiso y las plantillas que muestran botones. *Tamaño:* M. *Depende de:* nada.
+
+**Checkpoint A** (antes de vaciar producción y crear el torneo real):
+
+- [ ] Revisión de cierre (`code-review-and-quality`) de las fases 11 y 12 y del bloque A, porque todo eso va a producción.
+- [ ] Verde, más `pytest -m lento`.
+- [ ] `docker build` y la imagen con `DEBUG=false` migran hasta la última.
+- [ ] Sebastian aprueba desplegar a producción. Después, él sigue con "Vaciar la base" y "Crear el torneo real" de PENDIENTES_PRODUCCION §1.
+
+### Bloque B: fallos de la prueba
+
+Primero lo que hace falta para armar el fixture (meta: martes 20/10), después lo del día de partido (meta: jueves 22/10).
+
+- [ ] **T13.6 Dos equipos del mismo club (P24 y P90). Espera la respuesta a P90: no se implementa todavía.**
+  - El planteo anterior estaba mal. Con series cruzadas, ponerlos en la misma serie evita que se enfrenten en grupos, pero la semi de Oro es 1.º A vs 2.º A y se pueden eliminar entre ellos. Con 8 o más pasa al revés.
+  - Hay que elegir entre "no se enfrentan en grupos" y "como mucho se cruzan en la final": pregunta **P90**, con ejemplos de 6 y de 8 equipos, en `docs/PREGUNTAS_JMP_CUP_2026.md`.
+  - **Por defecto: "como mucho se cruzan en la final"**, que es lo que dijeron ("para que no se eliminen"). Con 6 y 7, en series distintas (como hoy). Con 8 o más, en la misma serie (al revés que hoy).
+  - Con un solo grupo (3 a 5) se sigue jugando en la fecha 1, para que no arreglen un resultado al final. También se pregunta en P90.
+  - Cuando haya respuesta, o si el 20/10 sigue sin respuesta y Sebastian decide usar el valor por defecto: la regla en `dominio/fixture.py`, `dominio/config.py` y la plantilla, con tests de propiedad, `rehacer.py` y `pytest -m lento`.
+  - El texto que explica las series cruzadas en el fixture va igual en T13.9.
+- [ ] **T13.7 Con 2 equipos la categoría no se abre (P86c).**
+  - `formatos.json` deja de tener formato para 2. El fixture no se arma, y la pestaña Fixture y el pendiente de Inicio dicen "Con 2 equipos la categoría no se abre (convocatoria 2026)".
+  - Con 3 sigue ida y vuelta hasta que se confirme el triangular (P86, seguimiento).
+  - *Aceptación:* una categoría con 2 equipos no tiene fixture ni aparece como "sin fixture".
+  - *Verificación:* tests de formatos y de pendientes. *Tamaño:* S. *Depende de:* nada.
+- [ ] **T13.8 F11 entra en la cancha 3 sin jueves (P79).**
+  - "¿Entra todo?" sugiere ampliar el horario de C3 el sábado y el domingo ("Agregar tiempo" solo para C3, antes de las 8 o después de las 16), no agregar jueves. Dice cuántas horas faltan.
+  - Verificar que "Agregar tiempo" deja agregar antes del primer horario y solo para C3.
+  - Los jueves quedan solo para suspensiones.
+  - *Aceptación:* con la plantilla 2026 y 93 equipos de prueba, sumando el tiempo que sugiere la app, entra todo y no hay partidos en jueves.
+  - *Verificación:* test de "¿Entra todo?" y `pytest -m lento` con el calendario 2026. *Tamaño:* S-M. *Depende de:* nada.
+- [ ] **T13.9 Pendientes de Inicio.**
+  - Se saca "28 reglas esperan la respuesta del organizador".
+  - Nuevo: "N partidos sin día ni hora → Programar". También en la pestaña Fixture, con el botón "Programar partidos".
+  - En la pestaña Fixture, con series cruzadas: "Cada equipo de A juega con todos los de B. Semis de Oro: 1.º A vs 2.º A y 1.º B vs 2.º B" (lo que sale del formato).
+  - *Aceptación:* con el fixture armado y sin programar aparece el pendiente nuevo, y nunca el de las reglas.
+  - *Verificación:* tests de `servicios/pendientes.py` y de la pestaña. *Tamaño:* S. *Depende de:* nada.
+- [ ] **T13.10 Posiciones: sin "Falta sorteo" antes de tiempo.**
+  - El sorteo se pide solo cuando la serie terminó (todos sus partidos jugados o con W.O.). Antes, los empatados se muestran empatados, sin marca.
+  - El botón dice "Registrar el sorteo", sin "(P28)".
+  - *Aceptación:* con 0 partidos jugados no hay ninguna marca; con la serie terminada y un empate total, sí.
+  - *Verificación:* tests de `dominio/tabla.py` y de la vista de posiciones. *Tamaño:* S. *Depende de:* nada.
+- [ ] **T13.11 Cierre automático: "Nunca" (P82, respondida).**
+  - La regla `cierre_automatico_min` acepta "Nunca", que pasa a ser el valor de la plantilla 2026. Con "Nunca", `cerrar_olvidados` no cierra nada.
+  - Hoy y la ficha avisan "Sigue en juego, pasado su final (10:42)" para que la mesa lo termine.
+  - *Aceptación:* con "Nunca", un partido olvidado sigue en juego y aparece el aviso; con 15, se cierra como hoy.
+  - *Verificación:* tests de `test_cierre_automatico.py`, de config y de Hoy. *Tamaño:* S. *Depende de:* nada.
+- [ ] **T13.12 Alta rápida hasta el 2.º tiempo (P84).**
+  - Se permite hasta que la mesa marca "Empieza el 2.º tiempo". Después el botón no está, y si se pide igual, la app explica el motivo.
+  - Pasar el máximo del plantel sigue con aviso y confirmación hasta que se confirme (P84, seguimiento).
+  - *Aceptación:* en 1T y en el descanso se puede; en 2T, penales o terminado, no.
+  - *Verificación:* tests de `views/alta_rapida.py` y de la ficha. *Tamaño:* S. *Depende de:* nada.
+- [ ] **T13.13 PNG del día: archivo entero y sin "BORRADOR".**
+  - Encontrar la causa del recorte. Sospecha: `exportar.js` captura la pieza dentro del contenedor con `transform: scale(k)` y el `devicePixelRatio`. Capturar a 1920 × 1080 sin la escala de la pantalla.
+  - Se saca el sello "BORRADOR" del centro. Como mucho, un texto chico en una esquina.
+  - *Aceptación:* el archivo descargado mide 1920 × 1080 y muestra la pieza entera, en la PC y en el celular.
+  - *Verificación:* prueba en el navegador con `browser-testing-with-devtools` (descargar y medir el archivo) y test de la plantilla sin el sello; Sebastian prueba en su Android.
+  - *Archivos:* `static/js/exportar.js`, `calendario/_pieza.html` y `frontend/tailwind.css`. *Tamaño:* S-M. *Depende de:* nada.
+- [ ] **T13.14 Logo de Escuela en todos lados y favicon.**
+  - Logo en el menú lateral, el login y la página pública de la categoría; la sigla, solo si no hay logo.
+  - `<link rel="icon">` en `base.html`, con el logo de Escuela o un ícono fijo.
+  - *Aceptación:* con logo, ninguna de las cuatro pantallas muestra "JMP".
+  - *Verificación:* test que recorre las cuatro plantillas con y sin logo. *Tamaño:* S. *Depende de:* nada.
+
+**Checkpoint B** (meta: jueves 22/10, con el fixture ya armado en producción):
+
+- [ ] Verde, más `pytest -m lento`.
+- [ ] Recorrido en la demo, como Organización y como Mesa: inscribir, fixture, programar, PNG del día y ficha del partido desde el celular.
+- [ ] Sebastian aprueba desplegar a producción, fuera del horario de la organización.
+
+### Bloque C: funciones para durante el torneo (desde el 24/10, en el orden en que se usan)
+
+- [ ] **T13.15 "Reprogramar" a la vista.**
+  - Botón en la ficha del partido y en el calendario del día. Pide el motivo de una lista: ACF, suspensión (lluvia u otro) o decisión de la organización. No hay pedidos particulares: la convocatoria no los atiende. Lleva a las propuestas.
+  - "Partido de la ACF" pasa a llamarse "Un equipo no puede jugar", con el motivo como lista y la ACF primero.
+  - *Tamaño:* M. *Depende de:* nada.
+- [ ] **T13.16 Un bloqueo con choques se ve en todos lados.**
+  - Pendiente en Inicio ("1 partido choca con un bloqueo → Resolver") y una marca en el calendario, el fixture y la ficha.
+  - Desde el bloqueo, por cada partido que choca: "Mover a mano", "Intercambiar" y "Ver propuestas".
+  - *Tamaño:* M. *Depende de:* T13.15.
+- [ ] **T13.17 Mover: horarios libres sugeridos.**
+  - Recorre los inicios posibles (franjas × canchas compatibles) con el verificador que ya usan Mover e Intercambiar.
+  - Muestra primero 5 a 10 sin choques ni avisos, por cercanía al horario actual, con "Mover aquí". Debajo, los que solo tienen avisos, con el motivo.
+  - *Aceptación:* con 223 partidos responde en menos de 1 s.
+  - *Tamaño:* M. *Depende de:* nada.
+- [ ] **T13.18 Propuestas que solo mueven lo que choca.**
+  - Las alternativas son otros horarios u otros días para los partidos que chocan. Si no hay más, se muestran solo las que hay: no se completan las 3 moviendo de más.
+  - Cada partido movido dice por qué ("choca con el bloqueo", "para que X no juegue dos veces el mismo día").
+  - *Aceptación:* el caso de la prueba (JMP Academy, sábado 24 de 8 a 12) da propuestas que no tocan el domingo 1.
+  - *Verificación:* tests de `dominio/programador/reprogramar.py` y `pytest -m lento`. *Tamaño:* M-L. *Depende de:* nada.
+- [ ] **T13.19 "Aflojar reglas solo esta vez", claro.**
+  - Solo en Propuestas, plegado, con "Si ninguna propuesta te sirve".
+  - Cada campo muestra el valor actual del torneo ("hoy: 2 por día").
+  - "Usar mitades de cancha" no aparece si chocan solo partidos de F11. Si se mezclan modalidades, aparece con "Solo para F6 y F7".
+  - *Tamaño:* S. *Depende de:* T13.18.
+- [ ] **T13.20 Selector de equipos del bloqueo por club.**
+  - Elegir o buscar el club, y marcar sus equipos con la categoría al lado. Funciona sin JavaScript.
+  - *Tamaño:* S. *Depende de:* T13.15.
+- [ ] **T13.21 Fijar un partido.**
+  - `Partido.fijado` vuelve (migración aditiva), como decisión explícita: el interruptor "Fijar este partido", con un candado, en Mover, la ficha y el calendario. Mover no fija solo.
+  - Programar, rehacer y las propuestas no lo mueven. Si choca con algo nuevo (por ejemplo, se suspende su día), la app avisa y propone, pero no lo mueve sin confirmar.
+  - *Verificación:* tests del programador, de rehacer y de reprogramar con un fijado; `pytest -m lento`. *Tamaño:* M. *Depende de:* nada.
+- [ ] **T13.22 Editar los cruces del fixture a mano.**
+  - En la pestaña Fixture se intercambian cruces entre fechas, o se arma un cruce eligiendo los dos equipos.
+  - Bloquea: un equipo dos veces en la misma fecha, o un cruce que el formato no tiene (en series cruzadas, dos de la misma serie).
+  - Avisa, sin bloquear: a quién le falta jugar con quién y qué cruce quedó repetido.
+  - *Tamaño:* M-L. *Depende de:* T13.21.
+- [ ] **T13.23 Lo editado a mano se respeta.**
+  - Rehacer y volver a programar no deshacen los cruces editados.
+  - Después de editar, la organización elige "Reprogramar lo demás" o "Dejarlo así".
+  - *Tamaño:* M. *Depende de:* T13.22.
+- [ ] **T13.24 Copas por club (P30).**
+  - Pantalla "Copas por club", en Más y en la página pública: por club, cuántas Copas de Oro y de Plata ganó (campeón y subcampeón), con las categorías.
+  - Sale solo de las finales jugadas. No hay datos personales.
+  - *Tamaño:* S-M. *Depende de:* nada. Hace falta recién al final del torneo (15/11).
+
+**Checkpoint C:** verde, más `pytest -m lento`; recorrido de reprogramar (bloqueo → mover a mano o propuesta) en la demo; despliegue con el visto bueno de Sebastian.
+
+### Bloque D: diseño y textos
+
+- [ ] **T13.25 Logo más grande.** De 44 a 48 px en la barra, y de 72 a 96 px en el login y en la cabecera pública. Revisado con capturas a 360 px. *Tamaño:* S. *Depende de:* T13.14.
+- [ ] **T13.26 Asistente: el paso "Canchas y horarios" con las canchas.** La lista de canchas con "Agregar" y "Partir", como Más → Canchas. *Tamaño:* M.
+- [ ] **T13.27 Reglas y asistente: textos.**
+  - Sin las etiquetas P, ni en Reglas, ni en el asistente, ni en "Reglas del torneo" de Inicio.
+  - Sin la regla "Jugador en dos equipos" (P7): se deja el valor por defecto, después de revisar qué valida hoy.
+  - Textos nuevos para "Cierre de la inscripción", "Fin de semana sugerido para la eliminación", "Día para reprogramar" y "Desempate en la tabla", como están en PENDIENTES_PRODUCCION §1b.
+  - *Tamaño:* S.
+- [ ] **T13.28 Reglas: listas desplegables.**
+  - "Doble amarilla es roja desde" y cualquier otra regla con un "Sub" se eligen de una lista con las categorías del torneo.
+  - "Fin de semana de la eliminación" se elige de una lista con las fechas reales ("4.º: 14 y 15/11").
+  - *Tamaño:* S-M. *Depende de:* T13.27.
+- [ ] **T13.29 PNG: el tamaño según los partidos.** Las filas, la letra y los escudos crecen cuando la cancha tiene pocos partidos ese día, con un mínimo que se lea en el celular; con muchos, como hoy, partido en "1/2". *Tamaño:* M. *Depende de:* T13.13.
+- [ ] **T13.30 Escudos con fondo.** Al subir un escudo con fondo (un JPG, o un PNG sin transparencia en los bordes), la app avisa. Opcional, con Pillow, que ya está: quitar un fondo liso, con vista previa y "Usar el original". *Tamaño:* S-M. *Depende de:* T13.2.
+- [ ] **T13.31 "¿Entra todo?" en palabras.** "Cancha 3: 14 partidos (16 h) de 88 h disponibles. Entran unos 60 partidos más de 70 min", con las categorías que juegan en cada cancha. *Tamaño:* S.
+
+**Checkpoint D (cierre de la fase 13):** verde, más `pytest -m lento`; `code-review-and-quality` de la fase; PROGRESO al día; visto bueno de Sebastian.
+
+```
+A:  T13.1 → T13.2 → T13.30
+    T13.1 → T13.3 → T13.4
+    T13.5
+B:  T13.7, T13.8, T13.9, T13.10   (fixture, antes del 21/10; T13.6 espera P90)
+    T13.11, T13.13 → T13.29, T13.14 → T13.25   (día de partido, antes del 23/10)
+C:  T13.15 → T13.16, T13.20;  T13.18 → T13.19;  T13.21 → T13.22 → T13.23;  T13.17, T13.24
+D:  T13.26, T13.27 → T13.28, T13.31
+```
