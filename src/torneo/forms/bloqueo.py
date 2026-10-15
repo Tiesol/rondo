@@ -8,9 +8,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from django import forms
+from django.db.models import QuerySet
 from django.utils import timezone
 
-from torneo.models import Equipo, Torneo
+from torneo.models import Club, Equipo, Torneo
 
 if TYPE_CHECKING:
     _CampoDeEquipos = forms.ModelMultipleChoiceField[Equipo]
@@ -23,6 +24,10 @@ class _Equipos(_CampoDeEquipos):
         return f"{obj.nombre} · {obj.categoria}"
 
 
+def clubes_del_torneo(torneo: Torneo) -> QuerySet[Club]:
+    return Club.objects.filter(equipos__categoria__torneo=torneo).distinct().order_by("nombre")
+
+
 MOTIVOS = [
     ("Partido de la ACF", "Partido de la ACF"),
     ("Decisión de la organización", "Decisión de la organización"),
@@ -32,7 +37,7 @@ MOTIVOS = [
 class FormularioBloqueo(forms.Form):
     equipos = _Equipos(
         queryset=Equipo.objects.none(),
-        widget=forms.SelectMultiple(attrs={"size": 8}),
+        widget=forms.CheckboxSelectMultiple,
         help_text="Uno o varios: un partido de la ACF puede afectar a varios equipos del club.",
     )
     dia = forms.DateField(
@@ -44,15 +49,22 @@ class FormularioBloqueo(forms.Form):
     )
     motivo = forms.ChoiceField(choices=MOTIVOS, initial="Partido de la ACF")
 
-    def __init__(self, *args: Any, torneo: Torneo, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, torneo: Torneo, club: Any = None, **kwargs: Any) -> None:
+        """T13.20: con `club`, se muestran solo sus equipos (se elige primero el club). Al
+        guardar se acepta cualquier equipo del torneo."""
         super().__init__(*args, **kwargs)
         campo = self.fields["equipos"]
         assert isinstance(campo, forms.ModelMultipleChoiceField)
         campo.queryset = (
             Equipo.objects.filter(categoria__torneo=torneo)
             .select_related("categoria")
-            .order_by("nombre", "categoria")
+            .order_by("nombre", "categoria__edad", "categoria__nivel")
         )
+        self.club = club
+        if club is not None:
+            campo.widget.choices = [
+                (e.pk, campo.label_from_instance(e)) for e in campo.queryset.filter(club=club)
+            ]
 
     def clean(self) -> dict[str, Any]:
         datos = super().clean() or {}

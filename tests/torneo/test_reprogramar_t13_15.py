@@ -115,5 +115,9 @@ def test_la_pantalla_de_la_acf_se_llama_un_equipo_no_puede_jugar(
     org = entrar(client, ORGANIZACION)
     html = org.get(f"/torneos/{torneo.pk}/acf/").content.decode()
     assert "Un equipo no puede jugar" in html
+    # T13.20: el formulario aparece después de elegir el club.
+    club = Club.objects.first()
+    assert club is not None
+    html = org.get(f"/torneos/{torneo.pk}/acf/?club={club.pk}").content.decode()
     assert "Decisión de la organización" in html  # el motivo es una lista
     assert "Un equipo no puede jugar" in org.get("/").content.decode()

@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from torneo.forms.bloqueo import FormularioBloqueo
+from torneo.forms.bloqueo import FormularioBloqueo, clubes_del_torneo
 from torneo.models import Bloqueo, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.bloqueos import partidos_que_chocan
@@ -60,7 +60,10 @@ def _bloqueos(torneo: Torneo) -> list[dict[str, Any]]:
 @requiere("torneo.configurar_torneo", "cargar partidos de la ACF")
 def acf(request: HttpRequest, pk: int) -> HttpResponse:
     torneo = get_object_or_404(Torneo, pk=pk)
-    formulario = FormularioBloqueo(request.POST or None, torneo=torneo)
+    clubes = clubes_del_torneo(torneo)
+    pedido = request.POST.get("club") or request.GET.get("club") or ""
+    club = clubes.filter(pk=pedido).first() if pedido.isdigit() else None
+    formulario = FormularioBloqueo(request.POST or None, torneo=torneo, club=club)
     if request.method == "POST" and formulario.is_valid():
         bloqueo = Bloqueo.objects.create(
             torneo=torneo,
@@ -77,6 +80,8 @@ def acf(request: HttpRequest, pk: int) -> HttpResponse:
         {
             "torneo": torneo,
             "form": formulario,
+            "clubes": clubes,
+            "club": club,
             "bloqueos": _bloqueos(torneo),
         },
     )
