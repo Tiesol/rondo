@@ -17,11 +17,11 @@ class FormularioPersona(forms.Form):
         widget=forms.TextInput(attrs={"autocapitalize": "none", "autocomplete": "off"}),
     )
     nombre = forms.CharField(max_length=60, required=False)
-    # P64: por ahora todos hacen todo; la mesa queda para separar los roles más adelante.
+    # P85 (T13.5): la organización modifica todo; la mesa carga listas y resultados.
     rol = forms.ChoiceField(
         choices=ROLES,
-        initial="organizacion",
-        help_text="Por ahora, todos como Organización: pueden hacer todo (P64).",
+        initial="mesa",
+        help_text="Organización: todo. Mesa de control: listas, la ficha del partido y Hoy.",
     )
 
     def clean_usuario(self) -> str:

@@ -152,11 +152,22 @@ def test_b7_wo_y_borrar_un_evento_piden_confirmar(mesa: Client, partido: Partido
 def test_b3_reprogramar_un_partido_en_juego_borra_sus_eventos_con_historial(
     mesa: Client, partido: Partido
 ) -> None:
+    """Reprogramar es de la organización desde P85 (T13.5): la mesa empieza, la organización
+    reprograma."""
     from django.utils import timezone
 
     from torneo.models import Evento, Registro
+    from torneo.permisos import ORGANIZACION
 
     mesa.post(url(partido, "accion/"), {"accion": "empezar"})
+    respuesta = mesa.post(
+        url(partido, "accion/"), {"accion": "reprogramar_en_juego", "confirmado": "1"}
+    )
+    partido.refresh_from_db()
+    assert partido.estado == "en_juego"  # la mesa no puede
+    org = User.objects.create_user("org", password="x")
+    org.groups.add(Group.objects.get(name=ORGANIZACION))
+    mesa.force_login(org)
     assert partido.local is not None
     Evento.objects.create(partido=partido, tipo="gol", equipo=partido.local)
     Partido.objects.filter(pk=partido.pk).update(inicio=timezone.now())
