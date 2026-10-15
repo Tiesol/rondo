@@ -26,6 +26,9 @@ ENTRE_FILAS = 60  # de una fila a la siguiente (la fila mide 61: se tocan)
 ALTO_FILA = 61
 ENTRE_BLOQUES = 50  # el espacio entre dos categorías
 LIMITE = 900  # la franja azul empieza en 911,5: las filas terminan antes
+# T13.29: con pocos partidos, las filas crecen en alto (letra y escudos también) hasta esto. El
+# ancho del diseño no cambia: el fondo tiene adornos a los costados.
+ESCALA_MAXIMA = 1.35
 INICIAL = {"avanzado": "A", "inicial": "I"}
 # Nombres largos: se achica la letra hasta un mínimo (el JS de la página lo afina con la
 # medida real). En Cinzel, una mayúscula ocupa en promedio unos 0,65 em.
@@ -90,9 +93,6 @@ def paginar(partidos: list[Partido]) -> list[list[dict[str, Any]]]:
                 "y": y,
                 "color": "oro" if alterna % 2 == 0 else "blanca",
                 "categoria": etiqueta,
-                "tam_categoria": tamano(etiqueta, 88, 25.5, 16),
-                "tam_local": tamano(local, 359 if escudo_local else 409, 30, 23),
-                "tam_visitante": tamano(visitante, 388 if escudo_visitante else 438, 30, 23),
                 "hora": timezone.localtime(p.inicio).strftime("%H:%M") if p.inicio else "",
                 "local": local,
                 "visitante": visitante,
@@ -102,7 +102,27 @@ def paginar(partidos: list[Partido]) -> list[list[dict[str, Any]]]:
         )
         pieza.y = y + ENTRE_FILAS
         anterior = etiqueta
-    return [p.filas for p in piezas if p.filas]
+    return [_agrandar(p.filas) for p in piezas if p.filas]
+
+
+def _agrandar(filas: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """T13.29: si la pieza tiene lugar de sobra, la escala que llena el alto (hasta
+    ESCALA_MAXIMA); las posiciones, la letra y los escudos crecen con ella."""
+    usado = filas[-1]["y"] + ALTO_FILA - PRIMERA_FILA
+    k = round(max(1.0, min(ESCALA_MAXIMA, (LIMITE - PRIMERA_FILA) / usado)), 2)
+    for fila in filas:
+        fila["y"] = round(PRIMERA_FILA + (fila["y"] - PRIMERA_FILA) * k, 1)
+        fila["escala"] = k
+        local, visitante = fila["local"], fila["visitante"]
+        fila["tam_categoria"] = tamano(fila["categoria"], 88, 25.5 * k, 16)
+        con_escudo = 44 * k  # el ancho que el escudo le quita al nombre (ver el CSS)
+        fila["tam_local"] = tamano(
+            local, 403 - con_escudo if fila["escudo_local"] else 409, 30 * k, 23
+        )
+        fila["tam_visitante"] = tamano(
+            visitante, 432 - con_escudo if fila["escudo_visitante"] else 438, 30 * k, 23
+        )
+    return filas
 
 
 def png(request: HttpRequest, fecha: str) -> HttpResponse:

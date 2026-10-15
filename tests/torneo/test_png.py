@@ -184,3 +184,25 @@ def test_el_png_se_captura_con_el_tamano_real_de_la_pieza() -> None:
     que ir explícito, con offsetWidth y offsetHeight."""
     codigo = (settings.BASE_DIR / "src" / "torneo" / "static" / "js" / "exportar.js").read_text()
     assert "width: elemento.offsetWidth" in codigo and "height: elemento.offsetHeight" in codigo
+
+
+@pytest.mark.django_db
+def test_t13_29_con_pocos_partidos_las_filas_crecen(torneo: Torneo) -> None:
+    """Con pocos partidos en la cancha, filas más altas, letra y escudos más grandes (hasta
+    1,35 veces); el ancho del diseño no cambia. Con la cancha llena, como siempre."""
+    from torneo.views.png import ALTO_FILA, ESCALA_MAXIMA, LIMITE, paginar
+
+    partidos = list(
+        Partido.objects.filter(inicio__isnull=False)
+        .select_related("cancha__padre", "local", "visitante", "categoria")
+        .order_by("inicio")
+    )
+    (pocos,) = paginar(partidos[:2])
+    assert all(f["escala"] == ESCALA_MAXIMA for f in pocos)
+    assert pocos[1]["y"] - pocos[0]["y"] > 60
+    assert all(f["tam_local"] >= 23 for f in pocos)
+    muchos = paginar(partidos[:11])
+    assert all(f["escala"] >= 1 for pieza in muchos for f in pieza)
+    for pieza in muchos:
+        ultima = pieza[-1]
+        assert ultima["y"] + ALTO_FILA * ultima["escala"] <= LIMITE
