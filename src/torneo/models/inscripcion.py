@@ -28,8 +28,6 @@ class Club(models.Model):
 
     nombre = models.CharField(max_length=80)
     alias = models.JSONField(default=list, blank=True, validators=[_validar_alias])
-    # Uno por club, aunque tenga varios equipos (P68). Lo sube la organización (T8.3).
-    escudo = models.FileField(max_length=200, blank=True)
 
     class Meta:
         ordering = ["nombre"]
@@ -48,9 +46,45 @@ class Club(models.Model):
         return None
 
 
-class Equipo(models.Model):
-    """Un club en una categoría-nivel (INS-01). Puede haber dos del mismo club."""
+class EquipoDeClub(models.Model):
+    """Un equipo de un club, con su escudo (T13.1; P68, P88 y P89). El nombre lo identifica
+    dentro del club, y juega en una o varias categorías: cada una es un `Equipo`. Un club puede
+    tener cualquier cantidad."""
 
+    club = models.ForeignKey(Club, on_delete=models.PROTECT, related_name="equipos_del_club")
+    nombre = models.CharField(max_length=80)
+    # Uno por equipo; vale en todas sus categorías. Lo sube la organización (T8.3).
+    escudo = models.FileField(max_length=200, blank=True)
+
+    class Meta:
+        verbose_name = "equipo del club"
+        verbose_name_plural = "equipos del club"
+        ordering = ["club", "nombre"]
+        constraints = [
+            models.UniqueConstraint("club", Lower("nombre"), name="equipo_de_club_unico")
+        ]
+
+    def __str__(self) -> str:
+        return self.nombre
+
+    @classmethod
+    def del_club(cls, club: Club, nombre: str) -> EquipoDeClub:
+        """El equipo del club con ese nombre (sin distinguir mayúsculas); si no hay, lo crea."""
+        nombre = nombre.strip()
+        return cls.objects.filter(club=club, nombre__iexact=nombre).first() or cls.objects.create(
+            club=club, nombre=nombre
+        )
+
+
+class Equipo(models.Model):
+    """Un equipo del club en una categoría-nivel (INS-01). Puede haber dos del mismo club, con
+    nombres distintos (P89)."""
+
+    equipo_de_club = models.ForeignKey(
+        EquipoDeClub, on_delete=models.PROTECT, related_name="equipos"
+    )
+    # Copias de equipo_de_club, para las consultas y el orden. Cambian solo con
+    # servicios.equipos.renombrar_equipo y unir_clubes, que actualizan las dos cosas juntas.
     club = models.ForeignKey(Club, on_delete=models.PROTECT, related_name="equipos")
     categoria = models.ForeignKey(CategoriaNivel, on_delete=models.PROTECT, related_name="equipos")
     nombre = models.CharField("nombre visible", max_length=80)
@@ -62,8 +96,8 @@ class Equipo(models.Model):
         ordering = ["categoria", "nombre"]
         constraints = [
             models.UniqueConstraint(
-                fields=["club", "categoria", "nombre"],
-                name="equipo_unico_por_club_y_categoria",
+                fields=["equipo_de_club", "categoria"],
+                name="equipo_unico_por_categoria",
                 violation_error_message=(
                     "Ya hay un equipo con ese nombre, de ese club, en esa categoría."
                 ),
@@ -72,6 +106,18 @@ class Equipo(models.Model):
 
     def __str__(self) -> str:
         return f"{self.nombre} ({self.categoria})"
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        if self.equipo_de_club_id is None:
+            self.equipo_de_club = EquipoDeClub.del_club(self.club, self.nombre)
+        del_club = self.equipo_de_club
+        if self.pk is None or not self.nombre:
+            self.nombre, self.club_id = del_club.nombre, del_club.club_id
+        elif (self.nombre, self.club_id) != (del_club.nombre, del_club.club_id):
+            raise ValueError(
+                "El nombre y el club de un equipo se cambian con renombrar_equipo o unir_clubes."
+            )
+        super().save(*args, **kwargs)
 
 
 class Persona(models.Model):

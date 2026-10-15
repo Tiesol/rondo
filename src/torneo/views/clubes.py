@@ -7,10 +7,11 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from torneo.models import Club
+from torneo.models import Club, EquipoDeClub
 from torneo.permisos import requiere
-from torneo.presentacion import olvidar_escudos, url_de_imagen
+from torneo.presentacion import escudo, olvidar_escudos
 from torneo.servicios.clubes import NoSePuede, crear_club, editar_club, unir_clubes
+from torneo.servicios.equipos import renombrar_equipo
 
 
 class FormularioClub(forms.Form):
@@ -35,8 +36,8 @@ def clubes(request: HttpRequest) -> HttpResponse:
             messages.success(request, f"{club} agregado")
             return redirect("clubes")
     lista = [
-        {"club": c, "escudo": url_de_imagen("escudo", c.pk, c.escudo.name)}
-        for c in Club.objects.annotate(cantidad=Count("equipos")).order_by("nombre")
+        {"club": c}
+        for c in Club.objects.annotate(cantidad=Count("equipos_del_club")).order_by("nombre")
     ]
     return render(request, "clubes/lista.html", {"lista": lista, "form": formulario})
 
@@ -62,11 +63,41 @@ def club(request: HttpRequest, pk: int) -> HttpResponse:
         {
             "club": actual,
             "form": formulario,
-            "escudo": url_de_imagen("escudo", actual.pk, actual.escudo.name),
-            "equipos": actual.equipos.select_related("categoria"),
+            "equipos": _equipos_del_club(actual),
             "otros": Club.objects.exclude(pk=actual.pk),
         },
     )
+
+
+def _equipos_del_club(club: Club) -> list[dict[str, object]]:
+    """Cada equipo del club con su escudo y las categorías en que juega (T13.1)."""
+    filas = []
+    for del_club in club.equipos_del_club.prefetch_related("equipos__categoria"):
+        categorias = list(del_club.equipos.all())
+        muestra = categorias[0] if categorias else None
+        filas.append(
+            {
+                "id": str(del_club.pk),
+                "del_club": del_club,
+                "categorias": categorias,
+                "escudo": escudo(muestra) if muestra else {"sigla": "", "url": ""},
+            }
+        )
+    return filas
+
+
+@require_POST
+@requiere("torneo.inscribir_equipos", "cambiar los clubes")
+def renombrar(request: HttpRequest, pk: int) -> HttpResponse:
+    """El nombre de un equipo del club, en todas sus categorías (T13.1)."""
+    del_club = get_object_or_404(EquipoDeClub, pk=pk)
+    try:
+        renombrar_equipo(del_club, request.POST.get("nombre", ""))
+    except NoSePuede as error:
+        messages.error(request, str(error))
+    else:
+        messages.success(request, f"Equipo renombrado: {del_club.nombre}")
+    return redirect("club", pk=del_club.club_id)
 
 
 @require_POST
@@ -78,10 +109,15 @@ def unir(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, "Elige con qué club unirlo.")
         return redirect("club", pk=pk)
     try:
-        unir_clubes(repetido, destino)
+        unidos = unir_clubes(repetido, destino)
     except NoSePuede as error:
         messages.error(request, str(error))
         return redirect("club", pk=pk)
     olvidar_escudos()
     messages.success(request, f"{repetido.nombre} unido a {destino.nombre}")
+    if unidos:
+        messages.warning(
+            request,
+            "Tenían equipos con el mismo nombre y quedaron unidos en uno: " + ", ".join(unidos),
+        )
     return redirect("clubes")

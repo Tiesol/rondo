@@ -9,7 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 
 from dominio.config import cargar_config
-from torneo.models import Club, Torneo
+from torneo.models import Club, EquipoDeClub, Torneo
 from torneo.permisos import ORGANIZACION
 from torneo.servicios.configuracion import cargar_configuracion
 from torneo.servicios.imagenes import ImagenInvalida, procesar_imagen
@@ -27,10 +27,10 @@ def test_un_svg_subido_como_escudo_no_se_guarda(client: Client) -> None:
     usuario = User.objects.create_user("org", password="x")
     usuario.groups.add(Group.objects.get(name=ORGANIZACION))
     client.force_login(usuario)
-    club = Club.objects.create(nombre="Club")
+    del_club = EquipoDeClub.objects.create(club=Club.objects.create(nombre="Club"), nombre="Club")
     falso = SimpleUploadedFile("escudo.png", SVG, content_type="image/png")
-    client.post(f"/clubes/{club.pk}/escudo/", {"escudo": falso})
-    assert not Club.objects.get(pk=club.pk).escudo
+    client.post(f"/equipos-del-club/{del_club.pk}/escudo/", {"escudo": falso})
+    assert not EquipoDeClub.objects.get(pk=del_club.pk).escudo
 
 
 @pytest.mark.django_db
@@ -47,7 +47,8 @@ def test_un_aviso_de_la_organizacion_no_queda_en_la_cache_publica() -> None:
     usuario.groups.add(Group.objects.get(name=ORGANIZACION))
     org.force_login(usuario)
     club = Club.objects.create(nombre="Club Secreto Inventado")
-    org.post(f"/clubes/{club.pk}/escudo/", {})  # deja un aviso pendiente en su sesión
+    del_club = EquipoDeClub.objects.create(club=club, nombre=club.nombre)
+    org.post(f"/equipos-del-club/{del_club.pk}/escudo/", {})  # deja un aviso pendiente en su sesión
     assert "Elige la imagen del escudo" not in org.get(pagina).content.decode()
     anonimo = Client()
     respuesta = anonimo.get(pagina)

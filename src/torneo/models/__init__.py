@@ -5,7 +5,7 @@ from torneo.models.convocado import Convocado
 from torneo.models.corrida import Corrida
 from torneo.models.evento import Evento, Penal
 from torneo.models.fixture import Partido, Serie
-from torneo.models.inscripcion import Club, Equipo, Jugador, Persona, Profe
+from torneo.models.inscripcion import Club, Equipo, EquipoDeClub, Jugador, Persona, Profe
 from torneo.models.patrocinador import Patrocinador
 from torneo.models.registro import Registro
 from torneo.models.sancion import MultaPagada, SuspensionManual
@@ -21,6 +21,7 @@ __all__ = [
     "Convocado",
     "Corrida",
     "Equipo",
+    "EquipoDeClub",
     "Evento",
     "Franja",
     "Jugador",

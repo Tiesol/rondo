@@ -5,7 +5,7 @@ from pathlib import Path
 
 from django.db import transaction
 
-from torneo.models import Club
+from torneo.models import Club, EquipoDeClub
 
 
 @transaction.atomic
@@ -60,28 +60,53 @@ def editar_club(club: Club, nombre: str, alias: str) -> None:
 
 
 @transaction.atomic
-def unir_clubes(repetido: Club, destino: Club) -> None:
-    """Pasa los equipos de `repetido` a `destino`, que se queda con su nombre como alias (y su
-    escudo, si no tenía), y borra `repetido`."""
+def unir_clubes(repetido: Club, destino: Club) -> list[str]:
+    """Pasa los equipos de `repetido` a `destino`, que se queda con su nombre como alias, y borra
+    `repetido` (T13.1). Un equipo con el mismo nombre en los dos se une en uno, con el escudo
+    de `destino` (o el otro, si `destino` no tenía). Devuelve los nombres de los equipos unidos,
+    para avisar."""
     if repetido.pk == destino.pk:
         raise NoSePuede("Elige otro club.")
-    for equipo in repetido.equipos.select_related("categoria"):
-        if destino.equipos.filter(categoria=equipo.categoria, nombre=equipo.nombre).exists():
-            raise NoSePuede(
-                f"Los dos tienen un equipo «{equipo.nombre}» en {equipo.categoria}: "
-                "cámbiale el nombre a uno antes de unirlos."
-            )
-    repetido.equipos.update(club=destino)
+    unidos: list[str] = []
+    sobrantes: list[str] = []
+    for del_club in repetido.equipos_del_club.prefetch_related("equipos__categoria"):
+        igual = destino.equipos_del_club.filter(nombre__iexact=del_club.nombre).first()
+        if igual is None:
+            del_club.club = destino
+            del_club.save(update_fields=["club"])
+            del_club.equipos.update(club=destino)
+            continue
+        for equipo in del_club.equipos.all():
+            if igual.equipos.filter(categoria=equipo.categoria).exists():
+                raise NoSePuede(
+                    f"Los dos tienen un equipo «{igual.nombre}» en {equipo.categoria}: "
+                    "cámbiale el nombre a uno antes de unirlos."
+                )
+        del_club.equipos.update(equipo_de_club=igual, club=destino, nombre=igual.nombre)
+        if not igual.escudo and del_club.escudo:
+            igual.escudo = del_club.escudo.name
+            igual.save(update_fields=["escudo"])
+        elif del_club.escudo.name:
+            sobrantes.append(del_club.escudo.name)
+        del_club.delete()
+        unidos.append(igual.nombre)
     destino.alias = _alias(
         "\n".join([repetido.nombre, *repetido.alias, *destino.alias]), destino.nombre
     )
-    campos = ["alias"]
-    if not destino.escudo and repetido.escudo:
-        destino.escudo, repetido.escudo = repetido.escudo.name, ""
-        campos.append("escudo")
-    destino.save(update_fields=campos)
-    escudo_viejo = repetido.escudo.name if repetido.escudo else ""
+    destino.save(update_fields=["alias"])
     repetido.delete()
-    if escudo_viejo:
-        storage = destino.escudo.storage
-        transaction.on_commit(lambda: storage.delete(escudo_viejo))
+    _borrar_si_nadie_los_usa(sobrantes)
+    return unidos
+
+
+def _borrar_si_nadie_los_usa(archivos: list[str]) -> None:
+    """Borra, al confirmar, los escudos que ya no usa ningún equipo (pueden estar compartidos)."""
+    libres = [a for a in archivos if not EquipoDeClub.objects.filter(escudo=a).exists()]
+    if libres:
+        storage = EquipoDeClub().escudo.storage
+
+        def borrar() -> None:
+            for archivo in libres:
+                storage.delete(archivo)
+
+        transaction.on_commit(borrar)
