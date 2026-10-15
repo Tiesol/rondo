@@ -2,7 +2,7 @@
 {% block titulo %}Iniciar sesión{% endblock %}
 {% block contenido_sin_sesion %}
 <div class="banda pt-6">
-  <span class="marca grande" aria-hidden="true">{{ organizador.sigla }}</span>
+  {% include "parciales/marca.html" with grande=True %}
   <div>
     <h1 class="titulo-grande">Rondo</h1>
     <p class="meta">{{ organizador.nombre }}</p>

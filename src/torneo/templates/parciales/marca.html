@@ -1,0 +1,5 @@
+{% comment %}
+La marca del organizador (T13.14): su logo si lo subió en Escuela; si no, la sigla.
+Parámetros: grande (opcional).
+{% endcomment %}
+{% if logo_url %}<img class="marca con-imagen{% if grande %} grande{% endif %}" src="{{ logo_url }}" alt="" aria-hidden="true">{% else %}<span class="marca{% if grande %} grande{% endif %}" aria-hidden="true">{{ organizador.sigla }}</span>{% endif %}
