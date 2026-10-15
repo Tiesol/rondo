@@ -3,6 +3,16 @@
 {% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Volver al fixture">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
 {% block encabezado %}Fecha {{ numero }}{% endblock %}
 {% block contenido %}
+{% if editada %}
+<div class="seccion gap-2">
+  {% include "parciales/seccion_cab.html" with titulo="¿Y el día y la hora?" %}
+  <p class="peq tenue">Los partidos de la fecha conservan su día, hora y cancha.</p>
+  {% for choque in choques %}{% include "parciales/alerta.html" with estado="aviso" texto=choque %}{% endfor %}
+  <form method="post">{% csrf_token %}<input type="hidden" name="accion" value="reprogramar"><button type="submit" class="btn principal bloque">Reprogramar lo cambiado</button></form>
+  <p class="peq tenue">La app ubica los partidos que cambiaron y no mueve los demás. Puede tardar un poco.</p>
+  {% include "parciales/boton.html" with texto="Dejarlo así" url=volver bloque=True %}
+</div>
+{% endif %}
 {% if avisos %}<div class="seccion">{% with texto=avisos|join:" " %}{% include "parciales/alerta.html" with estado="aviso" titulo="Falta completar:" texto=texto %}{% endwith %}</div>{% endif %}
 
 <form method="post" class="seccion gap-3">

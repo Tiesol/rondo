@@ -32,10 +32,12 @@ from torneo.servicios.fixture import (
 )
 from torneo.servicios.partido import resultado_de
 from torneo.servicios.programador import (
+    ProgramacionEnCurso,
     calendario_actual,
     choques_del_calendario,
     partidos_del_torneo,
     problema_del_torneo,
+    programar_torneo,
 )
 from torneo.servicios.reprogramar import calcular_propuestas_en
 from torneo.views.confirmar import confirmado, pedir_confirmacion
@@ -179,10 +181,26 @@ def _propuesta(categoria: CategoriaNivel, partidos: list[Partido]) -> dict[str, 
 def _rehacer(categoria: CategoriaNivel) -> str:
     n = categoria.partidos.count()
     programados = categoria.partidos.filter(inicio__isnull=False).count()
+    editados = categoria.partidos.filter(editado_a_mano=True).count()
+    fijados = categoria.partidos.filter(fijado=True).count()
+    extra = ""
+    if editados:
+        extra += f" Los {editados} cruces editados a mano vuelven a su fecha si se puede."
+    if fijados:
+        extra += f" Los {fijados} partidos fijados conservan su lugar si su cruce sigue."
     return (
         f"Se rehace el fixture de {categoria}: se borran sus {n} partidos"
-        f"{f' ({programados} ya programados)' if programados else ''} y se arman de nuevo."
+        f"{f' ({programados} ya programados)' if programados else ''} y se arman de nuevo." + extra
     )
+
+
+def _avisar_perdidos(request: HttpRequest, perdidos: list[str]) -> None:
+    """T13.23: los cruces editados a mano que el fixture nuevo no pudo conservar."""
+    if perdidos:
+        messages.warning(
+            request,
+            "No se pudieron conservar los cruces editados a mano: " + ", ".join(perdidos),
+        )
 
 
 def _volver(categoria: CategoriaNivel) -> HttpResponse:
@@ -202,11 +220,12 @@ def generar(request: HttpRequest, pk: int) -> HttpResponse:
             peligro=True,
         )
     try:
-        generar_fixture(categoria, nuevo_sorteo=bool(request.POST.get("nuevo_sorteo")))
+        perdidos = generar_fixture(categoria, nuevo_sorteo=bool(request.POST.get("nuevo_sorteo")))
     except FixtureNoSePuede as error:
         messages.error(request, str(error))
     else:
         messages.success(request, f"Fixture de {categoria} listo")
+        _avisar_perdidos(request, perdidos)
     return _volver(categoria)
 
 
@@ -229,11 +248,12 @@ def guardar_series(request: HttpRequest, pk: int) -> HttpResponse:
             peligro=True,
         )
     try:
-        generar_fixture(categoria, series=series_elegidas(categoria, asignacion))
+        perdidos = generar_fixture(categoria, series=series_elegidas(categoria, asignacion))
     except FixtureNoSePuede as error:
         messages.error(request, str(error))
     else:
         messages.success(request, f"Series de {categoria} guardadas y fixture rehecho")
+        _avisar_perdidos(request, perdidos)
     return _volver(categoria)
 
 
@@ -361,6 +381,8 @@ def fecha(request: HttpRequest, pk: int, numero: int) -> HttpResponse:
     if not partidos:
         raise Http404
     volver = reverse("categoria", args=[categoria.pk, "fixture"])
+    if request.method == "POST" and request.POST.get("accion") == "reprogramar":
+        return _reprogramar_lo_cambiado(request, categoria, partidos, volver)
     if request.method == "POST":
         try:
             if request.POST.get("accion") == "intercambiar":
@@ -389,7 +411,8 @@ def fecha(request: HttpRequest, pk: int, numero: int) -> HttpResponse:
         except NoSePuede as error:
             messages.error(request, str(error))
             return redirect("fecha-fixture", pk=categoria.pk, numero=numero)
-        return redirect(volver)
+        # T13.23: el día y la hora quedan; la organización elige si reprogramar lo cambiado.
+        return redirect(reverse("fecha-fixture", args=[categoria.pk, numero]) + "?editada=1")
     otras = sorted(
         {
             n
@@ -410,5 +433,44 @@ def fecha(request: HttpRequest, pk: int, numero: int) -> HttpResponse:
             "otras": otras,
             "avisos": avisos_del_fixture(categoria),
             "volver": volver,
+            "editada": request.GET.get("editada") == "1",
+            "choques": _choques_de(partidos) if request.GET.get("editada") == "1" else [],
         },
     )
+
+
+def _choques_de(partidos: list[Partido]) -> list[str]:
+    """Los avisos del verificador para los partidos de la fecha, en su día y hora de hoy."""
+    if not partidos:
+        return []
+    torneo = partidos[0].categoria.torneo
+    todos = partidos_del_torneo(torneo)
+    ids = {p.pk for p in partidos}
+    choques = choques_del_calendario(problema_del_torneo(torneo, todos), calendario_actual(todos))
+    return sorted({m for c in choques if ids & set(c.partidos) for m in c.motivos})
+
+
+def _reprogramar_lo_cambiado(
+    request: HttpRequest, categoria: CategoriaNivel, partidos: list[Partido], volver: str
+) -> HttpResponse:
+    """T13.23: los partidos editados de la fecha vuelven a "sin programar" (salvo los fijados o
+    empezados) y el programador ubica solo eso; lo demás no se mueve."""
+    sueltos = [
+        p
+        for p in partidos
+        if p.editado_a_mano and not p.fijado and not p.empezado and p.inicio is not None
+    ]
+    for p in sueltos:
+        p.cancha, p.inicio, p.estado = None, None, Partido.Estado.PENDIENTE
+    Partido.objects.bulk_update(sueltos, ["cancha", "inicio", "estado"])
+    try:
+        corrida = programar_torneo(categoria.torneo, request.user, solo_lo_que_falta=True)
+    except ProgramacionEnCurso:
+        messages.error(request, "Ya se está programando: prueba en un momento.")
+        return redirect(volver)
+    sin_lugar = len(corrida.resultado.get("sin_ubicar", []))
+    if sin_lugar:
+        messages.warning(request, f"{sin_lugar} partidos quedaron sin lugar: ubícalos a mano.")
+    else:
+        messages.success(request, f"{len(sueltos)} partidos reprogramados; lo demás no se movió")
+    return redirect(volver)
