@@ -22,6 +22,10 @@ class FormatoFaltante(ValueError):
     """No hay formato para esa cantidad de equipos (P27, P54)."""
 
 
+class CategoriaNoSeAbre(FormatoFaltante):
+    """Menos equipos que el mínimo para abrir la categoría (T13.7, P86c)."""
+
+
 class Grupos(Estricto):
     tipo: Literal["todos_contra_todos", "series_cruzadas", "series"]
     ida_y_vuelta: bool = False
@@ -214,6 +218,9 @@ def toman_posiciones(formato: FormatoParaN) -> frozenset[str]:
 class Formatos(Estricto):
     formatos: dict[int, Formato]
     fuente: str = Field(default="", alias="_fuente")
+    # Con menos equipos, la categoría no se abre (T13.7; convocatoria 2026, P86c).
+    minimo_equipos: int = Field(default=2, ge=2, alias="_minimo_equipos")
+    motivo_minimo: str = Field(default="", alias="_motivo_minimo")
 
     @model_validator(mode="after")
     def _formatos_coherentes(self) -> Self:
@@ -223,6 +230,9 @@ class Formatos(Estricto):
 
     def para(self, equipos: int, *, sin_copas: frozenset[Copa] = frozenset()) -> FormatoParaN:
         """El formato para esa cantidad, sin los partidos de las copas que no se juegan (P62)."""
+        if equipos < self.minimo_equipos:
+            motivo = f" ({self.motivo_minimo})" if self.motivo_minimo else ""
+            raise CategoriaNoSeAbre(f"Con {equipos} equipos la categoría no se abre{motivo}.")
         formato = self.formatos.get(equipos)
         if formato is None:
             raise FormatoFaltante(

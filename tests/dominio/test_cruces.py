@@ -34,7 +34,7 @@ def cruces_para(n: int, clubes: dict[int, str] | None = None) -> tuple[Grupos, l
     )
 
 
-@pytest.mark.parametrize("n", range(2, 11))
+@pytest.mark.parametrize("n", range(3, 11))
 def test_fix_03_cada_cruce_una_vez_y_nadie_dos_veces_por_fecha(n: int) -> None:
     grupos, cruces = cruces_para(n)
     assert len(cruces) == grupos.cantidad_de_partidos(n)
@@ -45,7 +45,7 @@ def test_fix_03_cada_cruce_una_vez_y_nadie_dos_veces_por_fecha(n: int) -> None:
     assert max(por_fecha.values()) == 1
 
 
-@pytest.mark.parametrize("n", range(2, 11))
+@pytest.mark.parametrize("n", range(3, 11))
 def test_fix_03_juegan_los_que_tienen_que_jugar(n: int) -> None:
     grupos, cruces = cruces_para(n)
     series = series_de(grupos, list(range(1, n + 1)))
@@ -79,14 +79,14 @@ def test_fix_04_las_series_cruzadas_dicen_de_que_serie_es_cada_uno() -> None:
 
 
 def test_las_fechas_empiezan_en_1_y_no_tienen_huecos() -> None:
-    for n in range(2, 11):
+    for n in range(3, 11):
         _, cruces = cruces_para(n)
         fechas = sorted({c.fecha for c in cruces})
         assert fechas == list(range(1, len(fechas) + 1))
 
 
 @given(
-    n=st.integers(min_value=2, max_value=10),
+    n=st.integers(min_value=3, max_value=10),
     datos=st.data(),
 )
 def test_fix_05_dos_del_mismo_club_se_enfrentan_en_la_fecha_1(n: int, datos: st.DataObject) -> None:

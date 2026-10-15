@@ -1,14 +1,8 @@
 {
   "_fuente": "CONTEXTO 4.5 (sección 9 del reglamento). P25: Bronce 5.º A contra 5.º B. P26: mejor perdedor y mejor 3.º. P27 y P54: de 11 a 20 equipos, grupos A y B como con 8 (respuesta del organizador); con más de 20 falta el formato.",
+  "_minimo_equipos": 3,
+  "_motivo_minimo": "convocatoria 2026",
   "formatos": {
-    "2": {
-      "notas": "Sin formato en el reglamento: ida y vuelta (P27).",
-      "grupos": {
-        "tipo": "todos_contra_todos",
-        "ida_y_vuelta": true
-      },
-      "eliminacion": []
-    },
     "3": {
       "notas": "El 1.º va directo a la final; el perdedor de la semi es campeón de Plata, sin partido.",
       "grupos": {
