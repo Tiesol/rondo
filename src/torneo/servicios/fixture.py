@@ -8,6 +8,7 @@ solo si la regla lo permite y no hay partidos jugados (FIX-09).
 import random
 from dataclasses import dataclass, field
 from functools import cache
+from typing import Any
 
 from django.conf import settings
 from django.db import transaction
@@ -67,9 +68,13 @@ def generar_fixture(
     nuevo_sorteo: bool = False,
     semilla: int | None = None,
     series: dict[str, list[Equipo]] | None = None,
-) -> None:
+) -> list[str]:
     """Arma y guarda el fixture. Con nuevo_sorteo, las series se vuelven a sortear; con
-    series, se usan esas (las que la organización eligió a mano)."""
+    series, se usan esas (las que la organización eligió a mano).
+
+    T13.23: si había cruces editados a mano, cada cruce que sigue existiendo vuelve a su fecha
+    anterior, siempre que el fixture entero quede válido (nadie dos veces en una fecha).
+    Devuelve los cruces editados que no se pudieron conservar."""
     equipos = list(categoria.equipos.select_related("club").order_by("pk"))
     if len(equipos) < 2:
         raise FixtureNoSePuede(f"{categoria} necesita al menos 2 equipos para tener fixture.")
@@ -95,6 +100,7 @@ def generar_fixture(
     except SeriesInvalidas as error:
         raise FixtureNoSePuede(f"{categoria}: {error}") from None
 
+    anteriores = _fechas_de_los_cruces(categoria)
     # T13.21: los fijados conservan su lugar si su cruce sigue en el fixture nuevo.
     fijados = {
         (frozenset((p.local_id, p.visitante_id)), p.fase, p.clave): (p.cancha_id, p.inicio)
@@ -123,6 +129,7 @@ def generar_fixture(
         )
         for p in fixture.partidos
     )
+    perdidos = _conservar_lo_editado(categoria, anteriores) if anteriores else []
     if fijados:
         for nuevo in categoria.partidos.filter(fase=Partido.Fase.GRUPOS):
             clave = (frozenset((nuevo.local_id, nuevo.visitante_id)), nuevo.fase, nuevo.clave)
@@ -130,6 +137,62 @@ def generar_fixture(
                 nuevo.cancha_id, nuevo.inicio = fijados.pop(clave)
                 nuevo.estado, nuevo.fijado = Partido.Estado.PROGRAMADO, True
                 nuevo.save(update_fields=["cancha", "inicio", "estado", "fijado"])
+    return perdidos
+
+
+@dataclass
+class _Anterior:
+    """Lo que había antes de rehacer, si había cruces editados a mano (T13.22)."""
+
+    fechas: dict[frozenset[Any], list[int]]  # cruce → sus fechas (dos con ida y vuelta)
+    editados: set[frozenset[Any]]
+
+
+def _fechas_de_los_cruces(categoria: CategoriaNivel) -> _Anterior | None:
+    grupos = list(categoria.partidos.filter(fase=Partido.Fase.GRUPOS).order_by("fecha", "pk"))
+    if not any(p.editado_a_mano for p in grupos):
+        return None
+    anterior = _Anterior({}, set())
+    for p in grupos:
+        par = frozenset((p.local_id, p.visitante_id))
+        if p.fecha is not None:
+            anterior.fechas.setdefault(par, []).append(p.fecha)
+        if p.editado_a_mano:
+            anterior.editados.add(par)
+    return anterior
+
+
+def _conservar_lo_editado(categoria: CategoriaNivel, anterior: _Anterior) -> list[str]:
+    """T13.23: cada cruce del fixture nuevo vuelve a la fecha que tenía, si así el fixture queda
+    válido (todos con fecha y nadie dos veces en una); si no, queda el fixture nuevo y se dicen
+    los cruces editados que se pierden."""
+    nuevos = list(
+        categoria.partidos.filter(fase=Partido.Fase.GRUPOS).select_related("local", "visitante")
+    )
+    quedan = {par: list(fechas) for par, fechas in anterior.fechas.items()}
+    asignadas: dict[int, int] = {}
+    for p in nuevos:
+        par = frozenset((p.local_id, p.visitante_id))
+        if quedan.get(par):
+            asignadas[p.pk] = quedan[par].pop(0)
+    equipos_por_fecha: dict[int, list[Any]] = {}
+    for p in nuevos:
+        if p.pk in asignadas:
+            equipos_por_fecha.setdefault(asignadas[p.pk], []).extend([p.local_id, p.visitante_id])
+    valido = len(asignadas) == len(nuevos) and all(
+        len(ids) == len(set(ids)) for ids in equipos_por_fecha.values()
+    )
+    if not valido:
+        return sorted(
+            f"{p.local} vs {p.visitante}"
+            for p in nuevos
+            if frozenset((p.local_id, p.visitante_id)) in anterior.editados
+        ) or ["los cruces editados a mano"]
+    for p in nuevos:
+        p.fecha = asignadas[p.pk]
+        p.editado_a_mano = frozenset((p.local_id, p.visitante_id)) in anterior.editados
+    Partido.objects.bulk_update(nuevos, ["fecha", "editado_a_mano"])
+    return []
 
 
 def motivo_desactualizado(
