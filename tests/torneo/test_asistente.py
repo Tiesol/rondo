@@ -144,3 +144,23 @@ def test_la_mesa_no_crea_torneos(client: Client) -> None:
 @pytest.mark.django_db
 def test_mas_ofrece_crear_un_torneo_solo_a_la_organizacion(org: Client) -> None:
     assert f'href="{URL}"' in org.get("/mas/").content.decode()
+
+
+@pytest.mark.django_db
+def test_t13_26_el_paso_de_canchas_deja_partir_y_agregar(org: Client) -> None:
+    recorrer(org, {3: {"partida_C2": None, "canchas_extra": "1"}})
+    torneo = Torneo.objects.get()
+    codigos = set(torneo.canchas.values_list("codigo", flat=True))
+    assert codigos == {"C1", "C1A", "C1B", "C2", "C3", "C3A", "C3B", "C4"}
+    # Sub 5 y Sub 6 siguen en las mitades de la cancha 1.
+    sub5 = torneo.categorias.get(categoria="Sub 5")
+    assert set(sub5.canchas.values_list("codigo", flat=True)) == {"C1A", "C1B"}
+
+
+@pytest.mark.django_db
+def test_t13_26_el_paso_muestra_las_canchas(org: Client) -> None:
+    for paso in (1, 2):
+        org.post(f"{URL}{paso}/", campos_iniciales(org, paso))
+    html = org.get(f"{URL}3/").content.decode()
+    assert "Cancha 1" in html and "Cancha 3" in html
+    assert "Partida en dos mitades" in html and "Canchas que se agregan" in html

@@ -47,7 +47,16 @@
   {% elif paso == 3 %}
   <div class="seccion">
     {% include "parciales/seccion_cab.html" with titulo="Canchas" %}
-    <p class="peq tenue">Vienen del reglamento: la cancha 1 se divide en dos mitades para Sub 5 y Sub 6. Se cambian después, desde Torneo.</p>
+    <p class="peq tenue">Vienen del reglamento: Sub 5 y Sub 6 juegan en las mitades de la cancha 1. Una cancha partida también se puede usar entera.</p>
+    <ul class="lista">
+      {% for cancha in form.filas_de_canchas %}
+      <li class="fila ajuste">
+        <span class="crece"><strong>{{ cancha.nombre }}</strong><span class="sub">{{ cancha.partida.label }}</span></span>
+        <span class="control">{{ cancha.partida }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% include "parciales/campo.html" with campo=form.canchas_extra %}
   </div>
   <div class="seccion">
     {% include "parciales/seccion_cab.html" with titulo="Horarios" nota="Hora de Bolivia" %}
