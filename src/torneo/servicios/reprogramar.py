@@ -17,8 +17,9 @@ from django.utils import timezone
 from dominio.config import Reglas
 from dominio.franjas import proximo
 from dominio.programador.relajar import Relajar
-from dominio.programador.reprogramar import proponer
+from dominio.programador.reprogramar import Movimiento, Propuesta, proponer
 from torneo.models import Bloqueo, Cambio, Cancha, Corrida, Equipo, Franja, Partido, Torneo
+from torneo.presentacion import cruce
 from torneo.servicios.programador import (
     ahora_local,
     calendario_actual,
@@ -102,9 +103,16 @@ def calcular_propuestas_en(
         for f in preferidas or []
         if hora_local(f.inicio) <= e.desde and e.hasta <= hora_local(f.fin)
     ]
+    actual = calendario_actual(partidos)
+    chocan = {
+        i: c.motivos[0]
+        for c in choques_del_calendario(problema, actual)
+        for i in c.partidos
+        if c.motivos
+    }
     propuestas = proponer(
         problema,
-        calendario_actual(partidos),
+        actual,
         desde=desde,
         hasta=hasta,
         cuantas=PROPUESTAS,
@@ -134,6 +142,7 @@ def calcular_propuestas_en(
                         "partido": m.partido,
                         "antes": [m.antes[0], m.antes[1].isoformat()] if m.antes else None,
                         "despues": [m.despues[0], m.despues[1].isoformat()],
+                        "motivo": _por_que(m, propuesta, chocan, partidos),
                     }
                     for m in propuesta.movimientos
                 ]
@@ -141,6 +150,23 @@ def calcular_propuestas_en(
             ],
         },
     )
+
+
+def _por_que(
+    movimiento: Movimiento, propuesta: Propuesta, chocan: dict[Any, str], partidos: list[Partido]
+) -> str:
+    """T13.18: por qué la propuesta mueve este partido."""
+    if movimiento.antes is None:
+        return "Estaba sin lugar"
+    if movimiento.partido in chocan:
+        return f"Choca: {chocan[movimiento.partido]}"
+    cancha, cuando = movimiento.antes
+    for otro in propuesta.movimientos:
+        cerca = abs((otro.despues[1] - cuando).total_seconds()) < 3600
+        if otro.partido != movimiento.partido and otro.despues[0] == cancha and cerca:
+            quien = next((cruce(p) for p in partidos if p.pk == otro.partido), "otro partido")
+            return f"Le deja su lugar a {quien}"
+    return "Para que entren los que chocan"
 
 
 @transaction.atomic

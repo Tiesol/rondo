@@ -90,10 +90,13 @@ def test_pro_13_da_dos_o_tres_propuestas_validas_y_ordenadas() -> None:
 
 
 def test_pro_13_las_propuestas_son_distintas() -> None:
-    problema, actual, _ = con_bloqueo_sobre_uno()
+    """T13.18: distintas son otros lugares para lo que choca, no movimientos de más (antes se
+    pedía otro conjunto de partidos, y la 2.ª y la 3.ª movían partidos sin motivo)."""
+    problema, actual, victima = con_bloqueo_sobre_uno()
     propuestas = proponer(problema, actual, desde=SAB, hasta=SAB + timedelta(days=9), segundos=10)
-    conjuntos = [frozenset(m.partido for m in p.movimientos) for p in propuestas]
-    assert len(set(conjuntos)) == len(conjuntos)
+    assert all([m.partido for m in p.movimientos] == [victima] for p in propuestas)
+    lugares = [p.movimientos[0].despues for p in propuestas]
+    assert len(set(lugares)) == len(lugares)
 
 
 def test_pro_13_no_mueve_lo_que_queda_fuera_de_la_ventana_ni_lo_fijo() -> None:

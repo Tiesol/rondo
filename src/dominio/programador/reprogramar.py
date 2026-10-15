@@ -5,8 +5,10 @@ partiendo del calendario actual, con otro objetivo: mover la menor cantidad de p
 afectar a la menor cantidad de equipos y preferir el mismo fin de semana. Solo se mueven los
 partidos de una ventana (ese fin de semana y el siguiente), y solo dentro de ella; el resto
 queda fijo, igual que lo que la organización puso a mano fuera de las franjas (T11.2).
-Para dar 2 o 3 propuestas distintas, después de cada solución se prohíbe repetir el mismo
-conjunto de partidos movidos y se vuelve a resolver.
+Para dar 2 o 3 propuestas distintas (T13.18), después de cada solución se pide que al menos
+uno de los partidos que se movieron quede a un turno o más de donde lo puso esa solución, sin
+mover más partidos que la primera: las alternativas son otros horarios u otros días para lo
+mismo, no movimientos de más. Si no hay otra, se devuelven las que hay.
 """
 
 from collections import defaultdict
@@ -16,7 +18,7 @@ from datetime import datetime
 
 from ortools.sat.python import cp_model
 
-from dominio.programador.modelo import Equipo, Modelo, Problema, lugar_habitual
+from dominio.programador.modelo import PASO_MIN, Equipo, Modelo, Problema, lugar_habitual
 from dominio.verificador import FranjaExtra
 
 Lugar = tuple[str, datetime]  # cancha e inicio
@@ -156,10 +158,19 @@ def proponer(
         if not movimientos:
             break
         propuestas.append(Propuesta(tuple(movimientos)))
-        # La próxima, con otro conjunto de partidos movidos.
-        cambiados = {mv.partido for mv in movimientos}
-        m.add_bool_or(
-            [movido[i].Not() for i in cambiados if i in movido]
-            + [v for i, v in movido.items() if i not in cambiados]
-        )
+        if len(propuestas) == 1:
+            # T13.18: las alternativas no mueven más partidos que la primera.
+            m.add(sum(movido.values()) <= sum(1 for mv in movimientos if mv.antes is not None))
+        # La próxima: alguno de estos, a un turno o más de donde quedó en esta.
+        lejos: list[cp_model.IntVar] = []
+        por_id = {p.id: p for p in quietos}
+        for mv in movimientos:
+            inicio = modelo.inicio[mv.partido]
+            paso = reloj.paso(mv.despues[1], hacia_arriba=False)
+            turno = -(-por_id[mv.partido].minutos_turno // PASO_MIN)
+            mas_temprano, mas_tarde = m.new_bool_var(""), m.new_bool_var("")
+            m.add(inicio <= paso - turno).only_enforce_if(mas_temprano)
+            m.add(inicio >= paso + turno).only_enforce_if(mas_tarde)
+            lejos += [mas_temprano, mas_tarde]
+        m.add_bool_or(lejos)
     return sorted(propuestas, key=lambda p: len(p.movimientos))
