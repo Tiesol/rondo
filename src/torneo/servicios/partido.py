@@ -293,6 +293,10 @@ def wo(partido: Partido, no_se_presento: Lado, usuario: Usuario | None) -> None:
     """W.O. (P23): el que se presentó gana con el marcador de la regla."""
     if partido.local_id is None or partido.visitante_id is None:
         raise NoSePuede("Faltan los equipos de este partido.")
+    # Revisión del bloque A: la ficha esconde el botón, pero una pestaña vieja o un doble toque
+    # no pueden pisar un partido empezado o terminado.
+    if partido.empezado:
+        raise NoSePuede("El partido ya empezó: el W.O. es para un equipo que no se presentó.")
     partido.no_se_presento = no_se_presento
     partido.estado = Partido.Estado.JUGADO
     partido.tiempo = Partido.Tiempo.TERMINADO

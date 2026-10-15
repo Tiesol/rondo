@@ -15,6 +15,7 @@
     {% include "parciales/campo.html" with campo=form.color_2 %}
   </div>
   <p class="peq tenue">Cambiar la categoría lo saca del fixture de la anterior: hay que rehacerlo. El plantel va con el equipo.</p>
+  <p class="peq tenue">El nombre cambia solo en {{ equipo.categoria }}. Para cambiarlo en todas sus categorías, usa <a class="enlace" href="{% url 'club' equipo.club_id %}">la pantalla del club</a>.</p>
   {% include "parciales/boton.html" with texto="Guardar" principal=True bloque=True %}
 </form>
 {% endblock %}

@@ -628,6 +628,18 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 - **Consider:** juntar a los equipos de un mismo club el mismo día (preferencia de la respuesta 1.4.8) no está.
 - **Para Sebastian:** P44 (inscribir un equipo durante las primeras fechas choca con FIX-09), P75 (la galería de fotos de partidos, que el pedido había descartado), P78 y P79 (plantel de F11 en Sub 10 y Sub 11; cómo dar más tiempo a la cancha 3), y si se saca "fijar a mano" al mover un partido ("no existen partidos fijados a mano").
 
+## Revisión de las fases 11 y 12 y del bloque A de la fase 13 (2026-10-15, `code-review-and-quality`)
+
+Antes del checkpoint A, porque todo eso va a producción. Unas 5.600 líneas en `src` desde el PR #118. Se miró a fondo lo que se usa en la cancha (ficha del partido, planilla, alta rápida, W.O.), lo que borra o mueve datos (borrar y retirar equipos, unir clubes, migraciones del escudo), los permisos y lo que sale en la página pública.
+
+- **Corregido:** `wo()` no impedía dar un W.O. a un partido empezado o terminado. La ficha esconde el botón, pero una pestaña vieja o un doble toque lo pisaban (con sus goles). Ahora lo rechaza, con tests.
+- **Corregido (Nit):** los números mal escritos en la ficha (minuto, partidos de suspensión) decían "Los penales son números".
+- **Corregido (Nit):** "Corregir equipo" aclara que el nombre cambia solo en esa categoría y que, para todas, se usa la pantalla del club.
+- **Bien:** la ficha valida que el equipo y el jugador sean del partido en cada acción; la página pública no lee CI, nacimiento, lesiones ni amonestaciones, y la foto sale solo con autorización; las acciones que borran piden "¿Estás seguro?"; las migraciones del escudo copian antes de quitar y tienen un test con `MigrationExecutor`; la matriz de permisos cubre todas las rutas.
+- **FYI:** `jugados_de` mira también `no_se_presento`, aunque hoy un W.O. siempre deja el partido como jugado: es redundante a propósito.
+- **Para después (no bloquea):** `servicios/reprogramar.py` (629 líneas) y `views/ficha_partido.py` (474) pasan el tamaño sano de un módulo. Partirlos (propuestas por un lado, aplicar y deshacer por otro; acciones de la ficha en un despachador aparte) conviene antes de T13.18, que toca las propuestas.
+- **Sin revisar línea por línea:** el modelo del programador (`dominio/programador/modelo.py`, A1 a A4). Lo cubren los tests lentos con el calendario 2026 (223 de 223).
+
 ## Supuestos
 
 Valores que no están en el contexto. Quedan como configuración:
