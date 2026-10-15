@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}Reprogramar un partido{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'ficha-partido' partido.pk %}" aria-label="Volver al partido">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Reprogramar{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  <strong>{{ cruce }}</strong>
+  <p class="peq tenue">{{ partido.categoria }} · ahora: {{ ahora }}</p>
+</div>
+
+{% if partido.inicio %}
+<form method="post" class="seccion gap-3.5" novalidate>
+  {% csrf_token %}
+  {% include "parciales/seccion_cab.html" with titulo="Un equipo no puede jugar a esa hora" %}
+  {% include "parciales/campo.html" with campo=form.motivo %}
+  {% include "parciales/campo.html" with campo=form.equipos %}
+  <p class="peq tenue">Queda como bloqueo en «Un equipo no puede jugar», y la app propone dónde mover lo que choca. Los pedidos particulares no se atienden (convocatoria 2026).</p>
+  {% include "parciales/boton.html" with texto="Ver propuestas" principal=True bloque=True %}
+</form>
+{% endif %}
+
+<div class="seccion gap-2">
+  {% include "parciales/seccion_cab.html" with titulo="O cambiarlo a mano" %}
+  {% url "mover" partido.pk as url_mover %}{% include "parciales/boton.html" with texto="Mover a otro día, hora o cancha" url=url_mover bloque=True %}
+  {% if partido.inicio %}{% url "intercambiar" partido.pk as url_intercambiar %}{% include "parciales/boton.html" with texto="Intercambiar con otro partido" url=url_intercambiar bloque=True %}{% endif %}
+</div>
+{% endblock %}
