@@ -36,6 +36,7 @@ from torneo.views import (
 from torneo.views import publico as vistas_publicas
 from torneo.views.mas import ver_historial
 from torneo.views.publicar import publicar
+from torneo.views.torneo import copas as copas_por_club
 from torneo.views.torneo import nueva_categoria
 from torneo.views.torneo import sorteo as sorteo_de_tabla
 
@@ -115,6 +116,7 @@ urlpatterns = [
     path("torneos/<int:pk>/publico/", publicar, name="publicar"),
     path("torneos/<int:pk>/fixtures/", fixture.generar_todos, name="generar-fixtures"),
     path("torneos/<int:pk>/programar/", programar.programar, name="programar"),
+    path("torneos/<int:pk>/copas/", copas_por_club, name="copas"),
     path("torneos/<int:pk>/acf/", acf.acf, name="acf"),
     path("torneos/<int:pk>/acf/revisar/", acf.revisar, name="revisar-acf"),
     path("bloqueos/<int:pk>/borrar/", acf.borrar, name="borrar-bloqueo"),
@@ -129,6 +131,7 @@ urlpatterns = [
     ),
     path("t/<int:pk>/", vistas_publicas.publico, name="publico"),
     path("t/<int:pk>/hoy/", vistas_publicas.hoy, name="publico-hoy"),
+    path("t/<int:pk>/copas/", vistas_publicas.copas, name="publico-copas"),
     path("t/<int:pk>/equipo/<int:equipo>/", vistas_publicas.equipo, name="publico-equipo"),
     path("t/<int:pk>/partido/<int:partido>/", vistas_publicas.partido, name="publico-partido"),
     path(

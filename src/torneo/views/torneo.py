@@ -15,6 +15,7 @@ from torneo.models import CategoriaNivel, Torneo
 from torneo.permisos import requiere, sin_permiso
 from torneo.presentacion import nacidos_en, resumen_de_categoria
 from torneo.servicios.categorias import NoSePuede, agregar_categoria, nombres_de_la_plantilla
+from torneo.servicios.copas import copas_por_club
 from torneo.servicios.tabla import registrar_sorteo, tablas_de
 from torneo.views.equipos import filas_de_equipos
 from torneo.views.fixture import datos_del_fixture
@@ -141,3 +142,9 @@ def nueva_categoria(request: HttpRequest, pk: int) -> HttpResponse:
             "volver": volver,
         },
     )
+
+
+def copas(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.24 (P30): qué copas ganó cada club. Para cualquiera con sesión."""
+    torneo = get_object_or_404(Torneo, pk=pk)
+    return render(request, "torneo/copas.html", {"torneo": torneo, "filas": copas_por_club(torneo)})
