@@ -696,11 +696,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  /* T13.29: --k (de 1 a 1,35) agranda la fila en alto con pocos partidos; el ancho no cambia. */
   .pieza-fila {
     position: absolute;
     left: 501px;
     width: 944px;
-    height: 61px;
+    height: calc(61px * var(--k, 1));
   }
   .pieza-fila.oro {
     background: rgb(223 208 124 / 0.39);
@@ -717,7 +718,7 @@
     white-space: nowrap;
   }
   .pieza-equipo {
-    top: 15px;
+    top: calc(15px * var(--k, 1));
     font-size: 30px;
   }
   .pieza-equipo.local {
@@ -728,32 +729,33 @@
     left: 502px;
     width: 438px;
   }
+  /* Con k = 1: 54 y 359 px, y 388 px; el escudo crece con --k y el nombre se corre. */
   .con-escudo-local .pieza-equipo.local {
-    left: 54px;
-    width: 359px;
+    left: calc(10px + 44px * var(--k, 1));
+    width: calc(403px - 44px * var(--k, 1));
   }
   .con-escudo-visitante .pieza-equipo.visitante {
-    width: 388px;
+    width: calc(432px - 44px * var(--k, 1));
   }
   .pieza-categoria {
-    top: 2px;
+    top: calc(2px * var(--k, 1));
     left: 414px;
     width: 88px;
     font-size: 25.5px;
   }
   .pieza-hora {
-    top: 27px;
+    top: calc(27px * var(--k, 1));
     left: 410px;
     width: 96px;
     color: #b9a951;
-    font-size: 36px;
+    font-size: calc(36px * var(--k, 1));
   }
   /* Los escudos no están en el diseño: van chicos en los extremos, solo si el club lo tiene. */
   .pieza-escudo {
     position: absolute;
-    top: 8.5px;
-    width: 44px;
-    height: 44px;
+    top: calc(8.5px * var(--k, 1));
+    width: calc(44px * var(--k, 1));
+    height: calc(44px * var(--k, 1));
     object-fit: contain;
   }
   .pieza-escudo.izquierda {
