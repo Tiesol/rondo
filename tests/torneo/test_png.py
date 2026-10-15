@@ -176,3 +176,11 @@ def test_el_png_usa_el_escudo_del_equipo(client: Client, torneo: Torneo) -> None
     EquipoDeClub.objects.filter(pk=del_club).update(escudo="escudos/local.webp")
     html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
     assert f"/imagen/escudo/{del_club}/" in html
+
+
+def test_el_png_se_captura_con_el_tamano_real_de_la_pieza() -> None:
+    """T13.13: en pantalla la pieza está achicada con transform; modern-screenshot la mediría
+    achicada (getBoundingClientRect) y la imagen salía recortada y agrandada. El tamaño tiene
+    que ir explícito, con offsetWidth y offsetHeight."""
+    codigo = (settings.BASE_DIR / "src" / "torneo" / "static" / "js" / "exportar.js").read_text()
+    assert "width: elemento.offsetWidth" in codigo and "height: elemento.offsetHeight" in codigo

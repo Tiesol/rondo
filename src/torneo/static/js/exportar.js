@@ -17,8 +17,16 @@
   }
 
   async function aArchivo(elemento) {
-    // 1920 × 1080, como pide el diseño 2026.
-    const blob = await window.modernScreenshot.domToBlob(elemento, { scale: 1, type: "image/png" });
+    // 1920 × 1080, como pide el diseño 2026. El tamaño va explícito: en pantalla la pieza está
+    // achicada con transform (ajustar, abajo) y modern-screenshot la mediría con
+    // getBoundingClientRect, que da el tamaño achicado. Así salía recortada y agrandada (T13.13).
+    // offsetWidth y offsetHeight no cambian con el transform.
+    const blob = await window.modernScreenshot.domToBlob(elemento, {
+      width: elemento.offsetWidth,
+      height: elemento.offsetHeight,
+      scale: 1,
+      type: "image/png",
+    });
     return new File([blob], elemento.dataset.nombre || "calendario.png", { type: "image/png" });
   }
 

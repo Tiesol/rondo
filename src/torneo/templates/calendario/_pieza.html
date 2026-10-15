@@ -3,7 +3,6 @@
 <div class="pieza" id="{{ pieza.id }}" data-nombre="{{ pieza.archivo }}">
   <img class="pieza-fondo" src="{% static 'png/fondo_fixture_1920.webp' %}" alt="" width="1920" height="1080">
   <div class="pieza-titulo ajustar" data-min="56">{{ pieza.titulo }}</div>
-  {% if borrador %}<div class="pieza-borrador" aria-label="Borrador">BORRADOR</div>{% endif %}
   {% for fila in pieza.filas %}
   <div class="pieza-fila {{ fila.color }}{% if fila.escudo_local %} con-escudo-local{% endif %}{% if fila.escudo_visitante %} con-escudo-visitante{% endif %}" style="top: {{ fila.y|stringformat:'s' }}px">
     {% if fila.escudo_local %}<img class="pieza-escudo izquierda" src="{{ fila.escudo_local }}" alt="">{% endif %}

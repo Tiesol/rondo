@@ -695,20 +695,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .pieza-borrador {
-    position: absolute;
-    top: 420px;
-    left: 600px;
-    z-index: 5;
-    padding: 6px 28px;
-    border: 6px solid #c8102e;
-    border-radius: 12px;
-    color: #c8102e;
-    font: 110px/1 var(--font-titulo);
-    letter-spacing: 0.08em;
-    opacity: 0.8;
-    transform: rotate(-12deg);
-  }
   .pieza-fila {
     position: absolute;
     left: 501px;
