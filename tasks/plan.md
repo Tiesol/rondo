@@ -325,6 +325,18 @@ T8.5 → T8.6         │
 - [x] Bloque B: reprogramar (B1 a B9)
 - [x] Bloque C: día de partido (C1 a C4)
 
+#### Fase 13: producción y respuestas del 2026-10-15
+
+> `docs/PENDIENTES_PRODUCCION.md`. Detalle en `tasks/todo.md`. Meta: usar Rondo desde el 24/10 (P77).
+
+- [ ] Bloque A, antes de cargar datos reales (17/10): T13.1 y T13.2 escudo por equipo, T13.3 borrar club y equipo, T13.4 retirar equipo, T13.5 roles
+- [ ] Checkpoint A: revisión de cierre de las fases 11, 12 y del bloque A; desplegar, vaciar producción y crear el torneo real. Si no está el 17/10, avisar a Sebastian (carga de 1.700 jugadores)
+- [ ] Bloque B, fallos. Para el fixture (20/10): T13.6 mismo club (espera P90), T13.7 categoría de 2, T13.8 F11 en C3, T13.9 pendientes, T13.10 sorteo. Para el día de partido (22/10): T13.11 cierre "Nunca", T13.12 alta hasta el 2.º tiempo, T13.13 PNG, T13.14 logo y favicon
+- [ ] Checkpoint B: recorrido como Organización y como Mesa, y despliegue
+- [ ] Bloque C, durante el torneo: T13.15 a T13.24 (reprogramar, bloqueos, horarios sugeridos, propuestas, fijar, editar cruces, copas por club)
+- [ ] Bloque D, diseño y textos: T13.25 a T13.31
+- [ ] Checkpoint D: `code-review-and-quality` y visto bueno
+
 ## Grafo de dependencias
 
 ```
@@ -349,6 +361,9 @@ T0.4 y T1.1 no dependen del deploy. Si el deploy se traba esperando tus cuentas,
 | `modern-screenshot` no puede leer imágenes de R2 desde otro origen (canvas contaminado) | Medio | Servir las imágenes por la app (mismo origen) o configurar CORS en el bucket. Se decide en T8.12 |
 | La caché pública entrega URL firmadas vencidas | Bajo | Las URL firmadas duran más que la caché (por ejemplo, 1 hora contra 60 segundos) |
 | Sumar la espera de los profes vuelve lento al solver con 4 fines de semana | Medio | Se mide en T7.12 con 1 CPU antes de recortar, como pide la revisión |
+| La migración del escudo por equipo (T13.1) llega tarde y hay que migrar datos reales | Alto | Va primera. La migración copia antes de quitar `Club.escudo`, y se prueba con la base de la demo antes de producción |
+| El bloque B no llega al 23/10 | Alto | Primero lo del fixture (T13.6 a T13.10). Lo mínimo para el día de partido son T13.11, T13.12 y T13.13. El bloque C se usa recién con el torneo empezado |
+| P90 (mismo club) no se responde antes del 21/10 | Medio | Valor por defecto "como mucho se cruzan en la final"; Sebastian decide el 20/10 si se implementa sin respuesta |
 
 ## Preguntas abiertas
 

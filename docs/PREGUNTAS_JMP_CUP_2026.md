@@ -215,7 +215,7 @@ Dejemoslo como flexible a la hora dw crear el torneo que se pueda escogwr si hay
 
 | # | Pregunta | Si no se responde | Respuesta |
 |---|---|---|---|
-| P77 | ¿Los resultados de la 1.ª fecha (24 y 25/10) ya van en Rondo, o esa fecha todavía en Copa Fácil? | En Rondo si está listo el viernes 23; si no, en Copa Fácil | |
+| P77 | ¿Los resultados de la 1.ª fecha (24 y 25/10) ya van en Rondo, o esa fecha todavía en Copa Fácil? | En Rondo si está listo el viernes 23; si no, en Copa Fácil | (2026-10-15) Si la app está lista, la 1.ª fecha y el resto van en Rondo; si no, en Copa Fácil |
 | P64 | ¿Quién carga goles y tarjetas? ¿La organización, la mesa o algunos entrenadores de JMP? | La organización y la mesa de control |por el momento que cualquier administrador es decir manejaremos un solo rol que hacen todo y despues en un futuro lo separaremos |
 | P73 | ¿Se carga durante el partido (en vivo) o al final? | Durante el partido. La página pública se actualiza sola cada minuto | correcro la idea es que haga un pool para que se actualicen los datos eb la pagina publica|
 | P65 | ¿Qué se muestra de cada jugador en la página pública? | Nombre e inicial del apellido ("Juan P."), dorsal, goles y tarjetas. Nunca el CI ni la fecha de nacimiento | |
@@ -223,7 +223,7 @@ Dejemoslo como flexible a la hora dw crear el torneo que se pueda escogwr si hay
 | P67 | ¿También se cargan fotos de los entrenadores? | Sí, opcional | |
 | P75 | ¿Qué fotos quieren para los papás que no pueden ir: la foto de cada jugador, fotos de cada partido (galería), o las dos? | Las dos. La foto de cada jugador primero; la galería después | |
 | P76 | ¿Cuánto tiempo se guardan las fotos? Copa Fácil las borraba | Hasta el próximo torneo; después las borra la organización | |
-| P68 | Escudos: ¿los manda cada club? ¿Uno por club, aunque tenga varios equipos? | Uno por club, lo carga la organización | |
+| P68 | Escudos: ¿los manda cada club? ¿Uno por club, aunque tenga varios equipos? | Uno por club, lo carga la organización | (2026-10-14) **Uno por equipo, no por club.** El club no tiene escudo; cada equipo tiene el suyo, obligatorio, y un club puede tener cualquier cantidad de equipos. Ver P88 y P89 |
 | P69 | Patrocinadores: ¿cuántos son y dónde salen (imagen del fixture, página pública)? ¿Cambian durante el torneo? | Una lista por torneo, en el fixture y al pie de la página pública | |
 | P70 | ¿Se publica el mejor jugador de cada partido? | Sí, en la ficha del partido | |
 | P71 | ¿Tabla de goleadores por categoría? | Sí | |
@@ -252,8 +252,8 @@ Dejemoslo como flexible a la hora dw crear el torneo que se pueda escogwr si hay
 | P20 | ¿Se juntan los partidos de un mismo club cuando se puede? | Sí | |
 | P21 y P38 | Partidos de la ACF: ¿la organización carga día y hora por equipo? ¿Se suma un margen por el traslado? | Sí; el margen lo pone la organización al cargarlo | |
 | P22 | ¿Puede entrar un equipo con la categoría ya empezada? | No | |
-| P24 | ¿Dos equipos del mismo club se enfrentan en la fecha 1? | Sí | |
-| P30 | Copa Rotativa: ¿sigue en 2026? ¿Se gana por copas de oro o por victorias? | Por copas de oro; si hay empate, por victorias | |
+| P24 | ¿Dos equipos del mismo club se enfrentan en la fecha 1? | Sí | (2026-10-15, audio) **No: que no se crucen hasta las instancias finales**, para que no se eliminen entre ellos. No se puede evitar a la vez el cruce en grupos y en semis: ver **P90** |
+| P30 | Copa Rotativa: ¿sigue en 2026? ¿Se gana por copas de oro o por victorias? | Por copas de oro; si hay empate, por victorias | (2026-10-15, audio) Ya no existe como premio, pero quieren que la app cuente qué copas (Oro y Plata) ganó cada club |
 | P37 | ¿Alguien puede jugar en un equipo y ser profe de otro? | Sí, y esos equipos no juegan a la vez | |
 | P39 | ¿Se puede cargar un jugador sin CI? | Sí, con aviso; tiene que estar antes del primer partido | |
 | P40 | Cuerpo técnico: ¿un solo entrenador por equipo? | Sí | |
@@ -261,6 +261,59 @@ Dejemoslo como flexible a la hora dw crear el torneo que se pueda escogwr si hay
 | P48 | ¿El último partido del día tiene que terminar antes del cierre del horario? | Sí | |
 | P49 | ¿Hasta cuándo se guardan los datos personales de los jugadores? | Hasta fin de año; después se borran nombres y CI | |
 | P51 | ¿Cuántos equipos esperan en 2026? | Unos 90, como en 2023 | |
+
+## Parte 5. Respuestas del 2026-10-14 y 15 (convocatoria 2026 y audio)
+
+Las preguntas P78 a P86 están en `docs/RESPUESTAS_Y_CAMBIOS.md` (sección 7); P87 a P89 salieron de la prueba en producción. Lo que cambia en la app está en la fase 13 (`tasks/todo.md`).
+
+| # | Pregunta | Respuesta | En la app |
+|---|---|---|---|
+| P77 | ¿La 1.ª fecha va en Rondo? | Si la app está lista, sí; si no, en Copa Fácil | Meta de la fase 13: estar lista para el 24/10 |
+| P78 | Plantel de F11 en Sub 10 y Sub 11 Avanzado | La convocatoria 2026 dice de 12 a 16 | Ya está así en la plantilla |
+| P79 | F11 no entra en la cancha 3 | No hay otra cancha. Se juega en 14 días, entre viernes, sábado y domingo; entre semana, solo para reponer días suspendidos. **Falta:** cuánto se puede ampliar el horario de la cancha 3 (antes de las 8 o después de las 16) | Sin jueves para F11 (T13.8). Por defecto, la app sugiere ampliar C3 el sábado y el domingo |
+| P13 y P63 | ¿Se puede partir la cancha 3? | Se puede dividir en dos canchas de F7, pero no saben si interfiere "con la B". **Falta:** qué es "la B" | Sin cambios hasta que se confirme: las mitades de C3 siguen solo para mover a mano |
+| P81 | ¿Hay otra sanción por W.O., además del 3 a 0? | Sin respuesta clara ("en el reglamento") | **Abierta.** Sigue: sin otra sanción, hasta el reglamento 2026 |
+| P82 | ¿El partido olvidado se cierra solo? | **No se cierra solo** | Regla de cierre con "Nunca", por defecto (T13.11) |
+| P83 | Penales | Tiro por tiro | Ya está (T11.13) |
+| P84 | ¿Se puede agregar jugadores en la cancha? | Por reglamento, **hasta antes del inicio del 2.º tiempo**. **Falta:** si vale también pasando el máximo del plantel | Alta rápida hasta "Empieza el 2.º tiempo" (T13.12). Pasar el máximo sigue con aviso y confirmación |
+| P85 | Roles | La usan los profes de JMP, con dos permisos: **organizadores** (modifican todo) y otro para **subir listas y cargar resultados** (la mesa de control). Mencionaron "ver listas". **Falta:** la lista exacta de la mesa, y si "ver listas" es un tercer rol de solo lectura o la página pública para los padres | Organización y Mesa separadas (T13.5). Sin tercer rol hasta que se confirme |
+| P86 | Formatos 2026 | a) "Modifican el formato a más corto". b) Con 6 y 7, series cruzadas ("si no mal recuerdo"). c) Con 2 equipos la categoría no se abre; con 3, "posiblemente un triangular". **Falta:** cuál es el formato más corto (reglamento 2026) y si el triangular es a una vuelta | **Abierta.** Siguen los formatos de 2025, salvo la categoría con 2 equipos, que no se abre (T13.7) |
+| P87 | Si un equipo se retira con el torneo empezado, ¿sus partidos jugados cuentan? ¿Los que faltan se dan por W.O. o se borran? | Sin respuesta (nueva, 2026-10-14) | **Por defecto:** los jugados cuentan y los que faltan son W.O. 3 a 0 para el rival (T13.4) |
+| P88 | ¿Qué significa que el escudo sea "obligatorio"? | Se puede poner en cualquier momento y no bloquea nada | Inicio muestra "N equipos sin escudo" hasta que estén todos; mientras falte, sale la sigla (T13.2) |
+| P90 | Dos equipos del mismo club: ¿qué se evita, que se enfrenten en grupos o que se eliminen antes de la final? (detalle abajo) | Sin respuesta (nueva, 2026-10-15) | **Por defecto:** como mucho se cruzan en la final. Con un solo grupo, siguen en la fecha 1 |
+| P89 | Dos inscritos del mismo club en una categoría, ¿son el mismo equipo ("A" y "B") o dos equipos? | Siempre dos equipos distintos, con nombre y escudo propios | El escudo va por club + nombre del equipo, y vale en todas sus categorías (T13.1) |
+
+### P90. Dos equipos del mismo club en una categoría (urgente: antes del 21/10)
+
+Dijeron que dos equipos del mismo club no se crucen hasta las instancias finales, "para que no se eliminen entre ellos". Con las semis que usamos, **no se pueden cumplir las dos cosas a la vez**: o no se enfrentan en la fase de grupos, o como mucho se cruzan en la final. Hay que elegir una.
+
+**Ejemplo con 6 equipos** (series cruzadas: cada equipo de A juega con todos los de B; semis de Oro 1.º A vs 2.º A y 1.º B vs 2.º B). Club Norte tiene Norte Azul y Norte Blanco.
+
+| Si los ponemos… | En grupos | En la eliminación |
+|---|---|---|
+| En la misma serie (los dos en A) | No se enfrentan | Si salen 1.º y 2.º de A, **se enfrentan en la semi de Oro** y uno queda eliminado |
+| En series distintas (uno en A y otro en B) | **Se enfrentan una vez** | Por Oro, como mucho se cruzan en la final |
+
+**Ejemplo con 8 equipos** (series A y B de 4, todos contra todos dentro de cada serie; semis de Oro 1.º A vs 2.º B y 1.º B vs 2.º A; semis de Plata 3.º A vs 4.º B y 3.º B vs 4.º A).
+
+| Si los ponemos… | En grupos | En la eliminación |
+|---|---|---|
+| En series distintas (como hoy) | No se enfrentan | Si uno sale 1.º de A y el otro 2.º de B, **se enfrentan en la semi de Oro**. Lo mismo en la semi de Plata |
+| En la misma serie | **Se enfrentan una vez** | Como mucho se cruzan en la final, de Oro o de Plata |
+
+**Con 3 a 5 equipos** hay un solo grupo y se enfrentan siempre. Hoy ese partido va en la **fecha 1**, para que nadie arregle un resultado al final del grupo. ¿Lo dejamos en la fecha 1, o lo pasamos a la última fecha?
+
+**Preguntas:**
+1. ¿Qué prefieren: a) que **como mucho se crucen en la final**, aunque se enfrenten una vez en grupos; o b) que **no se enfrenten en grupos**, aunque puedan eliminarse en una semi?
+2. Con 3 a 5 equipos, ¿el partido entre ellos va en la fecha 1 o en la última?
+
+**Si no se responde:** 1) a, como mucho se cruzan en la final; 2) en la fecha 1.
+
+**Otras cosas de la convocatoria 2026** (el PDF está en `docs/` y no entra al repo):
+- Coincide con la plantilla `datos/config/jmp_cup_2026.json`: fechas, categorías, niveles, planteles, horarios, cierre de la planilla, documentos, cuerpo técnico, copas y mejor jugador.
+- La fecha suspendida se repone el jueves: la regla "Día para reprogramar" se queda.
+- "Se respetará la programación del torneo ACF y no se atenderán requerimientos particulares": al reprogramar, los motivos son la ACF, la suspensión y la decisión de la organización (T13.15).
+- La inscripción cuesta Bs 1.200 (Sub 8 a Sub 17) y Bs 1.100 (Sub 5 a Sub 7). La app solo marca "pagado".
 
 ## Ya respondidas
 
