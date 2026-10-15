@@ -6,6 +6,7 @@
 {% block contenido %}
 <div class="seccion gap-3">
   {% if piezas %}
+  {% if borrador %}{% include "parciales/alerta.html" with estado="info" titulo="Borrador." texto="La página pública está apagada: este calendario todavía puede cambiar. La imagen sale igual, sin sello." %}{% endif %}
   <p class="peq tenue">Una imagen por cancha; si no entran todos los partidos, la cancha va en dos o más. Desde el celular se comparten por WhatsApp; en la PC se descargan.</p>
   <button type="button" class="btn principal bloque" data-exportar-todas=".pieza" data-estado="estado-png">Compartir todas</button>
   <p id="estado-png" class="peq tenue" role="status" aria-live="polite"></p>

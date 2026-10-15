@@ -61,12 +61,14 @@ def test_con_la_pagina_publica_apagada_el_calendario_y_el_png_dicen_borrador(
     dia = dia_con_partidos()
     assert not torneo.publico
     assert "Borrador" in org.get(f"/calendario/{dia}/").content.decode()
-    assert "BORRADOR" in org.get(f"/calendario/{dia}/png/").content.decode()
+    png = org.get(f"/calendario/{dia}/png/").content.decode()
+    # T13.13: la imagen ya no lleva el sello; la pantalla lo avisa afuera de la pieza.
+    assert "Borrador" in png and "BORRADOR" not in png and "pieza-borrador" not in png
 
     torneo.publico = True
     torneo.save()
     assert "Borrador" not in org.get(f"/calendario/{dia}/").content.decode()
-    assert "BORRADOR" not in org.get(f"/calendario/{dia}/png/").content.decode()
+    assert "Borrador" not in org.get(f"/calendario/{dia}/png/").content.decode()
 
 
 # ---------- Fixture desactualizado ----------
