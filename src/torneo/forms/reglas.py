@@ -3,12 +3,15 @@
 Agregar una regla al dominio la agrega acá y en la pantalla, sin tocar la plantilla.
 """
 
+from datetime import date
 from typing import Any
 
 from django import forms
+from django.utils import timezone
 from pydantic import ValidationError
 
 from dominio.config import DescripcionRegla, Reglas, describir_reglas
+from torneo.models import Franja, Torneo
 
 
 class ParDeNumeros(forms.MultiValueField):
@@ -56,8 +59,42 @@ def _campo(descripcion: DescripcionRegla) -> forms.Field:
             return ParDeNumeros(**comunes)
 
 
+def _categorias(torneo: Torneo, actual: Any) -> list[tuple[int, str]]:
+    """T13.28: "Sub N" de las categorías del torneo (y el valor de hoy, aunque no esté)."""
+    edades = set(torneo.categorias.values_list("edad", flat=True))
+    if isinstance(actual, int):
+        edades.add(actual)
+    return [(edad, f"Sub {edad}") for edad in sorted(edades)]
+
+
+def _fines_de_semana(torneo: Torneo, actual: Any) -> list[tuple[int, str]]:
+    """T13.28: los fines de semana del torneo con sus fechas: "4.º: 14 y 15/11"."""
+    semanas: dict[tuple[int, int], list[date]] = {}
+    for franja in torneo.franjas.filter(tipo=Franja.Tipo.REGULAR):
+        dia = timezone.localtime(franja.inicio).date()
+        semanas.setdefault(dia.isocalendar()[:2], []).append(dia)
+    opciones = []
+    for numero, (_, dias) in enumerate(sorted(semanas.items()), start=1):
+        finde = sorted({d for d in dias if d.weekday() >= 5}) or sorted(set(dias))
+        nombres = [str(d.day) for d in finde]
+        texto = " y ".join([", ".join(nombres[:-1]), nombres[-1]] if len(nombres) > 1 else nombres)
+        opciones.append((numero, f"{numero}.º: {texto}/{finde[-1].month}"))
+    if isinstance(actual, int) and actual > len(opciones):
+        opciones.append((actual, f"{actual}.º (fuera del torneo)"))
+    return opciones
+
+
+LISTAS = {"doble_amarilla_desde": _categorias, "eliminacion_desde_fin_de_semana": _fines_de_semana}
+
+
 class FormularioReglas(forms.Form):
-    def __init__(self, *args: Any, modelo: type[Reglas] = Reglas, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        modelo: type[Reglas] = Reglas,
+        torneo: Torneo | None = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.modelo = modelo
         self.descripciones = describir_reglas(modelo)
@@ -65,6 +102,15 @@ class FormularioReglas(forms.Form):
             self.fields[descripcion.nombre] = _campo(descripcion)
             if descripcion.nombre not in self.initial:
                 self.initial[descripcion.nombre] = descripcion.defecto
+            # T13.28: con el torneo creado, estas se eligen de una lista.
+            if torneo is not None and descripcion.nombre in LISTAS:
+                opciones = LISTAS[descripcion.nombre](torneo, self.initial[descripcion.nombre])
+                self.fields[descripcion.nombre] = forms.TypedChoiceField(
+                    choices=opciones,
+                    coerce=int,
+                    label=descripcion.titulo,
+                    help_text=descripcion.ayuda,
+                )
 
     def clean(self) -> dict[str, Any]:
         datos = super().clean() or {}
