@@ -15,6 +15,7 @@ from torneo.servicios.reprogramar import (
     mover_a_mano,
 )
 from torneo.servicios.reprogramar import intercambiar as intercambiar_partidos
+from torneo.servicios.sugerencias import Sugerencia, horarios_libres
 
 
 @requiere("torneo.configurar_torneo", "mover partidos")
@@ -50,8 +51,26 @@ def mover(request: HttpRequest, pk: int) -> HttpResponse:
             "form": formulario,
             "motivos": motivos,
             "bloquea": bloquea,
+            "sugeridos": _sugeridos(partido) if not motivos else None,
         },
     )
+
+
+def _sugeridos(partido: Partido) -> dict[str, list[dict[str, str]]]:
+    """T13.17: los horarios libres, listos para el formulario de Mover."""
+    libres, con_avisos = horarios_libres(partido)
+
+    def fila(s: Sugerencia) -> dict[str, str]:
+        local = timezone.localtime(s.inicio)
+        return {
+            "dia": local.date().isoformat(),
+            "hora": f"{local:%H:%M}",
+            "cancha": s.cancha.codigo,
+            "texto": lugar(s.inicio, s.cancha.codigo),
+            "avisos": "; ".join(s.avisos),
+        }
+
+    return {"libres": [fila(s) for s in libres], "con_avisos": [fila(s) for s in con_avisos]}
 
 
 @requiere("torneo.configurar_torneo", "intercambiar partidos")

@@ -142,3 +142,20 @@ def test_t13_8_f11_entra_ampliando_c3_los_fines_de_semana_sin_jueves(settings: A
     assert corrida.resultado["choques"] == {}
     partidos = Partido.objects.filter(categoria__torneo=torneo).select_related("categoria")
     assert not [p for p in partidos if timezone.localtime(p.inicio).weekday() == 3]
+
+    # T13.17: los horarios libres sugeridos salen rápido aun con los 223 partidos.
+    import time as reloj
+
+    from torneo.servicios.sugerencias import horarios_libres
+
+    elegido = (
+        Partido.objects.filter(categoria__torneo=torneo, categoria__modalidad="F7")
+        .select_related("categoria__torneo", "cancha", "local", "visitante")
+        .order_by("inicio")
+        .first()
+    )
+    assert elegido is not None and elegido.inicio is not None
+    comienzo = reloj.monotonic()
+    libres, _ = horarios_libres(elegido, ahora=elegido.inicio - timedelta(days=1))
+    assert reloj.monotonic() - comienzo < 1.5, "los horarios sugeridos tardan demasiado"
+    assert libres
