@@ -43,6 +43,20 @@ def _fila(grupo: GrupoDeCanchas, con_extra: GrupoDeCanchas | None = None) -> dic
     }
 
 
+def en_palabras(grupo: GrupoDeCanchas, *, partidos: int, turno: int) -> str:
+    """T13.31: "C3: 14 partidos (16 h) de 88 h disponibles. Entran unos 60 partidos más de 70
+    min." `turno` es el más largo de las categorías del grupo."""
+    canchas = " y ".join(grupo.canchas) or "Sin canchas compatibles"
+    texto = (
+        f"{canchas}: {partidos} partido{'s' if partidos != 1 else ''} "
+        f"({_horas(grupo.pedido)} h) de {_horas(grupo.disponible)} h disponibles."
+    )
+    if grupo.entra and turno:
+        mas = (grupo.ubicable - grupo.pedido) // turno
+        texto += f" Entran unos {mas} partidos más de {turno} min."
+    return texto
+
+
 def minutos_por_dia(faltan: int, dias: int) -> int:
     """Lo que falta repartido en esos días, redondeado hacia arriba a la media hora."""
     por_dia = -(-faltan // dias)
@@ -146,6 +160,12 @@ def programar(request: HttpRequest, pk: int) -> HttpResponse:
     filas = [_fila(g, con_extra.get(g.canchas)) for g in capacidad.total]
     dias = len(dias_de_fin_de_semana(torneo))
     for fila, grupo in zip(filas, capacidad.total, strict=True):
+        de_las_categorias = [capacidad.partidos.get(c, (0, 0)) for c in grupo.categorias]
+        fila["en_palabras"] = en_palabras(
+            grupo,
+            partidos=sum(n for n, _ in de_las_categorias),
+            turno=max((t for _, t in de_las_categorias), default=0),
+        )
         if not fila["entra_con_extra"]:
             fila["sugerencia"] = sugerencia_para_que_entre(
                 con_extra.get(grupo.canchas, grupo), dias_de_fin_de_semana=dias
