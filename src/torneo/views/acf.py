@@ -10,7 +10,6 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from torneo.forms.bloqueo import FormularioBloqueo
-from torneo.forms.reprogramar import CamposAflojar
 from torneo.models import Bloqueo, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.bloqueos import partidos_que_chocan
@@ -78,7 +77,6 @@ def acf(request: HttpRequest, pk: int) -> HttpResponse:
         {
             "torneo": torneo,
             "form": formulario,
-            "aflojar": CamposAflojar(),
             "bloqueos": _bloqueos(torneo),
         },
     )

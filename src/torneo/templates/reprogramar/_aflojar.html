@@ -1,14 +1,14 @@
 {# B6: aflojar reglas solo para esta reprogramación. Usa form (con CamposAflojar). #}
 <details class="desplegable">
-  <summary>Aflojar reglas solo esta vez</summary>
+  <summary>Si ninguna propuesta te sirve: aflojar reglas solo esta vez</summary>
   <div class="flex flex-col gap-3">
-    <p class="peq tenue">Las reglas del torneo no cambian: esto vale solo para estas propuestas, y queda anotado.</p>
+    <p class="peq tenue">Las reglas del torneo no cambian: esto vale solo para estas propuestas, y queda anotado. Cambia solo lo que haga falta.</p>
     <div class="dos">
       {% include "parciales/campo.html" with campo=form.turnos_libres %}
       {% include "parciales/campo.html" with campo=form.max_por_dia %}
     </div>
     {% include "parciales/campo.html" with campo=form.minutos_extra %}
-    <label class="opcion">{{ form.orden_blando }} {{ form.orden_blando.label }}</label>
-    <label class="opcion">{{ form.usar_mitades }} {{ form.usar_mitades.label }}</label>
+    <label class="opcion">{{ form.orden_blando }} {{ form.orden_blando.label }} <span class="peq tenue">({{ form.orden_blando.help_text }})</span></label>
+    {% if form.usar_mitades %}<label class="opcion">{{ form.usar_mitades }} {{ form.usar_mitades.label }}{% if form.usar_mitades.help_text %} <span class="peq tenue">({{ form.usar_mitades.help_text }})</span>{% endif %}</label>{% endif %}
   </div>
 </details>
