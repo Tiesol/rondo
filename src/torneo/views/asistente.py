@@ -37,7 +37,11 @@ def _formulario(paso: int, datos: Any, respuestas: Respuestas) -> forms.Form:
         return FormularioNiveles(datos, niveles=niveles, initial={"niveles": elegidos})
     if paso == 3:
         franjas = respuestas.get("franjas", base["franjas"])
-        return FormularioFranjas(datos, initial=FormularioFranjas.iniciales(franjas))
+        return FormularioFranjas(
+            datos,
+            initial=FormularioFranjas.iniciales(franjas),
+            canchas=respuestas.get("canchas", base["canchas"]),
+        )
     return FormularioReglas(datos, initial=respuestas.get("reglas", base["reglas"]))
 
 
@@ -71,6 +75,8 @@ def asistente(request: HttpRequest, paso: int) -> HttpResponse:
         atras = request.POST.get("ir") == "atras"
         if formulario.is_valid():
             respuestas[CLAVES[paso]] = _respuesta(paso, formulario)
+            if isinstance(formulario, FormularioFranjas):  # T13.26
+                respuestas["canchas"] = formulario.canchas_respuesta()
             estado["hecho"] = max(estado["hecho"], paso)
             request.session[SESION] = estado
             if paso == len(PASOS) and not atras:

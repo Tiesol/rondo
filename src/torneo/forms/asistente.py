@@ -63,10 +63,31 @@ class FormularioNiveles(forms.Form):
 
 
 class FormularioFranjas(forms.Form):
-    """Un horario por día de la semana; los días apagados no tienen partidos."""
+    """Un horario por día de la semana; los días apagados no tienen partidos. T13.26: también
+    las canchas, cada una entera o partida en dos mitades, y cuántas se agregan."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    canchas_extra = forms.IntegerField(
+        required=False,
+        min_value=0,
+        max_value=5,
+        initial=0,
+        label="Canchas que se agregan",
+        help_text="Enteras. Para qué categorías sirven se elige después, en sus ajustes.",
+        widget=forms.NumberInput(attrs={"inputmode": "numeric"}),
+    )
+
+    def __init__(
+        self, *args: Any, canchas: list[dict[str, Any]] | None = None, **kwargs: Any
+    ) -> None:
         super().__init__(*args, **kwargs)
+        self.canchas = canchas or []
+        for cancha in self.canchas:
+            self.fields[f"partida_{cancha['codigo']}"] = forms.BooleanField(
+                required=False,
+                label="Partida en dos mitades",
+                widget=forms.CheckboxInput(attrs={"role": "switch", "class": "interruptor"}),
+            )
+            self.initial.setdefault(f"partida_{cancha['codigo']}", bool(cancha.get("mitades")))
         for dia in DIAS:
             self.fields[f"{dia}_activo"] = forms.BooleanField(
                 required=False,
@@ -113,6 +134,34 @@ class FormularioFranjas(forms.Form):
             }
             for dia in DIAS
         ]
+
+    @property
+    def filas_de_canchas(self) -> list[dict[str, Any]]:
+        return [
+            {"nombre": c["nombre"], "partida": self[f"partida_{c['codigo']}"]} for c in self.canchas
+        ]
+
+    def canchas_respuesta(self) -> list[dict[str, Any]]:
+        """Las canchas como van en la configuración: las de la plantilla, partidas o no, y las
+        que se agregan (C4, C5…)."""
+        datos = self.cleaned_data
+        canchas = [
+            {
+                "codigo": c["codigo"],
+                "nombre": c["nombre"],
+                "mitades": (
+                    [f"{c['codigo']}A", f"{c['codigo']}B"]
+                    if datos.get(f"partida_{c['codigo']}")
+                    else []
+                ),
+            }
+            for c in self.canchas
+        ]
+        numero = len(canchas)
+        for _ in range(datos.get("canchas_extra") or 0):
+            numero += 1
+            canchas.append({"codigo": f"C{numero}", "nombre": f"Cancha {numero}", "mitades": []})
+        return canchas
 
     def respuesta(self) -> dict[str, list[str]]:
         datos = self.cleaned_data

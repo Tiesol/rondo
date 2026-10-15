@@ -87,6 +87,15 @@ def armar(base: dict[str, Any], respuestas: Respuestas) -> ConfigTorneo:
         }
     if (franjas := respuestas.get("franjas")) is not None:
         config["franjas"] = franjas
+    if (canchas := respuestas.get("canchas")) is not None:
+        # T13.26: si una cancha deja de estar partida, sus mitades salen de la compatibilidad.
+        config["canchas"] = canchas
+        existen = {c["codigo"] for c in canchas} | {m for c in canchas for m in c["mitades"]}
+        for clave in ("por_categoria", "por_modalidad"):
+            config["compatibilidad"][clave] = {
+                nombre: [codigo for codigo in codigos if codigo in existen]
+                for nombre, codigos in config["compatibilidad"].get(clave, {}).items()
+            }
     if (reglas := respuestas.get("reglas")) is not None:
         config["reglas"] = reglas
     return ConfigTorneo.model_validate(config)
