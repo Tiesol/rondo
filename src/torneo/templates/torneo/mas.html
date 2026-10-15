@@ -45,6 +45,7 @@
 <div class="seccion">
   <ul class="lista">
     {% if perms.torneo.configurar_torneo %}<li><a class="fila" href="{% url 'clubes' %}"><span class="crece"><strong>Clubes</strong><span class="sub">Nombres, escudos y repetidos</span></span>{% include "parciales/icono.html" with nombre="chevron" clase="ico" %}</a></li>{% endif %}
+    {% if activo %}<li><a class="fila" href="{% url 'copas' activo.pk %}"><span class="crece"><strong>Copas por club</strong><span class="sub">Campeones y subcampeones de Oro y de Plata</span></span>{% include "parciales/icono.html" with nombre="chevron" clase="ico" %}</a></li>{% endif %}
     {% if perms.torneo.cargar_resultados %}<li><a class="fila" href="{% url 'historial' %}"><span class="crece"><strong>Historial</strong><span class="sub">Quién cambió qué y cuándo</span></span>{% include "parciales/icono.html" with nombre="chevron" clase="ico" %}</a></li>{% endif %}
   </ul>
 </div>

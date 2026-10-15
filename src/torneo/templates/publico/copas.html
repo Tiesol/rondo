@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Copas por club · {{ torneo.nombre }}{% endblock %}
+{# Sin avisos de sesión ni token: se guarda en una caché compartida (revisión de la fase 8). #}
+{% block avisos %}{% endblock %}
+{% block atributos_body %}{% endblock %}
+{% block cuerpo %}
+<div class="app publica">
+  <div class="cuerpo">
+    <header class="pub-cab">
+      <div class="flex items-center gap-3">
+        <a class="icono-btn" href="{% url 'publico' torneo.pk %}" aria-label="Volver al torneo">{% include "parciales/icono.html" with nombre="volver" %}</a>
+        <div class="min-w-0"><h1>{{ torneo.nombre }}</h1><p class="meta">{{ fechas }}</p></div>
+      </div>
+    </header>
+    <main id="contenido"><div class="seccion">{% include "parciales/seccion_cab.html" with titulo="Copas por club" %}{% include "torneo/_copas.html" %}</div>{% include "publico/_patrocinadores.html" %}</main>
+  </div>
+</div>
+{% endblock %}

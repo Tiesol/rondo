@@ -60,7 +60,12 @@ def mas(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "torneo/mas.html",
-        {"personas": personas, "torneos": torneos, "cambios": cambios},
+        {
+            "personas": personas,
+            "torneos": torneos,
+            "cambios": cambios,
+            "activo": Torneo.activo(),
+        },
     )
 
 

@@ -12,7 +12,7 @@
   {% include "parciales/pestanas.html" with etiqueta="Secciones" htmx_destino="publico" %}
   <div class="seccion">
     {% if pestana == "partidos" %}
-    <p class="peq"><a href="{% url 'publico-hoy' torneo.pk %}">Ver los partidos de hoy de todas las categorías</a></p>
+    <p class="peq"><a href="{% url 'publico-hoy' torneo.pk %}">Ver los partidos de hoy de todas las categorías</a> · <a href="{% url 'publico-copas' torneo.pk %}">Copas por club</a></p>
     {% for grupo in partidos %}
     {% include "parciales/seccion_cab.html" with titulo=grupo.titulo %}
     {% include "publico/_partidos.html" with partidos=grupo.partidos %}

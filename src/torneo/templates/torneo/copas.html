@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Copas por club{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'mas' %}" aria-label="Volver a Más">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Copas por club{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo=torneo.nombre %}
+  {% include "torneo/_copas.html" %}
+</div>
+{% endblock %}

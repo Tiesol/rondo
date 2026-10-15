@@ -16,6 +16,7 @@ PUBLICAS = {
     "publico",
     "publico-categoria",
     "publico-hoy",
+    "publico-copas",  # T13.24: copas por club, sin datos de personas
     "publico-partido",
     "publico-equipo",
     "manifest",

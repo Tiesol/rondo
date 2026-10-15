@@ -16,6 +16,7 @@ from django.views.decorators.vary import vary_on_headers
 from dominio.config import Reglas
 from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 from torneo.presentacion import escudo, fechas_del_torneo, resumen_de_categoria
+from torneo.servicios.copas import copas_por_club
 from torneo.servicios.partido import cerrar_olvidados
 from torneo.servicios.publico import (
     ficha_publica,
@@ -171,3 +172,16 @@ def equipo(request: HttpRequest, pk: int, equipo: int) -> HttpResponse:
         "patrocinadores": patrocinadores_de(torneo),
     }
     return render(request, "publico/equipo.html", contexto)
+
+
+@_publica
+def copas(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.24 (P30): las copas por club, sin datos de personas."""
+    torneo = _torneo_publico(pk)
+    contexto = {
+        "torneo": torneo,
+        "fechas": fechas_del_torneo(torneo),
+        "filas": copas_por_club(torneo),
+        "patrocinadores": patrocinadores_de(torneo),
+    }
+    return render(request, "publico/copas.html", contexto)

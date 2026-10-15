@@ -1,0 +1,20 @@
+{# T13.24 (P30): las copas por club. Sin datos de personas: lo usa también la página pública. #}
+{% if filas %}
+<ul class="lista">
+  {% for fila in filas %}
+  <li class="fila">
+    <span class="crece">
+      <strong>{{ fila.club }}</strong>
+      {% if fila.oro %}<span class="sub">Copa de Oro ({{ fila.oro|length }}): {{ fila.oro|join:", " }}</span>{% endif %}
+      {% if fila.plata %}<span class="sub">Copa de Plata ({{ fila.plata|length }}): {{ fila.plata|join:", " }}</span>{% endif %}
+      {% if fila.subcampeon_oro %}<span class="sub">Subcampeón de Oro: {{ fila.subcampeon_oro|join:", " }}</span>{% endif %}
+      {% if fila.subcampeon_plata %}<span class="sub">Subcampeón de Plata: {{ fila.subcampeon_plata|join:", " }}</span>{% endif %}
+    </span>
+    <span class="num">{{ fila.oro|length }} · {{ fila.plata|length }}</span>
+  </li>
+  {% endfor %}
+</ul>
+<p class="peq tenue">Los números son Copas de Oro · Copas de Plata. Salen de las finales jugadas.</p>
+{% else %}
+{% include "parciales/vacio.html" with icono="posiciones" titulo="Todavía no hay finales jugadas" texto="Aparecen acá cuando se juegue la primera final." %}
+{% endif %}
