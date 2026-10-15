@@ -7,11 +7,20 @@ from django.db.models import Count, Q, QuerySet
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from torneo.forms.equipo import FormularioEquipo
 from torneo.models import CategoriaNivel, Equipo
 from torneo.permisos import requiere
 from torneo.presentacion import escudo
+from torneo.servicios.clubes import NoSePuede
+from torneo.servicios.equipos import (
+    borrar_equipo,
+    cambiar_equipo,
+    jugados_de,
+    resumen_para_borrar,
+)
+from torneo.views.confirmar import confirmado, pedir_confirmacion
 
 SECCIONES = {"plantel": "Plantel", "cuerpo-tecnico": "Cuerpo técnico"}
 
@@ -93,5 +102,68 @@ def equipo(request: HttpRequest, pk: int, seccion: str) -> HttpResponse:
             for clave, texto in SECCIONES.items()
         ],
         "volver": reverse("categoria", args=[categoria.pk, "equipos"]),
+        "tiene_jugados": jugados_de(actual).exists(),
     }
     return render(request, "equipos/ficha.html", contexto)
+
+
+@requiere("torneo.configurar_torneo", "corregir un equipo")
+def editar(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.3: club, categoría, nombre y colores de un equipo mal cargado."""
+    actual = get_object_or_404(Equipo.objects.select_related("categoria__torneo"), pk=pk)
+    formulario = FormularioEquipo(
+        request.POST or None, instance=actual, torneo=actual.categoria.torneo
+    )
+    if request.method == "POST" and formulario.is_valid():
+        datos = formulario.cleaned_data
+        try:
+            # El formulario ya le puso los datos nuevos a `actual`: se compara con lo guardado.
+            cambiar_equipo(
+                Equipo.objects.get(pk=actual.pk),
+                club=datos["club"],
+                categoria=datos["categoria"],
+                nombre=datos["nombre"],
+            )
+        except NoSePuede as error:
+            formulario.add_error(None, str(error))
+        else:
+            Equipo.objects.filter(pk=actual.pk).update(
+                color_1=datos["color_1"], color_2=datos["color_2"]
+            )
+            messages.success(request, "Equipo guardado")
+            return redirect("equipo", pk=actual.pk, seccion="plantel")
+    return render(
+        request,
+        "equipos/editar.html",
+        {
+            "form": formulario,
+            "equipo": actual,
+            "tiene_jugados": jugados_de(actual).exists(),
+            "volver": reverse("equipo", args=[actual.pk, "plantel"]),
+        },
+    )
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "borrar equipos")
+def borrar(request: HttpRequest, pk: int) -> HttpResponse:
+    actual = get_object_or_404(Equipo.objects.select_related("categoria"), pk=pk)
+    categoria = actual.categoria
+    ficha = reverse("equipo", args=[actual.pk, "plantel"])
+    if not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=f"Se borra {actual.nombre} de {categoria}.",
+            detalle=resumen_para_borrar(actual),
+            boton="Borrar el equipo",
+            volver=ficha,
+            peligro=True,
+        )
+    nombre = actual.nombre
+    try:
+        borrar_equipo(actual)
+    except NoSePuede as error:
+        messages.error(request, str(error))
+        return redirect(ficha)
+    messages.success(request, f"{nombre} borrado de {categoria}")
+    return redirect("categoria", pk=categoria.pk, pestana="equipos")

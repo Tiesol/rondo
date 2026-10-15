@@ -95,11 +95,11 @@ def unir_clubes(repetido: Club, destino: Club) -> list[str]:
     )
     destino.save(update_fields=["alias"])
     repetido.delete()
-    _borrar_si_nadie_los_usa(sobrantes)
+    borrar_si_nadie_los_usa(sobrantes)
     return unidos
 
 
-def _borrar_si_nadie_los_usa(archivos: list[str]) -> None:
+def borrar_si_nadie_los_usa(archivos: list[str]) -> None:
     """Borra, al confirmar, los escudos que ya no usa ningún equipo (pueden estar compartidos)."""
     libres = [a for a in archivos if not EquipoDeClub.objects.filter(escudo=a).exists()]
     if libres:
@@ -110,3 +110,19 @@ def _borrar_si_nadie_los_usa(archivos: list[str]) -> None:
                 storage.delete(archivo)
 
         transaction.on_commit(borrar)
+
+
+@transaction.atomic
+def borrar_club(club: Club) -> None:
+    """T13.3: solo si no tiene equipos en ningún torneo. Sus equipos del club sin categorías se
+    borran con él."""
+    equipos = list(club.equipos.select_related("categoria__torneo")[:3])
+    if equipos:
+        donde = ", ".join(f"{e.nombre} en {e.categoria}" for e in equipos)
+        raise NoSePuede(
+            f"{club} tiene equipos inscritos ({donde}): bórralos o pásalos a otro club antes."
+        )
+    escudos = [d.escudo.name for d in club.equipos_del_club.all() if d.escudo.name]
+    club.equipos_del_club.all().delete()
+    club.delete()
+    borrar_si_nadie_los_usa(escudos)

@@ -52,6 +52,13 @@
 </div>
 {% endif %}
 
+{% if perms.torneo.configurar_torneo and not equipos %}
+<form method="post" action="{% url 'borrar-club' club.pk %}" class="seccion">
+  {% csrf_token %}
+  <button type="submit" class="btn peligro">Borrar el club</button>
+</form>
+{% endif %}
+
 {% if otros %}
 <details class="seccion desplegable">
   <summary>¿Está repetido? Unirlo con otro club</summary>
