@@ -9,7 +9,7 @@ from django.utils import timezone
 from dominio.hoy import EnCancha, atrasos, sin_iniciar
 from torneo.models import Equipo, Partido, Torneo
 from torneo.presentacion import escudo
-from torneo.servicios.partido import fin_esperado, minuto_actual, resultado_de
+from torneo.servicios.partido import fin_esperado, minuto_actual, olvidado_desde, resultado_de
 
 
 def _lado(equipo: Equipo | None, texto: str) -> dict[str, Any]:
@@ -27,6 +27,8 @@ def estado(partido: Partido, ahora: datetime) -> tuple[str, str]:
             return "Cerrado solo", "aviso"
         return "Terminado", "bien"
     if partido.estado == Partido.Estado.EN_JUEGO:
+        if fin := olvidado_desde(partido, ahora):  # T13.11
+            return f"Sigue abierto (terminaba {timezone.localtime(fin):%H:%M})", "error"
         minuto = minuto_actual(partido)
         match partido.tiempo:
             case Partido.Tiempo.DESCANSO:

@@ -235,6 +235,11 @@ def _contexto(partido: Partido, abrir: int | None = None) -> dict[str, Any]:
         "hora": timezone.localtime(partido.inicio).strftime("%H:%M") if partido.inicio else "",
         "historial": historial(partido=partido),
         "dia_suspendido": _dia_suspendido(partido),
+        "olvidado": (
+            timezone.localtime(fin).strftime("%H:%M")
+            if (fin := servicio.olvidado_desde(partido))
+            else ""
+        ),
         "horas": [
             {
                 "campo": campo,

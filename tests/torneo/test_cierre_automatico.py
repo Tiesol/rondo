@@ -1,5 +1,6 @@
-"""T11.12 (P82, respondida): un partido olvidado se cierra solo, contando desde el inicio real
-del 2.º tiempo. Datos inventados."""
+"""T11.12 (P82): un partido olvidado se cierra solo, contando desde el inicio real del 2.º
+tiempo. Desde T13.11 es una opción apagada por defecto ("no se cierra sola"): estos tests la
+prenden. Datos inventados."""
 
 from datetime import timedelta
 
@@ -22,6 +23,8 @@ from torneo.servicios.partido import cerrar_olvidados
 @pytest.fixture
 def partido() -> Partido:
     torneo: Torneo = cargar_configuracion(cargar_config(settings.PLANTILLA_TORNEO))
+    torneo.reglas = {**torneo.reglas, "cierre_automatico": True}
+    torneo.save()
     cn = torneo.categorias.get(categoria="Sub 9", nivel="avanzado")
     for i in range(4):
         Equipo.objects.create(
