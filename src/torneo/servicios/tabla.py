@@ -4,7 +4,7 @@ Cuenta solo los partidos de grupos terminados. El resultado de cada uno sale de 
 (dominio.partido); las tarjetas, del fair play. Pocas consultas: todo de una vez.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from django.db import transaction
@@ -73,21 +73,29 @@ def tablas_de(categoria: CategoriaNivel) -> list[TablaDeSerie]:
         (s.nombre, [e.pk for e in s.equipos.all()])
         for s in categoria.series.prefetch_related("equipos")
     ] or [("", list(todos))]
-    return [
-        TablaDeSerie(
-            nombre,
-            tabla(
-                pks,
-                jugados,
-                puntos=reglas.puntos_por_partido,
-                tarjetas=tarjetas,
-                sorteo=sorteo,
-                criterio=reglas.criterio_de_desempate,
-            ),
-            {pk: todos[pk] for pk in pks if pk in todos},
+    # T13.10: con partidos por jugar, los empatados están empatados; el sorteo se pide recién
+    # cuando la serie terminó.
+    por_jugar: set[Any] = set()
+    for local, visitante in (
+        categoria.partidos.filter(fase=Partido.Fase.GRUPOS)
+        .exclude(estado=Partido.Estado.JUGADO)
+        .values_list("local_id", "visitante_id")
+    ):
+        por_jugar |= {local, visitante}
+    tablas = []
+    for nombre, pks in series:
+        filas = tabla(
+            pks,
+            jugados,
+            puntos=reglas.puntos_por_partido,
+            tarjetas=tarjetas,
+            sorteo=sorteo,
+            criterio=reglas.criterio_de_desempate,
         )
-        for nombre, pks in series
-    ]
+        if por_jugar & set(pks):
+            filas = [replace(f, falta_sorteo=False) for f in filas]
+        tablas.append(TablaDeSerie(nombre, filas, {pk: todos[pk] for pk in pks if pk in todos}))
+    return tablas
 
 
 @transaction.atomic

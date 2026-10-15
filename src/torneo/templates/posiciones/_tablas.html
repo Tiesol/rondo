@@ -25,7 +25,7 @@ url_sorteo.
   </div>
   {% if url_sorteo and t.falta_sorteo %}
   <details class="desplegable">
-    <summary>Registrar el sorteo (P28)</summary>
+    <summary>Registrar el sorteo</summary>
     <form method="post" action="{{ url_sorteo }}" class="flex flex-col gap-2">
       {% csrf_token %}
       <p class="peq tenue">Siguen empatados después del fair play. Anota el lugar que salió para cada uno (1 es el mejor).</p>
