@@ -8,7 +8,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - **Siguiente paso (decidido por Sebastian el 2026-10-13):** hoy, la demo para que el hermano de Sebastian pruebe todo; hoy también, producción, para que la organización la use desde el 14/10. Datos reales solo en producción.
 - **Fase 11 terminada (2026-10-13, PR #119 a #135):** los cambios de `docs/RESPUESTAS_Y_CAMBIOS.md` y las respuestas P78, P80 y P82 (T11.1 a T11.16). Falta la revisión de cierre de fase (`code-review-and-quality`) y la prueba de Sebastian en la demo. Siguen sin respuesta P79, P81, P83, P84, P85 y P86 (con su valor por defecto).
 - **Producción arriba y prueba de Sebastian (2026-10-14 y 15):** `rondo-produccion` en Render (por ahora Free; pasar a 1 CPU antes de programar el torneo real), Neon `rondo-produccion` y R2 `rondo-production`. Todo lo que salió de la prueba, las respuestas nuevas del organizador (convocatoria 2026 y audio: P77, P78, P79, P82, P83, P84, P85, P24 y Copa Rotativa) y las preguntas nuevas P87 está en **[PENDIENTES_PRODUCCION.md](PENDIENTES_PRODUCCION.md)**. Las respuestas ya están en `docs/PREGUNTAS_JMP_CUP_2026.md` (Parte 5). Siguen abiertas P86 ("formato más corto"), P81, P87 y P90 (mismo club, urgente), y hay que confirmar detalles de P79, P84, P85 y P13/P63.
-- **Fase 13 planificada (2026-10-15), esperando el visto bueno de Sebastian:** `tasks/todo.md`, T13.1 a T13.31. Meta: usar Rondo desde el 24/10 (P77). Orden: A, antes de cargar datos reales (escudo por equipo, borrar o retirar equipos, roles; 17/10); B, fallos (lo del fixture para el 20/10 y lo del día de partido para el 22/10); C, funciones para durante el torneo; D, diseño y textos. **Siguiente paso: T13.1.**
+- **Fase 13 planificada (2026-10-15), esperando el visto bueno de Sebastian:** `tasks/todo.md`, T13.1 a T13.31. Meta: usar Rondo desde el 24/10 (P77). Orden: A, antes de cargar datos reales (escudo por equipo, borrar o retirar equipos, roles; 17/10); B, fallos (lo del fixture para el 20/10 y lo del día de partido para el 22/10); C, funciones para durante el torneo; D, diseño y textos. **Bloque A terminado el 2026-10-15 (PR #140 a #144)**, revisado y verificado (checkpoint A, salvo el despliegue): falta que Sebastian apruebe desplegar a producción. Siguiente: bloque B.
 - **Fase 12 terminada (2026-10-14):** bloques A, B y C de `docs/PEDIDO_FASE_12.md` (PR #137 y siguientes). Falta la prueba de Sebastian en la demo: sobre todo B1, B2, B5 y C1 a C3 desde el celular.
 
 ## Para retomar (actualizado el 2026-10-13, al cerrar el chat largo)
@@ -197,6 +197,7 @@ Lo que el .md pide contra lo que hay en `main` después de la fase 10:
   - También: los campos de fecha mandaban "29/10/2026" a un `<input type="date">`, que lo ignora (el valor inicial no se veía): ahora van como 2026-10-29, en todos los formularios.
 - 2026-10-14: A4 afinado tras la prueba lenta. Con solo la penalización, el solver a veces mandaba un F7 al jueves (no llegaba al óptimo en el tiempo dado). Ahora es determinista: si "¿Entra todo?" dice que un grupo de canchas entra en el horario normal (C1 y C2), sus categorías no pueden usar el tiempo agregado (`PartidoAProgramar.sin_extra`); las del grupo que no entra (C3) sí, con la penalización. Si todo entra, no se restringe nada. Se probaron y descartaron dos variantes en dos fases (sin y con tiempo agregado): con el tiempo repartido, la primera no ubicaba todo C1 y C2, o quedaban F11 sin lugar. Demo con jueves: 223 de 223 y los jueves solo con F11. También: los tests deben correr de a uno por base (dos corridas a la vez sobre `test_rondo` se rompen entre sí).
 - 2026-10-15: respuestas del organizador (convocatoria 2026 y audio) y P88 y P89 pasadas a `docs/PREGUNTAS_JMP_CUP_2026.md` (Parte 5, y la columna de respuesta de P24, P30, P68 y P77). Fase 13 planificada con `planning-and-task-breakdown` a partir de `docs/PENDIENTES_PRODUCCION.md` (T13.1 a T13.31 en `tasks/todo.md`).
+- 2026-10-15: bloque A de la fase 13. T13.1 y T13.2: escudo por equipo del club (`EquipoDeClub`, migraciones 0034 a 0036 que copian el escudo antes de quitarlo), pendiente "N equipos sin escudo" y su lista. T13.3: borrar club y equipo, y corregir uno mal cargado. T13.4: retirar un equipo (P87 por defecto, migración 0037). T13.5: roles Organización y Mesa (P85), con una matriz de permisos que recorre todas las rutas. Revisión de cierre de las fases 11, 12 y del bloque A: `wo()` ya no pisa un partido empezado.
 
 ## Pendiente
 
@@ -627,6 +628,18 @@ Cada uno tiene su test en `tests/torneo/test_revision_2.py`.
 - **Consider (anotado):** la capacidad que se muestra antes de programar sigue contando hasta el fin de la franja, aunque la regla sea "último inicio": queda conservadora.
 - **Consider:** juntar a los equipos de un mismo club el mismo día (preferencia de la respuesta 1.4.8) no está.
 - **Para Sebastian:** P44 (inscribir un equipo durante las primeras fechas choca con FIX-09), P75 (la galería de fotos de partidos, que el pedido había descartado), P78 y P79 (plantel de F11 en Sub 10 y Sub 11; cómo dar más tiempo a la cancha 3), y si se saca "fijar a mano" al mover un partido ("no existen partidos fijados a mano").
+
+## Revisión de las fases 11 y 12 y del bloque A de la fase 13 (2026-10-15, `code-review-and-quality`)
+
+Antes del checkpoint A, porque todo eso va a producción. Unas 5.600 líneas en `src` desde el PR #118. Se miró a fondo lo que se usa en la cancha (ficha del partido, planilla, alta rápida, W.O.), lo que borra o mueve datos (borrar y retirar equipos, unir clubes, migraciones del escudo), los permisos y lo que sale en la página pública.
+
+- **Corregido:** `wo()` no impedía dar un W.O. a un partido empezado o terminado. La ficha esconde el botón, pero una pestaña vieja o un doble toque lo pisaban (con sus goles). Ahora lo rechaza, con tests.
+- **Corregido (Nit):** los números mal escritos en la ficha (minuto, partidos de suspensión) decían "Los penales son números".
+- **Corregido (Nit):** "Corregir equipo" aclara que el nombre cambia solo en esa categoría y que, para todas, se usa la pantalla del club.
+- **Bien:** la ficha valida que el equipo y el jugador sean del partido en cada acción; la página pública no lee CI, nacimiento, lesiones ni amonestaciones, y la foto sale solo con autorización; las acciones que borran piden "¿Estás seguro?"; las migraciones del escudo copian antes de quitar y tienen un test con `MigrationExecutor`; la matriz de permisos cubre todas las rutas.
+- **FYI:** `jugados_de` mira también `no_se_presento`, aunque hoy un W.O. siempre deja el partido como jugado: es redundante a propósito.
+- **Para después (no bloquea):** `servicios/reprogramar.py` (629 líneas) y `views/ficha_partido.py` (474) pasan el tamaño sano de un módulo. Partirlos (propuestas por un lado, aplicar y deshacer por otro; acciones de la ficha en un despachador aparte) conviene antes de T13.18, que toca las propuestas.
+- **Sin revisar línea por línea:** el modelo del programador (`dominio/programador/modelo.py`, A1 a A4). Lo cubren los tests lentos con el calendario 2026 (223 de 223).
 
 ## Supuestos
 

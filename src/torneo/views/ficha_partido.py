@@ -320,7 +320,7 @@ def _numero(texto: str) -> int:
     try:
         return max(0, int(texto))
     except ValueError:
-        raise NoSePuede("Los penales son números.") from None
+        raise NoSePuede("Escribe un número.") from None
 
 
 class Reprogramado(Exception):

@@ -1513,7 +1513,7 @@ T11.16 (al final)
 
 > **Si el bloque A no está el 17/10, avisarle a Sebastian:** la organización tiene que cargar unos 1.700 jugadores antes del 21/10 a las 12:00, y puede que tengan que empezar antes, confiando en que las migraciones copian los datos.
 
-- [ ] **T13.1 Escudo por equipo: modelo y migración (P68, P88 y P89).**
+- [x] **T13.1 Escudo por equipo: modelo y migración (P68, P88 y P89).**
   - Modelo nuevo `EquipoDeClub` (club, nombre, escudo), único por club y nombre sin distinguir mayúsculas, sin límite por club. `Equipo` (un equipo en una categoría) apunta a él (`PROTECT`). El escudo se sube una vez y vale en todas las categorías del equipo.
   - Migración en tres pasos (crear, copiar, quitar): crea un `EquipoDeClub` por cada club + nombre que ya existe, le copia el escudo de su club y recién después quita `Club.escudo`.
   - `presentacion.escudo()`, la caché de escudos y la ruta `/imagen/escudo/<id>/` pasan a ser por `EquipoDeClub`. Con eso, ficha, fixture, Hoy, la página pública y el PNG toman el escudo del equipo sin más cambios.
@@ -1523,14 +1523,14 @@ T11.16 (al final)
   - *Aceptación:* dos equipos del mismo club con escudos distintos; un equipo en tres categorías con un solo escudo; la migración conserva el escudo que tenía cada club.
   - *Verificación:* tests de modelo, de la migración (con `MigrationExecutor`) y de `presentacion.escudo()`; `makemigrations --check`.
   - *Archivos:* `models/inscripcion.py`, migración 0034, `presentacion.py`, `servicios/imagenes.py`, `views/imagenes.py`, `servicios/clubes.py`, `servicios/demo.py`. *Tamaño:* M-L. *Depende de:* nada.
-- [ ] **T13.2 Escudo por equipo: dónde se sube y el pendiente.**
+- [x] **T13.2 Escudo por equipo: dónde se sube y el pendiente.**
   - "Escudo de <equipo>" en la ficha del equipo. La pantalla del club lista sus equipos, cada uno con su escudo y "Subir".
   - Inicio muestra siempre "N equipos sin escudo" mientras falte alguno. Al tocarlo, la lista con el enlace para subir cada uno. No bloquea nada (P88).
   - Unir clubes mueve los equipos del club y sus escudos. Si quedan dos con el mismo nombre, avisa y los une (los `Equipo` de cada categoría siguen siendo distintos).
   - *Aceptación:* subir desde la ficha cambia el escudo en todas las categorías del equipo; el pendiente aparece y desaparece al subir el último; unir clubes conserva los escudos.
   - *Verificación:* tests de vistas (ficha, club, Inicio), de `unir_clubes` y del PNG con el escudo del equipo; captura a 360 px de la ficha y del club.
   - *Archivos:* `views/equipos.py`, `views/clubes.py`, `servicios/clubes.py`, `servicios/pendientes.py` y sus plantillas. *Tamaño:* M. *Depende de:* T13.1.
-- [ ] **T13.3 Borrar un club y borrar un equipo (sin partidos jugados).**
+- [x] **T13.3 Borrar un club y borrar un equipo (sin partidos jugados).**
   - "Borrar club" solo si no tiene equipos en ningún torneo; si tiene, la app dice por qué no se puede.
   - "Borrar equipo" solo si no tiene partidos jugados (con resultado, W.O. o eventos). Borra su plantel y su cuerpo técnico en ese torneo, sus partidos sin jugar y sus bloqueos. Saca al equipo de su serie, y el fixture de la categoría queda desactualizado: el pendiente de Inicio lo dice.
   - Con el "¿Estás seguro?" de B7, que dice cuántos jugadores y partidos se borran. Solo la organización.
@@ -1538,7 +1538,7 @@ T11.16 (al final)
   - *Aceptación:* borrar un equipo con fixture y sin jugar deja la categoría "fixture desactualizado"; con un partido jugado, el botón no está y la ficha ofrece "Retirar" (T13.4).
   - *Verificación:* tests de servicio y de vista (permisos, confirmación, qué se borra y qué no).
   - *Archivos:* `servicios/clubes.py`, servicio nuevo `servicios/equipos.py`, `views/equipos.py`, `views/clubes.py` y sus plantillas. *Tamaño:* M. *Depende de:* T13.1, por el modelo.
-- [ ] **T13.4 Retirar un equipo del torneo (P87, por defecto).**
+- [x] **T13.4 Retirar un equipo del torneo (P87, por defecto).**
   - `Equipo.retirado_en` (migración aditiva). "Retirar del torneo", con confirmación.
   - Lo jugado cuenta, y lo que falta pasa a W.O. 3 a 0 para el rival con el `wo()` que ya existe, con historial.
   - El retirado no se programa, no aparece en Ubicar y figura "Retirado" en la tabla, el fixture y la página pública.
@@ -1546,7 +1546,7 @@ T11.16 (al final)
   - *Aceptación:* retirar un equipo con 2 jugados y 3 por jugar deja 3 W.O. y la tabla con sus 2 resultados.
   - *Verificación:* tests de servicio, de tabla y de vista. *Tamaño:* M. *Depende de:* T13.3.
   - **Puede pasar a después del 24/10:** el campo es aditivo y retirar recién se usa con el torneo empezado.
-- [ ] **T13.5 Roles: Organización y Mesa de control (P85).**
+- [x] **T13.5 Roles: Organización y Mesa de control (P85).**
   - Mesa: inscribir equipos, cargar y corregir listas (pegar, jugadores, cuerpo técnico, fotos, verificar CI), toda la ficha del partido (empezar, eventos, dorsales, alta rápida, W.O., terminar), Hoy, y ver todo lo demás.
   - Mesa no: reglas, fixture y series, programar, mover, intercambiar, reprogramar, bloqueos, suspender, borrar o retirar, publicar, clubes, escuela, patrocinadores ni personas.
   - Una tabla de vista → permiso, con un test parametrizado que la recorre entera con un usuario de cada rol.
@@ -1558,9 +1558,9 @@ T11.16 (al final)
 
 **Checkpoint A** (antes de vaciar producción y crear el torneo real):
 
-- [ ] Revisión de cierre (`code-review-and-quality`) de las fases 11 y 12 y del bloque A, porque todo eso va a producción.
-- [ ] Verde, más `pytest -m lento`.
-- [ ] `docker build` y la imagen con `DEBUG=false` migran hasta la última.
+- [x] Revisión de cierre (`code-review-and-quality`) de las fases 11 y 12 y del bloque A, porque todo eso va a producción (PROGRESO, 2026-10-15).
+- [x] Verde, más `pytest -m lento` (1127 rápidos y 3 lentos, 2026-10-15).
+- [x] `docker build` y la imagen con `DEBUG=false` migran hasta la última (0037, sobre una base vacía).
 - [ ] Sebastian aprueba desplegar a producción. Después, él sigue con "Vaciar la base" y "Crear el torneo real" de PENDIENTES_PRODUCCION §1.
 
 ### Bloque B: fallos de la prueba
