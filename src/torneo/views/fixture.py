@@ -43,7 +43,11 @@ COPAS = {"oro": "Copa de Oro", "plata": "Copa de Plata", "bronce": "Bronce"}
 def lado(equipo: Equipo | None, texto: str) -> dict[str, Any]:
     if equipo is None:
         return {"nombre": texto, "escudo": None}
-    return {"nombre": equipo.nombre, "escudo": escudo(equipo)}
+    return {
+        "nombre": equipo.nombre,
+        "escudo": escudo(equipo),
+        "retirado": equipo.retirado_en is not None,  # T13.4
+    }
 
 
 def _cuando(partido: Partido) -> dict[str, str]:

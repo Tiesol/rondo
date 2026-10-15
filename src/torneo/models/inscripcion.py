@@ -91,6 +91,8 @@ class Equipo(models.Model):
     color_1 = models.CharField("color 1", max_length=7, blank=True, validators=[_HEX])
     color_2 = models.CharField("color 2", max_length=7, blank=True, validators=[_HEX])
     pagado = models.BooleanField(default=False)
+    # T13.4 (P87): se bajó con el torneo empezado. Lo jugado cuenta; lo que faltaba, W.O.
+    retirado_en = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["categoria", "nombre"]

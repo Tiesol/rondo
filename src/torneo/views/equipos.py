@@ -19,6 +19,8 @@ from torneo.servicios.equipos import (
     cambiar_equipo,
     jugados_de,
     resumen_para_borrar,
+    resumen_para_retirar,
+    retirar_equipo,
 )
 from torneo.views.confirmar import confirmado, pedir_confirmacion
 
@@ -167,3 +169,27 @@ def borrar(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect(ficha)
     messages.success(request, f"{nombre} borrado de {categoria}")
     return redirect("categoria", pk=categoria.pk, pestana="equipos")
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "retirar equipos")
+def retirar(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.4 (P87): el equipo se baja con el torneo empezado."""
+    actual = get_object_or_404(Equipo.objects.select_related("categoria"), pk=pk)
+    ficha = reverse("equipo", args=[actual.pk, "plantel"])
+    if not confirmado(request):
+        return pedir_confirmacion(
+            request,
+            mensaje=f"Se retira {actual.nombre} de {actual.categoria}.",
+            detalle=resumen_para_retirar(actual),
+            boton="Retirar del torneo",
+            volver=ficha,
+            peligro=True,
+        )
+    try:
+        cuantos = retirar_equipo(actual, request.user)
+    except NoSePuede as error:
+        messages.error(request, str(error))
+    else:
+        messages.success(request, f"{actual.nombre} retirado: {cuantos} partidos pasaron a W.O.")
+    return redirect(ficha)

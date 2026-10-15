@@ -9,6 +9,7 @@
     <div class="min-w-0">
       <h2>{{ equipo.nombre }}</h2>
       <p class="peq tenue">{{ categoria }} · {{ equipo.club }}</p>
+      {% if equipo.retirado_en %}<span class="chip aviso">Retirado</span>{% endif %}
     </div>
   </div>
   {% if perms.torneo.configurar_torneo %}
@@ -37,6 +38,13 @@
         {% csrf_token %}
         <button type="submit" class="btn peligro">Borrar el equipo</button>
       </form>
+      {% endif %}
+      {% if not equipo.retirado_en %}
+      <form method="post" action="{% url 'retirar-equipo' equipo.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn peligro">Retirar del torneo</button>
+      </form>
+      <p class="peq tenue">Si se baja con el torneo empezado: lo jugado cuenta y lo que falta es W.O. para el rival.</p>
       {% endif %}
     </div>
   </details>
