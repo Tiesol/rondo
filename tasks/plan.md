@@ -331,7 +331,7 @@ T8.5 → T8.6         │
 
 - [x] Bloque A, antes de cargar datos reales (17/10): T13.1 y T13.2 escudo por equipo, T13.3 borrar club y equipo, T13.4 retirar equipo, T13.5 roles
 - [ ] Checkpoint A: revisión de cierre de las fases 11, 12 y del bloque A; desplegar, vaciar producción y crear el torneo real. Si no está el 17/10, avisar a Sebastian (carga de 1.700 jugadores)
-- [ ] Bloque B, fallos. Para el fixture (20/10): T13.6 mismo club (espera P90), T13.7 categoría de 2, T13.8 F11 en C3, T13.9 pendientes, T13.10 sorteo. Para el día de partido (22/10): T13.11 cierre "Nunca", T13.12 alta hasta el 2.º tiempo, T13.13 PNG, T13.14 logo y favicon
+- [x] Bloque B, fallos (salvo T13.6, que espera P90). Para el fixture (20/10): T13.6 mismo club (espera P90), T13.7 categoría de 2, T13.8 F11 en C3, T13.9 pendientes, T13.10 sorteo. Para el día de partido (22/10): T13.11 cierre "Nunca", T13.12 alta hasta el 2.º tiempo, T13.13 PNG, T13.14 logo y favicon
 - [ ] Checkpoint B: recorrido como Organización y como Mesa, y despliegue
 - [ ] Bloque C, durante el torneo: T13.15 a T13.24 (reprogramar, bloqueos, horarios sugeridos, propuestas, fijar, editar cruces, copas por club)
 - [ ] Bloque D, diseño y textos: T13.25 a T13.31

@@ -1574,45 +1574,45 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Con un solo grupo (3 a 5) se sigue jugando en la fecha 1, para que no arreglen un resultado al final. También se pregunta en P90.
   - Cuando haya respuesta, o si el 20/10 sigue sin respuesta y Sebastian decide usar el valor por defecto: la regla en `dominio/fixture.py`, `dominio/config.py` y la plantilla, con tests de propiedad, `rehacer.py` y `pytest -m lento`.
   - El texto que explica las series cruzadas en el fixture va igual en T13.9.
-- [ ] **T13.7 Con 2 equipos la categoría no se abre (P86c).**
+- [x] **T13.7 Con 2 equipos la categoría no se abre (P86c).**
   - `formatos.json` deja de tener formato para 2. El fixture no se arma, y la pestaña Fixture y el pendiente de Inicio dicen "Con 2 equipos la categoría no se abre (convocatoria 2026)".
   - Con 3 sigue ida y vuelta hasta que se confirme el triangular (P86, seguimiento).
   - *Aceptación:* una categoría con 2 equipos no tiene fixture ni aparece como "sin fixture".
   - *Verificación:* tests de formatos y de pendientes. *Tamaño:* S. *Depende de:* nada.
-- [ ] **T13.8 F11 entra en la cancha 3 sin jueves (P79).**
+- [x] **T13.8 F11 entra en la cancha 3 sin jueves (P79).**
   - "¿Entra todo?" sugiere ampliar el horario de C3 el sábado y el domingo ("Agregar tiempo" solo para C3, antes de las 8 o después de las 16), no agregar jueves. Dice cuántas horas faltan.
   - Verificar que "Agregar tiempo" deja agregar antes del primer horario y solo para C3.
   - Los jueves quedan solo para suspensiones.
   - *Aceptación:* con la plantilla 2026 y 93 equipos de prueba, sumando el tiempo que sugiere la app, entra todo y no hay partidos en jueves.
   - *Verificación:* test de "¿Entra todo?" y `pytest -m lento` con el calendario 2026. *Tamaño:* S-M. *Depende de:* nada.
-- [ ] **T13.9 Pendientes de Inicio.**
+- [x] **T13.9 Pendientes de Inicio.**
   - Se saca "28 reglas esperan la respuesta del organizador".
   - Nuevo: "N partidos sin día ni hora → Programar". También en la pestaña Fixture, con el botón "Programar partidos".
   - En la pestaña Fixture, con series cruzadas: "Cada equipo de A juega con todos los de B. Semis de Oro: 1.º A vs 2.º A y 1.º B vs 2.º B" (lo que sale del formato).
   - *Aceptación:* con el fixture armado y sin programar aparece el pendiente nuevo, y nunca el de las reglas.
   - *Verificación:* tests de `servicios/pendientes.py` y de la pestaña. *Tamaño:* S. *Depende de:* nada.
-- [ ] **T13.10 Posiciones: sin "Falta sorteo" antes de tiempo.**
+- [x] **T13.10 Posiciones: sin "Falta sorteo" antes de tiempo.**
   - El sorteo se pide solo cuando la serie terminó (todos sus partidos jugados o con W.O.). Antes, los empatados se muestran empatados, sin marca.
   - El botón dice "Registrar el sorteo", sin "(P28)".
   - *Aceptación:* con 0 partidos jugados no hay ninguna marca; con la serie terminada y un empate total, sí.
   - *Verificación:* tests de `dominio/tabla.py` y de la vista de posiciones. *Tamaño:* S. *Depende de:* nada.
-- [ ] **T13.11 Cierre automático: "Nunca" (P82, respondida).**
+- [x] **T13.11 Cierre automático: "Nunca" (P82, respondida).**
   - La regla `cierre_automatico_min` acepta "Nunca", que pasa a ser el valor de la plantilla 2026. Con "Nunca", `cerrar_olvidados` no cierra nada.
   - Hoy y la ficha avisan "Sigue en juego, pasado su final (10:42)" para que la mesa lo termine.
   - *Aceptación:* con "Nunca", un partido olvidado sigue en juego y aparece el aviso; con 15, se cierra como hoy.
   - *Verificación:* tests de `test_cierre_automatico.py`, de config y de Hoy. *Tamaño:* S. *Depende de:* nada.
-- [ ] **T13.12 Alta rápida hasta el 2.º tiempo (P84).**
+- [x] **T13.12 Alta rápida hasta el 2.º tiempo (P84).**
   - Se permite hasta que la mesa marca "Empieza el 2.º tiempo". Después el botón no está, y si se pide igual, la app explica el motivo.
   - Pasar el máximo del plantel sigue con aviso y confirmación hasta que se confirme (P84, seguimiento).
   - *Aceptación:* en 1T y en el descanso se puede; en 2T, penales o terminado, no.
   - *Verificación:* tests de `views/alta_rapida.py` y de la ficha. *Tamaño:* S. *Depende de:* nada.
-- [ ] **T13.13 PNG del día: archivo entero y sin "BORRADOR".**
+- [x] **T13.13 PNG del día: archivo entero y sin "BORRADOR".**
   - Encontrar la causa del recorte. Sospecha: `exportar.js` captura la pieza dentro del contenedor con `transform: scale(k)` y el `devicePixelRatio`. Capturar a 1920 × 1080 sin la escala de la pantalla.
   - Se saca el sello "BORRADOR" del centro. Como mucho, un texto chico en una esquina.
   - *Aceptación:* el archivo descargado mide 1920 × 1080 y muestra la pieza entera, en la PC y en el celular.
   - *Verificación:* prueba en el navegador con `browser-testing-with-devtools` (descargar y medir el archivo) y test de la plantilla sin el sello; Sebastian prueba en su Android.
   - *Archivos:* `static/js/exportar.js`, `calendario/_pieza.html` y `frontend/tailwind.css`. *Tamaño:* S-M. *Depende de:* nada.
-- [ ] **T13.14 Logo de Escuela en todos lados y favicon.**
+- [x] **T13.14 Logo de Escuela en todos lados y favicon.**
   - Logo en el menú lateral, el login y la página pública de la categoría; la sigla, solo si no hay logo.
   - `<link rel="icon">` en `base.html`, con el logo de Escuela o un ícono fijo.
   - *Aceptación:* con logo, ninguna de las cuatro pantallas muestra "JMP".
@@ -1620,39 +1620,39 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
 
 **Checkpoint B** (meta: jueves 22/10, con el fixture ya armado en producción):
 
-- [ ] Verde, más `pytest -m lento`.
+- [x] Verde, más `pytest -m lento` (2026-10-15).
 - [ ] Recorrido en la demo, como Organización y como Mesa: inscribir, fixture, programar, PNG del día y ficha del partido desde el celular.
 - [ ] Sebastian aprueba desplegar a producción, fuera del horario de la organización.
 
 ### Bloque C: funciones para durante el torneo (desde el 24/10, en el orden en que se usan)
 
-- [ ] **T13.15 "Reprogramar" a la vista.**
+- [x] **T13.15 "Reprogramar" a la vista.**
   - Botón en la ficha del partido y en el calendario del día. Pide el motivo de una lista: ACF, suspensión (lluvia u otro) o decisión de la organización. No hay pedidos particulares: la convocatoria no los atiende. Lleva a las propuestas.
   - "Partido de la ACF" pasa a llamarse "Un equipo no puede jugar", con el motivo como lista y la ACF primero.
   - *Tamaño:* M. *Depende de:* nada.
-- [ ] **T13.16 Un bloqueo con choques se ve en todos lados.**
+- [x] **T13.16 Un bloqueo con choques se ve en todos lados.**
   - Pendiente en Inicio ("1 partido choca con un bloqueo → Resolver") y una marca en el calendario, el fixture y la ficha.
   - Desde el bloqueo, por cada partido que choca: "Mover a mano", "Intercambiar" y "Ver propuestas".
   - *Tamaño:* M. *Depende de:* T13.15.
-- [ ] **T13.17 Mover: horarios libres sugeridos.**
+- [x] **T13.17 Mover: horarios libres sugeridos.**
   - Recorre los inicios posibles (franjas × canchas compatibles) con el verificador que ya usan Mover e Intercambiar.
   - Muestra primero 5 a 10 sin choques ni avisos, por cercanía al horario actual, con "Mover aquí". Debajo, los que solo tienen avisos, con el motivo.
   - *Aceptación:* con 223 partidos responde en menos de 1 s.
   - *Tamaño:* M. *Depende de:* nada.
-- [ ] **T13.18 Propuestas que solo mueven lo que choca.**
+- [x] **T13.18 Propuestas que solo mueven lo que choca.**
   - Las alternativas son otros horarios u otros días para los partidos que chocan. Si no hay más, se muestran solo las que hay: no se completan las 3 moviendo de más.
   - Cada partido movido dice por qué ("choca con el bloqueo", "para que X no juegue dos veces el mismo día").
   - *Aceptación:* el caso de la prueba (JMP Academy, sábado 24 de 8 a 12) da propuestas que no tocan el domingo 1.
   - *Verificación:* tests de `dominio/programador/reprogramar.py` y `pytest -m lento`. *Tamaño:* M-L. *Depende de:* nada.
-- [ ] **T13.19 "Aflojar reglas solo esta vez", claro.**
+- [x] **T13.19 "Aflojar reglas solo esta vez", claro.**
   - Solo en Propuestas, plegado, con "Si ninguna propuesta te sirve".
   - Cada campo muestra el valor actual del torneo ("hoy: 2 por día").
   - "Usar mitades de cancha" no aparece si chocan solo partidos de F11. Si se mezclan modalidades, aparece con "Solo para F6 y F7".
   - *Tamaño:* S. *Depende de:* T13.18.
-- [ ] **T13.20 Selector de equipos del bloqueo por club.**
+- [x] **T13.20 Selector de equipos del bloqueo por club.**
   - Elegir o buscar el club, y marcar sus equipos con la categoría al lado. Funciona sin JavaScript.
   - *Tamaño:* S. *Depende de:* T13.15.
-- [ ] **T13.21 Fijar un partido.**
+- [x] **T13.21 Fijar un partido.**
   - `Partido.fijado` vuelve (migración aditiva), como decisión explícita: el interruptor "Fijar este partido", con un candado, en Mover, la ficha y el calendario. Mover no fija solo.
   - Programar, rehacer y las propuestas no lo mueven. Si choca con algo nuevo (por ejemplo, se suspende su día), la app avisa y propone, pero no lo mueve sin confirmar.
   - *Verificación:* tests del programador, de rehacer y de reprogramar con un fijado; `pytest -m lento`. *Tamaño:* M. *Depende de:* nada.
