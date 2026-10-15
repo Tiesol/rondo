@@ -14,6 +14,7 @@ from typing import Any
 
 from django.db import transaction
 
+from dominio.formatos import FormatoFaltante
 from torneo.models import CategoriaNivel, Equipo, Partido
 from torneo.servicios.clubes import NoSePuede
 from torneo.servicios.fixture import formatos
@@ -23,7 +24,10 @@ from torneo.servicios.historial import registrar
 def _grupos(categoria: CategoriaNivel) -> tuple[str, int, dict[int, str]]:
     """El tipo de grupos del formato, cuántas veces se enfrenta cada par y la serie de cada
     equipo."""
-    grupos = formatos().para(categoria.equipos.count()).grupos
+    try:
+        grupos = formatos().para(categoria.equipos.count()).grupos
+    except FormatoFaltante as error:
+        raise NoSePuede(str(error)) from None
     serie_de = {
         e.pk: serie.nombre for serie in categoria.series.prefetch_related("equipos")
         for e in serie.equipos.all()
@@ -80,9 +84,10 @@ def rearmar_fecha(
         if motivo := _fuera_del_formato(tipo, serie_de, local.pk, visitante.pk):
             raise NoSePuede(f"{local.nombre} y {visitante.nombre} {motivo}.")
         quedan[p.pk] = (local, visitante)
-    veces = Counter(e.nombre for par in quedan.values() for e in par)
-    if repetidos := sorted(n for n, cuantas in veces.items() if cuantas > 1):
-        raise NoSePuede(f"{repetidos[0]} juega dos partidos en la fecha {fecha}.")
+    veces = Counter(e.pk for par in quedan.values() for e in par)
+    if repetidos := [pk for pk, cuantas in veces.items() if cuantas > 1]:
+        nombre = next(e.nombre for par in quedan.values() for e in par if e.pk == repetidos[0])
+        raise NoSePuede(f"{nombre} juega dos partidos en la fecha {fecha}.")
     for p in cambian:
         local, visitante = quedan[p.pk]
         if (p.local_id, p.visitante_id) == (local.pk, visitante.pk):
@@ -133,7 +138,7 @@ def avisos_del_fixture(categoria: CategoriaNivel) -> list[str]:
         return []
     try:
         tipo, veces_esperadas, serie_de = _grupos(categoria)
-    except ValueError:
+    except NoSePuede:
         return []
     esperados = Counter(
         frozenset(par)

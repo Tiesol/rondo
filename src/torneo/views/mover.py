@@ -153,7 +153,4 @@ def fijar(request: HttpRequest, pk: int) -> HttpResponse:
         request,
         "Fijado: nada automático lo mueve" if partido.fijado else "Desfijado",
     )
-    volver = request.POST.get("volver", "")
-    if volver.startswith("/") and not volver.startswith("//"):
-        return redirect(volver)
     return redirect("ficha-partido", pk=partido.pk)

@@ -150,3 +150,30 @@ def test_la_mesa_no_edita_cruces(client: Client) -> None:
     usuario.groups.add(Group.objects.get(name=MESA))
     client.force_login(usuario)
     assert client.get(f"/torneo/{cn.pk}/fecha/1/").status_code == 403
+
+
+@pytest.mark.django_db
+def test_dos_equipos_con_el_mismo_nombre_no_son_el_mismo() -> None:
+    """Revisión de la fase 13: "dos veces en la fecha" se cuenta por equipo, no por nombre."""
+    cn, e = categoria_con(4)
+    Equipo.objects.filter(pk=e["D"].pk).update(nombre="A")  # otro club, mismo nombre
+    f1 = de_la_fecha(cn, 1)
+    rearmar_fecha(cn, 1, {p.pk: (p.visitante, p.local) for p in f1}, None)
+
+
+@pytest.mark.django_db
+def test_sin_formato_valido_no_es_un_error_500() -> None:
+    cn, _ = categoria_con(4)
+    f1 = de_la_fecha(cn, 1)
+    from unittest import mock
+
+    from dominio.formatos import FormatoFaltante
+
+    with (
+        mock.patch(
+            "torneo.servicios.cruces_a_mano.formatos",
+            side_effect=FormatoFaltante("sin formato"),
+        ),
+        pytest.raises(NoSePuede, match="sin formato"),
+    ):
+        rearmar_fecha(cn, 1, {f1[0].pk: (f1[0].visitante, f1[0].local)}, None)
