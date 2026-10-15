@@ -13,6 +13,7 @@ from torneo.models import Equipo, Partido
 from torneo.permisos import requiere
 from torneo.servicios import inscripcion, planilla
 from torneo.servicios.imagenes import ImagenInvalida, reemplazar_imagen
+from torneo.servicios.partido import ALTA_CERRADA, alta_abierta
 
 
 @sensitive_post_parameters()
@@ -25,6 +26,9 @@ def alta_rapida(request: HttpRequest, pk: int, equipo: int) -> HttpResponse:
         pk=equipo,
         pk__in=[partido.local_id, partido.visitante_id],
     )
+    if not alta_abierta(partido):
+        messages.error(request, ALTA_CERRADA)
+        return redirect("ficha-partido", pk=partido.pk)
     formulario = FormularioJugador(request.POST or None)
     hallazgos: list[Hallazgo] = []
     por_confirmar = False
