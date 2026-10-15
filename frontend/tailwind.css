@@ -198,18 +198,19 @@
     flex: none;
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     background: var(--color-oro);
     color: var(--color-sobre-oro);
-    font: 15px/1 var(--font-titulo);
+    font: 19px/1 var(--font-titulo);
     letter-spacing: 0.04em;
   }
+  /* T13.25: la marca de la JMP tiene que verse (el logo se sube a 400 px: se ve nítido). */
   .marca.grande {
-    width: 52px;
-    height: 52px;
-    font-size: 22px;
+    width: 88px;
+    height: 88px;
+    font-size: 34px;
   }
   .rol-actual {
     flex: none;
