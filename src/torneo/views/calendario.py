@@ -232,6 +232,12 @@ class FormularioDia(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         to_field_name="pk",
     )
+    # T13.8 (P79): para que entre F11 se amplía C3 los fines de semana, no con jueves.
+    fines_de_semana = forms.BooleanField(
+        required=False,
+        label="Repetir en todos los sábados y domingos del torneo",
+        widget=forms.CheckboxInput(attrs={"role": "switch", "class": "interruptor"}),
+    )
 
     def __init__(self, *args: Any, torneo: Torneo | None = None, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -256,16 +262,32 @@ def agregar_dia(request: HttpRequest) -> HttpResponse:
     if torneo is None or not formulario.is_valid():
         messages.error(request, "Revisa el día y el horario: el fin va después del inicio.")
         return redirect("calendario")
-    dia = formulario.cleaned_data["dia"]
-    franja = Franja.objects.create(
-        torneo=torneo,
-        inicio=timezone.make_aware(datetime.combine(dia, formulario.cleaned_data["desde"])),
-        fin=timezone.make_aware(datetime.combine(dia, formulario.cleaned_data["hasta"])),
-        tipo=Franja.Tipo.ENTRE_SEMANA,
+    datos = formulario.cleaned_data
+    dias = dias_de_fin_de_semana(torneo) if datos["fines_de_semana"] else [datos["dia"]]
+    for dia in dias:
+        franja = Franja.objects.create(
+            torneo=torneo,
+            inicio=timezone.make_aware(datetime.combine(dia, datos["desde"])),
+            fin=timezone.make_aware(datetime.combine(dia, datos["hasta"])),
+            tipo=Franja.Tipo.ENTRE_SEMANA,
+        )
+        franja.canchas.set(datos["canchas"])
+    cuantos = f" en {len(dias)} días" if len(dias) > 1 else ""
+    messages.success(
+        request, f"Tiempo agregado{cuantos}: se usa solo si algo no entra en el horario normal"
     )
-    franja.canchas.set(formulario.cleaned_data["canchas"])
-    messages.success(request, "Tiempo agregado: se usa solo si algo no entra en el horario normal")
-    return redirect("calendario-dia", fecha=dia.isoformat())
+    return redirect("calendario-dia", fecha=datos["dia"].isoformat())
+
+
+def dias_de_fin_de_semana(torneo: Torneo) -> list[date]:
+    """Los sábados y domingos con horario normal en el torneo (T13.8)."""
+    return sorted(
+        {
+            timezone.localtime(f.inicio).date()
+            for f in torneo.franjas.filter(tipo=Franja.Tipo.REGULAR)
+            if timezone.localtime(f.inicio).weekday() >= 5
+        }
+    )
 
 
 def elegir_club(request: HttpRequest) -> HttpResponse:

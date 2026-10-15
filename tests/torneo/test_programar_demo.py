@@ -101,3 +101,44 @@ def test_fase_12_bloque_a_en_la_demo_con_jueves(
     candidatos = candidatos_de_intercambio(elegido)
     assert time.monotonic() - comienzo < 6, "la lista de intercambios tarda demasiado"
     assert candidatos
+
+
+@pytest.mark.lento
+@pytest.mark.django_db
+def test_t13_8_f11_entra_ampliando_c3_los_fines_de_semana_sin_jueves(settings: Any) -> None:
+    """P79: sin jueves ni otra cancha. Con el tiempo que sugiere "¿Entra todo?", antes de las
+    8 en C3 los sábados y domingos, entra todo y no hay partidos en jueves."""
+    from datetime import datetime, time, timedelta
+
+    from django.utils import timezone
+
+    from torneo.models import Franja
+    from torneo.servicios.capacidad import capacidad_del_torneo
+    from torneo.views.calendario import dias_de_fin_de_semana
+    from torneo.views.programar import minutos_por_dia
+
+    settings.PROGRAMADOR_SEGUNDOS = 90
+    call_command("generar_demo", "--soy-la-demo", stdout=io.StringIO())
+    torneo = Torneo.objects.get(es_demo=True)
+    generar_fixtures_faltantes(torneo)
+    (c3,) = [g for g in capacidad_del_torneo(torneo).total if not g.entra]
+    dias = dias_de_fin_de_semana(torneo)
+    por_dia = minutos_por_dia(c3.faltan, len(dias))  # lo que sugiere la pantalla
+    cancha = torneo.canchas.get(codigo="C3")
+    for dia in dias:
+        ocho = timezone.make_aware(datetime.combine(dia, time(8)))
+        franja = Franja.objects.create(
+            torneo=torneo,
+            inicio=ocho - timedelta(minutes=por_dia),
+            fin=ocho,
+            tipo=Franja.Tipo.ENTRE_SEMANA,
+        )
+        franja.canchas.set([cancha])
+    assert all(g.entra for g in capacidad_del_torneo(torneo).con_extra)
+
+    corrida = programar_torneo(torneo)
+
+    assert corrida.resultado["sin_ubicar"] == []
+    assert corrida.resultado["choques"] == {}
+    partidos = Partido.objects.filter(categoria__torneo=torneo).select_related("categoria")
+    assert not [p for p in partidos if timezone.localtime(p.inicio).weekday() == 3]

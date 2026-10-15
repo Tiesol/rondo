@@ -15,6 +15,7 @@
         </span>
         <span class="barra-cap" role="img" aria-label="{{ fila.uso }} % de las horas"><span class="{% if not fila.entra %}error{% endif %}" style="width: {{ fila.uso }}%"></span></span>
         <span class="sub">{% if not fila.entra %}<strong>{% if fila.entra_con_extra %}Entra usando el tiempo agregado (faltan {{ fila.faltan }} h en el horario normal).{% else %}Faltan {{ fila.faltan }} h.{% endif %}</strong> {% endif %}{{ fila.categorias }}</span>
+        {% if fila.sugerencia %}<span class="sub">{{ fila.sugerencia }}</span>{% endif %}
       </span>
     </li>
     {% endfor %}
@@ -24,7 +25,7 @@
   {% endif %}
   {% if estimadas %}{% include "parciales/alerta.html" with estado="info" titulo="Sin fixture todavía:" texto=estimadas|add:". Se estimaron con su formato." %}{% endif %}
   {% if sin_formato %}{% include "parciales/alerta.html" with estado="aviso" titulo="Sin formato (P27):" texto=sin_formato|add:". No se cuentan." %}{% endif %}
-  {% if no_entra %}{% include "parciales/alerta.html" with estado="aviso" titulo="No entra todo." texto="Agrega un día en el calendario, o programa y ubica a mano lo que quede sin lugar." %}{% endif %}
+  {% if no_entra %}{% include "parciales/alerta.html" with estado="aviso" titulo="No entra todo." texto="Amplía el horario de esas canchas los fines de semana (abajo de cada una dice cuánto), o programa y ubica a mano lo que quede sin lugar." %}{% endif %}
   {% if resumen.hay_publicados %}
   <p class="peq">{% if resumen.jugados %}<strong>{{ resumen.jugados }}</strong> jugados o en juego no se mueven. {% endif %}{% if resumen.sin_resultado %}<strong>{{ resumen.sin_resultado|length }}</strong> con la hora ya pasada no se mueven y <strong>les falta el resultado</strong>. {% endif %}{% if resumen.futuros %}<strong>{{ resumen.futuros }}</strong> programados se mueven al volver a programar.{% endif %}</p>
   {% endif %}
