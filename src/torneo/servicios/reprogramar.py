@@ -20,6 +20,7 @@ from dominio.programador.relajar import Relajar
 from dominio.programador.reprogramar import Movimiento, Propuesta, proponer
 from torneo.models import Bloqueo, Cambio, Cancha, Corrida, Equipo, Franja, Partido, Torneo
 from torneo.presentacion import cruce
+from torneo.servicios.historial import registrar
 from torneo.servicios.programador import (
     ahora_local,
     calendario_actual,
@@ -228,6 +229,7 @@ def mover_a_mano(
     usuario: AbstractBaseUser | AnonymousUser | None = None,
     *,
     confirmar: bool = False,
+    fijar: bool = False,
 ) -> Cambio:
     """T5.4 y T11.2: cualquier día, hora y cancha o mitad. El verificador revisa el cambio:
     lo imposible no se guarda; los avisos se guardan si la organización los confirma. Mover
@@ -259,7 +261,12 @@ def mover_a_mano(
     )
     partido.cancha, partido.inicio = cancha, inicio
     partido.estado = Partido.Estado.PROGRAMADO
-    partido.save(update_fields=["cancha", "inicio", "estado"])
+    campos = ["cancha", "inicio", "estado"]
+    if fijar and not partido.fijado:  # T13.21: solo si la organización lo pide
+        partido.fijado = True
+        campos.append("fijado")
+        registrar(partido, usuario, "Fijado")
+    partido.save(update_fields=campos)
     return cambio
 
 
@@ -496,7 +503,8 @@ def suspender_dia(
         for partido in partidos:
             partido.cancha, partido.inicio = None, None
             partido.estado = Partido.Estado.PENDIENTE
-        Partido.objects.bulk_update(partidos, ["cancha", "inicio", "estado"])
+            partido.fijado = False  # T13.21: suspender es una decisión explícita; ya no tiene lugar
+        Partido.objects.bulk_update(partidos, ["cancha", "inicio", "estado", "fijado"])
         franja = _crear_tiempo(torneo, donde)
     cuando, _ = _del_dia(torneo, donde.dia)
     inicio_ventana, fin_ventana = ventana_de(min(desde, cuando))

@@ -87,6 +87,7 @@ def _del_dia(torneo: Torneo, dia: date) -> list[dict[str, Any]]:
                 "nombre": partido.nombre,
                 "local": lado(partido.local, partido.texto_local),
                 "visitante": lado(partido.visitante, partido.texto_visitante),
+                "fijado": partido.fijado,  # T13.21
             }
         )
     return list(secciones.values())

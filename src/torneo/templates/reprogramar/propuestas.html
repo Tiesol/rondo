@@ -3,6 +3,7 @@
 {% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Volver">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
 {% block encabezado %}Propuestas{% endblock %}
 {% block contenido %}
+{% for fijado in fijados %}<div class="seccion">{% with texto=fijado|add:" está fijado: las propuestas no lo mueven. Para moverlo, desfíjalo o muévelo a mano." %}{% include "parciales/alerta.html" with estado="aviso" texto=texto %}{% endwith %}</div>{% endfor %}
 <div class="seccion gap-3">
   {% for a in afectados %}
   <div class="propuesta">

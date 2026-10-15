@@ -79,6 +79,9 @@ class Partido(models.Model):
     fin_real = models.DateTimeField(null=True, blank=True)
     # T11.12: se cerró solo porque nadie lo terminó (P82); queda marcado para revisar.
     cerrado_automaticamente = models.BooleanField(default=False)
+    # T13.21: decisión explícita de la organización. Nada automático lo mueve (programar,
+    # rehacer el fixture ni las propuestas); se mueve solo a mano. Mover no fija solo.
+    fijado = models.BooleanField(default=False)
     # T11.8: si el entrenador de cada equipo estuvo (opcional; vacío, sin marcar).
     entrenador_local = models.BooleanField(null=True, blank=True)
     entrenador_visitante = models.BooleanField(null=True, blank=True)

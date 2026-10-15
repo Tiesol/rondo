@@ -24,6 +24,12 @@ class FormularioMover(forms.Form):
     cancha = forms.ModelChoiceField(
         queryset=Cancha.objects.none(), empty_label=None, to_field_name="codigo"
     )
+    fijar = forms.BooleanField(
+        required=False,
+        label="Fijar este partido",
+        help_text="Programar, rehacer el fixture y las propuestas no lo van a mover.",
+        widget=forms.CheckboxInput(attrs={"role": "switch", "class": "interruptor"}),
+    )
 
     def __init__(self, *args: Any, partido: Partido, **kwargs: Any) -> None:
         if partido.inicio is not None:

@@ -4,11 +4,13 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from torneo.forms.mover import FormularioMover
 from torneo.models import Equipo, Partido
 from torneo.permisos import requiere
 from torneo.presentacion import cruce, lugar
+from torneo.servicios.historial import registrar
 from torneo.servicios.reprogramar import (
     ChoqueAlMover,
     candidatos_de_intercambio,
@@ -34,6 +36,7 @@ def mover(request: HttpRequest, pk: int) -> HttpResponse:
                 formulario.inicio(),
                 request.user,
                 confirmar=request.POST.get("confirmar") == "1",
+                fijar=formulario.cleaned_data["fijar"],
             )
         except ChoqueAlMover as error:
             motivos, bloquea = error.motivos, error.bloquea
@@ -136,3 +139,21 @@ def intercambiar(request: HttpRequest, pk: int) -> HttpResponse:
             "equipos": [e for e in (partido.local, partido.visitante) if e is not None],
         },
     )
+
+
+@require_POST
+@requiere("torneo.configurar_torneo", "fijar partidos")
+def fijar(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.21: fija o desfija el partido, con historial."""
+    partido = get_object_or_404(Partido, pk=pk)
+    partido.fijado = not partido.fijado
+    partido.save(update_fields=["fijado"])
+    registrar(partido, request.user, "Fijado" if partido.fijado else "Desfijado")
+    messages.success(
+        request,
+        "Fijado: nada automático lo mueve" if partido.fijado else "Desfijado",
+    )
+    volver = request.POST.get("volver", "")
+    if volver.startswith("/") and not volver.startswith("//"):
+        return redirect(volver)
+    return redirect("ficha-partido", pk=partido.pk)
