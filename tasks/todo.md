@@ -1656,40 +1656,40 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - `Partido.fijado` vuelve (migración aditiva), como decisión explícita: el interruptor "Fijar este partido", con un candado, en Mover, la ficha y el calendario. Mover no fija solo.
   - Programar, rehacer y las propuestas no lo mueven. Si choca con algo nuevo (por ejemplo, se suspende su día), la app avisa y propone, pero no lo mueve sin confirmar.
   - *Verificación:* tests del programador, de rehacer y de reprogramar con un fijado; `pytest -m lento`. *Tamaño:* M. *Depende de:* nada.
-- [ ] **T13.22 Editar los cruces del fixture a mano.**
+- [x] **T13.22 Editar los cruces del fixture a mano.**
   - En la pestaña Fixture se intercambian cruces entre fechas, o se arma un cruce eligiendo los dos equipos.
   - Bloquea: un equipo dos veces en la misma fecha, o un cruce que el formato no tiene (en series cruzadas, dos de la misma serie).
   - Avisa, sin bloquear: a quién le falta jugar con quién y qué cruce quedó repetido.
   - *Tamaño:* M-L. *Depende de:* T13.21.
-- [ ] **T13.23 Lo editado a mano se respeta.**
+- [x] **T13.23 Lo editado a mano se respeta.**
   - Rehacer y volver a programar no deshacen los cruces editados.
   - Después de editar, la organización elige "Reprogramar lo demás" o "Dejarlo así".
   - *Tamaño:* M. *Depende de:* T13.22.
-- [ ] **T13.24 Copas por club (P30).**
+- [x] **T13.24 Copas por club (P30).**
   - Pantalla "Copas por club", en Más y en la página pública: por club, cuántas Copas de Oro y de Plata ganó (campeón y subcampeón), con las categorías.
   - Sale solo de las finales jugadas. No hay datos personales.
   - *Tamaño:* S-M. *Depende de:* nada. Hace falta recién al final del torneo (15/11).
 
-**Checkpoint C:** verde, más `pytest -m lento`; recorrido de reprogramar (bloqueo → mover a mano o propuesta) en la demo; despliegue con el visto bueno de Sebastian.
+**Checkpoint C:** verde, más `pytest -m lento` (hecho, 2026-10-15); recorrido de reprogramar (bloqueo → mover a mano o propuesta) en la demo; despliegue con el visto bueno de Sebastian.
 
 ### Bloque D: diseño y textos
 
-- [ ] **T13.25 Logo más grande.** De 44 a 48 px en la barra, y de 72 a 96 px en el login y en la cabecera pública. Revisado con capturas a 360 px. *Tamaño:* S. *Depende de:* T13.14.
-- [ ] **T13.26 Asistente: el paso "Canchas y horarios" con las canchas.** La lista de canchas con "Agregar" y "Partir", como Más → Canchas. *Tamaño:* M.
-- [ ] **T13.27 Reglas y asistente: textos.**
+- [x] **T13.25 Logo más grande.** De 44 a 48 px en la barra, y de 72 a 96 px en el login y en la cabecera pública. Revisado con capturas a 360 px. *Tamaño:* S. *Depende de:* T13.14.
+- [x] **T13.26 Asistente: el paso "Canchas y horarios" con las canchas.** La lista de canchas con "Agregar" y "Partir", como Más → Canchas. *Tamaño:* M.
+- [x] **T13.27 Reglas y asistente: textos.**
   - Sin las etiquetas P, ni en Reglas, ni en el asistente, ni en "Reglas del torneo" de Inicio.
   - Sin la regla "Jugador en dos equipos" (P7): se deja el valor por defecto, después de revisar qué valida hoy.
   - Textos nuevos para "Cierre de la inscripción", "Fin de semana sugerido para la eliminación", "Día para reprogramar" y "Desempate en la tabla", como están en PENDIENTES_PRODUCCION §1b.
   - *Tamaño:* S.
-- [ ] **T13.28 Reglas: listas desplegables.**
+- [x] **T13.28 Reglas: listas desplegables.**
   - "Doble amarilla es roja desde" y cualquier otra regla con un "Sub" se eligen de una lista con las categorías del torneo.
   - "Fin de semana de la eliminación" se elige de una lista con las fechas reales ("4.º: 14 y 15/11").
   - *Tamaño:* S-M. *Depende de:* T13.27.
-- [ ] **T13.29 PNG: el tamaño según los partidos.** Las filas, la letra y los escudos crecen cuando la cancha tiene pocos partidos ese día, con un mínimo que se lea en el celular; con muchos, como hoy, partido en "1/2". *Tamaño:* M. *Depende de:* T13.13.
-- [ ] **T13.30 Escudos con fondo.** Al subir un escudo con fondo (un JPG, o un PNG sin transparencia en los bordes), la app avisa. Opcional, con Pillow, que ya está: quitar un fondo liso, con vista previa y "Usar el original". *Tamaño:* S-M. *Depende de:* T13.2.
-- [ ] **T13.31 "¿Entra todo?" en palabras.** "Cancha 3: 14 partidos (16 h) de 88 h disponibles. Entran unos 60 partidos más de 70 min", con las categorías que juegan en cada cancha. *Tamaño:* S.
+- [x] **T13.29 PNG: el tamaño según los partidos.** Las filas, la letra y los escudos crecen cuando la cancha tiene pocos partidos ese día, con un mínimo que se lea en el celular; con muchos, como hoy, partido en "1/2". *Tamaño:* M. *Depende de:* T13.13.
+- [x] **T13.30 Escudos con fondo.** Al subir un escudo con fondo (un JPG, o un PNG sin transparencia en los bordes), la app avisa. Opcional, con Pillow, que ya está: quitar un fondo liso, con vista previa y "Usar el original". *Tamaño:* S-M. *Depende de:* T13.2.
+- [x] **T13.31 "¿Entra todo?" en palabras.** "Cancha 3: 14 partidos (16 h) de 88 h disponibles. Entran unos 60 partidos más de 70 min", con las categorías que juegan en cada cancha. *Tamaño:* S.
 
-**Checkpoint D (cierre de la fase 13):** verde, más `pytest -m lento`; `code-review-and-quality` de la fase; PROGRESO al día; visto bueno de Sebastian.
+**Checkpoint D (cierre de la fase 13):** verde, más `pytest -m lento`; `code-review-and-quality` de la fase; PROGRESO al día (hechos el 2026-10-15, PR #171); visto bueno de Sebastian (pendiente).
 
 ```
 A:  T13.1 → T13.2 → T13.30
