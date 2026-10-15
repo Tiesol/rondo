@@ -17,7 +17,12 @@ from django.views.decorators.http import require_GET, require_POST
 from torneo.models import Equipo, EquipoDeClub, Organizador, Patrocinador, Persona
 from torneo.permisos import requiere
 from torneo.presentacion import olvidar_escudos
-from torneo.servicios.imagenes import ImagenInvalida, quitar_imagen, reemplazar_imagen
+from torneo.servicios.imagenes import (
+    ImagenInvalida,
+    quitar_imagen,
+    reemplazar_imagen,
+    tiene_fondo,
+)
 
 UNA_HORA = 60 * 60
 
@@ -81,9 +86,17 @@ def escudo(request: HttpRequest, pk: int) -> HttpResponse:
             reemplazar_imagen(
                 del_club.escudo, archivo, tipo="escudo", borrar_anterior=not compartido
             )
+            archivo.seek(0)
+            con_fondo = tiene_fondo(archivo)  # recién ahora: ya pasó la validación del tamaño
             messages.success(
                 request, f"Escudo de {del_club} guardado: aparece en todas sus categorías"
             )
+            if con_fondo:  # T13.30
+                messages.warning(
+                    request,
+                    "Este escudo tiene fondo y se va a ver con su recuadro. Para que se vea "
+                    "mejor, sube un PNG sin fondo.",
+                )
         else:
             messages.error(request, "Elige la imagen del escudo.")
     except ImagenInvalida as error:

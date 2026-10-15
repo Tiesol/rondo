@@ -101,3 +101,29 @@ def quitar_imagen(campo: FieldFile, *, borrar: bool = True) -> None:
         campo.name = ""
         assert campo.instance is not None
         campo.instance.save(update_fields=[campo.field.name])
+
+
+def tiene_fondo(archivo: IO[bytes]) -> bool:
+    """T13.30: si el escudo tiene fondo (sin transparencia en los bordes): un JPG, o un PNG con
+    el recuadro pintado. No cambia la posición del archivo. Si no se puede leer, False: la
+    validación de verdad la hace procesar_imagen."""
+    inicio = archivo.tell()
+    try:
+        imagen = Image.open(archivo)
+        imagen.load()
+    except UnidentifiedImageError, OSError, SyntaxError:
+        return False
+    finally:
+        archivo.seek(inicio)
+    if imagen.mode not in ("RGBA", "LA") and "transparency" not in imagen.info:
+        return True
+    alfa = imagen.convert("RGBA").getchannel("A")
+    ancho, alto = alfa.size
+    borde = (
+        [alfa.getpixel((x, 0)) for x in range(ancho)]
+        + [alfa.getpixel((x, alto - 1)) for x in range(ancho)]
+        + [alfa.getpixel((0, y)) for y in range(alto)]
+        + [alfa.getpixel((ancho - 1, y)) for y in range(alto)]
+    )
+    opacos = sum(1 for a in borde if isinstance(a, int) and a > 200)
+    return opacos > 0.9 * len(borde)
