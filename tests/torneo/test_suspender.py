@@ -321,3 +321,16 @@ def test_b9_un_partido_puesto_a_mano_en_un_dia_sin_franja_tiene_su_pestana(
     html = org.get("/calendario/2026-10-24/").content.decode()
     assert "/calendario/2026-10-28/" in html
     assert "Mié" in org.get("/calendario/2026-10-28/").content.decode()
+
+
+@pytest.mark.django_db
+def test_t13_19_aflojar_solo_en_propuestas_y_plegado(client: Client, torneo: Torneo) -> None:
+    org = entrar(client, ORGANIZACION)
+    assert (
+        "Aflojar reglas"
+        not in org.get(f"/calendario/{dia_con_partidos()}/suspender/").content.decode()
+    )
+    org.post(f"/calendario/{dia_con_partidos()}/suspender/", {"confirmado": "1"} | datos_jueves())
+    corrida = Corrida.objects.get(tipo=Corrida.Tipo.REPROGRAMAR)
+    html = org.get(f"/corridas/{corrida.pk}/propuestas/").content.decode()
+    assert "Si ninguna propuesta te sirve" in html and "hoy:" in html

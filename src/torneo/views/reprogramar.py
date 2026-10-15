@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from dominio.config import Reglas
 from dominio.partido import Lado
 from dominio.programador.relajar import Relajar
 from torneo.forms.bloqueo import FormularioReprogramar
@@ -50,13 +51,15 @@ def _titulo(propuesta: list[dict[str, Any]]) -> str:
 
 
 def _inicial_aflojar(relajar: Relajar) -> dict[str, Any]:
-    return {
+    """Lo que se aflojó en esta corrida; lo que no, queda con el valor de hoy (T13.19)."""
+    datos = {
         "turnos_libres": relajar.turnos_libres,
         "max_por_dia": relajar.max_por_dia,
         "orden_blando": relajar.orden == "blanda",
         "minutos_extra": relajar.minutos_extra or None,
         "usar_mitades": relajar.usar_mitades,
     }
+    return {k: v for k, v in datos.items() if v is not None}
 
 
 def _volver(corrida: Corrida) -> str:
@@ -82,7 +85,7 @@ def propuestas(request: HttpRequest, pk: int) -> HttpResponse:
 def recalcular(request: HttpRequest, pk: int) -> HttpResponse:
     """B6: las mismas propuestas, aflojando reglas solo esta vez. Queda anotado en la corrida."""
     anterior = get_object_or_404(Corrida, pk=pk, tipo=Corrida.Tipo.REPROGRAMAR)
-    aflojar = CamposAflojar(request.POST)
+    aflojar = CamposAflojar(request.POST, reglas=Reglas.model_validate(anterior.torneo.reglas))
     if not aflojar.is_valid():
         messages.error(request, "Revisa los números de las reglas.")
         return redirect("ver-propuestas", pk=anterior.pk)
@@ -149,7 +152,16 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
             "propuestas": vista,
             "motivo": corrida.parametros.get("motivo", ""),
             "aflojadas": relajar.describir(),
-            "form": CamposAflojar(initial=_inicial_aflojar(relajar)),
+            "form": CamposAflojar(
+                initial=_inicial_aflojar(relajar),
+                reglas=Reglas.model_validate(corrida.torneo.reglas),
+                # T13.19: "Usar mitades" solo si chocan partidos que caben en media cancha.
+                modalidades=(
+                    {p.categoria.modalidad for p in partidos.values()}
+                    | {p.categoria.modalidad for p, _ in afectados}
+                )
+                or None,
+            ),
             "volver": _volver(corrida),
             # T10.10: dar W.O. en lugar de reprogramar, y cuántas veces ya reprogramó.
             "afectados": [

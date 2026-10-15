@@ -6,8 +6,11 @@ from typing import Any
 
 from django import forms
 
+from dominio.config import Reglas
 from dominio.programador.relajar import Relajar
 from torneo.models import Cancha, Torneo
+
+MITADES = {"F5", "F6", "F7"}  # las que caben en media cancha (B6)
 
 
 class CamposAflojar(forms.Form):
@@ -28,11 +31,49 @@ class CamposAflojar(forms.Form):
     )
     usar_mitades = forms.BooleanField(required=False, label="Usar mitades de cancha")
 
+    def __init__(
+        self,
+        *args: Any,
+        reglas: Reglas | None = None,
+        modalidades: set[str] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """T13.19: con `reglas`, cada campo dice el valor de hoy y empieza con él; con
+        `modalidades` (las de los partidos que chocan), "Usar mitades" aparece solo si sirve."""
+        super().__init__(*args, **kwargs)
+        self.reglas = reglas
+        if reglas is not None:
+            hoy = {
+                "turnos_libres": reglas.turnos_libres_mismo_dia,
+                "max_por_dia": reglas.max_partidos_por_dia,
+                "minutos_extra": 0,
+            }
+            for campo, valor in hoy.items():
+                self.initial.setdefault(campo, valor)
+                self.fields[campo].help_text = f"hoy: {valor}"
+            orden = "pueden quedar al revés" if reglas.orden_de_fechas == "blanda" else "en orden"
+            self.fields["orden_blando"].help_text = f"hoy: {orden}"
+        if modalidades is not None:
+            chicas = modalidades & MITADES
+            if not chicas:
+                del self.fields["usar_mitades"]
+            elif modalidades - MITADES:
+                self.fields["usar_mitades"].help_text = "Solo para F6 y F7."
+
     def relajar(self) -> Relajar:
         datos = self.cleaned_data
+        reglas = self.reglas
+
+        def si_cambia(valor: int | None, hoy: int) -> int | None:
+            return None if reglas is not None and valor == hoy else valor
+
         return Relajar(
-            turnos_libres=datos.get("turnos_libres"),
-            max_por_dia=datos.get("max_por_dia"),
+            turnos_libres=si_cambia(
+                datos.get("turnos_libres"), reglas.turnos_libres_mismo_dia if reglas else -1
+            ),
+            max_por_dia=si_cambia(
+                datos.get("max_por_dia"), reglas.max_partidos_por_dia if reglas else -1
+            ),
             orden="blanda" if datos.get("orden_blando") else None,
             minutos_extra=datos.get("minutos_extra") or 0,
             usar_mitades=bool(datos.get("usar_mitades")),
