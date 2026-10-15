@@ -4,11 +4,15 @@ El nombre vive en EquipoDeClub; cada Equipo (una categoría) guarda una copia de
 club, que se cambia acá y en la misma transacción.
 """
 
+from typing import Any
+
 from django.db import transaction
 from django.db.models import Q, QuerySet
+from django.utils import timezone
 
 from torneo.models import CategoriaNivel, Club, Convocado, Equipo, EquipoDeClub, Partido, Persona
 from torneo.servicios.clubes import NoSePuede, borrar_si_nadie_los_usa
+from torneo.servicios.historial import registrar
 
 
 @transaction.atomic
@@ -132,3 +136,48 @@ def cambiar_equipo(equipo: Equipo, *, club: Club, categoria: CategoriaNivel, nom
     equipo.refresh_from_db()
     if nuevo.pk != viejo.pk:
         _borrar_huerfano(viejo)
+
+
+def por_jugar_de(equipo: Equipo) -> QuerySet[Partido]:
+    """Los que faltan, con los dos equipos definidos: al retirarse pasan a W.O."""
+    return (
+        partidos_de(equipo)
+        .filter(
+            estado__in=[Partido.Estado.PENDIENTE, Partido.Estado.PROGRAMADO],
+            no_se_presento="",
+            local__isnull=False,
+            visitante__isnull=False,
+        )
+        .order_by("fecha", "inicio")
+    )
+
+
+def resumen_para_retirar(equipo: Equipo) -> list[str]:
+    faltan = por_jugar_de(equipo).count()
+    jugados = jugados_de(equipo).count()
+    return [
+        f"{jugados} partido{'s' if jugados != 1 else ''} jugado{'s' if jugados != 1 else ''}: "
+        "cuentan para la tabla",
+        f"{faltan} partido{'s' if faltan != 1 else ''} por jugar: pasan a W.O. para el rival",
+    ]
+
+
+@transaction.atomic
+def retirar_equipo(equipo: Equipo, usuario: Any) -> int:
+    """T13.4 (P87, por defecto): lo jugado cuenta y lo que falta es W.O. para el rival (con el
+    marcador de la regla), con historial. Un partido en juego no se toca. Devuelve cuántos
+    pasaron a W.O."""
+    if equipo.retirado_en is not None:
+        raise NoSePuede(f"{equipo.nombre} ya se retiró del torneo.")
+    equipo.retirado_en = timezone.now()
+    equipo.save(update_fields=["retirado_en"])
+    partidos = list(por_jugar_de(equipo))
+    for partido in partidos:
+        partido.no_se_presento = (
+            Partido.Lado.LOCAL if partido.local_id == equipo.pk else Partido.Lado.VISITANTE
+        )
+        partido.estado = Partido.Estado.JUGADO
+        partido.tiempo = Partido.Tiempo.TERMINADO
+        partido.save(update_fields=["no_se_presento", "estado", "tiempo"])
+        registrar(partido, usuario, "W.O.: equipo retirado del torneo", equipo=equipo)
+    return len(partidos)

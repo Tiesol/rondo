@@ -15,7 +15,7 @@ url_sorteo.
         {% for f, equipo in t.con_equipos %}
         <tr>
           <td class="num">{{ f.posicion }}</td>
-          <th scope="row" class="equipo-tabla">{{ equipo.nombre }}{% if f.falta_sorteo %} <span class="chip aviso">Falta sorteo</span>{% endif %}</th>
+          <th scope="row" class="equipo-tabla">{{ equipo.nombre }}{% if equipo.retirado_en %} <span class="chip">Retirado</span>{% endif %}{% if f.falta_sorteo %} <span class="chip aviso">Falta sorteo</span>{% endif %}</th>
           <td class="num">{{ f.pj }}</td><td class="num">{{ f.pg }}</td><td class="num">{{ f.pe }}</td><td class="num">{{ f.pp }}</td>
           <td class="num">{{ f.gf }}</td><td class="num">{{ f.gc }}</td><td class="num">{{ f.dg }}</td><td class="num"><strong>{{ f.puntos }}</strong></td>
         </tr>

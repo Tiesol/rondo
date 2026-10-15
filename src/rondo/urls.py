@@ -93,6 +93,7 @@ urlpatterns = [
     path("equipos/<int:pk>/profes/revisar/", jugadores.revisar_profe, name="revisar-profe"),
     path("equipos/<int:pk>/editar/", equipos.editar, name="editar-equipo"),
     path("equipos/<int:pk>/borrar/", equipos.borrar, name="borrar-equipo"),
+    path("equipos/<int:pk>/retirar/", equipos.retirar, name="retirar-equipo"),
     path("equipos/<int:pk>/<str:seccion>/", equipos.equipo, name="equipo"),
     path("jugadores/<int:pk>/verificar/", jugadores.verificar, name="verificar"),
     path("partidos/<int:pk>/mover/", mover.mover, name="mover"),
