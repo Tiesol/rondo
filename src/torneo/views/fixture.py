@@ -17,6 +17,7 @@ from dominio.formatos import FormatoFaltante, FormatoParaN
 from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.presentacion import cruce, escudo
+from torneo.servicios.bloqueos import chocan_con_bloqueos
 from torneo.servicios.cruces import aplicar, proponer
 from torneo.servicios.fixture import (
     FixtureNoSePuede,
@@ -119,6 +120,8 @@ def datos_del_fixture(categoria: CategoriaNivel, *, con_propuesta: bool = False)
         "faltan_equipos": cantidad < 2,
         "hay_fixture": bool(partidos),
         "cruzadas": cruzadas,
+        # T13.16: solo para la organización (la página pública no lo muestra).
+        "con_bloqueo": chocan_con_bloqueos(categoria.torneo) if con_propuesta else {},
         "sin_programar": sum(
             1 for p in partidos if p.estado == Partido.Estado.PENDIENTE and p.inicio is None
         ),

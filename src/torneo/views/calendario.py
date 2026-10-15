@@ -17,6 +17,7 @@ from dominio.franjas import proximo
 from torneo.forms.reprogramar import FormularioSuspension
 from torneo.models import Cancha, Club, Franja, Partido, Torneo
 from torneo.permisos import requiere
+from torneo.servicios.bloqueos import chocan_con_bloqueos
 from torneo.servicios.reprogramar import (
     Donde,
     donde_por_defecto,
@@ -131,6 +132,7 @@ def calendario_dia(request: HttpRequest, fecha: str) -> HttpResponse:
             for d in _dias(torneo)
         ],
         "canchas": canchas,
+        "con_bloqueo": chocan_con_bloqueos(torneo),  # T13.16
         "hay_partidos": any(c["partidos"] for c in canchas),
         "clubes": Club.objects.filter(equipos__categoria__torneo=torneo)
         .distinct()

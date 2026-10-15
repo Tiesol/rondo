@@ -22,6 +22,7 @@ from torneo.permisos import requiere
 from torneo.presentacion import cruce, escudo, url_de_imagen
 from torneo.servicios import partido as servicio
 from torneo.servicios import planilla
+from torneo.servicios.bloqueos import chocan_con_bloqueos
 from torneo.servicios.historial import historial
 from torneo.servicios.partido import NoSePuede
 from torneo.servicios.suspensiones import (
@@ -235,6 +236,7 @@ def _contexto(partido: Partido, abrir: int | None = None) -> dict[str, Any]:
         "hora": timezone.localtime(partido.inicio).strftime("%H:%M") if partido.inicio else "",
         "historial": historial(partido=partido),
         "dia_suspendido": _dia_suspendido(partido),
+        "bloqueo": chocan_con_bloqueos(partido.categoria.torneo).get(partido.pk, ""),
         "alta_abierta": servicio.alta_abierta(partido),
         "alta_cerrada": servicio.ALTA_CERRADA,
         "olvidado": (

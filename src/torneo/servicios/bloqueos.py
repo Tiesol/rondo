@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from django.db.models import Q
 
-from torneo.models import Equipo, Partido, Torneo
+from torneo.models import Bloqueo, Equipo, Partido, Torneo
 
 
 def partidos_que_chocan(
@@ -31,3 +31,15 @@ def partidos_que_chocan(
         if p.inicio is not None
         and p.inicio + timedelta(minutes=p.categoria.minutos_partido) > inicio
     ]
+
+
+def chocan_con_bloqueos(torneo: Torneo) -> dict[int, str]:
+    """T13.16: los partidos programados que chocan con algún bloqueo, con su motivo. Hay pocos
+    bloqueos: una consulta por bloqueo."""
+    chocan: dict[int, str] = {}
+    for bloqueo in Bloqueo.objects.filter(torneo=torneo).prefetch_related("equipos"):
+        for partido in partidos_que_chocan(
+            torneo, bloqueo.equipos.all(), bloqueo.inicio, bloqueo.fin
+        ):
+            chocan.setdefault(partido.pk, bloqueo.motivo)
+    return chocan
