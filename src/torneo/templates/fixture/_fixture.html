@@ -15,6 +15,17 @@ página pública. Con editable, la organización ve los botones y el editor de s
 {% endif %}
 {% else %}
 
+{% if fixture.cruzadas %}{% include "parciales/alerta.html" with estado="info" texto=fixture.cruzadas %}{% endif %}
+{% if editable and fixture.sin_programar %}
+<div class="flex flex-col gap-2">
+  {% with texto=fixture.sin_programar|stringformat:"d"|add:" partidos sin día ni hora: el calendario los muestra cuando se programan." %}
+  {% include "parciales/alerta.html" with estado="aviso" texto=texto %}
+  {% endwith %}
+  {% url "programar" categoria.torneo_id as url_programar %}
+  {% include "parciales/boton.html" with texto="Programar partidos" url=url_programar principal=True bloque=True %}
+</div>
+{% endif %}
+
 {% if fixture.desactualizado %}
 <div class="flex flex-col gap-2">
   {% include "parciales/alerta.html" with estado="aviso" titulo="El fixture de esta categoría está desactualizado." texto=fixture.desactualizado %}

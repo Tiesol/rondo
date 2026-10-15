@@ -1,7 +1,8 @@
 """Lo que necesita atención en el torneo, para la lista de Inicio (TU.5).
 
 Sin barra de avance: solo pendientes concretos, cada uno con un enlace a donde se resuelve.
-Categorías sin equipos, equipos debajo del mínimo y reglas sin confirmar.
+Categorías sin equipos o que no se abren, equipos debajo del mínimo o sin escudo, fixtures que
+faltan o están desactualizados, y partidos sin programar.
 """
 
 from collections.abc import Iterable
@@ -10,8 +11,7 @@ from typing import Any
 from django.db.models import Count
 from django.urls import reverse
 
-from dominio.config import describir_reglas
-from torneo.models import Equipo, EquipoDeClub, Torneo
+from torneo.models import Equipo, EquipoDeClub, Partido, Torneo
 from torneo.servicios.fixture import formatos, motivo_desactualizado
 
 
@@ -126,15 +126,19 @@ def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]
             }
         )
 
-    if puede_configurar:
-        con_pregunta = [d for d in describir_reglas() if d.pregunta]
+    sin_programar = Partido.objects.filter(
+        categoria__torneo=torneo, estado=Partido.Estado.PENDIENTE, inicio__isnull=True
+    ).count()
+    if puede_configurar and sin_programar:
         lista.append(
             {
-                "titulo": f"{len(con_pregunta)} reglas esperan la respuesta del organizador",
-                "sub": "Tienen un valor por defecto. Revísalas antes de programar",
-                "url": reverse("reglas", args=[torneo.pk]),
-                "icono": "documento",
-                "estado": "info",
+                "titulo": _contar(
+                    sin_programar, "partido sin día ni hora", "partidos sin día ni hora"
+                ),
+                "sub": "Programar los ubica en los días y las canchas",
+                "url": reverse("programar", args=[torneo.pk]),
+                "icono": "calendario",
+                "estado": "aviso",
             }
         )
     return lista
