@@ -7,7 +7,7 @@ from datetime import datetime, time
 from typing import Any
 
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -18,7 +18,9 @@ from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.presentacion import cruce, escudo
 from torneo.servicios.bloqueos import chocan_con_bloqueos
+from torneo.servicios.clubes import NoSePuede
 from torneo.servicios.cruces import aplicar, proponer
+from torneo.servicios.cruces_a_mano import avisos_del_fixture, intercambiar_fechas, rearmar_fecha
 from torneo.servicios.fixture import (
     FixtureNoSePuede,
     formatos,
@@ -120,6 +122,7 @@ def datos_del_fixture(categoria: CategoriaNivel, *, con_propuesta: bool = False)
         "faltan_equipos": cantidad < 2,
         "hay_fixture": bool(partidos),
         "cruzadas": cruzadas,
+        "avisos_cruces": avisos_del_fixture(categoria) if con_propuesta else [],  # T13.22
         # T13.16: solo para la organización (la página pública no lo muestra).
         "con_bloqueo": chocan_con_bloqueos(categoria.torneo) if con_propuesta else {},
         "sin_programar": sum(
@@ -344,3 +347,68 @@ def rehacer(request: HttpRequest, pk: int) -> HttpResponse:
 def _resumen(partido: Partido) -> dict[str, str]:
     marcador = resultado_de(partido).marcador
     return {"cruce": cruce(partido), "marcador": f"{marcador[0]} a {marcador[1]}"}
+
+
+@requiere("torneo.configurar_torneo", "cambiar los cruces")
+def fecha(request: HttpRequest, pk: int, numero: int) -> HttpResponse:
+    """T13.22: rearmar los cruces de una fecha o intercambiarla con otra."""
+    categoria = get_object_or_404(CategoriaNivel.objects.select_related("torneo"), pk=pk)
+    partidos = list(
+        categoria.partidos.filter(fase=Partido.Fase.GRUPOS, fecha=numero)
+        .select_related("local", "visitante", "serie")
+        .order_by("pk")
+    )
+    if not partidos:
+        raise Http404
+    volver = reverse("categoria", args=[categoria.pk, "fixture"])
+    if request.method == "POST":
+        try:
+            if request.POST.get("accion") == "intercambiar":
+                otra = request.POST.get("otra", "")
+                if not otra.isdigit():
+                    raise NoSePuede("Elige la otra fecha.")
+                intercambiar_fechas(categoria, numero, int(otra), request.user)
+                messages.success(request, f"Fechas {numero} y {otra} intercambiadas")
+            else:
+                equipos = {e.pk: e for e in categoria.equipos.all()}
+
+                def elegido(campo: str) -> Equipo | None:
+                    valor = request.POST.get(campo, "")
+                    return equipos.get(int(valor)) if valor.isdigit() else None
+
+                rearmar_fecha(
+                    categoria,
+                    numero,
+                    {
+                        p.pk: (elegido(f"local_{p.pk}"), elegido(f"visitante_{p.pk}"))
+                        for p in partidos
+                    },
+                    request.user,
+                )
+                messages.success(request, f"Fecha {numero} guardada")
+        except NoSePuede as error:
+            messages.error(request, str(error))
+            return redirect("fecha-fixture", pk=categoria.pk, numero=numero)
+        return redirect(volver)
+    otras = sorted(
+        {
+            n
+            for n in categoria.partidos.filter(fase=Partido.Fase.GRUPOS)
+            .exclude(fecha=numero)
+            .values_list("fecha", flat=True)
+            if n is not None
+        }
+    )
+    return render(
+        request,
+        "fixture/fecha.html",
+        {
+            "categoria": categoria,
+            "numero": numero,
+            "partidos": partidos,
+            "equipos": list(categoria.equipos.order_by("nombre")),
+            "otras": otras,
+            "avisos": avisos_del_fixture(categoria),
+            "volver": volver,
+        },
+    )

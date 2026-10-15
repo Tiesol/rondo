@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}Fecha {{ numero }} · {{ categoria }}{% endblock %}
+{% block volver %}<a class="icono-btn" href="{{ volver }}" aria-label="Volver al fixture">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Fecha {{ numero }}{% endblock %}
+{% block contenido %}
+{% if avisos %}<div class="seccion">{% with texto=avisos|join:" " %}{% include "parciales/alerta.html" with estado="aviso" titulo="Falta completar:" texto=texto %}{% endwith %}</div>{% endif %}
+
+<form method="post" class="seccion gap-3">
+  {% csrf_token %}
+  <input type="hidden" name="accion" value="rearmar">
+  {% include "parciales/seccion_cab.html" with titulo="Elegir los equipos" %}
+  <p class="peq tenue">{{ categoria }}. Un equipo juega una vez por fecha. El día, la hora y la cancha de cada partido no cambian: se mueven con Mover.</p>
+  <ul class="lista">
+    {% for partido in partidos %}
+    <li class="fila">
+      <div class="dos crece">
+        <div class="campo"><label for="local-{{ partido.pk }}">Local{% if partido.serie %} · Serie {{ partido.serie.nombre }}{% endif %}</label>
+          <select id="local-{{ partido.pk }}" name="local_{{ partido.pk }}" class="selector">{% for equipo in equipos %}<option value="{{ equipo.pk }}"{% if equipo.pk == partido.local_id %} selected{% endif %}>{{ equipo.nombre }}</option>{% endfor %}</select>
+        </div>
+        <div class="campo"><label for="visitante-{{ partido.pk }}">Visitante</label>
+          <select id="visitante-{{ partido.pk }}" name="visitante_{{ partido.pk }}" class="selector">{% for equipo in equipos %}<option value="{{ equipo.pk }}"{% if equipo.pk == partido.visitante_id %} selected{% endif %}>{{ equipo.nombre }}</option>{% endfor %}</select>
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <button type="submit" class="btn principal bloque">Guardar la fecha</button>
+</form>
+
+{% if otras %}
+<form method="post" class="seccion gap-2">
+  {% csrf_token %}
+  <input type="hidden" name="accion" value="intercambiar">
+  <label for="otra"><strong>Intercambiar con la fecha</strong></label>
+  <div class="flex gap-2">
+    <select id="otra" name="otra" class="selector crece">{% for n in otras %}<option value="{{ n }}">Fecha {{ n }}</option>{% endfor %}</select>
+    <button type="submit" class="btn">Intercambiar</button>
+  </div>
+  <p class="peq tenue">Los cruces de las dos fechas cambian de número. El día y la hora de cada partido quedan.</p>
+</form>
+{% endif %}
+{% endblock %}
