@@ -24,6 +24,7 @@ from torneo.models import (
     CategoriaNivel,
     Club,
     Equipo,
+    EquipoDeClub,
     Jugador,
     Partido,
     Persona,
@@ -113,10 +114,12 @@ def _equipos(torneo: Torneo, datos: dict[str, Any], azar: random.Random) -> dict
         for nombre in nombres:
             club = Club.buscar(nombre)
             assert club is not None, f"{nombre} no está en el catálogo de clubes"
+            del_club = EquipoDeClub.del_club(club, nombre)  # bulk_create: sin save()
             equipo = Equipo(
+                equipo_de_club=del_club,
                 club=club,
                 categoria=categorias[clave],
-                nombre=nombre,
+                nombre=del_club.nombre,
                 color_1=azar.choice(COLORES),
                 color_2="#ffffff",
                 pagado=azar.random() < 0.7,

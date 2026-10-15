@@ -14,7 +14,7 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_GET, require_POST
 
-from torneo.models import Club, Equipo, Organizador, Patrocinador, Persona
+from torneo.models import Equipo, EquipoDeClub, Organizador, Patrocinador, Persona
 from torneo.permisos import requiere
 from torneo.presentacion import olvidar_escudos
 from torneo.servicios.imagenes import ImagenInvalida, quitar_imagen, reemplazar_imagen
@@ -38,7 +38,7 @@ def _foto(request: HttpRequest, pk: int) -> FieldFile:
 def _campo(tipo: str, pk: int) -> FieldFile:
     match tipo:
         case "escudo":
-            return get_object_or_404(Club, pk=pk).escudo
+            return get_object_or_404(EquipoDeClub, pk=pk).escudo
         case "logo":
             return Organizador.actual().logo
         case "patrocinador":
@@ -66,22 +66,34 @@ def imagen(request: HttpRequest, tipo: str, pk: int) -> HttpResponse:
 @require_POST
 @requiere("torneo.configurar_torneo", "cambiar los escudos")
 def escudo(request: HttpRequest, pk: int) -> HttpResponse:
-    club = get_object_or_404(Club, pk=pk)
+    """El escudo de un equipo del club (T13.1): vale en todas sus categorías."""
+    del_club = get_object_or_404(EquipoDeClub.objects.select_related("club"), pk=pk)
+    # Después de la migración, los equipos de un club comparten el archivo del escudo viejo.
+    compartido = (
+        bool(del_club.escudo.name)
+        and EquipoDeClub.objects.filter(escudo=del_club.escudo.name).exclude(pk=pk).exists()
+    )
     try:
         if request.POST.get("quitar"):
-            quitar_imagen(club.escudo)
-            messages.success(request, f"Escudo de {club} quitado")
+            quitar_imagen(del_club.escudo, borrar=not compartido)
+            messages.success(request, f"Escudo de {del_club} quitado")
         elif archivo := request.FILES.get("escudo"):
-            reemplazar_imagen(club.escudo, archivo, tipo="escudo")
-            messages.success(request, f"Escudo de {club} guardado: aparece en todos sus equipos")
+            reemplazar_imagen(
+                del_club.escudo, archivo, tipo="escudo", borrar_anterior=not compartido
+            )
+            messages.success(
+                request, f"Escudo de {del_club} guardado: aparece en todas sus categorías"
+            )
         else:
             messages.error(request, "Elige la imagen del escudo.")
     except ImagenInvalida as error:
         messages.error(request, str(error))
     olvidar_escudos()
     if request.POST.get("volver") == "club":
-        return redirect("club", pk=club.pk)
-    equipo = Equipo.objects.filter(pk=request.POST.get("equipo") or 0, club=club).first()
+        return redirect("club", pk=del_club.club_id)
+    if request.POST.get("volver") == "sin-escudo" and request.POST.get("torneo", "").isdigit():
+        return redirect("sin-escudo", pk=int(request.POST["torneo"]))
+    equipo = Equipo.objects.filter(pk=request.POST.get("equipo") or 0, equipo_de_club=pk).first()
     if equipo is not None:
         return redirect("equipo", pk=equipo.pk, seccion="plantel")
-    return redirect("inicio")
+    return redirect("club", pk=del_club.club_id)

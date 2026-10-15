@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.urls import reverse
 
 from dominio.config import describir_reglas
-from torneo.models import Equipo, Torneo
+from torneo.models import Equipo, EquipoDeClub, Torneo
 from torneo.servicios.fixture import motivo_desactualizado
 
 
@@ -93,6 +93,17 @@ def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]
             }
         )
 
+    if puede_configurar and (sin_escudo := sin_escudo_del_torneo(torneo)):
+        lista.append(
+            {
+                "titulo": _contar(len(sin_escudo), "equipo sin escudo", "equipos sin escudo"),
+                "sub": _primeros(d.nombre for d in sin_escudo),
+                "url": reverse("sin-escudo", args=[torneo.pk]),
+                "icono": "camara",
+                "estado": "aviso",
+            }
+        )
+
     if puede_configurar:
         con_pregunta = [d for d in describir_reglas() if d.pregunta]
         lista.append(
@@ -105,6 +116,16 @@ def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]
             }
         )
     return lista
+
+
+def sin_escudo_del_torneo(torneo: Torneo) -> list[EquipoDeClub]:
+    """Los equipos del club que juegan en el torneo y no tienen escudo (P88: no bloquea nada)."""
+    return list(
+        EquipoDeClub.objects.filter(escudo="", equipos__categoria__torneo=torneo)
+        .select_related("club")
+        .distinct()
+        .order_by("club__nombre", "nombre")
+    )
 
 
 def _contar(cantidad: int, singular: str, plural: str) -> str:

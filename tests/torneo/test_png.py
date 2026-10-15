@@ -13,7 +13,7 @@ from django.test import Client
 from django.utils import timezone
 
 from dominio.config import cargar_config
-from torneo.models import CategoriaNivel, Club, Equipo, Partido, Torneo
+from torneo.models import CategoriaNivel, Club, Equipo, EquipoDeClub, Partido, Torneo
 from torneo.permisos import MESA
 from torneo.servicios.configuracion import cargar_configuracion
 from torneo.servicios.fixture import generar_fixture
@@ -164,3 +164,15 @@ def test_sin_escudo_no_hay_hueco_y_con_escudo_aparece(client: Client, torneo: To
     html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
     assert "pieza-escudo" not in html  # los equipos de prueba no tienen escudo: no hay huecos
     assert "con-escudo-local" not in html
+
+
+@pytest.mark.django_db
+def test_el_png_usa_el_escudo_del_equipo(client: Client, torneo: Torneo) -> None:
+    """T13.1: el escudo es del equipo, no del club."""
+    dia = un_dia_con_partidos()
+    partido = Partido.objects.filter(inicio__isnull=False).order_by("inicio").first()
+    assert partido is not None and partido.local is not None
+    del_club = partido.local.equipo_de_club_id
+    EquipoDeClub.objects.filter(pk=del_club).update(escudo="escudos/local.webp")
+    html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
+    assert f"/imagen/escudo/{del_club}/" in html

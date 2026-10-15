@@ -1,4 +1,7 @@
-"""T8.3: escudo del club, logo del organizador y patrocinadores (P68, P69). Imágenes inventadas."""
+"""T8.3: escudo del equipo (T13.1), logo del organizador y patrocinadores (P68, P69).
+
+Imágenes inventadas.
+"""
 
 import io
 from typing import Any
@@ -11,7 +14,7 @@ from django.test import Client
 from PIL import Image
 
 from dominio.config import cargar_config
-from torneo.models import Club, Equipo, Organizador, Patrocinador, Torneo
+from torneo.models import Club, Equipo, EquipoDeClub, Organizador, Patrocinador, Torneo
 from torneo.permisos import MESA, ORGANIZACION
 from torneo.servicios.configuracion import cargar_configuracion
 
@@ -43,7 +46,7 @@ def entrar(client: Client, grupo: str) -> Client:
     return client
 
 
-# ---------- Escudo del club (P68) ----------
+# ---------- Escudo del equipo (P68, T13.1) ----------
 
 
 @pytest.mark.django_db
@@ -51,16 +54,18 @@ def test_la_organizacion_sube_el_escudo_y_aparece_en_sus_equipos(
     client: Client, equipo: Equipo
 ) -> None:
     org = entrar(client, ORGANIZACION)
-    org.post(f"/clubes/{equipo.club_id}/escudo/", {"escudo": png(), "equipo": equipo.pk})
-    club = Club.objects.get(pk=equipo.club_id)
-    assert (club.escudo.name or "").startswith("escudos/") and (club.escudo.name or "").endswith(
-        ".webp"
+    org.post(
+        f"/equipos-del-club/{equipo.equipo_de_club_id}/escudo/",
+        {"escudo": png(), "equipo": equipo.pk},
     )
+    del_club = EquipoDeClub.objects.get(pk=equipo.equipo_de_club_id)
+    assert (del_club.escudo.name or "").startswith("escudos/")
+    assert (del_club.escudo.name or "").endswith(".webp")
     ficha = org.get(f"/equipos/{equipo.pk}/plantel/").content.decode()
-    assert f"/imagen/escudo/{club.pk}/" in ficha
+    assert f"/imagen/escudo/{del_club.pk}/" in ficha
     # Se sirve desde la app, sin login: no tiene datos personales.
     client.logout()
-    respuesta = client.get(f"/imagen/escudo/{club.pk}/")
+    respuesta = client.get(f"/imagen/escudo/{del_club.pk}/")
     assert respuesta.status_code == 200
     assert respuesta["Content-Type"] == "image/webp"
 
@@ -69,16 +74,17 @@ def test_la_organizacion_sube_el_escudo_y_aparece_en_sus_equipos(
 def test_sin_escudo_se_ve_la_sigla(client: Client, equipo: Equipo) -> None:
     ficha = entrar(client, ORGANIZACION).get(f"/equipos/{equipo.pk}/plantel/").content.decode()
     assert "/imagen/escudo/" not in ficha and ">RIV<" in ficha
-    assert client.get(f"/imagen/escudo/{equipo.club_id}/").status_code == 404
+    assert client.get(f"/imagen/escudo/{equipo.equipo_de_club_id}/").status_code == 404
 
 
 @pytest.mark.django_db
 def test_reemplazar_el_escudo_borra_el_anterior(client: Client, equipo: Equipo) -> None:
     org = entrar(client, ORGANIZACION)
-    org.post(f"/clubes/{equipo.club_id}/escudo/", {"escudo": png()})
-    viejo = Club.objects.get(pk=equipo.club_id).escudo.name or ""
-    org.post(f"/clubes/{equipo.club_id}/escudo/", {"escudo": png(color=(200, 0, 0))})
-    nuevo = Club.objects.get(pk=equipo.club_id).escudo
+    url = f"/equipos-del-club/{equipo.equipo_de_club_id}/escudo/"
+    org.post(url, {"escudo": png()})
+    viejo = EquipoDeClub.objects.get(pk=equipo.equipo_de_club_id).escudo.name or ""
+    org.post(url, {"escudo": png(color=(200, 0, 0))})
+    nuevo = EquipoDeClub.objects.get(pk=equipo.equipo_de_club_id).escudo
     assert nuevo.name != viejo
     assert not nuevo.storage.exists(viejo)
 
@@ -87,15 +93,17 @@ def test_reemplazar_el_escudo_borra_el_anterior(client: Client, equipo: Equipo) 
 def test_un_archivo_que_no_es_imagen_se_rechaza(client: Client, equipo: Equipo) -> None:
     org = entrar(client, ORGANIZACION)
     falso = SimpleUploadedFile("escudo.png", b"no soy una imagen", content_type="image/png")
-    respuesta = org.post(f"/clubes/{equipo.club_id}/escudo/", {"escudo": falso}, follow=True)
+    url = f"/equipos-del-club/{equipo.equipo_de_club_id}/escudo/"
+    respuesta = org.post(url, {"escudo": falso}, follow=True)
     assert "JPG, PNG o WebP" in respuesta.content.decode()
-    assert not Club.objects.get(pk=equipo.club_id).escudo
+    assert not EquipoDeClub.objects.get(pk=equipo.equipo_de_club_id).escudo
 
 
 @pytest.mark.django_db
 def test_la_mesa_no_sube_escudos(client: Client, equipo: Equipo) -> None:
     mesa = entrar(client, MESA)
-    assert mesa.post(f"/clubes/{equipo.club_id}/escudo/", {"escudo": png()}).status_code == 403
+    url = f"/equipos-del-club/{equipo.equipo_de_club_id}/escudo/"
+    assert mesa.post(url, {"escudo": png()}).status_code == 403
 
 
 @pytest.mark.django_db
@@ -104,9 +112,10 @@ def test_sin_almacenamiento_conectado_no_se_sube_nada(
 ) -> None:
     settings.IMAGENES_DISPONIBLES = False
     org = entrar(client, ORGANIZACION)
-    respuesta = org.post(f"/clubes/{equipo.club_id}/escudo/", {"escudo": png()}, follow=True)
+    url = f"/equipos-del-club/{equipo.equipo_de_club_id}/escudo/"
+    respuesta = org.post(url, {"escudo": png()}, follow=True)
     assert "Falta conectar el almacenamiento de imágenes" in respuesta.content.decode()
-    assert not Club.objects.get(pk=equipo.club_id).escudo
+    assert not EquipoDeClub.objects.get(pk=equipo.equipo_de_club_id).escudo
 
 
 # ---------- Logo del organizador ----------

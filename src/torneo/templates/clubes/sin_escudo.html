@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Equipos sin escudo{% endblock %}
+{% block volver %}<a class="icono-btn" href="{% url 'inicio' %}" aria-label="Volver a Inicio">{% include "parciales/icono.html" with nombre="volver" %}</a>{% endblock %}
+{% block encabezado %}Equipos sin escudo{% endblock %}
+{% block contenido %}
+<div class="seccion">
+  {% include "parciales/seccion_cab.html" with titulo=titulo %}
+  <p class="peq tenue">No frena nada: mientras falte, se ve la sigla. Cada escudo vale en todas las categorías del equipo.</p>
+  <ul class="lista">
+    {% for item in equipos %}
+    <li>
+      <details class="desplegable">
+        <summary class="fila">
+          <span class="crece"><strong>{{ item.del_club.nombre }}</strong><span class="sub">{{ item.del_club.club }} · {% for equipo in item.categorias %}{{ equipo.categoria }}{% if not forloop.last %}, {% endif %}{% endfor %}</span></span>
+        </summary>
+        <form method="post" action="{% url 'escudo-equipo' item.del_club.pk %}" enctype="multipart/form-data" class="flex flex-col gap-2 pt-2">
+          {% csrf_token %}
+          <input type="hidden" name="volver" value="sin-escudo">
+          <input type="hidden" name="torneo" value="{{ torneo.pk }}">
+          {% include "parciales/campo_imagen.html" with nombre="escudo" ident="escudo_"|add:item.id etiqueta="Escudo de "|add:item.del_club.nombre ayuda="JPG, PNG o WebP." %}
+          {% if imagenes_disponibles %}<button type="submit" class="btn principal">Guardar el escudo</button>{% endif %}
+        </form>
+      </details>
+    </li>
+    {% empty %}
+    <li>{% include "parciales/vacio.html" with icono="bien" titulo="Todos tienen escudo" texto="No falta ninguno." %}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

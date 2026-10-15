@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.formats import date_format
 
 from torneo.colores import texto_sobre
-from torneo.models import CategoriaNivel, Club, Equipo, Partido, Torneo
+from torneo.models import CategoriaNivel, Equipo, EquipoDeClub, Partido, Torneo
 
 
 def fechas_del_torneo(torneo: Torneo) -> str:
@@ -52,10 +52,10 @@ _ESCUDOS = "rondo:escudos"
 
 
 def _escudos() -> dict[int, str]:
-    """Club → archivo de su escudo, en la caché: una consulta para toda la pantalla."""
+    """Equipo del club → archivo de su escudo, en la caché: una consulta para toda la pantalla."""
     escudos: dict[int, str] | None = cache.get(_ESCUDOS)
     if escudos is None:
-        escudos = dict(Club.objects.exclude(escudo="").values_list("pk", "escudo"))
+        escudos = dict(EquipoDeClub.objects.exclude(escudo="").values_list("pk", "escudo"))
         cache.set(_ESCUDOS, escudos, 5 * 60)
     return escudos
 
@@ -75,14 +75,14 @@ def url_de_imagen(tipo: str, pk: int, archivo: str | None) -> str:
 
 
 def escudo(equipo: Equipo) -> dict[str, str]:
-    """Lo que necesita parciales/escudo.html: el escudo del club si lo tiene (P68); si no, la
-    sigla y los colores del equipo."""
-    archivo = _escudos().get(equipo.club_id, "")
+    """Lo que necesita parciales/escudo.html: el escudo del equipo si lo tiene (P68, T13.1); si
+    no, la sigla y los colores."""
+    archivo = _escudos().get(equipo.equipo_de_club_id, "")
     return {
         "sigla": sigla_de_equipo(equipo.nombre),
         "color": equipo.color_1,
         "texto": texto_sobre(equipo.color_1) if equipo.color_1 else "",
-        "url": url_de_imagen("escudo", equipo.club_id, archivo),
+        "url": url_de_imagen("escudo", equipo.equipo_de_club_id, archivo),
     }
 
 

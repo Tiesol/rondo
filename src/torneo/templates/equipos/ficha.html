@@ -13,11 +13,11 @@
   </div>
   {% if perms.torneo.configurar_torneo %}
   <details class="desplegable">
-    <summary>Escudo del club</summary>
-    <form method="post" action="{% url 'escudo-club' equipo.club_id %}" enctype="multipart/form-data" class="flex flex-col gap-2">
+    <summary>Escudo de {{ equipo.nombre }}</summary>
+    <form method="post" action="{% url 'escudo-equipo' equipo.equipo_de_club_id %}" enctype="multipart/form-data" class="flex flex-col gap-2">
       {% csrf_token %}
       <input type="hidden" name="equipo" value="{{ equipo.pk }}">
-      {% include "parciales/campo_imagen.html" with nombre="escudo" etiqueta="Escudo de "|add:equipo.club.nombre ayuda="Uno por club: aparece en todos sus equipos. JPG, PNG o WebP." %}
+      {% include "parciales/campo_imagen.html" with nombre="escudo" etiqueta="Escudo de "|add:equipo.nombre ayuda="Vale en todas las categorías de este equipo. JPG, PNG o WebP." %}
       {% if imagenes_disponibles %}
       <div class="botones">
         <button type="submit" class="btn principal">Guardar el escudo</button>

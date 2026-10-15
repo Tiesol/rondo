@@ -43,3 +43,22 @@ class FormularioEquipo(_Base):
         nombre: str = self.cleaned_data.get("nombre", "").strip()
         club = self.cleaned_data.get("club")
         return nombre or (club.nombre if club else "")
+
+    def clean(self) -> dict[str, Any]:
+        """La unicidad es por equipo del club y categoría (T13.1): el formulario no la ve sola,
+        porque el equipo del club se busca o se crea al guardar."""
+        datos = super().clean() or {}
+        club, categoria, nombre = (datos.get(c) for c in ("club", "categoria", "nombre"))
+        if club and categoria and nombre:
+            repetido = Equipo.objects.filter(
+                equipo_de_club__club=club,
+                equipo_de_club__nombre__iexact=nombre,
+                categoria=categoria,
+            )
+            if self.instance.pk:
+                repetido = repetido.exclude(pk=self.instance.pk)
+            if repetido.exists():
+                self.add_error(
+                    "nombre", "Ya hay un equipo con ese nombre, de ese club, en esa categoría."
+                )
+        return datos

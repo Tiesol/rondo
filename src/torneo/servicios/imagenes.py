@@ -76,18 +76,28 @@ class SinAlmacenamiento(ImagenInvalida):
     """No hay dónde guardar imágenes: falta conectar R2 (T8.1)."""
 
 
-def reemplazar_imagen(campo: FieldFile, archivo: IO[bytes], *, tipo: Tipo) -> None:
-    """Procesa la imagen, la guarda en el campo y borra la anterior (no quedan huérfanas)."""
+def reemplazar_imagen(
+    campo: FieldFile, archivo: IO[bytes], *, tipo: Tipo, borrar_anterior: bool = True
+) -> None:
+    """Procesa la imagen, la guarda en el campo y borra la anterior (no quedan huérfanas), salvo
+    que otro la siga usando (`borrar_anterior=False`)."""
     if not settings.IMAGENES_DISPONIBLES:
         raise SinAlmacenamiento("Falta conectar el almacenamiento de imágenes.")
     nueva = procesar_imagen(archivo, tipo=tipo)
     anterior = campo.name
     assert nueva.name is not None
     campo.save(nueva.name, nueva, save=True)
-    if anterior:
+    if anterior and borrar_anterior:
         campo.storage.delete(anterior)
 
 
-def quitar_imagen(campo: FieldFile) -> None:
-    if campo.name:
+def quitar_imagen(campo: FieldFile, *, borrar: bool = True) -> None:
+    """Saca la imagen del campo y borra el archivo, salvo que otro lo siga usando."""
+    if not campo.name:
+        return
+    if borrar:
         campo.delete(save=True)
+    else:
+        campo.name = ""
+        assert campo.instance is not None
+        campo.instance.save(update_fields=[campo.field.name])
