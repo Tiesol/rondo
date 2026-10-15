@@ -18,6 +18,7 @@ from torneo.servicios.programador import (
     programar_torneo,
     resumen_antes_de_programar,
 )
+from torneo.views.calendario import dias_de_fin_de_semana
 from torneo.views.confirmar import confirmado, pedir_confirmacion
 from torneo.views.fragmentos import pide_fragmento
 
@@ -40,6 +41,26 @@ def _fila(grupo: GrupoDeCanchas, con_extra: GrupoDeCanchas | None = None) -> dic
         "entra": grupo.entra,
         "uso": min(round(100 * grupo.pedido / grupo.disponible), 100) if grupo.disponible else 100,
     }
+
+
+def minutos_por_dia(faltan: int, dias: int) -> int:
+    """Lo que falta repartido en esos días, redondeado hacia arriba a la media hora."""
+    por_dia = -(-faltan // dias)
+    return -(-por_dia // 30) * 30
+
+
+def sugerencia_para_que_entre(grupo: GrupoDeCanchas, *, dias_de_fin_de_semana: int) -> str:
+    """T13.8 (P79): lo que falta, repartido en los sábados y domingos (antes o después del
+    horario), solo para esas canchas. Los jueves quedan para las suspensiones."""
+    if grupo.entra or not dias_de_fin_de_semana:
+        return ""
+    por_dia = minutos_por_dia(grupo.faltan, dias_de_fin_de_semana)
+    canchas = " y ".join(grupo.canchas)
+    return (
+        f"Para que entre: unas {_horas(por_dia)} h por día en los {dias_de_fin_de_semana} "
+        f"sábados y domingos, solo para {canchas}, antes o después del horario. Se agrega en "
+        "Calendario → «Agregar tiempo» → «Repetir en todos los sábados y domingos»."
+    )
 
 
 def _plural(n: int, uno: str, varios: str) -> str:
@@ -123,6 +144,12 @@ def programar(request: HttpRequest, pk: int) -> HttpResponse:
     # T11.4: la eliminación ya no tiene un fin de semana propio; se mide todo el torneo.
     con_extra = {g.canchas: g for g in capacidad.con_extra}
     filas = [_fila(g, con_extra.get(g.canchas)) for g in capacidad.total]
+    dias = len(dias_de_fin_de_semana(torneo))
+    for fila, grupo in zip(filas, capacidad.total, strict=True):
+        if not fila["entra_con_extra"]:
+            fila["sugerencia"] = sugerencia_para_que_entre(
+                con_extra.get(grupo.canchas, grupo), dias_de_fin_de_semana=dias
+            )
     return render(
         request,
         "torneo/programar.html",

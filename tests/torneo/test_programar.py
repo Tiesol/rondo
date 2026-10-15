@@ -58,7 +58,8 @@ def test_t11_4_si_no_entra_dice_cuanto_falta_y_que_hacer(client: Client, demo: T
     assert not all(g.entra for g in capacidad_del_torneo(demo).total)  # F11 en C3 (H8)
     html = entrar(client, ORGANIZACION).get(f"/torneos/{demo.pk}/programar/").content.decode()
     assert "Faltan" in html
-    assert "Agrega un día" in html
+    # T13.8 (P79): se amplía C3 los fines de semana; los jueves quedan para suspensiones.
+    assert "sábados y domingos" in html and "jueves" not in html.lower()
 
 
 def test_la_mesa_no_programa(client: Client, demo: Torneo) -> None:
