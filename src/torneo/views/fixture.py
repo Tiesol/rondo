@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from dominio.formatos import FormatoFaltante
+from dominio.formatos import FormatoFaltante, FormatoParaN
 from torneo.models import CategoriaNivel, Equipo, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.presentacion import cruce, escudo
@@ -88,11 +88,15 @@ def datos_del_fixture(categoria: CategoriaNivel, *, con_propuesta: bool = False)
     cantidad = categoria.equipos.count()
     problema = ""
     letras: tuple[str, ...] = ()
+    cruzadas = ""
     if cantidad >= 2:
         try:
-            letras = formatos().para(cantidad).grupos.nombres_de_series
+            formato = formatos().para(cantidad)
         except FormatoFaltante as error:
             problema = str(error)
+        else:
+            letras = formato.grupos.nombres_de_series
+            cruzadas = _explicar_cruzadas(formato)
 
     partidos = list(
         categoria.partidos.select_related("local", "visitante", "serie", "cancha").order_by(
@@ -114,6 +118,10 @@ def datos_del_fixture(categoria: CategoriaNivel, *, con_propuesta: bool = False)
         "propuesta": _propuesta(categoria, partidos) if con_propuesta else None,
         "faltan_equipos": cantidad < 2,
         "hay_fixture": bool(partidos),
+        "cruzadas": cruzadas,
+        "sin_programar": sum(
+            1 for p in partidos if p.estado == Partido.Estado.PENDIENTE and p.inicio is None
+        ),
         "letras": letras,
         "series": [
             {
@@ -129,6 +137,19 @@ def datos_del_fixture(categoria: CategoriaNivel, *, con_propuesta: bool = False)
         "eliminacion": [{"copa": copa, "partidos": filas} for copa, filas in copas.items()],
         "equipos": equipos,
     }
+
+
+def _explicar_cruzadas(formato: FormatoParaN) -> str:
+    """T13.9: con series cruzadas, quién juega con quién y cómo son las semis de Oro."""
+    if formato.grupos.tipo != "series_cruzadas":
+        return ""
+    semis = [
+        f"{llave.local.texto} vs {llave.visitante.texto}"
+        for llave in formato.eliminacion
+        if llave.copa == "oro" and llave.ronda == "semi"
+    ]
+    texto = "Series cruzadas. Cada equipo de A juega con todos los de B."
+    return f"{texto} Semis de Oro: {' y '.join(semis)}." if semis else texto
 
 
 def _propuesta(categoria: CategoriaNivel, partidos: list[Partido]) -> dict[str, Any] | None:
