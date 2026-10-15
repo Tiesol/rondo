@@ -12,6 +12,7 @@ from django.db.models import Count
 from django.urls import reverse
 
 from torneo.models import Equipo, EquipoDeClub, Partido, Torneo
+from torneo.servicios.bloqueos import chocan_con_bloqueos
 from torneo.servicios.fixture import formatos, motivo_desactualizado
 
 
@@ -123,6 +124,21 @@ def pendientes(torneo: Torneo, *, puede_configurar: bool) -> list[dict[str, Any]
                 "url": reverse("sin-escudo", args=[torneo.pk]),
                 "icono": "camara",
                 "estado": "aviso",
+            }
+        )
+
+    if puede_configurar and (con_bloqueo := chocan_con_bloqueos(torneo)):
+        lista.append(
+            {
+                "titulo": _contar(
+                    len(con_bloqueo),
+                    "partido choca con un bloqueo",
+                    "partidos chocan con un bloqueo",
+                ),
+                "sub": "Moverlo a mano, intercambiarlo o ver propuestas",
+                "url": reverse("acf", args=[torneo.pk]),
+                "icono": "aviso",
+                "estado": "error",
             }
         )
 

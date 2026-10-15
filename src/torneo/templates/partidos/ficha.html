@@ -13,6 +13,7 @@
   </div>
   {% if resultado.penales %}<p class="peq tenue centrado">Penales {{ resultado.penales.0 }} a {{ resultado.penales.1 }}</p>{% endif %}
   {% if resultado.wo %}<p class="peq tenue centrado">W.O.</p>{% endif %}
+  {% if bloqueo and perms.torneo.configurar_torneo and not partido.empezado %}{% with texto="Choca con un bloqueo ("|add:bloqueo|add:"). Reprográmalo." %}{% include "parciales/alerta.html" with estado="error" texto=texto %}{% endwith %}{% endif %}
   {% if perms.torneo.configurar_torneo and not partido.empezado %}<div class="botones">{% url "reprogramar-partido" partido.pk as url_reprogramar %}{% include "parciales/boton.html" with texto="Reprogramar" url=url_reprogramar %}</div>{% endif %}
   <div class="marcas">
     {% if partido.estado == "en_juego" %}<span class="chip aviso num">{{ tiempo|default:"En juego" }}</span>{% elif partido.estado == "jugado" %}{% include "parciales/chip.html" with texto="Terminado" estado="bien" %}{% else %}{% include "parciales/chip.html" with texto="Por jugar" estado="neutro" %}{% endif %}

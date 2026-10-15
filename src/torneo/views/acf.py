@@ -31,6 +31,7 @@ def describir(partido: Partido) -> dict[str, str]:
         )
     )
     return {
+        "pk": str(partido.pk),
         "cuando": f"{DIAS[local.weekday()]} {local.day} · {local:%H:%M} · "
         f"{partido.cancha.codigo if partido.cancha else ''}",
         "cruce": equipos,
