@@ -2,7 +2,7 @@
 {% block titulo %}Reglas · {{ torneo.nombre }}{% endblock %}
 {% block encabezado %}Reglas{% endblock %}
 {% block contenido %}
-{% include "parciales/banda.html" with antes="Reglas del torneo" titulo=torneo.nombre despues="Vienen del reglamento. Las que tienen una P esperan la respuesta del organizador." %}
+{% include "parciales/banda.html" with antes="Reglas del torneo" titulo=torneo.nombre despues="Vienen del reglamento. Se cambian cuando haga falta." %}
 <form method="post" novalidate>
   {% csrf_token %}
   {% if form.non_field_errors %}
