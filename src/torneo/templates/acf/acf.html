@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block titulo %}Partido de la ACF{% endblock %}
-{% block encabezado %}Partido de la ACF{% endblock %}
+{% block titulo %}Un equipo no puede jugar{% endblock %}
+{% block encabezado %}Un equipo no puede jugar{% endblock %}
 {% block contenido %}
 <form method="post" class="seccion gap-3.5" novalidate
       hx-post="{% url 'revisar-acf' torneo.pk %}" hx-trigger="change" hx-target="#choques-acf" hx-swap="outerHTML" hx-sync="this:replace">
   {% csrf_token %}
-  <p class="tenue">Carga cuándo juega un equipo en la ACF. El programador no le pone partidos en ese horario.</p>
+  <p class="tenue">Cuándo no puede jugar un equipo: un partido de la ACF o una decisión de la organización. El programador no le pone partidos en ese horario.</p>
   {% include "parciales/campo.html" with campo=form.equipos %}
   {% include "parciales/campo.html" with campo=form.dia %}
   <div class="dos">

@@ -1,6 +1,6 @@
 """Propuestas de reprogramación (T5.3): verlas y aplicar una."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from django.contrib import messages
@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 
 from dominio.partido import Lado
 from dominio.programador.relajar import Relajar
+from torneo.forms.bloqueo import FormularioReprogramar
 from torneo.forms.reprogramar import CamposAflojar
 from torneo.models import Bloqueo, Corrida, Franja, Partido
 from torneo.permisos import requiere
@@ -241,3 +242,34 @@ def aplicar_propuesta(request: HttpRequest, pk: int, indice: int) -> HttpRespons
     if primero:
         return redirect("calendario-dia", fecha=timezone.localtime(primero).date().isoformat())
     return redirect("calendario")
+
+
+@requiere("torneo.configurar_torneo", "reprogramar")
+def reprogramar_partido(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.15: desde la ficha o el calendario. Si un equipo no puede en ese horario, queda un
+    bloqueo (con su motivo) y se calculan las propuestas; también se puede mover a mano o
+    intercambiar."""
+    partido = get_object_or_404(
+        Partido.objects.select_related("categoria__torneo", "cancha", "local", "visitante"), pk=pk
+    )
+    formulario = FormularioReprogramar(request.POST or None, partido=partido)
+    if request.method == "POST" and partido.inicio is not None and formulario.is_valid():
+        bloqueo = Bloqueo.objects.create(
+            torneo=partido.categoria.torneo,
+            inicio=partido.inicio,
+            fin=partido.inicio + timedelta(minutes=partido.categoria.minutos_partido),
+            motivo=formulario.cleaned_data["motivo"],
+        )
+        bloqueo.equipos.set(formulario.cleaned_data["equipos"])
+        corrida = calcular_propuestas(bloqueo, request.user)
+        return redirect("ver-propuestas", pk=corrida.pk)
+    return render(
+        request,
+        "reprogramar/partido.html",
+        {
+            "partido": partido,
+            "cruce": cruce(partido),
+            "ahora": lugar(partido.inicio, partido.cancha.codigo if partido.cancha else ""),
+            "form": formulario,
+        },
+    )

@@ -1,4 +1,8 @@
-"""Partido de la ACF (T5.1): equipos, día y horario del bloqueo."""
+"""Un equipo no puede jugar (T5.1, T13.15): equipos, día, horario y motivo del bloqueo.
+
+La convocatoria 2026 no atiende pedidos particulares: los motivos son la ACF o una decisión de
+la organización. La suspensión de un día (lluvia) va por "Suspender este día".
+"""
 
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
@@ -19,6 +23,12 @@ class _Equipos(_CampoDeEquipos):
         return f"{obj.nombre} · {obj.categoria}"
 
 
+MOTIVOS = [
+    ("Partido de la ACF", "Partido de la ACF"),
+    ("Decisión de la organización", "Decisión de la organización"),
+]
+
+
 class FormularioBloqueo(forms.Form):
     equipos = _Equipos(
         queryset=Equipo.objects.none(),
@@ -32,7 +42,7 @@ class FormularioBloqueo(forms.Form):
     hasta = forms.TimeField(
         widget=forms.TimeInput(attrs={"type": "time"}), help_text="Con el margen del traslado."
     )
-    motivo = forms.CharField(max_length=80, initial="Partido de la ACF")
+    motivo = forms.ChoiceField(choices=MOTIVOS, initial="Partido de la ACF")
 
     def __init__(self, *args: Any, torneo: Torneo, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -55,3 +65,21 @@ class FormularioBloqueo(forms.Form):
         return timezone.make_aware(
             datetime.combine(self.cleaned_data["dia"], self.cleaned_data[campo])
         )
+
+
+class FormularioReprogramar(forms.Form):
+    """T13.15: reprogramar un partido. Quién no puede en ese horario, y por qué."""
+
+    motivo = forms.ChoiceField(choices=MOTIVOS, initial="Partido de la ACF")
+    equipos = forms.ModelMultipleChoiceField(
+        queryset=Equipo.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        label="¿Quién no puede?",
+        error_messages={"required": "Elige el equipo que no puede jugar."},
+    )
+
+    def __init__(self, *args: Any, partido: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        campo = self.fields["equipos"]
+        assert isinstance(campo, forms.ModelMultipleChoiceField)
+        campo.queryset = Equipo.objects.filter(pk__in=[partido.local_id, partido.visitante_id])
