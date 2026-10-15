@@ -99,6 +99,17 @@ def fin_esperado(partido: Partido) -> datetime | None:
     return None
 
 
+# T13.12 (P84): el reglamento deja agregar jugadores hasta antes del inicio del 2.º tiempo.
+ALTA_CERRADA = "Por reglamento, los jugadores se agregan hasta antes del 2.º tiempo."
+
+
+def alta_abierta(partido: Partido) -> bool:
+    return partido.estado != Partido.Estado.JUGADO and partido.tiempo not in (
+        Partido.Tiempo.SEGUNDO_TIEMPO,
+        Partido.Tiempo.TERMINADO,
+    )
+
+
 def olvidado_desde(partido: Partido, ahora: datetime | None = None) -> datetime | None:
     """T13.11: el final esperado de un partido que sigue en juego y ya lo pasó por más que el
     margen de la regla; si no, None."""

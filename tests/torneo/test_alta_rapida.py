@@ -158,3 +158,36 @@ def test_c3_el_equipo_al_que_se_vuelve_se_abre(org: Client, partido: Partido) ->
     assert abierta.count('<details class="planilla-equipo" open') >= cerrada.count(
         '<details class="planilla-equipo" open'
     )
+
+
+# ---------- T13.12 (P84): hasta el inicio del 2.º tiempo ----------
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("pasos", [0, 1, 2])  # sin empezar, 1.er tiempo, descanso
+def test_se_puede_hasta_el_descanso(org: Client, partido: Partido, pasos: int) -> None:
+    from torneo.servicios import partido as servicio
+
+    if pasos:
+        servicio.empezar(partido, None)
+    for _ in range(pasos - 1):
+        servicio.avanzar_tiempo(partido, None)
+    assert "+ Agregar jugador" in org.get(f"/partidos/{partido.pk}/ficha/").content.decode()
+    respuesta = org.post(url(partido), datos())
+    assert respuesta.status_code == 302
+    assert Jugador.objects.filter(equipo=partido.local).count() == 1
+
+
+@pytest.mark.django_db
+def test_con_el_segundo_tiempo_empezado_ya_no(org: Client, partido: Partido) -> None:
+    from torneo.servicios import partido as servicio
+
+    servicio.empezar(partido, None)
+    servicio.avanzar_tiempo(partido, None)  # descanso
+    servicio.avanzar_tiempo(partido, None)  # 2.º tiempo
+    ficha = org.get(f"/partidos/{partido.pk}/ficha/").content.decode()
+    assert "+ Agregar jugador" not in ficha
+    assert "hasta antes del 2.º tiempo" in ficha
+    respuesta = org.post(url(partido), datos(), follow=True)
+    assert "hasta antes del 2.º tiempo" in respuesta.content.decode()
+    assert not Jugador.objects.filter(equipo=partido.local).exists()

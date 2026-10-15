@@ -22,7 +22,7 @@
     {% endfor %}
   </ul>
   {% if lado.juegan %}<button type="submit" name="verificar_todos" value="1" class="btn bloque">Verificar todos los CI</button>{% endif %}
-  {% if perms.torneo.inscribir_equipos %}<a class="btn chico" href="{% url 'alta-rapida' partido.pk lado.equipo.pk %}">+ Agregar jugador</a>{% endif %}
+  {% if perms.torneo.inscribir_equipos %}{% if alta_abierta %}<a class="btn chico" href="{% url 'alta-rapida' partido.pk lado.equipo.pk %}">+ Agregar jugador</a>{% else %}<span class="peq tenue">{{ alta_cerrada }}</span>{% endif %}{% endif %}
   <label class="opcion"><input type="checkbox" name="entrenador"{% if lado.entrenador %} checked{% endif %}> Entrenador presente</label>
   <button type="submit" class="btn principal bloque">Guardar</button>
 </form>
