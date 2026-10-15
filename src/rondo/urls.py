@@ -98,6 +98,7 @@ urlpatterns = [
     path("jugadores/<int:pk>/verificar/", jugadores.verificar, name="verificar"),
     path("partidos/<int:pk>/mover/", mover.mover, name="mover"),
     path("partidos/<int:pk>/intercambiar/", mover.intercambiar, name="intercambiar"),
+    path("partidos/<int:pk>/fijar/", mover.fijar, name="fijar"),
     path(
         "partidos/<int:pk>/reprogramar/",
         reprogramar.reprogramar_partido,

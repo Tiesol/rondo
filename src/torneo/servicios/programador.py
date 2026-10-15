@@ -153,7 +153,7 @@ def problema_del_torneo(
         fijo = None
         if partido.cancha and partido.inicio:
             ya_paso = desde is not None and hora_local(partido.inicio) <= desde
-            if partido.empezado or ya_paso or solo_lo_que_falta:
+            if partido.empezado or ya_paso or solo_lo_que_falta or partido.fijado:
                 fijo = (partido.cancha.codigo, hora_local(partido.inicio))
         de_la_llave = llaves[categoria.pk].get(partido.clave) if partido.clave else None
         a_programar.append(

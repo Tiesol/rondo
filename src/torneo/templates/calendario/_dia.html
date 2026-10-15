@@ -46,6 +46,7 @@
           </span>
           <span class="sub">{{ partido.categoria }}{% if partido.nombre %} · {{ partido.nombre }}{% endif %}{% if partido.mitad %} · {{ partido.mitad }}{% endif %}</span>
           {% if partido.pk in con_bloqueo %}<span class="chip error">Choca con un bloqueo</span>{% endif %}
+          {% if partido.fijado %}<span class="chip">Fijado</span>{% endif %}
         </{% if perms.torneo.cargar_resultados %}a{% else %}span{% endif %}>
         {% if perms.torneo.configurar_torneo %}<a class="btn chico" href="{% url 'mover' partido.pk %}">Mover</a><a class="btn chico" href="{% url 'reprogramar-partido' partido.pk %}">Reprogramar</a>{% endif %}
       </li>

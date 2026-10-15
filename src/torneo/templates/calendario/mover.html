@@ -19,6 +19,7 @@
     {% include "parciales/campo.html" with campo=form.hora %}
   </div>
   {% include "parciales/campo.html" with campo=form.cancha %}
+  {% include "parciales/campo.html" with campo=form.fijar %}
   {% if motivos and not bloquea %}
   <button type="submit" name="confirmar" value="1" class="btn principal bloque">Mover igual</button>
   {% else %}

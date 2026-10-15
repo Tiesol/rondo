@@ -163,6 +163,8 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
                 or None,
             ),
             "volver": _volver(corrida),
+            # T13.21: un fijado que choca no se mueve solo; la organización decide.
+            "fijados": sorted({cruce(p) for p, _ in afectados if p.fijado}),
             # T10.10: dar W.O. en lugar de reprogramar, y cuántas veces ya reprogramó.
             "afectados": [
                 {

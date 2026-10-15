@@ -95,6 +95,11 @@ def generar_fixture(
     except SeriesInvalidas as error:
         raise FixtureNoSePuede(f"{categoria}: {error}") from None
 
+    # T13.21: los fijados conservan su lugar si su cruce sigue en el fixture nuevo.
+    fijados = {
+        (frozenset((p.local_id, p.visitante_id)), p.fase, p.clave): (p.cancha_id, p.inicio)
+        for p in categoria.partidos.filter(fijado=True, inicio__isnull=False)
+    }
     categoria.partidos.all().delete()
     categoria.series.all().delete()
     guardadas: dict[str, Serie] = {}
@@ -118,6 +123,13 @@ def generar_fixture(
         )
         for p in fixture.partidos
     )
+    if fijados:
+        for nuevo in categoria.partidos.filter(fase=Partido.Fase.GRUPOS):
+            clave = (frozenset((nuevo.local_id, nuevo.visitante_id)), nuevo.fase, nuevo.clave)
+            if clave in fijados:
+                nuevo.cancha_id, nuevo.inicio = fijados.pop(clave)
+                nuevo.estado, nuevo.fijado = Partido.Estado.PROGRAMADO, True
+                nuevo.save(update_fields=["cancha", "inicio", "estado", "fijado"])
 
 
 def motivo_desactualizado(
