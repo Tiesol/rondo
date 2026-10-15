@@ -15,6 +15,7 @@ página pública. Con editable, la organización ve los botones y el editor de s
 {% endif %}
 {% else %}
 
+{% if fixture.avisos_cruces %}{% with texto=fixture.avisos_cruces|join:" " %}{% include "parciales/alerta.html" with estado="aviso" titulo="Cruces editados a mano:" texto=texto %}{% endwith %}{% endif %}
 {% if fixture.cruzadas %}{% include "parciales/alerta.html" with estado="info" texto=fixture.cruzadas %}{% endif %}
 {% if editable and fixture.sin_programar %}
 <div class="flex flex-col gap-2">
@@ -85,7 +86,7 @@ página pública. Con editable, la organización ve los botones y el editor de s
 {% endif %}
 
 {% for fecha in fixture.fechas %}
-<div class="subtitulo">Fecha {{ fecha.numero }} <span class="num">{{ fecha.partidos|length }} partido{{ fecha.partidos|length|pluralize }}</span></div>
+<div class="subtitulo">Fecha {{ fecha.numero }} <span class="num">{{ fecha.partidos|length }} partido{{ fecha.partidos|length|pluralize }}</span>{% if editable %} · <a class="enlace" href="{% url 'fecha-fixture' categoria.pk fecha.numero %}">Cambiar cruces</a>{% endif %}</div>
 <ul class="lista">{% for partido in fecha.partidos %}{% include "fixture/_partido.html" %}{% endfor %}</ul>
 {% endfor %}
 

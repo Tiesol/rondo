@@ -85,6 +85,7 @@ urlpatterns = [
     path("torneo/<int:pk>/series/", fixture.guardar_series, name="guardar-series"),
     path("torneo/<int:pk>/sorteo/", sorteo_de_tabla, name="sorteo-tabla"),
     path("torneo/<int:pk>/cruces/", fixture.cruces, name="cruces-desde-tabla"),
+    path("torneo/<int:pk>/fecha/<int:numero>/", fixture.fecha, name="fecha-fixture"),
     path("torneo/<int:pk>/<str:pestana>/", categoria, name="categoria"),
     path("equipos/<int:pk>/jugadores/nuevo/", jugadores.agregar_jugador, name="agregar-jugador"),
     path("equipos/<int:pk>/jugadores/revisar/", jugadores.revisar_jugador, name="revisar-jugador"),

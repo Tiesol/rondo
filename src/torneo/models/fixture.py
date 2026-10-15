@@ -82,6 +82,8 @@ class Partido(models.Model):
     # T13.21: decisión explícita de la organización. Nada automático lo mueve (programar,
     # rehacer el fixture ni las propuestas); se mueve solo a mano. Mover no fija solo.
     fijado = models.BooleanField(default=False)
+    # T13.22: el cruce (quién juega con quién en la fecha) lo cambió la organización a mano.
+    editado_a_mano = models.BooleanField(default=False)
     # T11.8: si el entrenador de cada equipo estuvo (opcional; vacío, sin marcar).
     entrenador_local = models.BooleanField(null=True, blank=True)
     entrenador_visitante = models.BooleanField(null=True, blank=True)
