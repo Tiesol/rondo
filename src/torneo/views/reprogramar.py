@@ -130,6 +130,7 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
                         "despues": _lugar(m["despues"]),
                         "cruce": cruce(partidos[m["partido"]]),
                         "categoria": str(partidos[m["partido"]].categoria),
+                        "motivo": m.get("motivo", ""),  # T13.18
                     }
                     for m in propuesta
                     if m["partido"] in partidos

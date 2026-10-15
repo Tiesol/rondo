@@ -27,6 +27,7 @@
       <span class="antes">{{ mov.antes }}</span>
       <span class="despues">{{ mov.despues }}</span>
       <span class="peq tenue">{{ mov.cruce }} · {{ mov.categoria }}</span>
+      {% if mov.motivo %}<span class="peq"><strong>Por qué:</strong> {{ mov.motivo }}</span>{% endif %}
     </div>
     {% endfor %}
     <form method="post" action="{% url 'aplicar-propuesta' corrida.pk propuesta.indice %}">
