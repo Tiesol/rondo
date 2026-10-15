@@ -64,12 +64,12 @@ def test_la_pestana_posiciones_muestra_la_tabla_y_pide_el_sorteo(
     usuario = User.objects.create_user("org", password="x")
     usuario.groups.add(Group.objects.get(name=ORGANIZACION))
     client.force_login(usuario)
-    primero = categoria.partidos.filter(fase="grupos").first()
-    assert primero is not None
-    jugar(primero, 1, 1)
+    # T13.10: el sorteo se pide recién con la serie terminada (todos 1 a 1).
+    for partido in categoria.partidos.filter(fase="grupos"):
+        jugar(partido, 1, 1)
     html = client.get(f"/torneo/{categoria.pk}/posiciones/").content.decode()
     assert "Equipo 0" in html and "Pts" in html
-    assert "Falta sorteo" in html  # 0 a 0 entre todos: hasta el sorteo no se sabe el orden
+    assert "Falta sorteo" in html  # empatados en todo: hasta el sorteo no se sabe el orden
     empatados = tablas_de(categoria)[0].falta_sorteo
     datos = {f"lugar_{e.pk}": str(i) for i, e in enumerate(empatados, start=1)}
     client.post(f"/torneo/{categoria.pk}/sorteo/", datos)
