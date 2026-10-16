@@ -1706,7 +1706,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - `parciales/campo.html` pinta las casillas con `interruptor` como en Reglas: la etiqueta a la izquierda y el interruptor a la derecha. El CSS de `.campo input` deja afuera a los interruptores.
   - *Aceptación:* los dos interruptores se ven como los de Reglas, apagados y prendidos.
   - *Verificación:* test de la plantilla y capturas a 360 px. *Tamaño:* S.
-- [ ] **T13.34 "¿Entra todo?": los partidos que entran.**
+- [x] **T13.34 "¿Entra todo?": los partidos que entran.**
   - Causa: `en_palabras` resta lo pedido de lo ubicable, pero el flujo nunca ubica más de lo pedido: siempre da 0.
   - Se calcula con lo libre (disponible menos pedido) dividido por el turno: con 75 h libres y 50 min, unos 90.
   - *Aceptación:* "C1 y C2: 130 partidos (93 h) de 168 h disponibles. Entran unos 90 partidos más de 50 min."
