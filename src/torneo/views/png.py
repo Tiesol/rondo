@@ -6,6 +6,7 @@ patrocinadores. Si no entran, la cancha se parte en "1/2", "2/2". Nunca carga pe
 controla tests/torneo/test_png.py.
 """
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta
@@ -29,6 +30,12 @@ LIMITE = 900  # la franja azul empieza en 911,5: las filas terminan antes
 # T13.29: con pocos partidos, las filas crecen en alto (letra y escudos también) hasta esto. El
 # ancho del diseño no cambia: el fondo tiene adornos a los costados.
 ESCALA_MAXIMA = 1.35
+# T13.32: la columna del medio (categoría arriba, hora abajo). Con 88 px no entraban "SUB 15
+# FEMENINO" ni la hora agrandada; los nombres de los equipos le ceden el ancho. Igual en el CSS.
+ANCHO_MEDIO = 170
+ANCHO_LOCAL = 368
+ANCHO_VISITANTE = 396
+ANCHO_ESCUDO = 44  # con k = 1; lo que le quita al nombre, con su margen (ver el CSS)
 INICIAL = {"avanzado": "A", "inicial": "I"}
 # Nombres largos: se achica la letra hasta un mínimo (el JS de la página lo afina con la
 # medida real). En Cinzel, una mayúscula ocupa en promedio unos 0,65 em.
@@ -39,7 +46,8 @@ def tamano(texto: str, ancho: float, normal: float, minimo: float) -> float:
     """El tamaño de letra para que `texto` entre en `ancho` px, sin bajar del mínimo."""
     if not texto:
         return normal
-    return round(max(minimo, min(normal, ancho / (len(texto) * ANCHO_LETRA))), 1)
+    # Hacia abajo, a la décima: redondeado hacia arriba se pasaba del ancho por poco.
+    return max(minimo, math.floor(10 * min(normal, ancho / (len(texto) * ANCHO_LETRA))) / 10)
 
 
 @dataclass
@@ -59,11 +67,12 @@ def _etiqueta(partido: Partido, niveles_juntos: set[str]) -> str:
     return texto
 
 
-def _lado(equipo: Any, texto: str) -> tuple[str, str]:
-    """(nombre, URL del escudo si el club lo tiene; la sigla no va en el PNG)."""
+def _lado(equipo: Any, texto: str) -> tuple[str, dict[str, str] | None]:
+    """(nombre, escudo): la imagen si el equipo la tiene y, si no, su sigla en su color (T13.32).
+    Sin equipo (por definir), sin escudo."""
     if equipo is None:
-        return texto, ""
-    return equipo.nombre, escudo(equipo)["url"]
+        return texto, None
+    return equipo.nombre, escudo(equipo)
 
 
 def paginar(partidos: list[Partido]) -> list[list[dict[str, Any]]]:
@@ -114,13 +123,17 @@ def _agrandar(filas: list[dict[str, Any]]) -> list[dict[str, Any]]:
         fila["y"] = round(PRIMERA_FILA + (fila["y"] - PRIMERA_FILA) * k, 1)
         fila["escala"] = k
         local, visitante = fila["local"], fila["visitante"]
-        fila["tam_categoria"] = tamano(fila["categoria"], 88, 25.5 * k, 16)
-        con_escudo = 44 * k  # el ancho que el escudo le quita al nombre (ver el CSS)
+        fila["tam_categoria"] = tamano(fila["categoria"], ANCHO_MEDIO, 25.5 * k, 12)
+        fila["tam_hora"] = tamano(fila["hora"], ANCHO_MEDIO, 36 * k, 20)
+        con_escudo = 6 + ANCHO_ESCUDO * k  # el ancho que el escudo le quita al nombre
         fila["tam_local"] = tamano(
-            local, 403 - con_escudo if fila["escudo_local"] else 409, 30 * k, 23
+            local, ANCHO_LOCAL - (con_escudo if fila["escudo_local"] else 0), 30 * k, 23
         )
         fila["tam_visitante"] = tamano(
-            visitante, 432 - con_escudo if fila["escudo_visitante"] else 438, 30 * k, 23
+            visitante,
+            ANCHO_VISITANTE - (con_escudo if fila["escudo_visitante"] else 0),
+            30 * k,
+            23,
         )
     return filas
 
