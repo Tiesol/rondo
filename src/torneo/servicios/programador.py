@@ -6,6 +6,7 @@ vez, sin dejar la base tomada mientras el solver trabaja. El resultado se verifi
 verificador y se guarda antes de responder.
 """
 
+import hashlib
 from collections import Counter
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
@@ -365,6 +366,18 @@ def _empezar(
         )
 
 
+def huella(torneo: Torneo) -> str:
+    """T13.36: resume los partidos (equipos, cancha e inicio). Si cambia después de programar,
+    el resultado de esa programación quedó desactualizado: se rehízo el fixture, se editaron
+    cruces o se movieron partidos."""
+    filas = Partido.objects.filter(categoria__torneo=torneo).order_by("pk")
+    texto = "|".join(
+        f"{p.pk}:{p.local_id}:{p.visitante_id}:{p.cancha_id}:{p.inicio}"
+        for p in filas.only("pk", "local", "visitante", "cancha", "inicio")
+    )
+    return hashlib.sha256(texto.encode()).hexdigest()[:16]
+
+
 @dataclass
 class Resumen:
     """Qué hay antes de volver a programar (B4): lo que no se mueve y lo que sí."""
@@ -451,6 +464,7 @@ def programar_torneo(
             for p in partidos
             if not p.empezado and p.inicio is not None and p.inicio <= comienzo
         ],
+        "huella": huella(torneo),
     }
     corrida.save()
     return corrida

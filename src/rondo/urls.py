@@ -116,6 +116,7 @@ urlpatterns = [
     path("torneos/<int:pk>/publico/", publicar, name="publicar"),
     path("torneos/<int:pk>/fixtures/", fixture.generar_todos, name="generar-fixtures"),
     path("torneos/<int:pk>/programar/", programar.programar, name="programar"),
+    path("torneos/<int:pk>/programar/ocultar/", programar.ocultar, name="ocultar-programacion"),
     path("torneos/<int:pk>/copas/", copas_por_club, name="copas"),
     path("torneos/<int:pk>/acf/", acf.acf, name="acf"),
     path("torneos/<int:pk>/acf/revisar/", acf.revisar, name="revisar-acf"),

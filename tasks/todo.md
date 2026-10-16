@@ -1718,7 +1718,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Evaluar devolver una solución parcial (ubicar los que se pueda) aunque el solver no termine.
   - *Aceptación:* con el solver sin solución, el calendario queda como estaba y la pantalla lo explica; con la CPU de la demo, programar ubica partidos.
   - *Verificación:* tests del servicio y de la vista; medición con la CPU limitada, anotada en PROGRESO (H9); `pytest -m lento`. *Tamaño:* M.
-- [ ] **T13.36 Programar: el resultado de la última corrida, con fecha.**
+- [x] **T13.36 Programar: el resultado de la última corrida, con fecha.**
   - "Última programación: hoy 19:20" (o "sáb 24/10 19:20").
   - Si después cambió el fixture o se movieron partidos, el resultado se marca "desactualizado" y sus detalles se pliegan. Se detecta con una huella de los partidos (id, equipos, cancha e inicio) guardada al terminar la corrida.
   - Botón "Ocultar": lo esconde hasta la próxima programación.

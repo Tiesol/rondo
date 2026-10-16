@@ -1,5 +1,6 @@
 """Programar (T3.7 y T4.6): "¿Entra todo?", el botón de programar y su resultado."""
 
+from datetime import datetime, timedelta
 from typing import Any
 
 from django.conf import settings
@@ -7,15 +8,19 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from dominio.capacidad import GrupoDeCanchas
 from torneo.models import Corrida, Partido, Torneo
 from torneo.permisos import requiere
+from torneo.presentacion import DIAS_CORTOS
 from torneo.servicios.capacidad import capacidad_del_torneo
 from torneo.servicios.programador import (
     CON_SOLUCION,
     ProgramacionEnCurso,
     Resumen,
+    huella,
     programar_torneo,
     resumen_antes_de_programar,
 )
@@ -118,15 +123,43 @@ def _detalle(resumen: Resumen) -> list[str]:
     return lineas
 
 
-def _resultado(torneo: Torneo) -> dict[str, Any] | None:
-    """La última programación terminada, lista para mostrar."""
-    corrida = (
+def cuando(momento: datetime, *, ahora: datetime | None = None) -> str:
+    """T13.36: "hoy 19:20", "ayer 19:20" o "mié 21/10 19:20", en hora de Bolivia."""
+    local = timezone.localtime(momento)
+    hoy = timezone.localtime(ahora or timezone.now()).date()
+    hora = f"{local:%H:%M}"
+    if local.date() == hoy:
+        return f"hoy {hora}"
+    if local.date() == hoy - timedelta(days=1):
+        return f"ayer {hora}"
+    return f"{DIAS_CORTOS[local.weekday()].lower()} {local.day}/{local.month} {hora}"
+
+
+def _ultima(torneo: Torneo) -> Corrida | None:
+    return (
         Corrida.objects.filter(torneo=torneo, tipo=Corrida.Tipo.PROGRAMAR)
         .exclude(estado=Corrida.Estado.CORRIENDO)
         .first()
     )
+
+
+def _resultado(torneo: Torneo) -> dict[str, Any] | None:
+    """La última programación terminada, lista para mostrar: cuándo fue y si después cambió
+    algo (T13.36)."""
+    corrida = _ultima(torneo)
     if corrida is None:
         return None
+    resultado = corrida.resultado
+    if resultado.get("oculta"):
+        return {"oculta": True}
+    datos = _datos_de_la_corrida(torneo, corrida)
+    datos["cuando"] = cuando(corrida.inicio)
+    guardada = resultado.get("huella")
+    datos["desactualizada"] = bool(guardada) and guardada != huella(torneo)
+    return datos
+
+
+def _datos_de_la_corrida(torneo: Torneo, corrida: Corrida) -> dict[str, Any]:
     if corrida.estado == Corrida.Estado.FALLIDA:
         return {"fallida": True, "corrida": corrida}
     resultado = corrida.resultado
@@ -157,6 +190,22 @@ def _resultado(torneo: Torneo) -> dict[str, Any] | None:
     }
 
 
+@require_POST
+@requiere("torneo.configurar_torneo", "programar")
+def ocultar(request: HttpRequest, pk: int) -> HttpResponse:
+    """T13.36: esconde el resultado de la última programación hasta la próxima."""
+    torneo = get_object_or_404(Torneo, pk=pk)
+    corrida = _ultima(torneo)
+    if corrida is not None:
+        corrida.resultado = {**corrida.resultado, "oculta": True}
+        corrida.save(update_fields=["resultado"])
+    if pide_fragmento(request):
+        return render(
+            request, "torneo/_resultado_programacion.html", {"resultado": None, "torneo": torneo}
+        )
+    return redirect("programar", pk=torneo.pk)
+
+
 @requiere("torneo.configurar_torneo", "programar")
 def programar(request: HttpRequest, pk: int) -> HttpResponse:
     torneo = get_object_or_404(Torneo, pk=pk)
@@ -179,7 +228,9 @@ def programar(request: HttpRequest, pk: int) -> HttpResponse:
             messages.error(request, str(error))
         if pide_fragmento(request):
             return render(
-                request, "torneo/_resultado_programacion.html", {"resultado": _resultado(torneo)}
+                request,
+                "torneo/_resultado_programacion.html",
+                {"resultado": _resultado(torneo), "torneo": torneo},
             )
         return redirect("programar", pk=torneo.pk)
 

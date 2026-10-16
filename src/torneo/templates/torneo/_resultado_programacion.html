@@ -1,5 +1,18 @@
 {# El resultado de la última programación. HTMX reemplaza este bloque al programar. #}
 <div id="resultado-programacion" class="flex flex-col gap-2">
+  {% if resultado and not resultado.oculta %}
+  {# T13.36: cuándo fue, si quedó desactualizada y "Ocultar". #}
+  <div class="seccion-cab">
+    <span class="peq tenue">Última programación: {{ resultado.cuando }}{% if resultado.desactualizada %} {% include "parciales/chip.html" with estado="aviso" texto="Desactualizada" %}{% endif %}</span>
+    <form method="post" action="{% url 'ocultar-programacion' torneo.pk %}" hx-post="{% url 'ocultar-programacion' torneo.pk %}" hx-target="#resultado-programacion" hx-swap="outerHTML">
+      {% csrf_token %}<button type="submit" class="btn chico">Ocultar</button>
+    </form>
+  </div>
+  {% if resultado.desactualizada %}
+  <p class="peq tenue">Después se cambió el fixture o se movieron partidos: esto ya no es el calendario de hoy.</p>
+  <details class="desplegable">
+    <summary>Ver el resultado de esa programación</summary>
+  {% endif %}
   {% if resultado.fallida %}
   {% include "parciales/alerta.html" with estado="error" texto="La última programación falló. Prueba de nuevo; si sigue fallando, avísale a Sebastian." %}
   {% elif resultado.sin_solucion %}
@@ -28,5 +41,7 @@
   <ul class="lista">{% for texto in resultado.sin_resultado %}<li class="fila"><span class="crece"><strong>{{ texto }}</strong></span></li>{% endfor %}</ul>
   {% endif %}
   <a class="btn bloque" href="{% url 'calendario' %}">Ver el calendario</a>
+  {% endif %}
+  {% if resultado.desactualizada %}</details>{% endif %}
   {% endif %}
 </div>
