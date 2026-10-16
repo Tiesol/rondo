@@ -1691,6 +1691,44 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
 
 **Checkpoint D (cierre de la fase 13):** verde, más `pytest -m lento`; `code-review-and-quality` de la fase; PROGRESO al día (hechos el 2026-10-15, PR #171); visto bueno de Sebastian (pendiente).
 
+### Bloque E: prueba de Sebastian desde el celular (2026-10-15)
+
+> Seis fallos de la prueba en la demo. Cada uno con su test primero. T13.35 es el más importante: con la CPU de la demo, programar ubica 0 partidos, borra el calendario que había y dice "sin choques" en verde.
+
+- [ ] **T13.32 PNG del día: hora y categoría enteras, y la sigla sin escudo.**
+  - Causa: la columna del medio mide 88 px (categoría) y 96 px (hora). "SUB 15 FEMENINO" necesita unos 156 px aun con la letra mínima, y desde T13.29 la hora crece con la fila (hasta 48,6 px) sin achicarse: sale "14:…".
+  - La columna del medio pasa a 170 px, centrada donde estaba; los nombres de los equipos ceden ese ancho (siguen achicándose hasta 23 px). La categoría se achica hasta que entra y la hora también, las dos calculadas en el servidor con el ancho nuevo y afinadas por el JS.
+  - Sin escudo, la sigla del equipo en su color, en el lugar del escudo. Sin equipo (por definir), nada.
+  - *Aceptación:* "SUB 15 FEMENINO" y "14:00" entran enteras con la fila agrandada (k = 1,35); un equipo sin escudo muestra su sigla.
+  - *Verificación:* tests de `views/png.py` y de la plantilla; captura del PNG con un día de la demo. *Tamaño:* S-M.
+- [ ] **T13.33 Interruptores dentro de un formulario.**
+  - Causa: `.campo input` (ancho 100 %, alto 44 px, borde) le gana en especificidad a `.interruptor`, y marcado toma el color de acción: una barra amarilla. Pasa en Calendario → «Agregar tiempo» y en Mover («Fijar este partido»).
+  - `parciales/campo.html` pinta las casillas con `interruptor` como en Reglas: la etiqueta a la izquierda y el interruptor a la derecha. El CSS de `.campo input` deja afuera a los interruptores.
+  - *Aceptación:* los dos interruptores se ven como los de Reglas, apagados y prendidos.
+  - *Verificación:* test de la plantilla y capturas a 360 px. *Tamaño:* S.
+- [ ] **T13.34 "¿Entra todo?": los partidos que entran.**
+  - Causa: `en_palabras` resta lo pedido de lo ubicable, pero el flujo nunca ubica más de lo pedido: siempre da 0.
+  - Se calcula con lo libre (disponible menos pedido) dividido por el turno: con 75 h libres y 50 min, unos 90.
+  - *Aceptación:* "C1 y C2: 130 partidos (93 h) de 168 h disponibles. Entran unos 90 partidos más de 50 min."
+  - *Verificación:* test de `en_palabras`. *Tamaño:* S.
+- [ ] **T13.35 Programar sin solución en el tiempo.**
+  - Confirmar la causa en local con la demo y la CPU limitada como Render (0,1 CPU), y descartar una regresión de la fase 13 (T13.8, T13.21 a T13.23) comparando con `main` antes de la fase.
+  - Si el solver no encuentra ninguna solución, la app no borra el calendario que había: hoy `_guardar` deja sin día ni hora todo lo que no vino en el resultado.
+  - La pantalla no dice "sin choques" en verde con 0 ubicados: dice que no encontró solución en el tiempo y sugiere más tiempo o más CPU.
+  - Evaluar devolver una solución parcial (ubicar los que se pueda) aunque el solver no termine.
+  - *Aceptación:* con el solver sin solución, el calendario queda como estaba y la pantalla lo explica; con la CPU de la demo, programar ubica partidos.
+  - *Verificación:* tests del servicio y de la vista; medición con la CPU limitada, anotada en PROGRESO (H9); `pytest -m lento`. *Tamaño:* M.
+- [ ] **T13.36 Programar: el resultado de la última corrida, con fecha.**
+  - "Última programación: hoy 19:20" (o "sáb 24/10 19:20").
+  - Si después cambió el fixture o se movieron partidos, el resultado se marca "desactualizado" y sus detalles se pliegan. Se detecta con una huella de los partidos (id, equipos, cancha e inicio) guardada al terminar la corrida.
+  - Botón "Ocultar": lo esconde hasta la próxima programación.
+  - *Aceptación:* mover un partido o rehacer el fixture después de programar marca el resultado como desactualizado; "Ocultar" lo saca.
+  - *Verificación:* tests de la vista. *Tamaño:* S-M.
+- [ ] **T13.37 "¿Entra todo?": cada cancha más corta.**
+  - Las categorías como chips, plegadas ("Ver categorías (10)"), y la frase de capacidad en una línea.
+  - Con `frontend-ui-engineering` y `docs/DISENO.md` como referencia (sin cambiarlo), solo en esta pantalla. Capturas a 360 px antes y después.
+  - *Verificación:* test de la plantilla y las capturas. *Tamaño:* S-M. *Depende de:* T13.34.
+
 ```
 A:  T13.1 → T13.2 → T13.30
     T13.1 → T13.3 → T13.4
@@ -1699,4 +1737,5 @@ B:  T13.7, T13.8, T13.9, T13.10   (fixture, antes del 21/10; T13.6 espera P90)
     T13.11, T13.13 → T13.29, T13.14 → T13.25   (día de partido, antes del 23/10)
 C:  T13.15 → T13.16, T13.20;  T13.18 → T13.19;  T13.21 → T13.22 → T13.23;  T13.17, T13.24
 D:  T13.26, T13.27 → T13.28, T13.31
+E:  T13.32, T13.33, T13.34 → T13.37, T13.35 → T13.36
 ```
