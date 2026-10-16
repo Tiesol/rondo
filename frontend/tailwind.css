@@ -984,7 +984,7 @@
     height: 18px;
     padding: 0;
   }
-  .campo input,
+  .campo input:not(.interruptor),
   .campo select,
   .campo textarea {
     width: 100%;
@@ -996,6 +996,29 @@
     font-size: 16px; /* 16 px: el celular no hace zoom al escribir */
   }
   .campo .error-campo {
+    color: var(--color-error);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  /* T13.33: un interruptor en un formulario, como en Reglas. */
+  .campo-interruptor {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+  .campo-interruptor label {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .campo-interruptor .nombre {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+  .campo-interruptor .error-campo {
+    flex-basis: 100%;
     color: var(--color-error);
     font-size: 13px;
     font-weight: 600;
