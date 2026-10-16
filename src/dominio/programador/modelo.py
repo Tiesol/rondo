@@ -70,6 +70,7 @@ class PartidoAProgramar:
     temprano: bool = False  # de preferencia, en los primeros horarios del día (P56)
     ronda: str = ""  # en la eliminación: "semi" o "final" (A1, fase 12)
     sin_extra: bool = False  # A4: no puede ir al tiempo agregado (su grupo entra sin él)
+    pista: tuple[str, datetime] | None = None  # T13.35: dónde está hoy, para arrancar de ahí
 
     @property
     def equipos_definidos(self) -> tuple[Equipo, ...]:
@@ -273,6 +274,23 @@ class Modelo:
                     m.add(self.en_cancha[partido.id][cancha] == 1)
                 else:  # en una cancha que no es compatible (T11.2): se respeta igual
                     self.en_cancha[partido.id][cancha] = m.new_constant(1)
+
+    def pistas(self) -> None:
+        """T13.35: el calendario actual como punto de partida. Con poca CPU, el solver puede
+        no llegar a ninguna solución desde cero; desde una que ya funciona, la mejora. Una
+        pista que ya no vale (otra cancha, fuera de las franjas) se deja de lado."""
+        for partido in self.problema.partidos:
+            if partido.fijo or partido.pista is None:
+                continue
+            cancha, momento = partido.pista
+            paso = self.reloj.paso(momento, hacia_arriba=False)
+            canchas = self.en_cancha[partido.id]
+            if cancha not in canchas or not self._dominio(partido).contains(paso):
+                continue
+            self.modelo.add_hint(self.presente[partido.id], 1)
+            self.modelo.add_hint(self.inicio[partido.id], paso)
+            for codigo, elegida in canchas.items():
+                self.modelo.add_hint(elegida, int(codigo == cancha))
 
     def _tiempo_extra(self, partido: PartidoAProgramar) -> None:
         """A4 (P78): si va en tiempo agregado, solo en las canchas de ese tiempo; si no, en el
@@ -705,14 +723,21 @@ def _resolver(problema: Problema, segundos: float, trabajadores: int, semilla: i
     modelo.personas()
     modelo.orden()
     modelo.objetivo()
+    modelo.pistas()
     return modelo.resolver(segundos, trabajadores, semilla)
 
 
-def _ordenado(problema: Problema, segundos: float, trabajadores: int, semilla: int) -> Resultado:
+def _ordenado(
+    problema: Problema, segundos: float, trabajadores: int, semilla: int, una_pasada: bool = False
+) -> Resultado:
     """Con el orden de fechas "blanda" (P19) se prueba primero exigiéndolo: cuando se puede, el
     resultado tiene que ser ese (A2, fase 12). Solo si así algo queda sin lugar, se resuelve
-    la versión blanda, que permite alguna fecha al revés, y gana la que ubica más."""
-    if problema.reglas.orden_de_fechas == "dura":
+    la versión blanda, que permite alguna fecha al revés, y gana la que ubica más.
+
+    Con `una_pasada` (T13.35, poca CPU) se resuelve solo la versión blanda, con todo el tiempo:
+    con 0,1 CPU, dos pasadas de la mitad del tiempo no ubicaban nada. Las fechas al revés
+    igual cuestan en el objetivo."""
+    if problema.reglas.orden_de_fechas == "dura" or una_pasada:
         return _resolver(problema, segundos, trabajadores, semilla)
     estricto = replace(
         problema, reglas=problema.reglas.model_copy(update={"orden_de_fechas": "dura"})
@@ -725,11 +750,16 @@ def _ordenado(problema: Problema, segundos: float, trabajadores: int, semilla: i
 
 
 def programar(
-    problema: Problema, *, segundos: float = 60, trabajadores: int = 8, semilla: int = 0
+    problema: Problema,
+    *,
+    segundos: float = 60,
+    trabajadores: int = 8,
+    semilla: int = 0,
+    una_pasada: bool = False,
 ) -> Resultado:
     """El mejor calendario que encuentra el solver en el tiempo dado. El tiempo agregado (A4)
     cuesta más que todo lo blando: se usa solo si sin él algo queda sin lugar. Los partidos
     con `sin_extra` no lo usan nunca (sus canchas entran en el horario normal)."""
     if not problema.partidos:
         return Resultado(estado="OPTIMAL")
-    return _ordenado(problema, segundos, trabajadores, semilla)
+    return _ordenado(problema, segundos, trabajadores, semilla, una_pasada)

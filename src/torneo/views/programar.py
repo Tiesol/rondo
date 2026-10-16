@@ -13,6 +13,7 @@ from torneo.models import Corrida, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.capacidad import capacidad_del_torneo
 from torneo.servicios.programador import (
+    CON_SOLUCION,
     ProgramacionEnCurso,
     Resumen,
     programar_torneo,
@@ -129,6 +130,17 @@ def _resultado(torneo: Torneo) -> dict[str, Any] | None:
     if corrida.estado == Corrida.Estado.FALLIDA:
         return {"fallida": True, "corrida": corrida}
     resultado = corrida.resultado
+    total, ubicados = resultado.get("total", 0), resultado.get("ubicados", 0)
+    # T13.35: sin ningún calendario en el tiempo. Las corridas de antes no tienen la marca:
+    # 0 ubicados y el solver sin solución. Con solución y 0 ubicados, es que nada entra.
+    vieja_sin_solucion = (
+        "sin_solucion" not in resultado
+        and total
+        and not ubicados
+        and resultado.get("estado_solver") not in CON_SOLUCION
+    )
+    if resultado.get("sin_solucion") or vieja_sin_solucion:
+        return {"sin_solucion": True, "corrida": corrida, "total": total}
     # T11.2: los que se ubicaron a mano después ya no figuran.
     pendientes = set(
         Partido.objects.filter(
@@ -137,8 +149,8 @@ def _resultado(torneo: Torneo) -> dict[str, Any] | None:
     )
     return {
         "corrida": corrida,
-        "ubicados": resultado.get("ubicados", 0),
-        "total": resultado.get("total", 0),
+        "ubicados": ubicados,
+        "total": total,
         "choques": sum(resultado.get("choques", {}).values()),
         "sin_ubicar": [s for s in resultado.get("sin_ubicar", []) if s["id"] in pendientes],
         "sin_resultado": resultado.get("sin_resultado", []),

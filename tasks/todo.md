@@ -1711,7 +1711,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Se calcula con lo libre (disponible menos pedido) dividido por el turno: con 75 h libres y 50 min, unos 90.
   - *Aceptación:* "C1 y C2: 130 partidos (93 h) de 168 h disponibles. Entran unos 90 partidos más de 50 min."
   - *Verificación:* test de `en_palabras`. *Tamaño:* S.
-- [ ] **T13.35 Programar sin solución en el tiempo.**
+- [x] **T13.35 Programar sin solución en el tiempo.**
   - Confirmar la causa en local con la demo y la CPU limitada como Render (0,1 CPU), y descartar una regresión de la fase 13 (T13.8, T13.21 a T13.23) comparando con `main` antes de la fase.
   - Si el solver no encuentra ninguna solución, la app no borra el calendario que había: hoy `_guardar` deja sin día ni hora todo lo que no vino en el resultado.
   - La pantalla no dice "sin choques" en verde con 0 ubicados: dice que no encontró solución en el tiempo y sugiere más tiempo o más CPU.

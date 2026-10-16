@@ -28,6 +28,7 @@ from torneo.servicios.programador import (
     hora_local,
     partidos_del_torneo,
     problema_del_torneo,
+    trabajadores_para_la_cpu,
     verificar_torneo,
 )
 
@@ -119,7 +120,7 @@ def calcular_propuestas_en(
         cuantas=PROPUESTAS,
         # El límite se reparte: son hasta tres resoluciones dentro del mismo request.
         segundos=max(5, settings.PROGRAMADOR_SEGUNDOS // PROPUESTAS),
-        trabajadores=settings.PROGRAMADOR_TRABAJADORES,
+        trabajadores=trabajadores_para_la_cpu(settings.PROGRAMADOR_TRABAJADORES),
         preferidas=tuple(elegidas),
     )
     return Corrida.objects.create(

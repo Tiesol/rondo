@@ -2,9 +2,13 @@
 <div id="resultado-programacion" class="flex flex-col gap-2">
   {% if resultado.fallida %}
   {% include "parciales/alerta.html" with estado="error" texto="La última programación falló. Prueba de nuevo; si sigue fallando, avísale a Sebastian." %}
+  {% elif resultado.sin_solucion %}
+  <p class="alerta error" role="alert">{% include "parciales/icono.html" with nombre="error" %}<span><strong>No encontró una solución en el tiempo{% if resultado.corrida.duracion %} ({{ resultado.corrida.duracion|floatformat:0 }} s){% endif %}.</strong> El calendario quedó como estaba. Prueba de nuevo; si vuelve a pasar, hace falta darle más tiempo al programador o más CPU al servidor: avísale a Sebastian.</span></p>
   {% elif resultado %}
   {% if resultado.choques %}
   <p class="alerta error" role="alert">{% include "parciales/icono.html" with nombre="error" %}<span><strong>{{ resultado.ubicados }} de {{ resultado.total }} partidos programados, pero el verificador encontró {{ resultado.choques }} choque{{ resultado.choques|pluralize }}.</strong> Avísale a Sebastian.</span></p>
+  {% elif resultado.ubicados < resultado.total %}
+  <p class="alerta aviso">{% include "parciales/icono.html" with nombre="aviso" %}<span><strong>{{ resultado.ubicados }} de {{ resultado.total }} partidos programados, sin choques.</strong> Los que faltan están abajo, con el motivo.</span></p>
   {% else %}
   <p class="alerta bien">{% include "parciales/icono.html" with nombre="bien" %}<span><strong>{{ resultado.ubicados }} de {{ resultado.total }} partidos programados, sin choques.</strong> Revisado por el verificador.</span></p>
   {% endif %}
