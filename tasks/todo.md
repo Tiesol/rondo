@@ -1701,7 +1701,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Sin escudo, la sigla del equipo en su color, en el lugar del escudo. Sin equipo (por definir), nada.
   - *Aceptación:* "SUB 15 FEMENINO" y "14:00" entran enteras con la fila agrandada (k = 1,35); un equipo sin escudo muestra su sigla.
   - *Verificación:* tests de `views/png.py` y de la plantilla; captura del PNG con un día de la demo. *Tamaño:* S-M.
-- [ ] **T13.33 Interruptores dentro de un formulario.**
+- [x] **T13.33 Interruptores dentro de un formulario.**
   - Causa: `.campo input` (ancho 100 %, alto 44 px, borde) le gana en especificidad a `.interruptor`, y marcado toma el color de acción: una barra amarilla. Pasa en Calendario → «Agregar tiempo» y en Mover («Fijar este partido»).
   - `parciales/campo.html` pinta las casillas con `interruptor` como en Reglas: la etiqueta a la izquierda y el interruptor a la derecha. El CSS de `.campo input` deja afuera a los interruptores.
   - *Aceptación:* los dos interruptores se ven como los de Reglas, apagados y prendidos.
