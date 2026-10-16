@@ -5,12 +5,12 @@
   <div class="pieza-titulo ajustar" data-min="56">{{ pieza.titulo }}</div>
   {% for fila in pieza.filas %}
   <div class="pieza-fila {{ fila.color }}{% if fila.escudo_local %} con-escudo-local{% endif %}{% if fila.escudo_visitante %} con-escudo-visitante{% endif %}" style="top: {{ fila.y|stringformat:'s' }}px; --k: {{ fila.escala|stringformat:'s' }}">
-    {% if fila.escudo_local %}<img class="pieza-escudo izquierda" src="{{ fila.escudo_local }}" alt="">{% endif %}
+    {% if fila.escudo_local %}{% include "calendario/_pieza_escudo.html" with escudo=fila.escudo_local lado="izquierda" %}{% endif %}
     <span class="pieza-equipo local ajustar" data-min="23" style="font-size: {{ fila.tam_local|stringformat:'s' }}px">{{ fila.local }}</span>
     <span class="pieza-categoria ajustar" data-min="16" style="font-size: {{ fila.tam_categoria|stringformat:'s' }}px">{{ fila.categoria }}</span>
-    <span class="pieza-hora">{{ fila.hora }}</span>
+    <span class="pieza-hora ajustar" data-min="20" style="font-size: {{ fila.tam_hora|stringformat:'s' }}px">{{ fila.hora }}</span>
     <span class="pieza-equipo visitante ajustar" data-min="23" style="font-size: {{ fila.tam_visitante|stringformat:'s' }}px">{{ fila.visitante }}</span>
-    {% if fila.escudo_visitante %}<img class="pieza-escudo derecha" src="{{ fila.escudo_visitante }}" alt="">{% endif %}
+    {% if fila.escudo_visitante %}{% include "calendario/_pieza_escudo.html" with escudo=fila.escudo_visitante lado="derecha" %}{% endif %}
   </div>
   {% endfor %}
   <div class="pieza-patrocinadores" aria-label="Patrocinadores">

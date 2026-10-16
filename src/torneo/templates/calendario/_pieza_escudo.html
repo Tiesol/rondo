@@ -1,0 +1,2 @@
+{# El escudo de un equipo en el PNG o, si no tiene, su sigla en su color (T13.32). Parámetros: escudo (de presentacion.escudo) y lado ("izquierda" o "derecha"). #}
+{% if escudo.url %}<img class="pieza-escudo {{ lado }}" src="{{ escudo.url }}" alt="">{% else %}<span class="pieza-escudo pieza-sigla {{ lado }}"{% if escudo.color %} style="background: {{ escudo.color }}; color: {{ escudo.texto }}"{% endif %}>{{ escudo.sigla }}</span>{% endif %}

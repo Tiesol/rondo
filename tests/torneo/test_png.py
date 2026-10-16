@@ -159,11 +159,13 @@ def test_inicial_y_avanzado_de_la_misma_categoria_se_distinguen(
 
 
 @pytest.mark.django_db
-def test_sin_escudo_no_hay_hueco_y_con_escudo_aparece(client: Client, torneo: Torneo) -> None:
+def test_t13_32_sin_escudo_sale_la_sigla_en_su_color(client: Client, torneo: Torneo) -> None:
+    """Los equipos de prueba no tienen escudo: en su lugar, la sigla en el color del equipo."""
     dia = un_dia_con_partidos()
     html = mesa(client).get(f"/calendario/{dia}/png/").content.decode()
-    assert "pieza-escudo" not in html  # los equipos de prueba no tienen escudo: no hay huecos
-    assert "con-escudo-local" not in html
+    assert "pieza-sigla" in html
+    assert re.search(r'class="pieza-escudo pieza-sigla izquierda"[^>]*#c8102e[^>]*>EQU<', html)
+    assert "con-escudo-local" in html and "con-escudo-visitante" in html
 
 
 @pytest.mark.django_db
@@ -206,3 +208,44 @@ def test_t13_29_con_pocos_partidos_las_filas_crecen(torneo: Torneo) -> None:
     for pieza in muchos:
         ultima = pieza[-1]
         assert ultima["y"] + ALTO_FILA * ultima["escala"] <= LIMITE
+
+
+def _fila(categoria: str, hora: str = "14:00") -> dict[str, Any]:
+    from torneo.views.png import PRIMERA_FILA
+
+    return {
+        "y": PRIMERA_FILA,
+        "categoria": categoria,
+        "hora": hora,
+        "local": "Real Academia de Fútbol",
+        "visitante": "Escuela Municipal",
+        "escudo_local": {"url": "", "sigla": "REA"},
+        "escudo_visitante": {"url": "/imagen/escudo/1/", "sigla": "ESC"},
+    }
+
+
+@pytest.mark.parametrize("categoria", ["SUB 15 FEMENINO", "SUB 15 FEMENINO · C1A", "SUB 7 A"])
+def test_t13_32_hora_y_categoria_entran_enteras_con_la_fila_agrandada(categoria: str) -> None:
+    """La prueba de Sebastian: salían "14:…" y "SUB 15 FE…". Con una sola fila (k = 1,35) las
+    dos entran enteras en la columna del medio, con la letra calculada para su ancho."""
+    from torneo.views.png import ANCHO_LETRA, ANCHO_MEDIO, ESCALA_MAXIMA, _agrandar
+
+    (fila,) = _agrandar([_fila(categoria)])
+    assert fila["escala"] == ESCALA_MAXIMA
+    assert len(categoria) * ANCHO_LETRA * fila["tam_categoria"] <= ANCHO_MEDIO
+    assert len("14:00") * ANCHO_LETRA * fila["tam_hora"] <= ANCHO_MEDIO
+    assert fila["tam_categoria"] >= 12 and fila["tam_hora"] >= 20
+
+
+def test_t13_32_el_css_y_la_plantilla_usan_el_ancho_del_medio() -> None:
+    """El ancho de la columna del medio es uno solo: el del cálculo y el del CSS. La hora se
+    achica como los nombres (clase `ajustar` y su tamaño)."""
+    from torneo.views.png import ANCHO_MEDIO
+
+    css = (RAIZ / "frontend" / "tailwind.css").read_text()
+    for clase in ("pieza-categoria", "pieza-hora"):
+        regla = re.search(r"\." + clase + r" \{([^}]*)\}", css)
+        assert regla is not None, clase
+        assert f"width: {ANCHO_MEDIO}px" in regla.group(1), clase
+    pieza = PLANTILLAS_PNG[1].read_text()
+    assert re.search(r'class="pieza-hora ajustar"[^>]*tam_hora', pieza)

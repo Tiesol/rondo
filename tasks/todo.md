@@ -1695,7 +1695,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
 
 > Seis fallos de la prueba en la demo. Cada uno con su test primero. T13.35 es el más importante: con la CPU de la demo, programar ubica 0 partidos, borra el calendario que había y dice "sin choques" en verde.
 
-- [ ] **T13.32 PNG del día: hora y categoría enteras, y la sigla sin escudo.**
+- [x] **T13.32 PNG del día: hora y categoría enteras, y la sigla sin escudo.**
   - Causa: la columna del medio mide 88 px (categoría) y 96 px (hora). "SUB 15 FEMENINO" necesita unos 156 px aun con la letra mínima, y desde T13.29 la hora crece con la fila (hasta 48,6 px) sin achicarse: sale "14:…".
   - La columna del medio pasa a 170 px, centrada donde estaba; los nombres de los equipos ceden ese ancho (siguen achicándose hasta 23 px). La categoría se achica hasta que entra y la hora también, las dos calculadas en el servidor con el ancho nuevo y afinadas por el JS.
   - Sin escudo, la sigla del equipo en su color, en el lugar del escudo. Sin equipo (por definir), nada.

@@ -721,36 +721,38 @@
     top: calc(15px * var(--k, 1));
     font-size: 30px;
   }
+  /* T13.32: la columna del medio mide 170 px (ANCHO_MEDIO en views/png.py), centrada donde
+     estaba; los nombres le ceden el ancho. */
   .pieza-equipo.local {
     left: 4px;
-    width: 409px;
+    width: 368px;
   }
   .pieza-equipo.visitante {
-    left: 502px;
-    width: 438px;
+    left: 544px;
+    width: 396px;
   }
-  /* Con k = 1: 54 y 359 px, y 388 px; el escudo crece con --k y el nombre se corre. */
+  /* Con k = 1: 54 y 318 px, y 346 px; el escudo crece con --k y el nombre se corre. */
   .con-escudo-local .pieza-equipo.local {
     left: calc(10px + 44px * var(--k, 1));
-    width: calc(403px - 44px * var(--k, 1));
+    width: calc(362px - 44px * var(--k, 1));
   }
   .con-escudo-visitante .pieza-equipo.visitante {
-    width: calc(432px - 44px * var(--k, 1));
+    width: calc(390px - 44px * var(--k, 1));
   }
   .pieza-categoria {
     top: calc(2px * var(--k, 1));
-    left: 414px;
-    width: 88px;
+    left: 373px;
+    width: 170px;
     font-size: 25.5px;
   }
   .pieza-hora {
-    top: calc(27px * var(--k, 1));
-    left: 410px;
-    width: 96px;
+    top: calc(24px * var(--k, 1)); /* termina dentro de la fila: 24 + 36 < 61 */
+    left: 373px;
+    width: 170px;
     color: #b9a951;
     font-size: calc(36px * var(--k, 1));
   }
-  /* Los escudos no están en el diseño: van chicos en los extremos, solo si el club lo tiene. */
+  /* Los escudos no están en el diseño: van chicos en los extremos; sin escudo, la sigla. */
   .pieza-escudo {
     position: absolute;
     top: calc(8.5px * var(--k, 1));
@@ -763,6 +765,16 @@
   }
   .pieza-escudo.derecha {
     right: 6px;
+  }
+  .pieza-fila > .pieza-sigla {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #072236;
+    color: #fff;
+    font-size: calc(15px * var(--k, 1));
+    font-weight: 700;
   }
   .pieza-patrocinadores {
     position: absolute;
