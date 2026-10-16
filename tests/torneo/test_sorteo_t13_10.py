@@ -1,5 +1,7 @@
 """T13.10: "Falta sorteo" solo cuando la serie terminó (P28). Datos inventados."""
 
+import re
+
 import pytest
 from django.conf import settings
 from django.contrib.auth.models import Group, User
@@ -55,4 +57,4 @@ def test_con_la_serie_terminada_y_empate_total_si(client: Client, sub9: Categori
     client.force_login(usuario)
     html = client.get(f"/torneo/{sub9.pk}/posiciones/").content.decode()
     assert "Falta sorteo" in html
-    assert "Registrar el sorteo" in html and "P28" not in html
+    assert "Registrar el sorteo" in html and not re.search(r"\bP28\b", html)

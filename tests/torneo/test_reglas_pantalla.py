@@ -1,5 +1,6 @@
 """TU.3: las reglas del torneo se editan con interruptores, números y listas, sin JSON."""
 
+import re
 from datetime import date
 from typing import Any
 
@@ -46,7 +47,8 @@ def datos_validos(**cambios: Any) -> dict[str, Any]:
 def test_se_ven_todas_las_reglas_sin_la_p_y_sin_json(client: Client, torneo: Torneo) -> None:
     html = entrar(client, ORGANIZACION).get(f"/torneos/{torneo.pk}/reglas/").content.decode()
     assert "Se puede jugar en una categoría mayor" in html
-    assert "P6" not in html  # T13.27: las P son para nosotros
+    # T13.27: las P son para nosotros. Como palabra: el token CSRF puede traer "P6" adentro.
+    assert not re.search(r"\bP6\b", html)
     assert 'role="switch"' in html
     assert "<textarea" not in html
     assert "&quot;jugar_en_categoria_mayor&quot;" not in html
