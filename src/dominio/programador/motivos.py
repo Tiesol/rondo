@@ -178,7 +178,13 @@ def motivos_sin_ubicar(problema: Problema, resultado: Resultado) -> dict[Hashabl
             for cancha in canchas:
                 encontrados = calendario.problemas(partido, cancha, inicio)
                 conteo.update(encontrados)
-                hay_lugar = hay_lugar or not encontrados
+                # T13.35: con un lugar libre el motivo ya está; seguir probando era lo que más
+                # tardaba cuando el solver no ubicó nada.
+                hay_lugar = not encontrados
+                if hay_lugar:
+                    break
+            if hay_lugar:
+                break
         if hay_lugar:
             motivos[id_] = "Hay lugar, pero el programador no llegó a ubicarlo en el tiempo dado"
             continue

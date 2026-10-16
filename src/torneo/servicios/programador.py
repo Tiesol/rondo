@@ -9,6 +9,7 @@ verificador y se guarda antes de responder.
 from collections import Counter
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 from django.conf import settings
@@ -32,6 +33,42 @@ from torneo.servicios.personas import pares_de_equipos
 
 # Una corrida "corriendo" más vieja que su límite más este margen se da por abandonada.
 MARGEN_DE_ABANDONO = timedelta(minutes=2)
+# La CPU que da el contenedor (cgroups v2): "cuota período", o "max período" sin límite.
+CGROUPS = Path("/sys/fs/cgroup")
+# Los estados del solver con un calendario (los demás: no encontró ninguno en el tiempo).
+CON_SOLUCION = {"OPTIMAL", "FEASIBLE"}
+
+
+def _cpus(cpu_max: Path) -> float | None:
+    try:
+        cuota, periodo = cpu_max.read_text().split()[:2]
+        return int(cuota) / int(periodo)
+    except OSError, ValueError:  # sin el archivo, o "max": sin límite
+        return None
+
+
+def _cpu_max_del_proceso() -> list[Path]:
+    """El cpu.max del cgroup del proceso y de los de arriba. En un contenedor, el propio es la
+    raíz; fuera de uno (o con systemd), está en /proc/self/cgroup ("0::/ruta")."""
+    try:
+        ruta = Path("/proc/self/cgroup").read_text().strip().split("::", 1)[1]
+    except OSError, IndexError:
+        ruta = "/"
+    carpeta = CGROUPS / ruta.lstrip("/")
+    return [c / "cpu.max" for c in (carpeta, *carpeta.parents) if c.is_relative_to(CGROUPS)]
+
+
+def poca_cpu(cpu_max: Path | None = None) -> bool:
+    """Menos de una CPU (la demo en Render tiene 0,1). Si no se puede saber, no."""
+    archivos = [cpu_max] if cpu_max else _cpu_max_del_proceso()
+    limites = [c for c in map(_cpus, archivos) if c is not None]
+    return bool(limites) and min(limites) < 1
+
+
+def trabajadores_para_la_cpu(pedidos: int, cpu_max: Path | None = None) -> int:
+    """T13.35: con poca CPU, muchos trabajadores se reparten tan poco tiempo que el solver no
+    llega a ninguna solución (PROGRESO, H9): se usan 2."""
+    return min(pedidos, 2) if poca_cpu(cpu_max) else pedidos
 
 
 class ProgramacionEnCurso(Exception):
@@ -150,11 +187,12 @@ def problema_del_torneo(
     a_programar = []
     for partido in partidos:
         categoria = partido.categoria
-        fijo = None
+        fijo = pista = None
         if partido.cancha and partido.inicio:
+            pista = (partido.cancha.codigo, hora_local(partido.inicio))  # T13.35
             ya_paso = desde is not None and hora_local(partido.inicio) <= desde
             if partido.empezado or ya_paso or solo_lo_que_falta or partido.fijado:
-                fijo = (partido.cancha.codigo, hora_local(partido.inicio))
+                fijo = pista
         de_la_llave = llaves[categoria.pk].get(partido.clave) if partido.clave else None
         a_programar.append(
             PartidoAProgramar(
@@ -177,6 +215,7 @@ def problema_del_torneo(
                 ),
                 temprano=categoria.prefiere_temprano,
                 ronda=partido.ronda,
+                pista=pista,
             )
         )
     if extras:
@@ -302,6 +341,7 @@ def _empezar(
     torneo: Torneo, usuario: AbstractBaseUser | AnonymousUser | None, modo: str = "todo"
 ) -> Corrida:
     segundos = settings.PROGRAMADOR_SEGUNDOS
+    escasa = poca_cpu()
     with transaction.atomic():
         Torneo.objects.select_for_update().get(pk=torneo.pk)
         limite = timezone.now() - timedelta(seconds=segundos) - MARGEN_DE_ABANDONO
@@ -315,7 +355,10 @@ def _empezar(
             torneo=torneo,
             parametros={
                 "segundos": segundos,
-                "trabajadores": settings.PROGRAMADOR_TRABAJADORES,
+                "trabajadores": min(settings.PROGRAMADOR_TRABAJADORES, 2)
+                if escasa
+                else settings.PROGRAMADOR_TRABAJADORES,
+                "poca_cpu": escasa,
                 "modo": modo,
             },
             usuario=usuario if usuario is not None and usuario.is_authenticated else None,  # type: ignore[misc]
@@ -369,11 +412,18 @@ def programar_torneo(
         resultado = programar(
             problema,
             segundos=settings.PROGRAMADOR_SEGUNDOS,
-            trabajadores=settings.PROGRAMADOR_TRABAJADORES,
+            trabajadores=corrida.parametros["trabajadores"],
+            una_pasada=corrida.parametros["poca_cpu"],
         )
-        motivos = motivos_sin_ubicar(problema, resultado)
-        choques = _choques(problema, resultado.ubicados)
-        _guardar(torneo, partidos, resultado.ubicados)
+        sin_solucion = resultado.estado not in CON_SOLUCION
+        if sin_solucion:
+            # T13.35: sin ningún calendario en el tiempo, el que había queda como estaba.
+            # Antes se guardaba "nada ubicado" y se borraba todo.
+            motivos, choques = {}, {}
+        else:
+            motivos = motivos_sin_ubicar(problema, resultado)
+            choques = _choques(problema, resultado.ubicados)
+            _guardar(torneo, partidos, resultado.ubicados)
     except Exception:
         corrida.estado = Corrida.Estado.FALLIDA
         corrida.duracion = (timezone.now() - comienzo).total_seconds()
@@ -385,9 +435,12 @@ def programar_torneo(
     corrida.duracion = (timezone.now() - comienzo).total_seconds()
     corrida.resultado = {
         "estado_solver": resultado.estado,
+        "sin_solucion": sin_solucion,
         "total": len(partidos),
         "ubicados": len(resultado.ubicados),
-        "sin_ubicar": [
+        "sin_ubicar": []
+        if sin_solucion
+        else [
             {"id": id_, "partido": _texto(por_id[id_]), "motivo": motivos.get(id_, "")}
             for id_ in resultado.sin_ubicar
         ],

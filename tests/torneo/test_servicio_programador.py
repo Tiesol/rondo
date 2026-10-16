@@ -45,7 +45,8 @@ def test_programa_el_torneo_y_guarda_la_corrida(torneo: Torneo) -> None:
     for partido in Partido.objects.filter(categoria__torneo=torneo).select_related("cancha"):
         assert partido.estado == Partido.Estado.PROGRAMADO
         assert partido.cancha is not None and partido.inicio is not None
-        assert any(f.inicio <= partido.inicio < f.fin for f in franjas)
+        # P48 ("último inicio", la plantilla 2026): puede empezar justo a la hora de cierre.
+        assert any(f.inicio <= partido.inicio <= f.fin for f in franjas)
     sub6 = Partido.objects.filter(categoria__categoria="Sub 6").select_related("cancha")
     assert {p.cancha.codigo for p in sub6 if p.cancha} <= {"C1A", "C1B"}
 
