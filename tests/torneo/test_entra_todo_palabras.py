@@ -21,3 +21,24 @@ def test_si_no_entra_no_promete_mas() -> None:
     )
     texto = en_palabras(grupo, partidos=80, turno=75)
     assert texto == "C3: 80 partidos (100 h) de 83 h disponibles."
+
+
+def test_t13_34_cuenta_lo_libre_con_el_grupo_que_da_el_flujo() -> None:
+    """La prueba de Sebastian: 130 partidos (93 h) de 168 h decía "Entran unos 0 partidos más".
+    El flujo nunca ubica más de lo pedido: lo que entra sale de lo libre."""
+    from dominio.capacidad import Demanda, calcular_capacidad
+
+    turno = 50
+    pedido = 93 * 60  # 130 partidos que suman 93 h
+    [grupo] = calcular_capacidad(
+        [Demanda("Sub 9", pedido, frozenset({"C1", "C2"}))],
+        {"C1": None, "C2": None},
+        {"C1": 84 * 60, "C2": 84 * 60},
+    )
+    assert grupo.ubicable == grupo.pedido  # nunca más de lo pedido
+
+    texto = en_palabras(grupo, partidos=130, turno=turno)
+
+    assert texto == (
+        "C1 y C2: 130 partidos (93 h) de 168 h disponibles. Entran unos 90 partidos más de 50 min."
+    )

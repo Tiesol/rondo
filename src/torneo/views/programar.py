@@ -52,7 +52,8 @@ def en_palabras(grupo: GrupoDeCanchas, *, partidos: int, turno: int) -> str:
         f"({_horas(grupo.pedido)} h) de {_horas(grupo.disponible)} h disponibles."
     )
     if grupo.entra and turno:
-        mas = (grupo.ubicable - grupo.pedido) // turno
+        # T13.34: el flujo nunca ubica más de lo pedido; lo que entra sale de lo libre.
+        mas = (grupo.disponible - grupo.pedido) // turno
         texto += f" Entran unos {mas} partidos más de {turno} min."
     return texto
 
