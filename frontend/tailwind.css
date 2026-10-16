@@ -811,7 +811,24 @@
     background: var(--color-error);
   }
   .fila.capacidad .sub {
-    margin-top: 6px;
+    margin-top: 8px;
+  }
+  /* T13.37: las categorías de un grupo de canchas, plegadas y como chips. */
+  .desplegable.categorias {
+    display: block;
+  }
+  .desplegable.categorias summary {
+    display: list-item;
+    width: 100%;
+    padding: 8px 0 0;
+    color: var(--color-tenue);
+    font-size: 13px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-top: 8px;
   }
 
   /* ---------- Equipos ---------- */

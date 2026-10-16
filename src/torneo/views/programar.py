@@ -34,7 +34,7 @@ def _fila(grupo: GrupoDeCanchas, con_extra: GrupoDeCanchas | None = None) -> dic
     return {
         "entra_con_extra": con_extra is not None and not grupo.entra and con_extra.entra,
         "titulo": " y ".join(grupo.canchas) or "Sin canchas compatibles",
-        "categorias": ", ".join(grupo.categorias),
+        "categorias": list(grupo.categorias),
         "pedido": _horas(grupo.pedido),
         "disponible": _horas(grupo.disponible),
         "faltan": _horas(grupo.faltan),
@@ -55,6 +55,22 @@ def en_palabras(grupo: GrupoDeCanchas, *, partidos: int, turno: int) -> str:
         # T13.34: el flujo nunca ubica más de lo pedido; lo que entra sale de lo libre.
         mas = (grupo.disponible - grupo.pedido) // turno
         texto += f" Entran unos {mas} partidos más de {turno} min."
+    return texto
+
+
+def una_linea(grupo: GrupoDeCanchas, *, partidos: int, turno: int, con_extra: bool = False) -> str:
+    """T13.37: la capacidad de un grupo de canchas en una línea; las canchas y las horas ya
+    están en el título y el chip. "130 partidos · entran unos 90 más de 50 min"; si no
+    entra, lo que falta va primero: "Faltan 6 h · 93 partidos"."""
+    texto = f"{partidos} partido{'s' if partidos != 1 else ''}"
+    if con_extra:
+        return f"Entra usando el tiempo agregado · {texto}"
+    if not grupo.entra:
+        return f"Faltan {_horas(grupo.faltan)} h · {texto}"
+    if turno:
+        return (
+            f"{texto} · entran unos {(grupo.disponible - grupo.pedido) // turno} más de {turno} min"
+        )
     return texto
 
 
@@ -162,10 +178,11 @@ def programar(request: HttpRequest, pk: int) -> HttpResponse:
     dias = len(dias_de_fin_de_semana(torneo))
     for fila, grupo in zip(filas, capacidad.total, strict=True):
         de_las_categorias = [capacidad.partidos.get(c, (0, 0)) for c in grupo.categorias]
-        fila["en_palabras"] = en_palabras(
-            grupo,
-            partidos=sum(n for n, _ in de_las_categorias),
-            turno=max((t for _, t in de_las_categorias), default=0),
+        partidos = sum(n for n, _ in de_las_categorias)
+        turno = max((t for _, t in de_las_categorias), default=0)
+        fila["en_palabras"] = en_palabras(grupo, partidos=partidos, turno=turno)
+        fila["una_linea"] = una_linea(
+            grupo, partidos=partidos, turno=turno, con_extra=fila["entra_con_extra"]
         )
         if not fila["entra_con_extra"]:
             fila["sugerencia"] = sugerencia_para_que_entre(

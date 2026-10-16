@@ -1724,7 +1724,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Botón "Ocultar": lo esconde hasta la próxima programación.
   - *Aceptación:* mover un partido o rehacer el fixture después de programar marca el resultado como desactualizado; "Ocultar" lo saca.
   - *Verificación:* tests de la vista. *Tamaño:* S-M.
-- [ ] **T13.37 "¿Entra todo?": cada cancha más corta.**
+- [x] **T13.37 "¿Entra todo?": cada cancha más corta.**
   - Las categorías como chips, plegadas ("Ver categorías (10)"), y la frase de capacidad en una línea.
   - Con `frontend-ui-engineering` y `docs/DISENO.md` como referencia (sin cambiarlo), solo en esta pantalla. Capturas a 360 px antes y después.
   - *Verificación:* test de la plantilla y las capturas. *Tamaño:* S-M. *Depende de:* T13.34.

@@ -8,16 +8,20 @@
   {% if filas %}
   <ul class="lista">
     {% for fila in filas %}
+    {# T13.37: título y horas, la barra, la capacidad en una línea y las categorías plegadas. #}
     <li class="fila capacidad">
-      <span class="crece">
+      <div class="crece">
         <span class="seccion-cab"><strong>{{ fila.titulo }}</strong>
           {% if fila.entra %}<span class="num peq whitespace-nowrap">{{ fila.pedido }} de {{ fila.disponible }} h</span>{% else %}<span class="chip error num whitespace-nowrap">{{ fila.pedido }} de {{ fila.disponible }} h</span>{% endif %}
         </span>
-        <span class="barra-cap" role="img" aria-label="{{ fila.uso }} % de las horas"><span class="{% if not fila.entra %}error{% endif %}" style="width: {{ fila.uso }}%"></span></span>
-        <span class="sub">{% if not fila.entra %}<strong>{% if fila.entra_con_extra %}Entra usando el tiempo agregado (faltan {{ fila.faltan }} h en el horario normal).{% else %}Faltan {{ fila.faltan }} h.{% endif %}</strong> {% endif %}{{ fila.categorias }}</span>
-        <span class="sub">{{ fila.en_palabras }}</span>
+        <span class="barra-cap" role="img" aria-label="{{ fila.en_palabras }}"><span class="{% if not fila.entra %}error{% endif %}" style="width: {{ fila.uso }}%"></span></span>
+        <span class="sub num">{% if fila.entra %}{{ fila.una_linea }}{% else %}<strong>{{ fila.una_linea }}</strong>{% endif %}</span>
         {% if fila.sugerencia %}<span class="sub">{{ fila.sugerencia }}</span>{% endif %}
-      </span>
+        <details class="desplegable categorias">
+          <summary>Ver categorías ({{ fila.categorias|length }})</summary>
+          <span class="chips">{% for categoria in fila.categorias %}{% include "parciales/chip.html" with texto=categoria %}{% endfor %}</span>
+        </details>
+      </div>
     </li>
     {% endfor %}
   </ul>
