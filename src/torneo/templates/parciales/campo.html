@@ -6,6 +6,16 @@
   {{ campo }}
   {% for error in campo.errors %}<span class="error-campo" role="alert">{{ error }}</span>{% endfor %}
 </div>
+{% elif campo.field.widget.input_type == "checkbox" and campo.field.widget.allow_multiple_selected %}
+{# T13.39: varias casillas, cada una en la misma línea que su texto, como las canchas en Ajustes. #}
+<fieldset class="campo">
+  <legend class="mb-1.5 text-[13.5px] font-semibold">{{ campo.label }}</legend>
+  <div class="flex flex-wrap gap-2">
+    {% for opcion in campo %}<label class="opcion">{{ opcion.tag }} {{ opcion.choice_label }}</label>{% endfor %}
+  </div>
+  {% if campo.help_text %}<span class="peq tenue" id="{{ campo.auto_id }}_helptext">{{ campo.help_text }}</span>{% endif %}
+  {% for error in campo.errors %}<span class="error-campo" role="alert">{{ error }}</span>{% endfor %}
+</fieldset>
 {% else %}
 <div class="campo">
   <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>

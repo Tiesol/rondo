@@ -2,33 +2,17 @@
 {% block titulo %}Un equipo no puede jugar{% endblock %}
 {% block encabezado %}Un equipo no puede jugar{% endblock %}
 {% block contenido %}
-<form method="get" class="seccion gap-2">
+<form method="get" class="seccion gap-2" hx-get="{% url 'acf' torneo.pk %}" hx-trigger="change" hx-target="#bloqueo-acf" hx-swap="outerHTML" hx-push-url="true">
   <label for="club-acf"><strong>Club</strong></label>
   <div class="flex gap-2">
     <select id="club-acf" name="club" class="selector crece">
       <option value="">Elige el club</option>
       {% for c in clubes %}<option value="{{ c.pk }}"{% if club and c.pk == club.pk %} selected{% endif %}>{{ c.nombre }}</option>{% endfor %}
     </select>
-    <button type="submit" class="btn">Ver sus equipos</button>
+    <noscript><button type="submit" class="btn">Ver sus equipos</button></noscript>
   </div>
 </form>
-{% if club or form.errors %}
-<form method="post" class="seccion gap-3.5" novalidate
-      hx-post="{% url 'revisar-acf' torneo.pk %}" hx-trigger="change" hx-target="#choques-acf" hx-swap="outerHTML" hx-sync="this:replace">
-  {% csrf_token %}
-  <p class="tenue">Cuándo no puede jugar un equipo: un partido de la ACF o una decisión de la organización. El programador no le pone partidos en ese horario.</p>
-  {% if club %}<input type="hidden" name="club" value="{{ club.pk }}">{% endif %}
-  {% include "parciales/campo.html" with campo=form.equipos %}
-  {% include "parciales/campo.html" with campo=form.dia %}
-  <div class="dos">
-    {% include "parciales/campo.html" with campo=form.desde %}
-    {% include "parciales/campo.html" with campo=form.hasta %}
-  </div>
-  {% include "parciales/campo.html" with campo=form.motivo %}
-  {% include "acf/_choques.html" with choques=None %}
-  {% include "parciales/boton.html" with texto="Guardar el bloqueo" principal=True bloque=True %}
-</form>
-{% endif %}
+{% include "acf/_bloqueo.html" %}
 
 <div class="seccion">
   {% include "parciales/seccion_cab.html" with titulo="Bloqueos cargados" %}

@@ -1736,7 +1736,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Se abre por http desde el celular (`ALLOWED_HOSTS` con la IP local): `RONDO_HTTP_LOCAL` saca la redirección a https y las cookies `Secure`, y la app no arranca si aparece en Render.
   - *Aceptación:* los dos perfiles arrancan con sus límites; login por `http://<IP>:8080`; `generar_demo` carga la demo inventada en `rondo_render`. No toca Render ni Neon.
   - *Verificación:* tests de settings; `docker compose config`; los dos perfiles levantados, el cgroup y el login por la IP de la red. *Tamaño:* S.
-- [ ] **T13.39 «Un equipo no puede jugar»: los equipos al elegir el club, y las casillas.**
+- [x] **T13.39 «Un equipo no puede jugar»: los equipos al elegir el club, y las casillas.**
   - Al cambiar el club, HTMX trae sus equipos (`hx-get`); "Ver sus equipos" queda solo sin JavaScript (`<noscript>`).
   - Las casillas de varias opciones van en la misma línea que su texto, como en el resto de la app (`parciales/campo.html`). Arregla también «¿Quién no puede?» en Reprogramar un partido.
   - *Aceptación:* elegir el club muestra sus equipos sin tocar un botón; a 360 px cada casilla queda a la izquierda de su texto.
