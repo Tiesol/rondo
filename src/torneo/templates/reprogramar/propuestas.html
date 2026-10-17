@@ -42,7 +42,7 @@
   <form method="post" action="{% url 'recalcular-propuestas' corrida.pk %}" class="flex flex-col gap-3">
     {% csrf_token %}
     {% include "reprogramar/_aflojar.html" %}
-    <button type="submit" class="btn bloque">Volver a calcular</button>
+    <button type="submit" class="btn bloque" data-calculando="Calculando…">Volver a calcular</button>
   </form>
 </div>
 {% endblock %}

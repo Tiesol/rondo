@@ -37,12 +37,12 @@
   <form method="post" hx-post="{% url 'programar' torneo.pk %}" hx-target="#resultado-programacion" hx-swap="outerHTML" hx-indicator="#programando" hx-disabled-elt="find button" class="flex flex-col gap-2">
     {% csrf_token %}
     {% if resumen.futuros and resumen.sin_lugar %}
-    <button type="submit" name="modo" value="faltan" class="btn principal bloque">Ubicar solo lo que falta ({{ resumen.sin_lugar }})</button>
-    <button type="submit" name="modo" value="todo" class="btn bloque">Volver a programar todo</button>
+    <button type="submit" data-calculando="Calculando…" name="modo" value="faltan" class="btn principal bloque">Ubicar solo lo que falta ({{ resumen.sin_lugar }})</button>
+    <button type="submit" data-calculando="Calculando…" name="modo" value="todo" class="btn bloque">Volver a programar todo</button>
     {% elif resumen.futuros %}
-    <button type="submit" name="modo" value="todo" class="btn bloque">Volver a programar todo</button>
+    <button type="submit" data-calculando="Calculando…" name="modo" value="todo" class="btn bloque">Volver a programar todo</button>
     {% else %}
-    <button type="submit" name="modo" value="todo" class="btn principal bloque">{% if resultado %}Volver a programar{% else %}Programar los partidos{% endif %}</button>
+    <button type="submit" data-calculando="Calculando…" name="modo" value="todo" class="btn principal bloque">{% if resultado %}Volver a programar{% else %}Programar los partidos{% endif %}</button>
     {% endif %}
   </form>
   <p class="peq tenue">Puede tardar hasta {{ minutos_maximos }} minuto{{ minutos_maximos|pluralize }}. Lo jugado y lo que su hora ya pasó no se mueve.</p>

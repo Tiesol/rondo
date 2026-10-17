@@ -1741,7 +1741,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Las casillas de varias opciones van en la misma línea que su texto, como en el resto de la app (`parciales/campo.html`). Arregla también «¿Quién no puede?» en Reprogramar un partido.
   - *Aceptación:* elegir el club muestra sus equipos sin tocar un botón; a 360 px cada casilla queda a la izquierda de su texto.
   - *Verificación:* tests de la vista y de la plantilla; capturas a 360 px antes y después. *Tamaño:* S.
-- [ ] **T13.40 Los botones que calculan se bloquean.**
+- [x] **T13.40 Los botones que calculan se bloquean.**
   - El POST de propuestas se mandó 4 veces (tocar de nuevo, y el celular reenviaba al volver de minimizar).
   - "Ver propuestas", "Volver a calcular" y "Programar" (también su confirmación) se desactivan y dicen "Calculando…" mientras esperan; un segundo envío del mismo formulario no sale. Al volver atrás (caché del navegador), el botón vuelve a estar como antes.
   - *Aceptación:* tocar dos veces manda un solo POST, y el botón dice "Calculando…".

@@ -27,8 +27,10 @@ def pedir_confirmacion(
     volver: str = "/",
     peligro: bool = False,
     destino: str = "",
+    calculando: bool = False,
 ) -> HttpResponse:
-    """La pantalla de confirmación para este POST. `destino` es el id que HTMX reemplaza."""
+    """La pantalla de confirmación para este POST. `destino` es el id que HTMX reemplaza;
+    `calculando`, que el botón dice "Calculando…" mientras espera (T13.40)."""
     campos = [
         (clave, valor)
         for clave, valores in request.POST.lists()
@@ -47,6 +49,7 @@ def pedir_confirmacion(
             "peligro": peligro,
             "campos": campos,
             "destino": destino,
+            "calculando": calculando,
             "accion": request.path,
         },
     )
