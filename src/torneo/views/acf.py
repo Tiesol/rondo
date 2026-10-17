@@ -14,6 +14,7 @@ from torneo.models import Bloqueo, Partido, Torneo
 from torneo.permisos import requiere
 from torneo.servicios.bloqueos import partidos_que_chocan
 from torneo.views.confirmar import confirmado, pedir_confirmacion
+from torneo.views.fragmentos import pide_fragmento
 
 DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 
@@ -74,6 +75,11 @@ def acf(request: HttpRequest, pk: int) -> HttpResponse:
         bloqueo.equipos.set(formulario.cleaned_data["equipos"])
         messages.success(request, "Bloqueo guardado")
         return redirect("acf", pk=torneo.pk)
+    if request.method == "GET" and pide_fragmento(request):
+        # T13.39: al cambiar el club, solo sus equipos y el resto del bloqueo.
+        return render(
+            request, "acf/_bloqueo.html", {"torneo": torneo, "form": formulario, "club": club}
+        )
     return render(
         request,
         "acf/acf.html",
