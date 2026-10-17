@@ -107,6 +107,21 @@ docker run --rm --network host -e PORT=8766 -e DEBUG=false \
 curl -H 'X-Forwarded-Proto: https' http://localhost:8766/cuentas/login/
 ```
 
+### La imagen como en Render, desde el celular (T13.38)
+
+`compose.yaml` levanta la imagen con la CPU, la memoria y las variables de cada plan: perfil `free` (como `rondo-demo`: 0,1 CPU, 512 MB, 60 s) o `standard` (como `rondo-produccion`: 1 CPU, 2 GB, 120 s y 4 trabajadores). Usa la base `rondo_render` del Postgres local (aparte de la de desarrollo) y no toca Render ni Neon. Va por http en el puerto 8080: `RONDO_HTTP_LOCAL=true` saca la redirección a https y las cookies `Secure` (la app no arranca si esa variable aparece en Render).
+
+```bash
+IP_LOCAL=$(ip -4 -o route get 1 | sed 's/.* src \([^ ]*\).*/\1/') \
+  docker compose --profile free up -d --build          # o --profile standard
+DATABASE_URL=postgres://rondo:rondo@localhost:5432/rondo_render RONDO_ENV_FILE= DEBUG=true \
+  SECRET_KEY=local uv run python manage.py generar_demo --soy-la-demo
+read -rs -p "Contraseña: " C; echo; docker compose exec -e RONDO_CLAVE_USUARIO="$C" web-free \
+  python manage.py crear_usuario sebastian --admin; unset C   # o web-standard
+```
+
+En el celular, en la misma red: `http://<IP_LOCAL>:8080`. Si no abre, el firewall de la PC tiene que dejar entrar el puerto 8080. Para cambiar de plan: `docker compose stop web-free` (o `web-standard`) y levantar el otro; los datos quedan en la base.
+
 ## Producción
 
 Lo que Sebastian crea una sola vez. Nada de esto va al repo ni al chat: las cadenas de conexión y las claves se pegan solo en los paneles de Neon y Render.

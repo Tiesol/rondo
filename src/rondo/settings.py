@@ -200,7 +200,13 @@ LOGGING = {
     "loggers": {"django.db.backends": {"level": "WARNING"}},
 }
 
-if not DEBUG:
+# T13.38: la imagen como en Render, pero en la red de la casa y sin TLS (compose.yaml, perfiles
+# "free" y "standard"), para abrirla desde el celular. Nunca en Render.
+HTTP_LOCAL = os.environ.get("RONDO_HTTP_LOCAL", "false").lower() in {"1", "true", "si", "yes"}
+if HTTP_LOCAL and os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
+    raise ImproperlyConfigured("RONDO_HTTP_LOCAL es solo para la copia local, no para Render.")
+
+if not DEBUG and not HTTP_LOCAL:
     # Cloud Run termina TLS y avisa el protocolo original en este encabezado.
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
