@@ -4,9 +4,12 @@ from dataclasses import replace
 from datetime import datetime, timedelta
 from itertools import combinations
 
+import pytest
+from ortools.sat.python import cp_model
+
 from dominio.config import Reglas
 from dominio.programador.modelo import PartidoAProgramar, Problema, programar
-from dominio.programador.reprogramar import proponer
+from dominio.programador.reprogramar import buscar_propuestas, proponer
 from dominio.verificador import Bloqueo, Escenario, FranjaExtra, PartidoAgendado, verificar
 
 FISICAS = {"C1": frozenset({"C1"}), "C2": frozenset({"C2"})}
@@ -231,3 +234,61 @@ def test_b1_sin_preferencia_el_tiempo_agregado_no_se_usa_si_no_hace_falta() -> N
         problema, parcial, desde=extra.desde, hasta=SAB + timedelta(days=9), cuantas=1, segundos=10
     )
     assert all(m.despues[1] >= extra.hasta for m in propuestas[0].movimientos)
+
+
+# T13.42: propuestas para un bloqueo con partidos sin lugar en el calendario. En la demo
+# (programada con 0,1 CPU) quedaban unos 100 sin lugar, y las propuestas de un bloqueo
+# intentaban ubicarlos todos: 45 a 59 movimientos, lentas, y con poca CPU el solver no
+# terminaba y la pantalla decía "No hay propuestas". Para un bloqueo solo se mueve lo que choca;
+# y si el solver no termina, se sabe.
+
+HASTA = SAB + timedelta(days=9)
+
+
+def test_un_bloqueo_no_ubica_lo_que_estaba_sin_lugar() -> None:
+    problema, actual, victima = con_bloqueo_sobre_uno()
+    sin_lugar = [p.id for p in problema.partidos if p.id != victima][-3:]
+    for i in sin_lugar:
+        del actual[i]
+    busqueda = buscar_propuestas(
+        problema, actual, desde=SAB, hasta=HASTA, segundos=10, ubicar=frozenset()
+    )
+    assert busqueda.propuestas and not busqueda.sin_terminar
+    for propuesta in busqueda.propuestas:
+        assert [m.partido for m in propuesta.movimientos] == [victima]
+        assert sin_choques(problema, propuesta.calendario(actual))
+
+
+def test_sin_decir_que_ubicar_sigue_ubicando_todo() -> None:
+    # Suspender un día o rehacer el fixture sí ubican lo que quedó sin lugar (B1).
+    problema, actual, victima = con_bloqueo_sobre_uno()
+    otro = next(p.id for p in problema.partidos if p.id != victima)
+    del actual[otro]
+    busqueda = buscar_propuestas(problema, actual, desde=SAB, hasta=HASTA, segundos=10)
+    assert any(otro in {m.partido for m in p.movimientos} for p in busqueda.propuestas)
+
+
+def test_si_el_solver_no_termina_lo_dice(monkeypatch: pytest.MonkeyPatch) -> None:
+    problema, actual, _ = con_bloqueo_sobre_uno()
+    monkeypatch.setattr(cp_model.CpSolver, "solve", lambda self, modelo: cp_model.UNKNOWN)
+    busqueda = buscar_propuestas(problema, actual, desde=SAB, hasta=HASTA, segundos=1)
+    assert busqueda.propuestas == [] and busqueda.sin_terminar
+
+
+def test_si_no_hay_forma_no_es_falta_de_tiempo() -> None:
+    problema, actual, _ = con_bloqueo_sobre_uno()
+    inicio = min(i for _, i in actual.values())
+    busqueda = buscar_propuestas(
+        problema, actual, desde=inicio, hasta=inicio + timedelta(minutes=1), segundos=10
+    )
+    assert busqueda.propuestas == [] and not busqueda.sin_terminar
+
+
+def test_prefiere_el_mismo_dia_si_hay_lugar() -> None:
+    # En la demo, el partido de JMP Soccer se proponía el sábado aunque el mismo domingo, justo
+    # después del bloqueo, estaba libre: el objetivo solo miraba la semana.
+    problema, actual, victima = con_bloqueo_sobre_uno()
+    antes = actual[victima][1].date()
+    busqueda = buscar_propuestas(problema, actual, desde=SAB, hasta=HASTA, segundos=10)
+    primera = busqueda.propuestas[0].movimientos
+    assert [m.despues[1].date() for m in primera if m.partido == victima] == [antes]

@@ -1750,7 +1750,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
 ### Bloque G: pedidos de Sebastian del 2026-10-17 (tarde)
 
 - [x] **T13.41 "Calculando…" en «Rehacer» y «Reprogramar lo cambiado».** Como T13.40; «Rehacer» solo cuando hay partidos nuevos para ubicar (si no, no calcula). *Verificación:* tests de las plantillas. *Tamaño:* XS.
-- [ ] **T13.42 Propuestas: "No hay propuestas" con un lugar libre a la vista.**
+- [x] **T13.42 Propuestas: "No hay propuestas" con un lugar libre a la vista.**
   - Caso: bloqueo de JMP Soccer (Sub 8 Inicial) el sáb 24 de 8 a 10; su partido es a las 9:00 en C2, y a las 10:00 del mismo sábado parece haber lugar.
   - Reproducir con `web-free` y `web-standard`. Si el solver no termina a tiempo, la pantalla dice "No terminé de buscar a tiempo", no "No hay forma". Si con 1 CPU tampoco propone nada, es un fallo del modelo de propuestas.
   - Si el solver no encuentra nada, ofrece igual los horarios libres de Mover (T13.17).

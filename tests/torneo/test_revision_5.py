@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 
 from dominio.config import cargar_config
+from dominio.programador.reprogramar import Busqueda
 from torneo.models import Bloqueo
 from torneo.servicios import reprogramar
 from torneo.servicios.configuracion import cargar_configuracion
@@ -16,11 +17,11 @@ def test_las_propuestas_reparten_el_limite_de_tiempo(monkeypatch: Any, settings:
     settings.PROGRAMADOR_SEGUNDOS = 60
     pedido: dict[str, Any] = {}
 
-    def proponer_falso(*args: Any, **kwargs: Any) -> list[Any]:
+    def buscar_falso(*args: Any, **kwargs: Any) -> Busqueda:
         pedido.update(kwargs)
-        return []
+        return Busqueda(propuestas=[], sin_terminar=False)
 
-    monkeypatch.setattr(reprogramar, "proponer", proponer_falso)
+    monkeypatch.setattr(reprogramar, "buscar_propuestas", buscar_falso)
     torneo = cargar_configuracion(cargar_config(settings.PLANTILLA_TORNEO))
     franja = torneo.franjas.first()
     assert franja is not None

@@ -9,6 +9,11 @@ Para dar 2 o 3 propuestas distintas (T13.18), después de cada solución se pide
 uno de los partidos que se movieron quede a un turno o más de donde lo puso esa solución, sin
 mover más partidos que la primera: las alternativas son otros horarios u otros días para lo
 mismo, no movimientos de más. Si no hay otra, se devuelven las que hay.
+
+T13.42: lo que estaba sin lugar se intenta ubicar solo si se pide (`ubicar`). Para un bloqueo no
+se pide: con un calendario a medio programar, ubicarlo todo agrandaba el problema y daba
+propuestas de decenas de movimientos. Y si el solver no termina, la búsqueda lo dice
+(`sin_terminar`), en lugar de un "no hay forma".
 """
 
 from collections import defaultdict
@@ -40,6 +45,12 @@ class Propuesta:
         return {**actual, **{m.partido: m.despues for m in self.movimientos}}
 
 
+@dataclass(frozen=True)
+class Busqueda:
+    propuestas: list[Propuesta]
+    sin_terminar: bool  # el solver no terminó antes de encontrar la primera
+
+
 def proponer(
     problema: Problema,
     actual: dict[Hashable, Lugar],
@@ -51,21 +62,50 @@ def proponer(
     trabajadores: int = 8,
     preferidas: Sequence[FranjaExtra] = (),
 ) -> list[Propuesta]:
+    """Las propuestas de `buscar_propuestas`, ubicando también lo que estaba sin lugar."""
+    return buscar_propuestas(
+        problema,
+        actual,
+        desde=desde,
+        hasta=hasta,
+        cuantas=cuantas,
+        segundos=segundos,
+        trabajadores=trabajadores,
+        preferidas=preferidas,
+    ).propuestas
+
+
+def buscar_propuestas(
+    problema: Problema,
+    actual: dict[Hashable, Lugar],
+    *,
+    desde: datetime,
+    hasta: datetime,
+    cuantas: int = 3,
+    segundos: float = 20,
+    trabajadores: int = 8,
+    preferidas: Sequence[FranjaExtra] = (),
+    ubicar: frozenset[Hashable] | None = None,
+) -> Busqueda:
     """Hasta `cuantas` propuestas distintas, de menos a más movimientos. Vacío si no hace
     falta mover nada o si no hay forma dentro de la ventana.
 
     B1 (fase 12): con `preferidas` (el tiempo que la organización eligió para jugar lo
     suspendido), lo que estaba sin lugar se ubica primero ahí; lo que no entra va a los días
     siguientes, moviendo lo menos posible. El resto del tiempo agregado se usa solo si hace
-    falta."""
+    falta. Con `ubicar`, de lo que estaba sin lugar se intenta ubicar solo eso (T13.42)."""
     movibles = {
         p.id
         for p in problema.partidos
         if p.fijo is None
         and (
-            p.id not in actual
+            (p.id not in actual and (ubicar is None or p.id in ubicar))
             # T11.2: lo que la organización puso a mano fuera de lo habitual, queda.
-            or (desde <= actual[p.id][1] < hasta and lugar_habitual(problema, p, actual[p.id]))
+            or (
+                p.id in actual
+                and desde <= actual[p.id][1] < hasta
+                and lugar_habitual(problema, p, actual[p.id])
+            )
         )
     }
     quietos = tuple(
@@ -80,11 +120,15 @@ def proponer(
     modelo.personas()
     modelo.orden()
     m, reloj = modelo.modelo, modelo.reloj
+    for partido in quietos:
+        if partido.id not in actual and partido.id not in movibles:
+            m.add(modelo.presente[partido.id] == 0)  # sigue sin lugar
     primero, ultimo = reloj.paso(desde, hacia_arriba=True), reloj.paso(hasta, hacia_arriba=False)
 
     movido: dict[Hashable, cp_model.IntVar] = {}
     nuevos = []
     costo_de_semana = []
+    costo_de_dia = []  # T13.42: mejor el mismo día, si hay lugar
     por_equipo: dict[Equipo, list[cp_model.IntVar]] = defaultdict(list)
     for partido in quietos:
         if partido.id not in movibles:
@@ -109,6 +153,8 @@ def proponer(
         for dia, en_dia in modelo.en_dia[partido.id].items():
             if dia.isocalendar()[:2] != semana:
                 costo_de_semana.append(en_dia)
+            elif dia != cuando.date():
+                costo_de_dia.append(en_dia)
         for equipo in partido.equipos_definidos:
             por_equipo[equipo].append(se_mueve)
 
@@ -136,15 +182,19 @@ def proponer(
         + 30 * sum(fuera_de_lo_elegido)
         + 60 * sum(extra_no_elegido)
         + 10 * sum(costo_de_semana)
+        + 3 * sum(costo_de_dia)
         - 100_000 * sum(nuevos)
     )
 
     propuestas: list[Propuesta] = []
+    sin_terminar = False
     for _ in range(cuantas):
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = segundos
         solver.parameters.num_workers = trabajadores
-        if solver.solve(m) not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        estado = solver.solve(m)
+        if estado not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+            sin_terminar = not propuestas and estado == cp_model.UNKNOWN
             break
         movimientos = []
         for partido in quietos:
@@ -173,4 +223,4 @@ def proponer(
             m.add(inicio >= paso + turno).only_enforce_if(mas_tarde)
             lejos += [mas_temprano, mas_tarde]
         m.add_bool_or(lejos)
-    return sorted(propuestas, key=lambda p: len(p.movimientos))
+    return Busqueda(sorted(propuestas, key=lambda p: len(p.movimientos)), sin_terminar)

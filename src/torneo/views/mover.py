@@ -54,12 +54,12 @@ def mover(request: HttpRequest, pk: int) -> HttpResponse:
             "form": formulario,
             "motivos": motivos,
             "bloquea": bloquea,
-            "sugeridos": _sugeridos(partido) if not motivos else None,
+            "sugeridos": sugeridos(partido) if not motivos else None,
         },
     )
 
 
-def _sugeridos(partido: Partido) -> dict[str, list[dict[str, str]]]:
+def sugeridos(partido: Partido) -> dict[str, list[dict[str, str]]]:
     """T13.17: los horarios libres, listos para el formulario de Mover."""
     libres, con_avisos = horarios_libres(partido)
 
