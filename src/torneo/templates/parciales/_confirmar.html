@@ -7,6 +7,6 @@
     {% for clave, valor in campos %}<input type="hidden" name="{{ clave }}" value="{{ valor }}">{% endfor %}
     <input type="hidden" name="confirmado" value="1">
     <a class="btn" href="{{ volver }}">Cancelar</a>
-    <button type="submit" class="btn principal">{{ boton }}</button>
+    <button type="submit" class="btn principal"{% if calculando %} data-calculando="Calculando…"{% endif %}>{{ boton }}</button>
   </form>
 </div>

@@ -27,7 +27,7 @@
         <ul class="flex flex-col gap-1">{% for p in fila.choques %}<li class="peq">{{ p.cruce }} ({{ p.cuando }}) · <a class="enlace" href="{% url 'mover' p.pk %}">Mover a mano</a> · <a class="enlace" href="{% url 'intercambiar' p.pk %}">Intercambiar</a></li>{% endfor %}</ul>{% endif %}
       </span>
       <span class="control">
-        {% if fila.choques %}<form method="post" action="{% url 'propuestas' fila.bloqueo.pk %}" class="flex flex-col gap-2">{% csrf_token %}<button type="submit" class="btn chico principal">Ver propuestas</button></form>{% endif %}
+        {% if fila.choques %}<form method="post" action="{% url 'propuestas' fila.bloqueo.pk %}" class="flex flex-col gap-2">{% csrf_token %}<button type="submit" class="btn chico principal" data-calculando="Calculando…">Ver propuestas</button></form>{% endif %}
         <form method="post" action="{% url 'borrar-bloqueo' fila.bloqueo.pk %}">{% csrf_token %}<button type="submit" class="btn chico">Borrar</button></form>
       </span>
     </li>

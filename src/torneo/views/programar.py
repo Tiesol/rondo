@@ -221,6 +221,7 @@ def programar(request: HttpRequest, pk: int) -> HttpResponse:
                 volver=reverse("programar", args=[torneo.pk]),
                 peligro=True,
                 destino="resultado-programacion",
+                calculando=True,
             )
         try:
             programar_torneo(torneo, request.user, solo_lo_que_falta=faltan)
