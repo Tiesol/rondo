@@ -3,6 +3,10 @@
 Son fotos de menores: el EXIF de un teléfono puede traer la ubicación GPS de donde se sacó.
 La imagen se vuelve a dibujar en una nueva, sin nada más que los píxeles, así no pasa ningún
 metadato (EXIF, XMP ni perfil de color). El nombre del archivo es al azar.
+
+T13.43: con 512 MB (Render Free), una foto de 40 MP a tamaño completo son 120 MB por copia y
+el proceso se reiniciaba. Un JPEG se decodifica ya achicado (`draft`); lo demás se achica apenas
+se abre, antes de cualquier copia.
 """
 
 import io
@@ -26,6 +30,9 @@ CARPETA: dict[Tipo, str] = {
 }
 FORMATOS = {"JPEG", "PNG", "WEBP"}
 MAX_PIXELES = 40_000_000  # una foto de teléfono tiene 12 a 50 MP; más es sospechoso
+# T13.43: un PNG o un WebP se decodifica entero (un JPEG, achicado): 25 MP con transparencia son
+# 100 MB. Alcanza para un escudo o un logo de 5000 por 5000; las fotos de teléfono son JPEG.
+MAX_PIXELES_SIN_ACHICAR = 25_000_000
 _PERMITIDOS = "Tiene que ser una imagen JPG, PNG o WebP."
 
 
@@ -39,7 +46,7 @@ def procesar_imagen(archivo: IO[bytes], *, tipo: Tipo) -> ContentFile[bytes]:
     contenido = archivo.read(maximo + 1)
     if len(contenido) > maximo:
         raise ImagenInvalida(f"La imagen pesa más de {settings.IMAGEN_MAX_MB} MB.")
-    imagen = _abrir(contenido)
+    imagen = _abrir(contenido, LADO[tipo])
     imagen = ImageOps.exif_transpose(imagen)  # como se veía en el teléfono, antes de borrar
     transparente = imagen.mode in ("RGBA", "LA", "P") and tipo != "foto"
     modo = "RGBA" if transparente else "RGB"
@@ -53,19 +60,41 @@ def procesar_imagen(archivo: IO[bytes], *, tipo: Tipo) -> ContentFile[bytes]:
     return ContentFile(salida.getvalue(), name=f"{CARPETA[tipo]}/{uuid.uuid4().hex}.webp")
 
 
-def _abrir(contenido: bytes) -> Image.Image:
+def _achicar(imagen: Image.Image, lado: int) -> Image.Image:
+    """La imagen recién abierta, con el lado mayor de no más del doble de `lado` (lo justo para
+    que el achicado final se vea bien). Va por franjas: con transparencia, `reduce` copia la
+    imagen entera para promediar bien los bordes, y entera son 160 MB."""
+    factor = max(imagen.size) // (2 * lado)
+    if factor < 2:
+        return imagen
+    ancho, alto = imagen.size[0] // factor, imagen.size[1] // factor
+    if imagen.mode in ("P", "1"):  # reduce no los acepta
+        return imagen.resize((ancho, alto), Image.Resampling.NEAREST)
+    chica = Image.new(imagen.mode, (ancho, alto))
+    chica.info = dict(imagen.info)  # el color transparente de un PNG, por ejemplo
+    filas = 64  # de la imagen chica, por franja
+    for y in range(0, alto, filas):
+        abajo = min(y + filas, alto)
+        franja = imagen.crop((0, y * factor, ancho * factor, abajo * factor))
+        chica.paste(franja.reduce(factor), (0, y))
+    return chica
+
+
+def _abrir(contenido: bytes, lado: int) -> Image.Image:
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("error", Image.DecompressionBombWarning)
             prueba = Image.open(io.BytesIO(contenido))
             if prueba.format not in FORMATOS:
                 raise ImagenInvalida(_PERMITIDOS)
-            if prueba.width * prueba.height > MAX_PIXELES:
+            maximo = MAX_PIXELES if prueba.format == "JPEG" else MAX_PIXELES_SIN_ACHICAR
+            if prueba.width * prueba.height > maximo:
                 raise ImagenInvalida("La imagen es demasiado grande: achícala antes de subirla.")
             prueba.verify()  # revisa que el archivo no esté roto
             imagen = Image.open(io.BytesIO(contenido))
+            imagen.draft("RGB", (lado, lado))  # solo un JPEG: se decodifica a 1/2, 1/4 u 1/8
             imagen.load()
-            return imagen
+            return _achicar(imagen, lado)
     except Image.DecompressionBombWarning, Image.DecompressionBombError:
         raise ImagenInvalida("La imagen es demasiado grande: achícala antes de subirla.") from None
     except UnidentifiedImageError, OSError, SyntaxError:
@@ -109,8 +138,10 @@ def tiene_fondo(archivo: IO[bytes]) -> bool:
     validación de verdad la hace procesar_imagen."""
     inicio = archivo.tell()
     try:
-        imagen = Image.open(archivo)
-        imagen.load()
+        abierta = Image.open(archivo)
+        abierta.draft("RGB", (LADO["escudo"], LADO["escudo"]))  # T13.43
+        abierta.load()
+        imagen = _achicar(abierta, LADO["escudo"])
     except UnidentifiedImageError, OSError, SyntaxError:
         return False
     finally:
