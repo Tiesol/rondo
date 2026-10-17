@@ -17,7 +17,7 @@ from django.utils import timezone
 from dominio.config import Reglas
 from dominio.franjas import proximo
 from dominio.programador.relajar import Relajar
-from dominio.programador.reprogramar import Movimiento, Propuesta, proponer
+from dominio.programador.reprogramar import Movimiento, Propuesta, buscar_propuestas
 from torneo.models import Bloqueo, Cambio, Cancha, Corrida, Equipo, Franja, Partido, Torneo
 from torneo.presentacion import cruce
 from torneo.servicios.historial import registrar
@@ -63,7 +63,8 @@ def calcular_propuestas(
     usuario: AbstractBaseUser | AnonymousUser | None = None,
     relajar: Relajar | None = None,
 ) -> Corrida:
-    """Propuestas para un bloqueo: ese fin de semana y el siguiente."""
+    """Propuestas para un bloqueo: ese fin de semana y el siguiente. Solo se mueve lo que
+    choca: lo que estaba sin lugar sigue así (T13.42)."""
     desde, hasta = ventana_de(bloqueo.inicio)
     return calcular_propuestas_en(
         bloqueo.torneo,
@@ -73,6 +74,7 @@ def calcular_propuestas(
         origen={"bloqueo": bloqueo.pk},
         usuario=usuario,
         relajar=relajar,
+        ubicar_sin_lugar=False,
     )
 
 
@@ -86,12 +88,14 @@ def calcular_propuestas_en(
     usuario: AbstractBaseUser | AnonymousUser | None = None,
     preferidas: list[Franja] | None = None,
     relajar: Relajar | None = None,
+    ubicar_sin_lugar: bool = True,
 ) -> Corrida:
     """Propuestas que solo mueven (o ubican) partidos entre desde y hasta (hora local).
 
     Nunca propone nada antes de ahora (B1). Con `preferidas` (B1), lo que no tiene lugar se
     ubica primero en ese tiempo agregado. Con `relajar` (B6), las reglas se aflojan solo para
-    esta corrida, y la corrida guarda qué se aflojó."""
+    esta corrida, y la corrida guarda qué se aflojó. Sin `ubicar_sin_lugar`, lo que estaba sin
+    lugar sigue así (T13.42: un bloqueo). Si el solver no terminó, la corrida lo guarda."""
     comienzo = timezone.now()
     ahora = ahora_local()
     desde = max(desde, ahora)
@@ -112,7 +116,7 @@ def calcular_propuestas_en(
         for i in c.partidos
         if c.motivos
     }
-    propuestas = proponer(
+    busqueda = buscar_propuestas(
         problema,
         actual,
         desde=desde,
@@ -122,6 +126,7 @@ def calcular_propuestas_en(
         segundos=max(5, settings.PROGRAMADOR_SEGUNDOS // PROPUESTAS),
         trabajadores=trabajadores_para_la_cpu(settings.PROGRAMADOR_TRABAJADORES),
         preferidas=tuple(elegidas),
+        ubicar=None if ubicar_sin_lugar else frozenset(),
     )
     return Corrida.objects.create(
         torneo=torneo,
@@ -138,6 +143,7 @@ def calcular_propuestas_en(
         duracion=(timezone.now() - comienzo).total_seconds(),
         resultado={
             "firma": firma(partidos),
+            "sin_terminar": busqueda.sin_terminar,
             "propuestas": [
                 [
                     {
@@ -148,7 +154,7 @@ def calcular_propuestas_en(
                     }
                     for m in propuesta.movimientos
                 ]
-                for propuesta in propuestas
+                for propuesta in busqueda.propuestas
             ],
         },
     )

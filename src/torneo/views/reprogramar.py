@@ -28,6 +28,7 @@ from torneo.servicios.reprogramar import (
     veces_que_reprogramo,
 )
 from torneo.views.confirmar import confirmado, pedir_confirmacion
+from torneo.views.mover import sugeridos
 
 
 def _lugar(guardado: list[str] | None) -> str:
@@ -105,6 +106,7 @@ def recalcular(request: HttpRequest, pk: int) -> HttpResponse:
         usuario=request.user,
         preferidas=[franja] if franja else None,
         relajar=aflojar.relajar(),
+        ubicar_sin_lugar="bloqueo" not in origen,  # T13.42
     )
     return redirect("ver-propuestas", pk=corrida.pk)
 
@@ -144,6 +146,15 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
     afectados = afectados_por(pedido) if pedido else []
     veces = {e.pk: veces_que_reprogramo(e) for e in (pedido.equipos.all() if pedido else [])}
     relajar = Relajar.desde_dict(corrida.parametros.get("relajar") or {})
+    # T13.42: sin propuestas, los horarios libres de Mover (T13.17) para cada partido que choca.
+    libres = (
+        [
+            {"partido": p, "cruce": cruce(p), "libres": sugeridos(p)["libres"]}
+            for p in {p.pk: p for p, _ in afectados}.values()
+        ]
+        if not vista
+        else []
+    )
     return render(
         request,
         "reprogramar/propuestas.html",
@@ -151,6 +162,8 @@ def ver_propuestas(request: HttpRequest, pk: int) -> HttpResponse:
             "corrida": corrida,
             "propuestas": vista,
             "motivo": corrida.parametros.get("motivo", ""),
+            "sin_terminar": corrida.resultado.get("sin_terminar", False),
+            "libres": libres,
             "aflojadas": relajar.describir(),
             "form": CamposAflojar(
                 initial=_inicial_aflojar(relajar),

@@ -37,7 +37,29 @@
     </form>
   </div>
   {% empty %}
+  {% if sin_terminar %}
+  {# T13.42: el solver no terminó; no es que no haya forma. #}
+  {% include "parciales/alerta.html" with estado="aviso" titulo="No terminé de buscar a tiempo." texto="Puede haber lugar, pero no alcanzó el tiempo para encontrarlo. Prueba «Volver a calcular» o mueve el partido a uno de los horarios libres de abajo." %}
+  {% else %}
   {% include "parciales/vacio.html" with icono="calendario" titulo="No hay propuestas" texto="O no hace falta mover nada, o no hay forma de hacerlo dentro de este fin de semana y el siguiente. Agrega un día o mueve el partido a mano." %}
+  {% endif %}
+  {% endfor %}
+  {% for libre in libres %}
+  <div class="propuesta">
+    <p><strong>Horarios libres para {{ libre.cruce }}</strong><span class="peq tenue"> · como en Mover</span></p>
+    {% if libre.libres %}
+    <ul class="lista">
+      {% for s in libre.libres %}
+      <li class="fila">
+        <span class="crece"><strong>{{ s.texto }}</strong><span class="sub">Sin choques ni avisos</span></span>
+        <form method="post" action="{% url 'mover' libre.partido.pk %}">{% csrf_token %}<input type="hidden" name="dia" value="{{ s.dia }}"><input type="hidden" name="hora" value="{{ s.hora }}"><input type="hidden" name="cancha" value="{{ s.cancha }}"><button type="submit" class="btn chico principal">Mover aquí</button></form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="peq tenue">No hay horarios sin choques en sus canchas. <a class="enlace" href="{% url 'mover' libre.partido.pk %}">Moverlo a mano</a>.</p>
+    {% endif %}
+  </div>
   {% endfor %}
   <form method="post" action="{% url 'recalcular-propuestas' corrida.pk %}" class="flex flex-col gap-3">
     {% csrf_token %}
