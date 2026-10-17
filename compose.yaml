@@ -42,6 +42,7 @@ services:
     # Render Free (rondo-demo): 0,1 CPU y 512 MB.
     cpus: 0.1
     mem_limit: 512m
+    memswap_limit: 512m  # sin swap, como Render: al pasarse, se reinicia (T13.43)
     ports:
       - "8080:8080"
     environment: &entorno
@@ -67,6 +68,7 @@ services:
     # Render Standard (rondo-produccion): 1 CPU y 2 GB.
     cpus: 1
     mem_limit: 2g
+    memswap_limit: 2g
     environment:
       <<: *entorno
       # Como rondo-produccion (DESPLIEGUE.md, H7).

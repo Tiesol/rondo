@@ -11,6 +11,7 @@ Bitácora para retomar el trabajo si una sesión se corta. Las reglas del negoci
 - **Fase 13 planificada (2026-10-15), esperando el visto bueno de Sebastian:** `tasks/todo.md`, T13.1 a T13.31. Meta: usar Rondo desde el 24/10 (P77). Orden: A, antes de cargar datos reales (escudo por equipo, borrar o retirar equipos, roles; 17/10); B, fallos (lo del fixture para el 20/10 y lo del día de partido para el 22/10); C, funciones para durante el torneo; D, diseño y textos. **Bloque A terminado el 2026-10-15 (PR #140 a #144)**, revisado y verificado (checkpoint A, salvo el despliegue): falta que Sebastian apruebe desplegar a producción. **Bloque B terminado el 2026-10-15 (PR #145 a #152)**, salvo T13.6, que espera P90. **Bloques C y D terminados (PR #153 a #170)** y revisión de cierre de la fase (PR #171). **La fase 13 está completa salvo T13.6, que espera P90.** Falta el visto bueno de Sebastian y su permiso para desplegar a producción. Lo que Sebastian tiene que revisar y decidir: `docs/REVISAR_2026-10-16.md`.
 - **Bloque E de la fase 13 terminado (2026-10-15, PR #172 a #178):** los seis fallos de la prueba de Sebastian desde el celular (T13.32 a T13.37). Programar con 0,1 CPU no encontraba nada y borraba el calendario: arreglado, pero la demo necesita más tiempo o más CPU para ubicar todo, y producción tiene que pasar a 1 CPU antes de programar el torneo real (H9). Lo que Sebastian tiene que decidir y probar: `docs/REVISAR_2026-10-16.md`, sección 6.
 - **Bloque F de la fase 13 terminado (2026-10-17):** pedidos de Sebastian. T13.38, la imagen como en Render en local y desde el celular (`compose.yaml`, perfiles `free` y `standard`; pasos en DESPLIEGUE.md); T13.39, «Un equipo no puede jugar» trae los equipos al elegir el club y las casillas van en la línea de su texto; T13.40, los botones que calculan se bloquean y dicen "Calculando…".
+- **Bloque G de la fase 13 terminado (2026-10-17):** T13.41, "Calculando…" en Rehacer y Reprogramar lo cambiado; T13.42, las propuestas de un bloqueo mueven solo lo que choca, prefieren el mismo día y, si el solver no termina, lo dicen y ofrecen los horarios libres; T13.43, la memoria con 512 MB (H10: la foto de 40 MP llevaba el proceso al tope).
 - **Fase 12 terminada (2026-10-14):** bloques A, B y C de `docs/PEDIDO_FASE_12.md` (PR #137 y siguientes). Falta la prueba de Sebastian en la demo: sobre todo B1, B2, B5 y C1 a C3 desde el celular.
 
 ## Para retomar (actualizado el 2026-10-13, al cerrar el chat largo)
@@ -209,6 +210,7 @@ Lo que el .md pide contra lo que hay en `main` después de la fase 10:
 - 2026-10-17: T13.40 lista: "Ver propuestas" (al reprogramar un partido y en los bloqueos), "Volver a calcular", los botones de Programar y su confirmación llevan `data-calculando`; `ui.js` escucha el `submit` en la captura (antes que HTMX): un segundo envío del mismo formulario no sale, y después de que el navegador o HTMX tomaron los datos desactiva los botones y pone "Calculando…" (desactivado antes, el botón no mandaría su `modo`). Con HTMX vuelve a estar listo al terminar el pedido; al volver atrás (`pageshow` desde la caché), también. Probado en Firefox headless con un servidor lento de prueba (fuera del repo): dos toques con HTMX y tres sin HTMX mandan un solo POST cada uno, con su `modo`; y en la pantalla real de Programar, un solo POST y "Calculando…". Quedan sin la marca otros dos botones que calculan, fuera de lo pedido: «Rehacer el fixture» con partidos nuevos y «Reprogramar lo cambiado» de una fecha editada.
 - 2026-10-17: T13.41 lista: "Calculando…" también en «Rehacer» (solo con partidos nuevos para ubicar; si no, no calcula) y en «Reprogramar lo cambiado».
 - 2026-10-17: T13.42 lista. Causa de "No hay propuestas" en la demo: para un bloqueo, el modelo de propuestas también intentaba ubicar todo lo que estaba sin lugar dentro de la ventana (con la demo programada a 0,1 CPU, unos 80 a 140 partidos), porque cada uno vale mucho más que no mover nada. El problema se agrandaba, y el solver o no terminaba (lista vacía, y la pantalla decía "no hay forma") o daba propuestas de 45 a 59 movimientos. Reproducido en local con la demo inventada, bloqueo de JMP Soccer (Sub 8 Inicial) sobre su partido: con `web-free`, 3 propuestas de 47 a 59 movimientos en 68 s; con `web-standard`, de 45 a 51 en 120 s. Arreglo: `buscar_propuestas` (dominio) recibe `ubicar` (para un bloqueo y su "Volver a calcular", nada: lo sin lugar sigue así; suspender un día y rehacer el fixture siguen ubicando) y dice `sin_terminar` cuando el solver no llegó a la primera solución; la corrida lo guarda y la pantalla dice "No terminé de buscar a tiempo" y, sin propuestas, ofrece los horarios libres de Mover (T13.17) de cada partido que choca. Además el objetivo prefiere el mismo día (costo 3 por cambiar de día; 10 por cambiar de semana): antes lo mandaba al sábado aunque el mismo domingo, justo después del bloqueo, estaba libre. Después: con `web-free`, 3 propuestas de 1 movimiento (dom 12:20, 13:10 y 14:00) en 14 s; con `web-standard`, las mismas en 1,6 s. Capturas a 360 px de las propuestas y del caso sin terminar. Visto de paso (sin tocar): el "Por qué" de las propuestas dice "Choca: 21: Partido de la ACF", con el id del equipo en lugar del nombre.
+- 2026-10-17: T13.43 lista: memoria con 512 MB (H10). La foto de 40 MP sumaba +313 MB y, después de programar, el contenedor llegaba al tope de 512 MB. Un JPEG se decodifica achicado (`draft`), lo demás se achica por franjas apenas se abre, `tiene_fondo` también, y un PNG o WebP de más de 25 MP se rechaza. `compose.yaml`: sin swap (`memswap_limit`), como Render. Ahora: foto de 40 MP +27 MB; programar y después las fotos, 385 MB.
 
 ## Pendiente
 
@@ -380,6 +382,27 @@ La demo de 93 equipos (223 partidos), sin la hora extra de C3, 60 s por corrida.
 - **Causa:** la CPU. Con 0,1 CPU, 8 trabajadores se reparten tan poco tiempo que el solver no llega ni a la primera solución, y desde la fase 12 (A2) el tiempo se parte en dos pasadas. No es una regresión de la fase 13 (T13.8, T13.21 a T13.23).
 - **Lo grave:** sin solución, `_guardar` dejaba todos los partidos sin día ni hora (borraba el calendario) y la pantalla decía "0 de 223, sin choques" en verde. Arreglado en T13.35.
 - **Con 0,1 CPU no entra todo, ni con T13.35.** Para la demo: subir `RONDO_PROGRAMADOR_SEGUNDOS` (por ejemplo, a 240) o programar varias veces (cada vez parte de lo anterior). **Producción tiene que estar en 1 CPU antes de programar el torneo real** (H7: 223 de 223 con 1 CPU, 4 trabajadores y 120 s). Con 0,1 CPU, además, la corrida tarda unos 160 s en total (armar el problema y verificar también van lentos).
+
+### H10. Memoria con 512 MB: la foto grande pasaba el límite (T13.43, 2026-10-17)
+
+Render avisó que `rondo-demo` pasó los 512 MB y se reinició. Medido con `web-free` (0,1 CPU, 512 MB; desde T13.43 también sin swap, como Render), la demo inventada en `rondo_render`. "anon" es la memoria del contenedor sin la caché de disco (gunicorn ocioso: unos 100 a 120 MB).
+
+| Qué | Pico (antes) | Pico (después) |
+|---|---|---|
+| Programar desde cero (170 s; 83 de 223) | 227 MB | igual |
+| Volver a programar (226 s; 139 de 223) | 259 MB | igual |
+| Programar con 1 CPU (`web-standard`, 124 s; 210 de 223) | 336 MB de 2 GB | igual |
+| Ver propuestas de un bloqueo | 259 MB (68 s) | 150 MB (14 s, T13.42) |
+| Procesar una foto de 12 MP (2,5 MB) | +97 MB | +27 MB |
+| Procesar una foto de 40 MP (6,7 MB) | **+313 MB** | +27 MB |
+| Escudo JPEG de 40 MP (con `tiene_fondo`) | +312 MB | +16 MB |
+| Escudo PNG de 40 MP con transparencia (0,2 MB en disco) | **+343 MB** | se rechaza (más de 25 MP) |
+| Escudo PNG de 25 MP | sin medir | +113 MB |
+| Programar y después las fotos, en un proceso | **512 MB: el tope** (con swap no se caía; en Render, sí) | 385 MB, contando gunicorn ocioso |
+
+Causa: después de programar, el worker queda en unos 260 MB, y la foto de 40 MP se decodificaba entera (120 MB por copia) y se copiaba tres veces (`exif_transpose`, `convert`, `thumbnail`); el escudo, cuatro (además `tiene_fondo` la convertía entera a RGBA). Arreglo: un JPEG se decodifica ya achicado (`draft`, a 1/2, 1/4 u 1/8); lo demás se achica apenas se abre, por franjas (`reduce` con transparencia copia la imagen entera para promediar los bordes); y un PNG o WebP de más de 25 MP se rechaza (no se puede decodificar achicado). No hizo falta tocar los trabajadores ni `--max-requests`: programar y las propuestas quedan debajo de 300 MB con 0,1 CPU.
+
+Ojo, aparte de la memoria: con 0,1 CPU, programar tarda 170 a 226 s aunque el límite del solver es 60 s (armar el modelo también es lento), y gunicorn corta a los 300 s.
 
 ## Comentarios de Sebastian sobre la demo (2026-10-07)
 

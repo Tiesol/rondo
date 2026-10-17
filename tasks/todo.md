@@ -1755,7 +1755,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Reproducir con `web-free` y `web-standard`. Si el solver no termina a tiempo, la pantalla dice "No terminé de buscar a tiempo", no "No hay forma". Si con 1 CPU tampoco propone nada, es un fallo del modelo de propuestas.
   - Si el solver no encuentra nada, ofrece igual los horarios libres de Mover (T13.17).
   - *Verificación:* test del servicio que reproduce el caso; tests de la pantalla; prueba con los dos perfiles. *Tamaño:* M.
-- [ ] **T13.43 Memoria con 512 MB.** Render reinició `rondo-demo` por pasar los 512 MB. Con `web-free`, medir el pico de programar (desde cero y otra vez), ver propuestas y subir una foto de 12 y de 40 MP. Lo que pase de unos 400 MB se arregla (Pillow con `draft`/`reduce`, menos trabajadores o `--max-requests`). Anotado en PROGRESO. *Tamaño:* M.
+- [x] **T13.43 Memoria con 512 MB.** Render reinició `rondo-demo` por pasar los 512 MB. Con `web-free`, medir el pico de programar (desde cero y otra vez), ver propuestas y subir una foto de 12 y de 40 MP. Lo que pase de unos 400 MB se arregla (Pillow con `draft`/`reduce`, menos trabajadores o `--max-requests`). Anotado en PROGRESO. *Tamaño:* M.
 
 ```
 A:  T13.1 → T13.2 → T13.30
