@@ -17,5 +17,61 @@ services:
       timeout: 3s
       retries: 15
 
+  # T13.38: la imagen de Render en local, con la CPU y la memoria de cada plan, para abrirla
+  # desde el celular en la misma red. Un perfil por plan (se levanta uno a la vez):
+  #   IP_LOCAL=$(ip -4 -o route get 1 | sed 's/.* src \([^ ]*\).*/\1/') \
+  #     docker compose --profile free up -d --build       # o --profile standard
+  # y en el celular, http://<IP_LOCAL>:8080. No toca Render ni Neon: usa la base rondo_render
+  # de este Postgres, aparte de la de desarrollo.
+  base-web:
+    image: postgres:18
+    profiles: [free, standard]
+    environment:
+      PGPASSWORD: rondo
+    command: >-
+      sh -c "psql -h db -U rondo -d rondo -tAc \"select 1 from pg_database where datname = 'rondo_render'\"
+      | grep -q 1 || createdb -h db -U rondo rondo_render"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web-free: &web
+    build: .
+    image: rondo:local
+    profiles: [free]
+    # Render Free (rondo-demo): 0,1 CPU y 512 MB.
+    cpus: 0.1
+    mem_limit: 512m
+    ports:
+      - "8080:8080"
+    environment: &entorno
+      PORT: "8080"
+      DATABASE_URL: postgres://rondo:rondo@db:5432/rondo_render
+      SECRET_KEY: solo-local-no-es-la-de-render
+      DEBUG: "false"
+      # Como en Render, pero por http: sin redirigir a https ni cookies "Secure".
+      RONDO_HTTP_LOCAL: "true"
+      ALLOWED_HOSTS: localhost,127.0.0.1,${IP_LOCAL:-}
+      # rondo-demo no las define: valen las de settings.py.
+      RONDO_PROGRAMADOR_SEGUNDOS: "60"
+      RONDO_PROGRAMADOR_TRABAJADORES: "8"
+    depends_on:
+      db:
+        condition: service_healthy
+      base-web:
+        condition: service_completed_successfully
+
+  web-standard:
+    <<: *web
+    profiles: [standard]
+    # Render Standard (rondo-produccion): 1 CPU y 2 GB.
+    cpus: 1
+    mem_limit: 2g
+    environment:
+      <<: *entorno
+      # Como rondo-produccion (DESPLIEGUE.md, H7).
+      RONDO_PROGRAMADOR_SEGUNDOS: "120"
+      RONDO_PROGRAMADOR_TRABAJADORES: "4"
+
 volumes:
   pgdata:

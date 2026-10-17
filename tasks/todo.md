@@ -1729,6 +1729,24 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - Con `frontend-ui-engineering` y `docs/DISENO.md` como referencia (sin cambiarlo), solo en esta pantalla. Capturas a 360 px antes y después.
   - *Verificación:* test de la plantilla y las capturas. *Tamaño:* S-M. *Depende de:* T13.34.
 
+### Bloque F: pedidos de Sebastian del 2026-10-17
+
+- [x] **T13.38 La imagen como en Render, en local y desde el celular.**
+  - `compose.yaml`: perfiles `free` (0,1 CPU, 512 MB, como `rondo-demo`) y `standard` (1 CPU, 2 GB, 120 s y 4 trabajadores, como `rondo-produccion`), con `DEBUG=false` y la base `rondo_render` del Postgres local.
+  - Se abre por http desde el celular (`ALLOWED_HOSTS` con la IP local): `RONDO_HTTP_LOCAL` saca la redirección a https y las cookies `Secure`, y la app no arranca si aparece en Render.
+  - *Aceptación:* los dos perfiles arrancan con sus límites; login por `http://<IP>:8080`; `generar_demo` carga la demo inventada en `rondo_render`. No toca Render ni Neon.
+  - *Verificación:* tests de settings; `docker compose config`; los dos perfiles levantados, el cgroup y el login por la IP de la red. *Tamaño:* S.
+- [ ] **T13.39 «Un equipo no puede jugar»: los equipos al elegir el club, y las casillas.**
+  - Al cambiar el club, HTMX trae sus equipos (`hx-get`); "Ver sus equipos" queda solo sin JavaScript (`<noscript>`).
+  - Las casillas de varias opciones van en la misma línea que su texto, como en el resto de la app (`parciales/campo.html`). Arregla también «¿Quién no puede?» en Reprogramar un partido.
+  - *Aceptación:* elegir el club muestra sus equipos sin tocar un botón; a 360 px cada casilla queda a la izquierda de su texto.
+  - *Verificación:* tests de la vista y de la plantilla; capturas a 360 px antes y después. *Tamaño:* S.
+- [ ] **T13.40 Los botones que calculan se bloquean.**
+  - El POST de propuestas se mandó 4 veces (tocar de nuevo, y el celular reenviaba al volver de minimizar).
+  - "Ver propuestas", "Volver a calcular" y "Programar" (también su confirmación) se desactivan y dicen "Calculando…" mientras esperan; un segundo envío del mismo formulario no sale. Al volver atrás (caché del navegador), el botón vuelve a estar como antes.
+  - *Aceptación:* tocar dos veces manda un solo POST, y el botón dice "Calculando…".
+  - *Verificación:* tests de las plantillas; prueba en Firefox con un servidor lento. *Tamaño:* S.
+
 ```
 A:  T13.1 → T13.2 → T13.30
     T13.1 → T13.3 → T13.4
@@ -1738,4 +1756,5 @@ B:  T13.7, T13.8, T13.9, T13.10   (fixture, antes del 21/10; T13.6 espera P90)
 C:  T13.15 → T13.16, T13.20;  T13.18 → T13.19;  T13.21 → T13.22 → T13.23;  T13.17, T13.24
 D:  T13.26, T13.27 → T13.28, T13.31
 E:  T13.32, T13.33, T13.34 → T13.37, T13.35 → T13.36
+F:  T13.38, T13.39, T13.40
 ```
