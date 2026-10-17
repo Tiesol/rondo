@@ -1760,7 +1760,7 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
 ### Bloque H: pedidos de Sebastian del 2026-10-17 (noche)
 
 - [x] **T13.44 Los motivos dicen el nombre del equipo.** "Choca: 21: Partido de la ACF" mostraba el id del equipo; los demás motivos del verificador (dos partidos a la vez, partidos por día, turno libre, profes) también, y los de categoría ("12 no juega en C3"), el id de la categoría. `Problema` y `Escenario` llevan los nombres; sin ellos, el id. En los de profes y jugadores compartidos, con la categoría ("River (Sub 9) y River (Sub 10)"). *Verificación:* tests del verificador y de las propuestas. *Tamaño:* S.
-- [ ] **T13.45 Programar con 1 CPU: cuánto margen queda hasta los 300 s de gunicorn.** Con `web-standard` y 120 s, medir el tiempo total de programar desde cero y de volver a programar; si lo que no es solver tarda mucho, ver dónde se va. *Verificación:* mediciones en PROGRESO. *Tamaño:* S-M.
+- [x] **T13.45 Programar con 1 CPU: cuánto margen queda hasta los 300 s de gunicorn.** Con `web-standard` y 120 s, medir el tiempo total de programar desde cero y de volver a programar; si lo que no es solver tarda mucho, ver dónde se va. *Verificación:* mediciones en PROGRESO. *Tamaño:* S-M.
 
 ```
 A:  T13.1 → T13.2 → T13.30
