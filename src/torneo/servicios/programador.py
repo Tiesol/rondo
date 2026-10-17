@@ -233,6 +233,8 @@ def problema_del_torneo(
         clubes=dict(
             Equipo.objects.filter(categoria__torneo=torneo).values_list("pk", "club_id")
         ),  # P20
+        nombres=dict(Equipo.objects.filter(categoria__torneo=torneo).values_list("pk", "nombre")),
+        categorias={str(pk): str(cat) for pk, cat in categorias.items()},
     )
     if relajar is None or relajar.vacio:
         return problema
@@ -334,6 +336,8 @@ def choques_del_calendario(
         bloqueos=problema.bloqueos,
         reglas=problema.reglas,
         extras=problema.extras,
+        nombres=problema.nombres,
+        categorias=problema.categorias,
     )
     return verificar(agendados, escenario)
 

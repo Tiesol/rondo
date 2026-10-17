@@ -1757,6 +1757,11 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - *Verificación:* test del servicio que reproduce el caso; tests de la pantalla; prueba con los dos perfiles. *Tamaño:* M.
 - [x] **T13.43 Memoria con 512 MB.** Render reinició `rondo-demo` por pasar los 512 MB. Con `web-free`, medir el pico de programar (desde cero y otra vez), ver propuestas y subir una foto de 12 y de 40 MP. Lo que pase de unos 400 MB se arregla (Pillow con `draft`/`reduce`, menos trabajadores o `--max-requests`). Anotado en PROGRESO. *Tamaño:* M.
 
+### Bloque H: pedidos de Sebastian del 2026-10-17 (noche)
+
+- [x] **T13.44 Los motivos dicen el nombre del equipo.** "Choca: 21: Partido de la ACF" mostraba el id del equipo; los demás motivos del verificador (dos partidos a la vez, partidos por día, turno libre, profes) también, y los de categoría ("12 no juega en C3"), el id de la categoría. `Problema` y `Escenario` llevan los nombres; sin ellos, el id. En los de profes y jugadores compartidos, con la categoría ("River (Sub 9) y River (Sub 10)"). *Verificación:* tests del verificador y de las propuestas. *Tamaño:* S.
+- [ ] **T13.45 Programar con 1 CPU: cuánto margen queda hasta los 300 s de gunicorn.** Con `web-standard` y 120 s, medir el tiempo total de programar desde cero y de volver a programar; si lo que no es solver tarda mucho, ver dónde se va. *Verificación:* mediciones en PROGRESO. *Tamaño:* S-M.
+
 ```
 A:  T13.1 → T13.2 → T13.30
     T13.1 → T13.3 → T13.4
@@ -1768,4 +1773,5 @@ D:  T13.26, T13.27 → T13.28, T13.31
 E:  T13.32, T13.33, T13.34 → T13.37, T13.35 → T13.36
 F:  T13.38, T13.39, T13.40
 G:  T13.41, T13.42, T13.43
+H:  T13.44, T13.45
 ```

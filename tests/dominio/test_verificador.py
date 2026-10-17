@@ -430,3 +430,51 @@ def test_a4_un_partido_en_el_tiempo_extra_vale_solo_en_sus_canchas() -> None:
     esc = escenario(extras=(extra,))
     assert tipos([partido(1, "17:00", cancha="C3")], esc) == []
     assert tipos([partido(1, "17:00", cancha="C2")], esc) == ["franja"]
+
+
+# T13.44: los motivos dicen el nombre del equipo ("Choca: 21: Partido de la ACF" decía el id).
+
+NOMBRES = {"A": "River", "B": "Bolívar", "C": "River", "D": "Tigre"}
+
+
+def motivos(partidos: list[PartidoAgendado], esc: Escenario) -> list[str]:
+    return [m for c in verificar(partidos, esc) for m in c.motivos]
+
+
+def test_el_bloqueo_dice_el_nombre_del_equipo() -> None:
+    bloqueo = Bloqueo(
+        "A", datetime.combine(SABADO, time(9)), datetime.combine(SABADO, time(12)), "ACF"
+    )
+    esc = escenario(bloqueos=(bloqueo,), nombres=NOMBRES)
+    assert motivos([partido(1, "09:30")], esc) == ["River: ACF"]
+
+
+def test_dos_partidos_a_la_vez_dice_el_nombre() -> None:
+    juntos = [partido(1, "09:00"), partido(2, "09:00", cancha="C3", equipos=("A", "D"))]
+    assert "River: juega dos partidos a la vez" in motivos(juntos, escenario(nombres=NOMBRES))
+
+
+def test_un_profe_compartido_dice_los_equipos_con_su_categoria() -> None:
+    # El caso común: el mismo club en dos categorías; con el nombre solo, "River y River".
+    pares = (ParDeEquipos("A", "C", "profe"),)
+    juntos = [
+        partido(1, "09:00"),
+        partido(2, "09:00", cancha="C3", equipos=("C", "D"), categoria="Sub 10|inicial"),
+    ]
+    esc = escenario(pares=pares, nombres=NOMBRES)
+    assert [m for m in motivos(juntos, esc) if m.startswith("profe")] == [
+        "profe: River (Sub 9|inicial) y River (Sub 10|inicial) juegan a la vez"
+    ]
+
+
+def test_sin_nombres_sigue_el_id() -> None:
+    bloqueo = Bloqueo(
+        "A", datetime.combine(SABADO, time(9)), datetime.combine(SABADO, time(12)), "ACF"
+    )
+    assert motivos([partido(1, "09:30")], escenario(bloqueos=(bloqueo,))) == ["A: ACF"]
+
+
+def test_los_motivos_dicen_el_nombre_de_la_categoria() -> None:
+    # En la app, la categoría es su id: decía "12 no juega en C1A".
+    esc = escenario(categorias={"Sub 9|inicial": "Sub 9 Inicial"})
+    assert motivos([partido(1, "09:00", cancha="C1A")], esc) == ["Sub 9 Inicial no juega en C1A"]

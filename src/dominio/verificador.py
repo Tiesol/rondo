@@ -117,6 +117,15 @@ class Escenario:
     bloqueos: tuple[Bloqueo, ...]
     reglas: Reglas
     extras: tuple[FranjaExtra, ...] = ()
+    # T13.44: para los motivos. Sin el nombre de un equipo, va su id.
+    nombres: dict[Equipo, str] = field(default_factory=dict)
+    categorias: dict[str, str] = field(default_factory=dict)  # id → "Sub 9 Inicial"
+
+    def nombre(self, equipo: Equipo) -> str:
+        return self.nombres.get(equipo, str(equipo))
+
+    def categoria(self, categoria: str) -> str:
+        return self.categorias.get(categoria, categoria)
 
 
 @dataclass(frozen=True)
@@ -154,9 +163,9 @@ def verificar(partidos: Iterable[PartidoAgendado], escenario: Escenario) -> list
         _uno_solo(partido, escenario, anotar)
     for uno, otro in combinations(lista, 2):
         _cancha(uno, otro, escenario, anotar)
-    _equipos(lista, escenario.reglas, anotar)
+    _equipos(lista, escenario, anotar)
     _grupos_y_llaves(lista, escenario.reglas, anotar)
-    _maximo_con_llaves(lista, escenario.reglas, anotar)
+    _maximo_con_llaves(lista, escenario, anotar)
     _personas(lista, escenario, anotar)
 
     return [
@@ -171,7 +180,7 @@ def _uno_solo(partido: PartidoAgendado, escenario: Escenario, anotar: _Anotar) -
         anotar(
             "compatibilidad",
             (partido.id,),
-            f"{partido.categoria} no juega en {partido.cancha}",
+            f"{escenario.categoria(partido.categoria)} no juega en {partido.cancha}",
         )
     ultimo_inicio = escenario.reglas.fin_de_franja == "ultimo_inicio"  # P48
     termina = partido.inicio if ultimo_inicio else partido.fin_partido
@@ -185,12 +194,18 @@ def _uno_solo(partido: PartidoAgendado, escenario: Escenario, anotar: _Anotar) -
     ):
         anotar("franja", (partido.id,), "Fuera de las franjas de juego")
     if partido.inicio.weekday() in partido.dias_sin_jugar:
-        anotar("franja", (partido.id,), f"{partido.categoria} no juega ese día de la semana (P56)")
+        anotar(
+            "franja",
+            (partido.id,),
+            f"{escenario.categoria(partido.categoria)} no juega ese día de la semana (P56)",
+        )
     for bloqueo in escenario.bloqueos:
         if bloqueo.equipo in partido.equipos_definidos and _se_pisan(
             partido.inicio, partido.fin_partido, bloqueo.inicio, bloqueo.fin
         ):
-            anotar("bloqueo", (partido.id,), f"{bloqueo.equipo}: {bloqueo.motivo}")
+            anotar(
+                "bloqueo", (partido.id,), f"{escenario.nombre(bloqueo.equipo)}: {bloqueo.motivo}"
+            )
 
 
 def _cancha(
@@ -208,7 +223,8 @@ def _cancha(
         anotar("cancha", (uno.id, otro.id), f"Sin el tiempo de cambio en {donde}")
 
 
-def _equipos(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> None:
+def _equipos(lista: list[PartidoAgendado], escenario: Escenario, anotar: _Anotar) -> None:
+    reglas = escenario.reglas
     por_equipo: dict[Equipo, list[PartidoAgendado]] = defaultdict(list)
     for partido in lista:
         for equipo in partido.equipos_y_virtuales:
@@ -222,7 +238,7 @@ def _equipos(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> N
                 anotar(
                     "equipo",
                     (p.id for p in del_dia),
-                    f"{equipo}: {len(del_dia)} partidos en el día "
+                    f"{escenario.nombre(equipo)}: {len(del_dia)} partidos en el día "
                     f"(máximo {reglas.max_partidos_por_dia})",
                 )
             for uno, otro in combinations(del_dia, 2):
@@ -230,7 +246,7 @@ def _equipos(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> N
                     anotar(
                         "equipo",
                         (uno.id, otro.id),
-                        f"{equipo}: juega dos partidos a la vez",
+                        f"{escenario.nombre(equipo)}: juega dos partidos a la vez",
                         bloquea=True,
                     )
                     continue
@@ -239,7 +255,8 @@ def _equipos(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> N
                     anotar(
                         "equipo",
                         (uno.id, otro.id),
-                        f"{equipo}: sin {reglas.turnos_libres_mismo_dia} turno libre entre "
+                        f"{escenario.nombre(equipo)}: sin {reglas.turnos_libres_mismo_dia} turno "
+                        "libre entre "
                         "sus partidos del día",
                     )
 
@@ -277,9 +294,10 @@ def _rondas_que_puede_jugar(equipo: Equipo, llaves: list[PartidoAgendado]) -> se
     }
 
 
-def _maximo_con_llaves(lista: list[PartidoAgendado], reglas: Reglas, anotar: _Anotar) -> None:
+def _maximo_con_llaves(lista: list[PartidoAgendado], escenario: Escenario, anotar: _Anotar) -> None:
     """A1 (P47): un equipo que juega grupos un día puede jugar después ese mismo día la semi
     y la final de su categoría. Se cuenta un partido por ronda que podría jugar."""
+    reglas = escenario.reglas
     grupos: dict[tuple[str, date], list[PartidoAgendado]] = defaultdict(list)
     llaves: dict[tuple[str, date], list[PartidoAgendado]] = defaultdict(list)
     for partido in lista:
@@ -294,7 +312,8 @@ def _maximo_con_llaves(lista: list[PartidoAgendado], reglas: Reglas, anotar: _An
                 anotar(
                     "equipo",
                     (p.id for p in suyos + del_dia),
-                    f"{equipo}: puede jugar {len(suyos) + len(rondas)} partidos el día, con "
+                    f"{escenario.nombre(equipo)}: puede jugar {len(suyos) + len(rondas)} partidos "
+                    "el día, con "
                     f"grupos y eliminación (máximo {reglas.max_partidos_por_dia})",
                 )
 
@@ -318,4 +337,9 @@ def _personas(lista: list[PartidoAgendado], escenario: Escenario, anotar: _Anota
                 else:
                     continue
                 ids = tuple(p.id for p in sorted((uno, otro), key=lambda p: (p.inicio, str(p.id))))
-                anotar("persona", ids, f"{par.motivo}: {par.a} y {par.b} {problema}")
+                # T13.44: con la categoría: suele ser el mismo club en dos ("River y River").
+                quienes = (
+                    f"{escenario.nombre(par.a)} ({escenario.categoria(uno.categoria)}) y "
+                    f"{escenario.nombre(par.b)} ({escenario.categoria(otro.categoria)})"
+                )
+                anotar("persona", ids, f"{par.motivo}: {quienes} {problema}")

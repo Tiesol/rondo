@@ -93,6 +93,9 @@ class Problema:
     eliminacion_desde: datetime | None = None  # P33: sugerido, para repartir los grupos
     clubes: dict[Equipo, Hashable] = field(default_factory=dict)  # equipo → club (P20)
     extras: tuple[FranjaExtra, ...] = ()  # A4: tiempo agregado, solo si hace falta
+    # T13.44: solo para los motivos de los choques (el modelo no los usa).
+    nombres: dict[Equipo, str] = field(default_factory=dict)
+    categorias: dict[str, str] = field(default_factory=dict)
 
     @property
     def todas_las_franjas(self) -> tuple[tuple[datetime, datetime], ...]:
