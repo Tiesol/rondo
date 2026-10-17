@@ -52,3 +52,7 @@ graphify-out/
 .DS_Store
 .idea/
 .vscode/
+
+# Diseño del fixture: el logo de GREE se sube desde la app (patrocinador), y el zip lo trae.
+docs/disenio_fixture/fixture_jmp_html.zip
+docs/disenio_fixture/img/patrocinador_gree_blanco.png
