@@ -339,7 +339,7 @@ T8.5 → T8.6         │
 - [x] Bloque E, prueba desde el celular (2026-10-15): T13.32 PNG, T13.33 interruptores, T13.34 y T13.37 "¿Entra todo?", T13.35 programar sin solución, T13.36 resultado de la última corrida
 - [x] Bloque F, pedidos del 2026-10-17: T13.38 la imagen como en Render en local, T13.39 «Un equipo no puede jugar», T13.40 botones que calculan
 - [x] Bloque G, pedidos del 2026-10-17 (tarde): T13.41 "Calculando…" en Rehacer y Reprogramar lo cambiado, T13.42 propuestas que no encuentran lugar, T13.43 memoria con 512 MB
-- [ ] Bloque H, pedidos del 2026-10-17 (noche): T13.44 motivos con el nombre del equipo (hecho), T13.45 margen de programar con 1 CPU
+- [x] Bloque H, pedidos del 2026-10-17 (noche): T13.44 motivos con el nombre del equipo, T13.45 margen de programar con 1 CPU
 
 ## Grafo de dependencias
 
