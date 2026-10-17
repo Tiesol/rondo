@@ -8,7 +8,7 @@
   {% include "parciales/seccion_cab.html" with titulo="¿Y el día y la hora?" %}
   <p class="peq tenue">Los partidos de la fecha conservan su día, hora y cancha.</p>
   {% for choque in choques %}{% include "parciales/alerta.html" with estado="aviso" texto=choque %}{% endfor %}
-  <form method="post">{% csrf_token %}<input type="hidden" name="accion" value="reprogramar"><button type="submit" class="btn principal bloque">Reprogramar lo cambiado</button></form>
+  <form method="post">{% csrf_token %}<input type="hidden" name="accion" value="reprogramar"><button type="submit" class="btn principal bloque" data-calculando="Calculando…">Reprogramar lo cambiado</button></form>
   <p class="peq tenue">La app ubica los partidos que cambiaron y no mueve los demás. Puede tardar un poco.</p>
   {% include "parciales/boton.html" with texto="Dejarlo así" url=volver bloque=True %}
 </div>

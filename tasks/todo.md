@@ -1747,6 +1747,16 @@ Primero lo que hace falta para armar el fixture (meta: martes 20/10), después l
   - *Aceptación:* tocar dos veces manda un solo POST, y el botón dice "Calculando…".
   - *Verificación:* tests de las plantillas; prueba en Firefox con un servidor lento. *Tamaño:* S.
 
+### Bloque G: pedidos de Sebastian del 2026-10-17 (tarde)
+
+- [x] **T13.41 "Calculando…" en «Rehacer» y «Reprogramar lo cambiado».** Como T13.40; «Rehacer» solo cuando hay partidos nuevos para ubicar (si no, no calcula). *Verificación:* tests de las plantillas. *Tamaño:* XS.
+- [ ] **T13.42 Propuestas: "No hay propuestas" con un lugar libre a la vista.**
+  - Caso: bloqueo de JMP Soccer (Sub 8 Inicial) el sáb 24 de 8 a 10; su partido es a las 9:00 en C2, y a las 10:00 del mismo sábado parece haber lugar.
+  - Reproducir con `web-free` y `web-standard`. Si el solver no termina a tiempo, la pantalla dice "No terminé de buscar a tiempo", no "No hay forma". Si con 1 CPU tampoco propone nada, es un fallo del modelo de propuestas.
+  - Si el solver no encuentra nada, ofrece igual los horarios libres de Mover (T13.17).
+  - *Verificación:* test del servicio que reproduce el caso; tests de la pantalla; prueba con los dos perfiles. *Tamaño:* M.
+- [ ] **T13.43 Memoria con 512 MB.** Render reinició `rondo-demo` por pasar los 512 MB. Con `web-free`, medir el pico de programar (desde cero y otra vez), ver propuestas y subir una foto de 12 y de 40 MP. Lo que pase de unos 400 MB se arregla (Pillow con `draft`/`reduce`, menos trabajadores o `--max-requests`). Anotado en PROGRESO. *Tamaño:* M.
+
 ```
 A:  T13.1 → T13.2 → T13.30
     T13.1 → T13.3 → T13.4
@@ -1757,4 +1767,5 @@ C:  T13.15 → T13.16, T13.20;  T13.18 → T13.19;  T13.21 → T13.22 → T13.23
 D:  T13.26, T13.27 → T13.28, T13.31
 E:  T13.32, T13.33, T13.34 → T13.37, T13.35 → T13.36
 F:  T13.38, T13.39, T13.40
+G:  T13.41, T13.42, T13.43
 ```

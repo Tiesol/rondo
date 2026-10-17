@@ -23,7 +23,7 @@
   <form method="post" class="botones">
     {% csrf_token %}
     <a class="btn" href="{% url 'categoria' categoria.pk 'fixture' %}">Cancelar</a>
-    <button type="submit" class="btn principal">Rehacer</button>
+    <button type="submit" class="btn principal"{% if nuevos %} data-calculando="Calculando…"{% endif %}>Rehacer</button>
   </form>
 </div>
 {% endblock %}
